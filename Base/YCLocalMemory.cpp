@@ -1,0 +1,113 @@
+
+#include	"stdafx.h"
+#include	"YCLocalMemory.h"
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	コンストラクタ
+
+YCLocalMemory::YCLocalMemory()
+{
+	m_hMemory = NULL;
+	m_pvMemory = NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	デストラクタ
+
+YCLocalMemory::~YCLocalMemory()
+{
+	// メモリの解放
+
+	Free();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリの割り当て
+
+BOOL	YCLocalMemory::Alloc(
+	UINT				uFlags,							// フラグ
+	UINT				uBytes							// 確保するメモリサイズ
+	)
+{
+	m_hMemory = ::LocalAlloc( uFlags, uBytes );
+
+	if( m_hMemory == NULL )
+	{
+		throw	std::bad_alloc();
+	}
+
+	return	(m_hMemory != NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリの解放
+
+BOOL	YCLocalMemory::Free()
+{
+	Unlock();
+
+	if( m_hMemory != NULL )
+	{
+		if( ::LocalFree( m_hMemory ) != NULL )
+		{
+			return	FALSE;
+		}
+
+		m_hMemory = NULL;
+	}
+
+	return	TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリのロック
+
+void*	YCLocalMemory::Lock()
+{
+	m_pvMemory = ::LocalLock( m_hMemory );
+
+	return	m_pvMemory;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリのアンロック
+
+BOOL	YCLocalMemory::Unlock()
+{
+	if( m_pvMemory != NULL )
+	{
+		while( ::LocalUnlock( m_hMemory ) );
+		m_pvMemory = NULL;
+	}
+
+	return	TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリサイズの取得
+
+UINT	YCLocalMemory::GetSize()
+{
+	if( m_hMemory == NULL )
+	{
+		return	0;
+	}
+
+	return	::LocalSize( m_hMemory );
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリハンドルの取得
+
+HLOCAL&	YCLocalMemory::GetHandle()
+{
+	return	m_hMemory;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//	メモリポインタの取得
+
+void*	YCLocalMemory::GetPtr()
+{
+	return	m_pvMemory;
+}

@@ -1,0 +1,236 @@
+//-----------------------------------------
+//             BCCForm Ver 2.41
+//    An Easy Resource Editor for BCC
+//  Copyright (c) February 2002 by ysama
+//-----------------------------------------
+#include	<windows.h>
+#include	"ResExtractData.h"
+
+//----------------------------------
+// Dialog (MYVERSION)
+//----------------------------------
+MYVERSION DIALOG DISCARDABLE 0, 0, 129, 66
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_DLGFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "Version Info"
+FONT 10, "Segoe UI"
+{
+ CONTROL "OK", IDC_OKBUTTON, "BUTTON", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 48, 48, 33, 12
+ CONTROL "ExtractData", IDC_LABEL1, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 18, 6, 42, 9
+ CONTROL "Version 1.20", IDC_LABEL2, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 18, 18, 60, 9
+ CONTROL "Copyright(C) 2006-2009 Yuu", IDC_LABEL3, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 18, 30, 126, 9
+}
+
+//----------------------------------
+// Dialog (PROGBAR)
+//----------------------------------
+PROGBAR DIALOG DISCARDABLE 0, 0, 189, 69
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION "Extracting..."
+FONT 10, "Segoe UI"
+{
+ CONTROL "ProgressBar1", IDC_PROGBAR1, "MSCTLS_PROGRESS32", WS_CHILD | WS_VISIBLE | WS_BORDER, 24, 9, 156, 15
+ CONTROL "Cancel", IDC_CANCEL, "BUTTON", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 75, 48, 42, 15
+ CONTROL "0%", IDC_PERCENT, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY | SS_RIGHT, 3, 12, 18, 9
+ CONTROL "", IDC_EXTFILENAME, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 24, 30, 156, 12
+}
+
+//----------------------------------
+// Dialog (OPTION)
+//----------------------------------
+OPTION DIALOG DISCARDABLE 0, 0, 288, 198
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION "Options"
+FONT 10, "Segoe UI"
+{
+}
+
+//----------------------------------
+// Dialog (DATABASE)
+//----------------------------------
+DATABASE DIALOG DISCARDABLE 0, 0, 327, 180
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION "Edit Database"
+FONT 10, "Segoe UI"
+{
+}
+
+//----------------------------------
+// Dialog (EXISTSDLG)
+//----------------------------------
+EXISTSDLG DIALOG DISCARDABLE 0, 0, 204, 81
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION "Overwrite Confirmation"
+FONT 10, "Segoe UI"
+{
+ CONTROL "Yes", IDC_EXISTS_YES, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 9, 60, 36, 12
+ CONTROL "No", IDC_EXISTS_NO, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 51, 60, 36, 12
+ CONTROL "Yes to all", IDC_EXISTS_ALLYES, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 93, 60, 48, 12
+ CONTROL "No to all", IDC_EXISTS_ALLNO, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 147, 60, 48, 12
+ CONTROL "", IDC_EXISTS_PATH, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 9, 9, 186, 18
+ CONTROL "An output file with the same name already exists", IDC_STATIC1000, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 9, 30, 126, 9
+ CONTROL "Do you want to overwrite it?", IDC_STATIC1001, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 9, 42, 54, 9
+}
+
+//----------------------------------
+// Dialog (SEARCHDLG)
+//----------------------------------
+SEARCHDLG DIALOG DISCARDABLE 0, 0, 204, 81
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION "Confirmation"
+FONT 10, "Segoe UI"
+{
+ CONTROL "Yes", IDC_SEARCH_YES, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 15, 60, 42, 12
+ CONTROL "No", IDC_SEARCH_NO, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 72, 60, 42, 12
+ CONTROL "Open config", IDC_SEARCH_OPTION, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON, 132, 60, 54, 12
+ CONTROL "", IDC_SEARCH_MESSAGE, "STATIC", WS_CHILD | WS_VISIBLE | SS_NOTIFY, 9, 9, 186, 42
+}
+
+//----------------------------------
+// Dialog (FOLDER_INPUT_DLG)
+//----------------------------------
+FOLDER_INPUT_DLG DIALOG DISCARDABLE 0, 0, 270, 180
+EXSTYLE WS_EX_DLGMODALFRAME
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
+CAPTION ""
+FONT 10, "Segoe UI"
+{
+}
+
+
+//-------------------------
+// Menu （MAINMENU）
+//-------------------------
+MAINMENU MENU DISCARDABLE
+{
+	POPUP "File(&F)"
+	{
+		MENUITEM "Open File(&O)\tCtrl+O", IDM_OPEN
+		MENUITEM "Close(&C)\tCtrl+W", IDM_CLOSE
+		MENUITEM SEPARATOR
+		MENUITEM "Exit(&X)\tCtrl+Q", IDM_EXIT
+	}
+	POPUP "Extraction(&C)"
+	{
+		MENUITEM "Extract selected range(&E)\tCtrl+S", IDM_EXTRACT
+		MENUITEM "Extract all(&A)\tCtrl+Shift+S", IDM_EXTRACTALL
+		MENUITEM SEPARATOR
+		MENUITEM "Extract selection without conversion", IDM_EXTRACT_NOTCONVERT
+		MENUITEM "Extract all without conversion", IDM_EXTRACTALL_NOTCONVERT
+	}
+	POPUP "Settings(&S)"
+	{
+		MENUITEM "Options(&O)\tCtrl+E", IDM_OPTION
+	}
+	POPUP "Help(&H)"
+	{
+		MENUITEM "Readme.txt(&R)", IDM_README
+		MENUITEM "History.txt(&H)", IDM_HISTORY
+		MENUITEM "State.txt(&S)", IDM_STATE
+		MENUITEM SEPARATOR
+		MENUITEM "Version Info(&V)", IDM_VERSION
+	}
+
+}
+
+//-------------------------
+// Menu （RMENU）
+//-------------------------
+RMENU MENU DISCARDABLE
+{
+	POPUP "dummy"
+	{
+		MENUITEM "Extract selected range", IDM_EXTRACT
+		MENUITEM "Extract all", IDM_EXTRACTALL
+		MENUITEM SEPARATOR
+		MENUITEM "Extract selection without conversion", IDM_EXTRACT_NOTCONVERT
+		MENUITEM "Extract all without conversion", IDM_EXTRACTALL_NOTCONVERT
+		MENUITEM SEPARATOR
+		POPUP "Quick Settings"
+		{
+			MENUITEM "Increase accuracy of OGG searches", IDM_QUICKSET_STD_SEARCHOGG
+			MENUITEM "Extract each folder", IDM_QUICKSET_EXTRACT_CREATEFOLDER
+			MENUITEM "Fix the CRC of OGG files upon extraction", IDM_QUICKSET_EXTRACT_FIXOGG
+			MENUITEM "Use simple decoding", IDM_QUICKSET_EXTRACT_EASYDECRYPT
+			MENUITEM "Convert to PNG", IDM_QUICKSET_EXTRACT_DSTPNG
+			MENUITEM "Use alpha blending", IDM_QUICKSET_EXTRACT_ALPHABLEND
+			MENUITEM "Use Susie plugins", IDM_QUICKSET_SUSIE_USE
+			MENUITEM "Give Susie plugins priority on decoding", IDM_QUICKSET_SUSIE_FIRST
+		}
+
+	}
+
+}
+
+//-------------------------
+// Menu （SUSIEMENU）
+//-------------------------
+SUSIEMENU MENU DISCARDABLE
+{
+	POPUP "dummy"
+	{
+		MENUITEM "Settings", IDM_SUSIE_SET
+	}
+
+}
+
+//--------------------------
+// Image （IDI_MAIN_TOOLBAR）
+//--------------------------
+IDI_MAIN_TOOLBAR	BITMAP	DISCARDABLE	"MainToolBar.bmp"
+
+//--------------------------
+// Image （IDI_SEARCH_TOOLBAR）
+//--------------------------
+IDI_SEARCH_TOOLBAR	BITMAP	DISCARDABLE	"SearchToolBar.bmp"
+
+//--------------------------
+// Image （IDI_ICON_APP）
+//--------------------------
+IDI_ICON_APP	ICON	DISCARDABLE	"ExtractData.ico"
+
+//--------------------
+// String Table
+//--------------------
+STRINGTABLE DISCARDABLE
+{
+ idsIniFileName, "ExtractData.ini"
+ idsMainWindow, "MainWindow"
+ idsSetting, "Option"
+ idsMainList, "MainList"
+ idsLastDir, "LastDir"
+ idsOpenHistory, "OpenHistory"
+ idsDataBaseList, "DataBaseList"
+ idsDataBaseWindow, "DataBaseWindow"
+ idsSusieList, "SusieList"
+ IDM_OPEN, "Open File"
+ IDM_EXTRACT, "Extract selected range"
+ IDM_EXTRACTALL, "Extract all"
+ IDM_AHX, "Search for AHX"
+ IDM_BMP, "Search for BMP"
+ IDM_JPG, "Search for JPG"
+ IDM_MID, "Search for MID"
+ IDM_MPG, "Search for MPG"
+ IDM_OGG, "Search for OGG"
+ IDM_PNG, "Search for PNG"
+ IDM_WAV, "Search for WAV"
+ IDM_WMV, "Search for WMV"
+}
+
+//--------------------------------
+// Accelerator (MYACCEL)
+//--------------------------------
+MYACCEL ACCELERATORS DISCARDABLE
+{
+ "O", IDM_OPEN, VIRTKEY, CONTROL, NOINVERT
+ "W", IDM_CLOSE, VIRTKEY, CONTROL, NOINVERT
+ "Q", IDM_EXIT, VIRTKEY, CONTROL, NOINVERT
+ "A", IDM_SELECTALL, VIRTKEY, CONTROL, NOINVERT
+ "S", IDM_EXTRACT, VIRTKEY, CONTROL, NOINVERT
+ "S", IDM_EXTRACTALL, VIRTKEY, CONTROL, SHIFT, NOINVERT
+ "E", IDM_OPTION, VIRTKEY, CONTROL, NOINVERT
+}
