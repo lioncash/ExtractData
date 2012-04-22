@@ -1,103 +1,102 @@
+#pragma once
 
-#pragma		once
+#include "../../ExtractBase.h"
+#include "../../MD5.h"
 
-#include	"../../ExtractBase.h"
-#include	"../../MD5.h"
-
-class	CKrkr : public CExtractBase
+class CKrkr : public CExtractBase
 {
 public:
 
-	// ファイルチャンク
+    // File chunk
 
-	struct	FileChunk
-	{
-		BYTE			name[4];
-		QWORD			size;
-	};
+    struct FileChunk
+    {
+        BYTE        name[4];
+        QWORD       size;
+    };
 
-	// インフォチャンク
+    // Info chunk
 
-	struct	InfoChunk
-	{
-		BYTE			name[4];
-		QWORD			size;
-		DWORD			protect;	// (1 << 31) : protected
-		QWORD			orgSize;
-		QWORD			arcSize;
-		WORD			nameLen;
-		wchar_t*		filename;	// length : nameLen, Unicode
-	};
+    struct InfoChunk
+    {
+        BYTE        name[4];
+        QWORD       size;
+        DWORD       protect;    // (1 << 31) : protected
+        QWORD       orgSize;
+        QWORD       arcSize;
+        WORD        nameLen;
+        wchar_t*    filename;   // length : nameLen, Unicode
+    };
 
-	// セグメントチャンク
+    // Segment Chunk
 
-	struct	SegmChunk
-	{
-		BYTE			name[4];
-		QWORD			size;
-		DWORD			comp;		// 1 : compressed
-		QWORD			start;		// アーカイブ先頭からデータまでのオフセット
-		QWORD			orgSize;	// original size
-		QWORD			arcSize;	// archived size
-	};
+    struct SegmChunk
+    {
+        BYTE        name[4];
+        QWORD       size;
+        DWORD       comp;       // 1 : compressed
+        QWORD       start;      // Offset from the beginning of the data archive
+        QWORD       orgSize;    // original size
+        QWORD       arcSize;    // archived size
+    };
 
-	// adlrチャンク
+    // adlr Chunk
 
-	struct	AdlrChunk
-	{
-		BYTE			name[4];
-		QWORD			size;
-		DWORD			key;		// ファイル固有キー
-	};
+    struct	AdlrChunk
+    {
+        BYTE			name[4];
+        QWORD			size;
+        DWORD			key;    // Unique file key
+    };
 
-	virtual	BOOL		Mount( CArcFile* pclArc );
-	virtual	BOOL		Decode( CArcFile* pclArc );
-	virtual	BOOL		Extract( CArcFile* pclArc );
+    virtual BOOL Mount( CArcFile* pclArc );
+    virtual BOOL Decode( CArcFile* pclArc );
+    virtual BOOL Extract( CArcFile* pclArc );
 
 
 protected:
 
-	// 復号可能かどうかの確認
+    //  Check whether or not it can be decoded
 
-	virtual BOOL		OnCheckDecrypt( CArcFile* pclArc );
+    virtual BOOL    OnCheckDecrypt( CArcFile* pclArc );
 
-	// tpmのチェック
+    // Check tpm
 
-	BOOL				CheckTpm( const char* pszMD5 );
+    BOOL            CheckTpm( const char* pszMD5 );
 
-	// 復号キーのセット
+    // Set decryption key
 
-	void				InitDecrypt( CArcFile* pclArc );
-	virtual DWORD		OnInitDecrypt( CArcFile* pclArc );
+    void            InitDecrypt( CArcFile* pclArc );
+    virtual DWORD   OnInitDecrypt( CArcFile* pclArc );
 
-	// 復号を行う
+    // Decoding
 
-	DWORD				Decrypt( BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset );
-	virtual DWORD		OnDecrypt( BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey );
+    DWORD           Decrypt( BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset );
+    virtual DWORD   OnDecrypt( BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey );
 
-	// 復号要求の設定
+    // Set decryption request
 
-	void									SetDecryptRequirement( BOOL bDecrypt );
+    void            SetDecryptRequirement( BOOL bDecrypt );
 
-	// 復号サイズの設定
+    // Set decryption size
 
-	void									SetDecryptSize( DWORD dwDecryptSize );
+    void            SetDecryptSize( DWORD dwDecryptSize );
 
-	// EXE内からXP3を探す
+    // Find XP3 from within an EXE file
 
-	BOOL				FindXP3FromExecuteFile( CArcFile* pclArc, DWORD* pdwOffset );
-
-
-private:
-
-	BOOL									m_bDecrypt;			// 復号要求
-	DWORD									m_dwDecryptKey;
-	DWORD									m_dwDecryptSize;	// 復号サイズ
-	YCString								m_clsTpmPath;
-	CArcFile*								m_pclArc;
+    BOOL            FindXP3FromExecuteFile( CArcFile* pclArc, DWORD* pdwOffset );
 
 
 private:
 
-	void				SetMD5ForTpm( CArcFile* pclArc );
+    BOOL        m_bDecrypt;			// Decryption request
+    DWORD       m_dwDecryptKey;
+    DWORD       m_dwDecryptSize;	// Decryption size
+    YCString    m_clsTpmPath;
+    CArcFile*   m_pclArc;
+
+
+private:
+
+    void SetMD5ForTpm( CArcFile* pclArc );
 };

@@ -1,79 +1,78 @@
+#pragma once
 
-#pragma	once
+#include "../../ExtractBase.h"
 
-#include	"../../ExtractBase.h"
-
-class	CPaz : public CExtractBase
+class CPaz : public CExtractBase
 {
 public:
 
-	// キー情報
+    // Key Info
 
-	struct	SKeyInfo
-	{
-		YCString			clsType;
-		BYTE				abtKey[64];
-	};
+    struct SKeyInfo
+    {
+        YCString    clsType;
+        BYTE        abtKey[64];
+    };
 
 
-	virtual	BOOL							Mount( CArcFile* pclArc );
-	virtual	BOOL							Decode( CArcFile* pclArc );
+    virtual BOOL Mount( CArcFile* pclArc );
+    virtual BOOL Decode( CArcFile* pclArc );
 
 
 protected:
 
-	// 72 + 4096バイトのテーブルの初期化
+    // Initialization of the table of 72 + 4096 bytes
 
-	virtual	void							InitTable();
+    virtual void                            InitTable();
 
-	// ムービーテーブルの初期化
+    // Initialization of the movie table
 
-	virtual	DWORD							InitMovieTable( void* pvTable );
+    virtual DWORD                           InitMovieTable( void* pvTable );
 
-	// ベースアーカイブファイル名の取得
+    // Get the base archive filename
 
-	void									GetBaseArcName( LPTSTR pszDst, LPCTSTR pszArcName );
+    void                                    GetBaseArcName( LPTSTR pszDst, LPCTSTR pszArcName );
 
-	// 32バイトのキーをセットする(書庫ファイルによってキーは異なる)
+    // Set 32 byte keys (Keys differ for each file)
 
-	virtual	void							InitMountKey( CArcFile* pclArc ) = 0;
-	virtual	void							InitDecodeKey( CArcFile* pclArc ) = 0;
-	DWORD									SetKey( CArcFile* pclArc, const SKeyInfo* pstKeyInfo );
+    virtual void                            InitMountKey( CArcFile* pclArc ) = 0;
+    virtual void                            InitDecodeKey( CArcFile* pclArc ) = 0;
+    DWORD                                   SetKey( CArcFile* pclArc, const SKeyInfo* pstKeyInfo );
 
-	// テーブルを復号する
+    // Decrypt the table
 
-	virtual	void							DecodeTable1();
-	virtual	void							DecodeTable2();
+    virtual void                            DecodeTable1();
+    virtual void                            DecodeTable2();
 
-	// 固有暗号を復号する
+    // Cipher-specific decryption
 
-	virtual	void							Decrypt( void* pvTarget, DWORD dwSize ) {}
-	virtual	void							Decrypt2( void* pvTarget, DWORD dwSize ) {}
+    virtual void                            Decrypt( void* pvTarget, DWORD dwSize ) {}
+    virtual void                            Decrypt2( void* pvTarget, DWORD dwSize ) {}
 
-	// データを復号する
+    // Decrypt the data
 
-	virtual	void							DecodeData( void* pvTarget, DWORD dwSize );
+    virtual void                            DecodeData( void* pvTarget, DWORD dwSize );
 
-	// ムービーデータを復号する
+    // Decrypt movie data
 
-	virtual	void							DecodeMovieData( void* pvTarget, DWORD dwSize );
+    virtual void                            DecodeMovieData( void* pvTarget, DWORD dwSize );
 
-	// DWORD値を復号する
+    // Decode DWORD value
 
-	virtual	DWORD							DecodeValueByTable( DWORD dwValue, void* pvTable );
-	virtual	void							DecodeValue( DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable );
+    virtual DWORD                           DecodeValueByTable( DWORD dwValue, void* pvTable );
+    virtual void                            DecodeValue( DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable );
 
-	// 
+    // Get 
 
-	virtual	DWORD*							GetTable();
-	virtual	BYTE*							GetMovieTable();
+    virtual DWORD*                          GetTable();
+    virtual BYTE*                           GetMovieTable();
 
-	virtual	BYTE*							GetKey();
-	virtual	DWORD							GetMovieBufSize( CArcFile* pclArc );
+    virtual BYTE*                           GetKey();
+    virtual DWORD                           GetMovieBufSize( CArcFile* pclArc );
 
 private:
 
-	DWORD				m_adwTable[1042];
-	BYTE				m_abtMovieTable[256];
-	BYTE				m_abtKey[32];
+    DWORD       m_adwTable[1042];
+    BYTE        m_abtMovieTable[256];
+    BYTE        m_abtKey[32];
 };
