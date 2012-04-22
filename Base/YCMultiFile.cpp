@@ -1,9 +1,8 @@
-
 #include	"stdafx.h"
 #include	"YCMultiFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCMultiFile::YCMultiFile()
 {
@@ -11,7 +10,7 @@ YCMultiFile::YCMultiFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 YCMultiFile::~YCMultiFile()
 {
@@ -19,11 +18,11 @@ YCMultiFile::~YCMultiFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	モードを指定して開く
+//	Specifies the mode to open the file in
 
 BOOL	YCMultiFile::Open(
-	LPCTSTR				pszPathToFile,					// ファイルパス
-	UINT				uOpenFlags						// モード
+	LPCTSTR				pszPathToFile,					// File path
+	UINT				uOpenFlags						// Mode
 	)
 {
 	Close();
@@ -32,11 +31,11 @@ BOOL	YCMultiFile::Open(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	モードを指定して開く
+//	Specifies the mode to open the file in
 
 BOOL	YCMultiFile::Add(
-	LPCTSTR				pszPathToFile,					// ファイルパス
-	UINT				uOpenFlags						// モード
+	LPCTSTR				pszPathToFile,					// File path
+	UINT				uOpenFlags						// Mode
 	)
 {
 	BOOL				bReturn = FALSE;
@@ -44,7 +43,7 @@ BOOL	YCMultiFile::Add(
 
 	if( pclFile->Open( pszPathToFile, uOpenFlags ) )
 	{
-		// オープン成功
+		// Opened successfully
 
 		m_vtpclFile.push_back( pclFile );
 
@@ -52,7 +51,7 @@ BOOL	YCMultiFile::Add(
 	}
 	else
 	{
-		// オープン失敗
+		// Failed to open
 
 		delete	pclFile;
 	}
@@ -61,7 +60,7 @@ BOOL	YCMultiFile::Add(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを閉じる
+//	Close File
 
 void	YCMultiFile::Close()
 {
@@ -78,11 +77,11 @@ void	YCMultiFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを読み込む
+//	Read File
 
 DWORD	YCMultiFile::Read(
-	void*				pvBuffer,						// バッファ
-	DWORD				dwReadSize						// 読み込むサイズ
+	void*				pvBuffer,						// Buffer
+	DWORD				dwReadSize						// Read Size
 	)
 {
 	DWORD				dwResult;
@@ -97,12 +96,12 @@ DWORD	YCMultiFile::Read(
 
 		if( dwBufferPtr >= dwReadSize )
 		{
-			// 読み込み終了
+			// Exit reading
 
 			break;
 		}
 
-		// 次のファイルを開く
+		// Advance to next file
 
 		SetNextFile();
 	}
@@ -111,22 +110,22 @@ DWORD	YCMultiFile::Read(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルに書き込む
+//	Write File
 
 DWORD	YCMultiFile::Write(
-	const void*			pvBuffer,						// バッファ
-	DWORD				dwWriteSize						// 書き込むサイズ
+	const void*			pvBuffer,						// Buffer
+	DWORD				dwWriteSize						// Write Size
 	)
 {
 	return	m_vtpclFile[m_dwCurrentFileID]->Write( pvBuffer, dwWriteSize );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを移動する
+//	Move the file pointer (Seek)
 
 UINT64	YCMultiFile::Seek(
-	INT64				n64Offset,						// 移動するバイト数
-	DWORD				dwSeekMode						// 移動モード
+	INT64				n64Offset,						// Number of bytes to seek
+	DWORD				dwSeekMode						// Seek Mode
 	)
 {
 	UINT64				u64Position = 0;
@@ -136,7 +135,7 @@ UINT64	YCMultiFile::Seek(
 	switch( dwSeekMode )
 	{
 	case	YCFile::begin:
-		// 先頭から
+		// From the beginning
 
 		for( size_t siCnt = 0 ; siCnt < m_vtpclFile.size() ; siCnt++ )
 		{
@@ -159,11 +158,11 @@ UINT64	YCMultiFile::Seek(
 		break;
 
 	case	YCFile::current:
-		// 現在位置から
+		// From the current position
 
 		if( n64Offset > 0 )
 		{
-			// プラスの方向に移動
+			// Seek in the direction of the position
 
 			for( size_t siCnt = m_dwCurrentFileID ; siCnt < m_vtpclFile.size() ; siCnt++ )
 			{
@@ -193,7 +192,7 @@ UINT64	YCMultiFile::Seek(
 		}
 		else if( n64Offset < 0 )
 		{
-			// マイナスの方向に移動
+			// Seek in negative direction
 
 			n64Offset = -n64Offset;
 
@@ -226,9 +225,7 @@ UINT64	YCMultiFile::Seek(
 		}
 		else
 		{
-			// 移動しない
-
-
+			// Do not seek
 		}
 
 		u64Position += m_vtpclFile[m_dwCurrentFileID]->Seek( n64Offset, dwSeekMode );
@@ -236,11 +233,7 @@ UINT64	YCMultiFile::Seek(
 		break;
 
 	case	YCFile::end:
-		// 終端から
-
-
-
-
+		// From the end
 
 		break;
 	}
@@ -249,37 +242,37 @@ UINT64	YCMultiFile::Seek(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを先頭から移動する
+//	Seek from the head of the file
 
 UINT64	YCMultiFile::SeekHed(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to seek
 	)
 {
 	return	Seek( n64Offset, YCFile::begin );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを終端から移動する
+//	Seek from the end of the file
 
 UINT64	YCMultiFile::SeekEnd(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to seek
 	)
 {
 	return	Seek( -n64Offset, YCFile::end );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを現在位置から移動する
+//	Seek from the current position in the file
 
 UINT64	YCMultiFile::SeekCur(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to seek
 	)
 {
 	return	Seek( n64Offset, YCFile::current );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	現在のファイルポインタを取得
+//	Gets the current file pointer
 
 UINT64	YCMultiFile::GetPosition()
 {
@@ -287,7 +280,7 @@ UINT64	YCMultiFile::GetPosition()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルの長さを取得
+//	Gets the file length
 
 UINT64	YCMultiFile::GetLength()
 {
@@ -304,7 +297,7 @@ UINT64	YCMultiFile::GetLength()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルパスを取得
+//	Gets th file path
 
 YCString	YCMultiFile::GetFilePath()
 {
@@ -312,7 +305,7 @@ YCString	YCMultiFile::GetFilePath()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル名を取得
+//	Gets the file name
 
 YCString	YCMultiFile::GetFileName()
 {
@@ -320,7 +313,7 @@ YCString	YCMultiFile::GetFileName()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子を取得
+//	Gets the file's extension
 
 YCString	YCMultiFile::GetFileExt()
 {
@@ -331,7 +324,7 @@ YCString	YCMultiFile::GetFileExt()
 //	
 
 void	YCMultiFile::SetFile(
-	DWORD				dwFileID						// ファイルID
+	DWORD				dwFileID						// File ID
 	)
 {
 	m_dwCurrentFileID = dwFileID;
@@ -352,7 +345,7 @@ void	YCMultiFile::SetNextFile()
 {
 	if( m_dwCurrentFileID >= GetFileCount() )
 	{
-		// リング状に扱う
+		// Treat in form of a ring
 
 		SetFile( 0 );
 	}

@@ -3,7 +3,7 @@
 #include	"YCLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCLibrary::YCLibrary()
 {
@@ -11,7 +11,7 @@ YCLibrary::YCLibrary()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 YCLibrary::~YCLibrary()
 {
@@ -19,10 +19,10 @@ YCLibrary::~YCLibrary()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	指定されたモジュールをロード
+//	Load the specified module
 
 BOOL	YCLibrary::Load(
-	LPCTSTR				pszPathToFile					// ロードするモジュール名
+	LPCTSTR				pszPathToFile					// Load module name
 	)
 {
 	m_hModule = ::LoadLibrary( pszPathToFile );
@@ -31,7 +31,7 @@ BOOL	YCLibrary::Load(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ロードしたモジュールを解放
+//	Release the loaded module
 
 void	YCLibrary::Free()
 {
@@ -43,10 +43,10 @@ void	YCLibrary::Free()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	関数のアドレスを取得
+//	Gets the function address
 
 FARPROC	YCLibrary::GetProcAddress(
-	LPCTSTR				pszProcName						// 関数名
+	LPCTSTR				pszProcName						// Name of the function
 	)
 {
 	if( m_hModule == NULL )
@@ -54,7 +54,7 @@ FARPROC	YCLibrary::GetProcAddress(
 		return	NULL;
 	}
 
-	YCStringA			clsProcName = pszProcName;	// GetProcAddressWが存在しないので仕方なく
+	YCStringA			clsProcName = pszProcName;	// Done as a last resort because there is no GetProcAddressW
 
 	return	::GetProcAddress( m_hModule, clsProcName );
 }

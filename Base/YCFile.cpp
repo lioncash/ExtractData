@@ -3,7 +3,7 @@
 #include	"YCFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCFile::YCFile()
 {
@@ -11,7 +11,7 @@ YCFile::YCFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 YCFile::~YCFile()
 {
@@ -19,23 +19,23 @@ YCFile::~YCFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	モードを指定して開く
+//	Specifies mode to open file with
 
 BOOL	YCFile::Open(
-	LPCTSTR				pszPathToFile,					// ファイルパス
-	UINT				uOpenFlags						// モード
+	LPCTSTR				pszPathToFile,					// File path
+	UINT				uOpenFlags						// Mode
 	)
 {
 	Close();
 
 	if( lstrlen( pszPathToFile ) > MAX_PATH )
 	{
-		// パスが長すぎる
+		// Path is too long
 
 		return	FALSE;
 	}
 
-	// アクセス方法
+	//  How to access
 
 	DWORD				dwAccess;
 	DWORD				dwCreateDisposition;
@@ -61,7 +61,7 @@ BOOL	YCFile::Open(
 		dwCreateDisposition = OPEN_EXISTING;
 	}
 
-	// 共有モード
+	// Shared mode
 
 	DWORD				dwShare;
 
@@ -82,7 +82,7 @@ BOOL	YCFile::Open(
 		dwShare = 0;
 	}
 
-	// ファイルの属性およびフラグ
+	// File attributes and flags
 
 	DWORD				dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
 
@@ -103,7 +103,7 @@ BOOL	YCFile::Open(
 		dwFlagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
 	}
 
-	// ファイルが存在するとき、または存在しないときのそれぞれの動作
+	// If the file exists, check its time. If not, then it does not exist
 
 	if( uOpenFlags & modeCreate )
 	{
@@ -117,11 +117,11 @@ BOOL	YCFile::Open(
 		}
 	}
 
-	// ファイルを開く
+	// Open the file
 
 	m_hFile = ::CreateFile( pszPathToFile, dwAccess, dwShare, NULL, dwCreateDisposition, dwFlagsAndAttributes, NULL );
 
-	// ファイルパスを保持
+	// Holds the file path
 
 	m_clsPathToFile = pszPathToFile;
 	m_clsFileName = m_clsPathToFile.GetFileName();
@@ -131,7 +131,7 @@ BOOL	YCFile::Open(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを閉じる
+//	Close File
 
 void	YCFile::Close()
 {
@@ -143,11 +143,11 @@ void	YCFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを読み込む
+//	Read File
 
 DWORD	YCFile::Read(
-	void*				pvBuffer,						// バッファ
-	DWORD				dwReadSize						// 読み込むサイズ
+	void*				pvBuffer,						// Buffer
+	DWORD				dwReadSize						// Read size
 	)
 {
 	DWORD				dwResult;
@@ -161,11 +161,11 @@ DWORD	YCFile::Read(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルに書き込む
+//	Write File
 
 DWORD	YCFile::Write(
-	const void*			pvBuffer,						// バッファ
-	DWORD				dwWriteSize						// 書き込むサイズ
+	const void*			pvBuffer,						// Buffer
+	DWORD				dwWriteSize						// Write Size
 	)
 {
 	DWORD				dwResult;
@@ -179,11 +179,11 @@ DWORD	YCFile::Write(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを移動する
+//	Move the file pointer
 
 UINT64	YCFile::Seek(
-	INT64				n64Offset,						// 移動するバイト数
-	DWORD				dwSeekMode						// 移動モード
+	INT64				n64Offset,						// Number of bytes to move
+	DWORD				dwSeekMode						// Seek Mode
 	)
 {
 	switch( dwSeekMode )
@@ -211,7 +211,7 @@ UINT64	YCFile::Seek(
 
 	if( (stliWork.LowPart == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR) )
 	{
-		// 移動失敗
+		// Seek fails
 
 		stliWork.QuadPart = -1;
 	}
@@ -220,37 +220,37 @@ UINT64	YCFile::Seek(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを先頭から移動する
+//	Move file pointer from the head
 
 UINT64	YCFile::SeekHed(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to move
 	)
 {
 	return	Seek( n64Offset, begin );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを終端から移動する
+//	Move the file pointer from the end of the file
 
 UINT64	YCFile::SeekEnd(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to move
 	)
 {
 	return	Seek( -n64Offset, end );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを現在位置から移動する
+//	Move the file pointer from its current position
 
 UINT64	YCFile::SeekCur(
-	INT64				n64Offset						// 移動するバイト数
+	INT64				n64Offset						// Number of bytes to move
 	)
 {
 	return	Seek( n64Offset, current );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	現在のファイルポインタを取得
+//	Get the current file pointer position
 
 UINT64	YCFile::GetPosition()
 {
@@ -258,7 +258,7 @@ UINT64	YCFile::GetPosition()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルの長さを取得
+//	Gets the length of the file
 
 UINT64	YCFile::GetLength()
 {
@@ -275,7 +275,7 @@ UINT64	YCFile::GetLength()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルパスを取得
+//	Gets the file path
 
 YCString	YCFile::GetFilePath()
 {
@@ -283,7 +283,7 @@ YCString	YCFile::GetFilePath()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル名を取得
+//	Gets the file name
 
 YCString	YCFile::GetFileName()
 {
@@ -291,7 +291,7 @@ YCString	YCFile::GetFileName()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子を取得
+//	Retrieves the file's extension
 
 YCString	YCFile::GetFileExt()
 {

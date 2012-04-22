@@ -2,7 +2,7 @@
 #pragma	once
 
 //----------------------------------------------------------------------------------------
-//-- INIクラス ---------------------------------------------------------------------------
+//-- INI Class ---------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
 class	YCIni
@@ -43,41 +43,41 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	数値を取得
+//	Get a numeric value
 
 template<typename TYPE> TYPE	YCIni::ReadDec(
-	const TYPE&			rftDefault						// デフォルト値
+	const TYPE&			rftDefault						// Default value
 	)
 {
 	return	::GetPrivateProfileInt( m_clsSection, m_clsKey, rftDefault, m_clsPathToIni );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	数値を取得
+//	Get a numeric value
 
 template<typename TYPE> void	YCIni::ReadDec(
-	TYPE*				ptDst,							// 数値の格納先
-	const TYPE&			rftDefault						// デフォルト値
+	TYPE*				ptDst,							// Storage location of a number
+	const TYPE&			rftDefault						// Default value
 	)
 {
 	*ptDst = ReadDec( rftDefault );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	数値を取得
+//	Get a numeric value
 
 template<typename TYPE> void	YCIni::ReadDec(
-	TYPE*				ptDst							// 数値の格納先(先にデフォルト値が格納されていること)
+	TYPE*				ptDst							// Storage location of a numeric value (default values are stored in the destination)
 	)
 {
 	*ptDst = ReadDec( *ptDst );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	16進数を取得
+//	Gets a hexadecimal (16) number
 
 template<typename TYPE> TYPE	YCIni::ReadHex(
-	LPCTSTR				pszDefault						// デフォルト値
+	LPCTSTR				pszDefault						// Default values
 	)
 {
 	TCHAR				szWork[256];
@@ -88,21 +88,21 @@ template<typename TYPE> TYPE	YCIni::ReadHex(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	16進数を取得
+//	Gets a hexadecimal (16) number
 
 template<typename TYPE> void	YCIni::ReadHex(
-	TYPE*				ptDst,							// 16進数の格納先
-	LPCTSTR				pszDefault						// デフォルト値
+	TYPE*				ptDst,							// Location of the hexadecimal
+	LPCTSTR				pszDefault						// Default value
 	)
 {
 	*ptDst = ReadHex( pszDefault );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	数値を設定
+//	Set the values
 
 template<typename TYPE> void	YCIni::WriteDec(
-	const TYPE&			rftDec							// 設定値
+	const TYPE&			rftDec							// Setting
 	)
 {
 	TCHAR				szWork[256];
@@ -113,11 +113,11 @@ template<typename TYPE> void	YCIni::WriteDec(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	16進数を設定
+//	Writes a hexadecimal (16) number
 
 template<typename TYPE> void	YCIni::WriteHex(
-	const TYPE&			rftHex,							// 設定値
-	DWORD				dwNumber						// 桁数
+	const TYPE&			rftHex,							// Setting
+	DWORD				dwNumber						// Number of digits
 	)
 {
 	TCHAR				szWork[256];

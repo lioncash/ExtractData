@@ -3,20 +3,20 @@
 #include	"YCIni.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCIni::YCIni(
-	LPCTSTR				pszPathToIni					// INIファイルパス
+	LPCTSTR				pszPathToIni					// INI File path
 	)
 {
-	// 実行ファイルパスの取得
+	// Gets the execution path of the file
 
 	TCHAR				szPathToExecuteFolder[MAX_PATH];
 
 	::GetModuleFileName( NULL, szPathToExecuteFolder, _countof( szPathToExecuteFolder ) );
 	::PathRemoveFileSpec( szPathToExecuteFolder );
 
-	// INIファイルパスの取得
+	// Get INI file path
 
 	m_clsPathToIni.Format( _T("%s\\%s"), szPathToExecuteFolder, pszPathToIni );
 
@@ -24,20 +24,20 @@ YCIni::YCIni(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	セクション名を設定
+//	Set a section name
 
 void	YCIni::SetSection(
-	LPCTSTR				pszSection						// セクション名
+	LPCTSTR				pszSection						// Section name
 	)
 {
 	m_clsSection = pszSection;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	セクション名を設定
+//	Set a section name
 
 void	YCIni::SetSection(
-	UINT				uID								// ストリングID
+	UINT				uID								// String ID
 	)
 {
 	TCHAR				szSection[256];
@@ -48,33 +48,33 @@ void	YCIni::SetSection(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	キー名を設定
+//	Set key name
 
 void	YCIni::SetKey(
-	LPCTSTR				pszKey							// キー名
+	LPCTSTR				pszKey							// Key name
 	)
 {
 	m_clsKey = pszKey;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列を取得
+//	Gets a string
 
 void	YCIni::ReadStr(
-	LPTSTR				pszDst,							// 文字列の格納先
-	DWORD				dwDstSize,						// 格納バッファサイズ
-	LPCTSTR				pszDefault						// デフォルト値
+	LPTSTR				pszDst,							// Storage location of string
+	DWORD				dwDstSize,						// Store buffer size
+	LPCTSTR				pszDefault						// Default value
 	)
 {
 	::GetPrivateProfileString( m_clsSection, m_clsKey, pszDefault, pszDst, dwDstSize, m_clsPathToIni );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列を取得
+//	Gets a string
 
 void	YCIni::ReadStr(
-	YCString&			rfclsDst,						// 文字列の格納先
-	const YCString&		rfclsDefault					// デフォルト値
+	YCString&			rfclsDst,						// Storage location of the string
+	const YCString&		rfclsDefault					// Default value
 	)
 {
 	TCHAR				szDst[1024];
@@ -85,20 +85,20 @@ void	YCIni::ReadStr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列を設定
+//	Sets the string
 
 void	YCIni::WriteStr(
-	LPCTSTR				pszStr							// 設定値
+	LPCTSTR				pszStr							// Setting
 	)
 {
 	::WritePrivateProfileString( m_clsSection, m_clsKey, pszStr, m_clsPathToIni );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	セクションを削除
+//	Delete section
 
 BOOL	YCIni::DeleteSection(
-	LPCTSTR				pszSection						// セクション名
+	LPCTSTR				pszSection						// Section name
 	)
 {
 	if( pszSection == NULL )

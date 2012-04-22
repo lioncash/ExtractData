@@ -1,9 +1,8 @@
-
 #include	"stdafx.h"
 #include	"YCStdioFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCStdioFile::YCStdioFile()
 {
@@ -11,7 +10,7 @@ YCStdioFile::YCStdioFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 YCStdioFile::~YCStdioFile()
 {
@@ -19,29 +18,29 @@ YCStdioFile::~YCStdioFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	モードを指定して開く
+//	Mode to open the file in
 
 BOOL	YCStdioFile::Open(
-	LPCTSTR				pszPathToFile,					// ファイルパス
-	UINT				uOpenFlags						// モード
+	LPCTSTR				pszPathToFile,					// File path
+	UINT				uOpenFlags						// Mode
 	)
 {
 	Close();
 
 	if( lstrlen( pszPathToFile ) >= MAX_PATH )
 	{
-		// パスが長すぎる
+		// Path is too long
 
 		return	FALSE;
 	}
 
-	// アクセス方法
+	// Accessing Mode
 
 	YCString			clsMode;
 
 	if( uOpenFlags & typeBinary )
 	{
-		// バイナリ
+		// Binary
 
 		if( uOpenFlags & modeRead )
 		{
@@ -87,7 +86,7 @@ BOOL	YCStdioFile::Open(
 	}
 	else
 	{
-		// テキスト
+		// Text
 
 		if( uOpenFlags & modeRead )
 		{
@@ -132,7 +131,7 @@ BOOL	YCStdioFile::Open(
 		}
 	}
 
-	// ファイルを開く
+	// Open File
 
 	m_pStream = _tfopen( pszPathToFile, clsMode );
 
@@ -144,7 +143,7 @@ BOOL	YCStdioFile::Open(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを閉じる
+//  Close File
 
 void	YCStdioFile::Close()
 {
@@ -156,11 +155,11 @@ void	YCStdioFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを読み込む
+//	Read File
 
 DWORD	YCStdioFile::Read(
-	void*				pvBuffer,						// バッファ
-	DWORD				dwReadSize						// 読み込むサイズ
+	void*				pvBuffer,						// Buffer
+	DWORD				dwReadSize						// Read Size
 	)
 {
 	DWORD				dwResult;
@@ -171,11 +170,11 @@ DWORD	YCStdioFile::Read(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルに書き込む
+//	Write File
 
 DWORD	YCStdioFile::Write(
-	const void*			pvBuffer,						// バッファ
-	DWORD				dwWriteSize						// 書き込むサイズ
+	const void*			pvBuffer,						// Buffer
+	DWORD				dwWriteSize						// Write Size
 	)
 {
 	DWORD				dwResult;
@@ -186,23 +185,23 @@ DWORD	YCStdioFile::Write(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを1行読み込む
+//	Read a file line
 
 LPTSTR	YCStdioFile::ReadString(
-	LPTSTR				pszBuffer,						// バッファ
-	DWORD				dwBufferSize					// バッファサイズ
+	LPTSTR				pszBuffer,						// Buffer
+	DWORD				dwBufferSize					// Buffer Size
 	)
 {
 	return	_fgetts( pszBuffer, dwBufferSize, m_pStream );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルを1行読み込む
+//	Read a file line
 //
-//	備考	終端の改行を取り除く
+//	Remark: Gets rid of the newline at the end
 
 BOOL	YCStdioFile::ReadString(
-	YCString&			rfclsBuffer						// バッファ
+	YCString&			rfclsBuffer						// Buffer
 	)
 {
 	BOOL				bReturn = FALSE;
@@ -214,7 +213,7 @@ BOOL	YCStdioFile::ReadString(
 	{
 		if( ReadString( szBuffer, _countof( szBuffer ) ) == NULL )
 		{
-			// 最後まで読み込んだ
+			// Read until the end
 
 			break;
 		}
@@ -225,7 +224,7 @@ BOOL	YCStdioFile::ReadString(
 
 		if( szBuffer[lstrlen( szBuffer ) - 1] == _T('\n') )
 		{
-			// 改行文字まで読み込んだ
+			// Read until a newline character
 
 			break;
 		}
@@ -235,21 +234,21 @@ BOOL	YCStdioFile::ReadString(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルに1行書き込む
+//	Writes a line into the file
 
 void	YCStdioFile::WriteString(
-	LPCTSTR				pszBuffer						// バッファ
+	LPCTSTR				pszBuffer						// Buffer
 	)
 {
 	_fputts( pszBuffer, m_pStream );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルポインタを移動する
+//	Move the file pointer (Seek)
 
 UINT64	YCStdioFile::Seek(
-	INT64				n64Offset,						// 移動するバイト数
-	DWORD				dwSeekMode						// 移動モード
+	INT64				n64Offset,						// Number of bytes to seek
+	DWORD				dwSeekMode						// Seek Mode
 	)
 {
 	switch( dwSeekMode )

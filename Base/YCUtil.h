@@ -1,24 +1,23 @@
-
 #pragma	once
 
 //----------------------------------------------------------------------------------------
-//-- ユーティリティ関数 ------------------------------------------------------------------
+//-- Utility Functions -------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
 namespace	YCUtil
 {
-	// 文字列関係
+	// String functions
 
 //	YCString								SetFileFormat( const YCString& rfclsFileName );
 //	YCString								SetCommaFormat( DWORD dwSize, DWORD dwDigit = 3 );
 
-	// パス関係
+	// Path functions
 
 	void									CreateDirectory( LPCTSTR pszPathToFile, BOOL bFileName );
 	void									ReplaceSlashToBackslash( LPSTR pszFileName );
 	void									ReplaceSlashToBackslash( LPWSTR pwszFileName );
 
-	// エンディアン変換
+	// Endian Conversion
 
 	DWORD									ConvEndian( DWORD dwSrc );
 	void									ConvEndian( LPDWORD pdwDst );
@@ -26,7 +25,7 @@ namespace	YCUtil
 	WORD									ConvEndian( WORD wSrc );
 	void									ConvEndian( LPWORD pwDst );
 
-	// メモリ関係
+	// Memory Functions
 
 	inline BOOL								CompareMemory( const void* pvData1, const void* pvData2, DWORD dwSize );
 };

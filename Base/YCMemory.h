@@ -1,13 +1,12 @@
-
 #pragma	once
 
 //#define	YCMemory	std::valarray
 
 //----------------------------------------------------------------------------------------
-//-- メモリ管理クラス --------------------------------------------------------------------
+//-- Memory Management Class -------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-// std::vectorやstd::valarrayをバッファとして利用している部分を置き換える
+// Replace the part that is used as the buffer std :: vector and std :: valarray
 
 template<class TYPE>
 class	YCMemory
@@ -44,7 +43,7 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory()
 {
@@ -53,21 +52,21 @@ template<class TYPE> YCMemory<TYPE>::YCMemory()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
-	DWORD				dwCount							// 要素数
+	DWORD				dwCount							// Element count
 	)
 {
 	alloc( dwCount );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
-	DWORD				dwCount,						// 要素数
-	const TYPE&			rftInitValue					// 初期値
+	DWORD				dwCount,						// Element count
+	const TYPE&			rftInitValue					// Initial Value
 	)
 {
 	alloc( dwCount );
@@ -76,10 +75,10 @@ template<class TYPE> YCMemory<TYPE>::YCMemory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コピーコンストラクタ
+//	Copy Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
-	const YCMemory<TYPE>&	rfclmSrc					// コピー元メモリクラス
+	const YCMemory<TYPE>&	rfclmSrc					// Copy source memory class
 	)
 {
 	alloc( rfclmSrc.size() );
@@ -88,7 +87,7 @@ template<class TYPE> YCMemory<TYPE>::YCMemory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 template<class TYPE> YCMemory<TYPE>::~YCMemory()
 {
@@ -96,10 +95,10 @@ template<class TYPE> YCMemory<TYPE>::~YCMemory()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリサイズの変更
+//	Change Memory Size
 
 template<class TYPE> void YCMemory<TYPE>::resize(
-	DWORD				dwCount							// 要素数
+	DWORD				dwCount							// Element Count
 	)
 {
 	clear();
@@ -108,11 +107,11 @@ template<class TYPE> void YCMemory<TYPE>::resize(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリサイズの変更
+//	Change Memory Size
 
 template<class TYPE> void YCMemory<TYPE>::resize(
-	DWORD				dwCount,						// 要素数
-	const TYPE&			rftInitValue					// 初期値
+	DWORD				dwCount,						// Element Count
+	const TYPE&			rftInitValue					// Initial Value
 	)
 {
 	clear();
@@ -123,7 +122,7 @@ template<class TYPE> void YCMemory<TYPE>::resize(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリの解放
+//	Release Memory
 
 template<class TYPE> void YCMemory<TYPE>::clear()
 {
@@ -136,7 +135,7 @@ template<class TYPE> void YCMemory<TYPE>::clear()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素数の取得
+//	Acquisition of the number of elements
 
 template<class TYPE> DWORD YCMemory<TYPE>::size() const
 {
@@ -144,18 +143,18 @@ template<class TYPE> DWORD YCMemory<TYPE>::size() const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素の参照
+//	Element Reference
 //
-//	備考	範囲外の参照に対して「std::out_of_range」例外を投げる
+//	Remark: Throw an exception "std :: out_of_range" out of range for the reference
 
 template<class TYPE> TYPE YCMemory<TYPE>::at(
-	DWORD				dwPos							// 参照位置
+	DWORD				dwPos							// Reference Position
 	) const
 {
 	if( dwPos >= m_dwMemorySize )
 	{
-		// 範囲外の参照
-
+		// Outside the reference range.
+        
 		throw	std::out_of_range;
 	}
 
@@ -163,34 +162,34 @@ template<class TYPE> TYPE YCMemory<TYPE>::at(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素にアクセス
+//	Access Element
 //
-//	備考	範囲外の参照に対して何もしないため高速だが、落ちる危険性があるので注意
+//	Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE> TYPE& YCMemory<TYPE>::operator[](
-	DWORD				dwPos							// 参照位置
+	DWORD				dwPos							// Reference Position
 	)
 {
 	return	m_ptMemory[dwPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素の参照
+//	Element Reference
 //
-//	備考	範囲外の参照に対して何もしないため高速だが、落ちる危険性があるので注意
+//	Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE> const TYPE& YCMemory<TYPE>::operator[](
-	DWORD				dwPos							// 参照位置
+	DWORD				dwPos							// Reference Position
 	) const
 {
 	return	m_ptMemory[dwPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コピー
+//	Copy
 
 template<class TYPE> YCMemory<TYPE>& YCMemory<TYPE>::operator=(
-	const YCMemory<TYPE>&	rfclmSrc					// コピー元メモリクラス
+	const YCMemory<TYPE>&	rfclmSrc					// Copy source memory class
 	)
 {
 	resize( rfclmSrc.size() );
@@ -201,15 +200,15 @@ template<class TYPE> YCMemory<TYPE>& YCMemory<TYPE>::operator=(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリの確保
+//	Memory Allocation
 
 template<class TYPE> void YCMemory<TYPE>::alloc(
-	DWORD				dwCount							// 要素数
+	DWORD				dwCount							// Element Count
 	)
 {
 	if( dwCount == 0 )
 	{
-		// 0バイトのメモリ確保の対処
+		// Address of memory allocation of 0 bytes
 
 		dwCount = 1;
 	}
@@ -219,10 +218,10 @@ template<class TYPE> void YCMemory<TYPE>::alloc(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリを埋める
+//	Fill Memory
 
 template<class TYPE> void YCMemory<TYPE>::fill(
-	const TYPE&			rftValue						// 値
+	const TYPE&			rftValue						// value
 	)
 {
 	for( DWORD i = 0 ; i < size() ; i++ )

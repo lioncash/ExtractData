@@ -3,18 +3,18 @@
 #include	"YCFileFindSx.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル検索
+//	File Search
 
 BOOL	YCFileFindSx::FindFile(
-	std::vector<YCString>&	rfvcPathToDstFile,			// 格納先
-	LPCTSTR					pszPathToTargetFolder,		// 検索対象ディレクトリ
-	LPCTSTR					pszTargetFileName,			// 該当ファイル名(ワイルドカード可)
-	BOOL					bSearchSubDirectory			// サブディレクトリの検索指定(TRUE：検索する、FALSE：検索しない)
+	std::vector<YCString>&	rfvcPathToDstFile,			// Storage location
+	LPCTSTR					pszPathToTargetFolder,		// Directory to search for
+	LPCTSTR					pszTargetFileName,			// Target filename(Can be a wildcard)
+	BOOL					bSearchSubDirectory			// Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
 	)
 {
 	BOOL				bReturn = FALSE;
 
-	// ファイル探索
+	// Searching for file
 
 	YCFileFind			clffTarget;
 
@@ -24,19 +24,19 @@ BOOL	YCFileFindSx::FindFile(
 		{
 			if( clffTarget.IsDots() )
 			{
-				// マーカー
+				// Marker
 
 				continue;
 			}
 
 			if( clffTarget.IsDirectory() )
 			{
-				// ディレクトリ
+				// Directory
 
 				continue;
 			}
 
-			// 見つかったファイルをリストに加える
+			// Add to the list of files found
 
 			rfvcPathToDstFile.push_back( clffTarget.GetFilePath() );
 
@@ -50,12 +50,12 @@ BOOL	YCFileFindSx::FindFile(
 
 	if( !bSearchSubDirectory )
 	{
-		// サブディレクトリを検索しない
+		// Do not search the subdirectories
 
 		return	bReturn;
 	}
 
-	// ディレクトリ探索
+	// Search directory
 
 	if( clffTarget.FindFirstFile( pszPathToTargetFolder, _T("*.*") ) )
 	{
@@ -63,19 +63,19 @@ BOOL	YCFileFindSx::FindFile(
 		{
 			if( clffTarget.IsDots() )
 			{
-				// マーカー
+				// Marker
 
 				continue;
 			}
 
 			if( !clffTarget.IsDirectory() )
 			{
-				// ディレクトリではない
+				// Not a directory
 
 				continue;
 			}
 
-			// 再帰呼び出し
+			// Recursive call
 
 			FindFile( rfvcPathToDstFile, clffTarget.GetFilePath(), pszTargetFileName, bSearchSubDirectory );
 		}

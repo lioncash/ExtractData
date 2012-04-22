@@ -3,7 +3,7 @@
 #include	"YCFileFind.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 YCFileFind::YCFileFind()
 {
@@ -11,21 +11,20 @@ YCFileFind::YCFileFind()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
-
+//	Destructor
 YCFileFind::~YCFileFind()
 {
 	Close();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル検索を開始
+//	Start a file search
 
 BOOL	YCFileFind::FindFirstFile(
-	LPCTSTR				pszPathToFile					// ファイルパス
+	LPCTSTR				pszPathToFile					// File path
 	)
 {
-	// ディレクトリパスの保存
+	// Save directory path
 
 	TCHAR				szPathToFolder[_MAX_PATH];
 
@@ -34,7 +33,7 @@ BOOL	YCFileFind::FindFirstFile(
 
 	m_clsPathToFolder = szPathToFolder;
 
-	// ファイル検索の開始
+	// Start of the file search
 
 	m_hFind = ::FindFirstFile( pszPathToFile, &m_stwfdFindData );
 
@@ -42,14 +41,14 @@ BOOL	YCFileFind::FindFirstFile(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル検索を開始
+//	Start a file search
 
 BOOL	YCFileFind::FindFirstFile(
-	LPCTSTR				pszPathToFolder,				// ディレクトリパス
-	LPCTSTR				pszFileName						// ファイル名(ワイルドカード可)
+	LPCTSTR				pszPathToFolder,				// Directory path
+	LPCTSTR				pszFileName						// Filename (can be a wildcard)
 	)
 {
-	// ディレクトリパスの保存
+	// Save directory path
 
 	TCHAR				szPathToFolder[_MAX_PATH];
 
@@ -58,14 +57,14 @@ BOOL	YCFileFind::FindFirstFile(
 
 	m_clsPathToFolder = szPathToFolder;
 
-	// ファイルパスの作成
+	// Create a file path
 
 	TCHAR				szPathToFile[_MAX_PATH];
 
 	lstrcpy( szPathToFile, szPathToFolder );
 	PathAppend( szPathToFile, pszFileName );
 
-	// ファイル検索の開始
+	// Start of a file search
 
 	m_hFind = ::FindFirstFile( szPathToFile, &m_stwfdFindData );
 
@@ -73,7 +72,7 @@ BOOL	YCFileFind::FindFirstFile(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル検索を続行
+//	Continue to search for files
 
 BOOL	YCFileFind::FindNextFile()
 {
@@ -81,7 +80,7 @@ BOOL	YCFileFind::FindNextFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル検索を終了
+//	Close the search file operation
 
 void	YCFileFind::Close()
 {
@@ -93,7 +92,7 @@ void	YCFileFind::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	検索したファイル名を取得
+//	Gets the name of the found file
 
 YCString	YCFileFind::GetFileName()
 {
@@ -101,7 +100,7 @@ YCString	YCFileFind::GetFileName()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	検索したファイルパスを取得
+//	Gets the file path of the found file
 
 YCString	YCFileFind::GetFilePath()
 {
@@ -113,7 +112,7 @@ YCString	YCFileFind::GetFilePath()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	検索したファイルタイトルを取得
+//	Gets the title of the found file
 
 YCString	YCFileFind::GetFileTitle()
 {
@@ -126,7 +125,7 @@ YCString	YCFileFind::GetFileTitle()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	検索したファイルがディレクトリかどうかを確認
+//	Check whether or not the found 'file' is a directory
 
 BOOL	YCFileFind::IsDirectory()
 {
@@ -134,7 +133,7 @@ BOOL	YCFileFind::IsDirectory()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	現在のディレクトリとその親ディレクトリのマーカーを調べる
+//	Examines the marker of the current directory and its parent directory
 
 BOOL	YCFileFind::IsDots()
 {
