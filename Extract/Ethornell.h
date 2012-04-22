@@ -1,4 +1,3 @@
-
 #pragma		once
 
 class	CEthornell : public CExtractBase
@@ -7,10 +6,10 @@ public:
 
 	struct	SNodeInfo
 	{
-		BOOL				bValidity;					// 有効性
-		DWORD				dwFreq;						// 頻度
-		DWORD				dwLeft;						// 左のノード
-		DWORD				dwRight;					// 右のノード
+		BOOL				bValidity;					// Validity
+		DWORD				dwFreq;						// Frequency
+		DWORD				dwLeft;						// Left Node
+		DWORD				dwRight;					// Right Node
 	};
 
 	BOOL									Mount( CArcFile* pclArc );

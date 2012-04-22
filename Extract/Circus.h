@@ -1,4 +1,3 @@
-
 #pragma		once
 
 #include	"../ExtractBase.h"
@@ -9,15 +8,15 @@ public:
 
 	struct	SPCMHeader
 	{
-		char				szIdentifier[4];			// 識別子
-		DWORD				dwDataSize;					// データサイズ
-		DWORD				dwFlags;					// フラグ
-		WORD				wFormatID;					// フォーマットID
-		WORD				wChannels;					// チャンネル数
-		DWORD				dwFreq;						// サンプリングレート
-		DWORD				dwBps;						// データ速度
-		WORD				wBlockSize;					// ブロックサイズ
-		WORD				wBits;						// ビット数
+		char				szIdentifier[4];			// Identifier
+		DWORD				dwDataSize;					// Data Size
+		DWORD				dwFlags;					// Flags
+		WORD				wFormatID;					// Format ID
+		WORD				wChannels;					// Number of channels
+		DWORD				dwFreq;						// Sampling rate
+		DWORD				dwBps;						// Data Rate
+		WORD				wBlockSize;					// Block size
+		WORD				wBits;						// Number of bits
 	};
 
 	BOOL									Mount( CArcFile* pclArc );

@@ -1,4 +1,3 @@
-
 #pragma	once
 
 class	CMajiro : public CExtractBase

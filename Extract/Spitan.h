@@ -2,7 +2,7 @@
 
 class CSpitan : public CExtractBase {
 protected:
-	// スピたんのファイル情報
+	// Spitan File Info
 	struct FileInfo {
 		DWORD start;
 		DWORD size;

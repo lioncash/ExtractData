@@ -1,40 +1,39 @@
-
-#pragma		once
+#pragma once
 
 //----------------------------------------------------------------------------------------
-//-- TCD3クラス --------------------------------------------------------------------------
+//-- TCD3 Class --------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-#include	"TCDBase.h"
+#include "TCDBase.h"
 
-class	CTCD3 : public CTCDBase
+class CTCD3 : public CTCDBase
 {
 public:
 
-	struct	STCD3IndexInfo
-	{
-		DWORD				dwFileSize;					// ファイルサイズ
-		DWORD				dwIndexOffset;				// インデックスへの絶対オフセット値
-		DWORD				dwDirCount;					// フォルダ数
-		DWORD				dwDirNameLength;			// フォルダ名の長さ(4バイト単位。例：SYSTEM == 8バイト)
-		DWORD				dwFileCount;				// ファイル数
-		DWORD				dwFileNameLength;			// ファイル名の長さ
-		DWORD				dwFileCountEx;				// ファイル数(拡張版)
-		DWORD				dwFileNameLengthEx;			// ファイル名の長さ(拡張版)
-	};
+    struct STCD3IndexInfo
+    {
+        DWORD       dwFileSize;             // File size
+        DWORD       dwIndexOffset;          // Absolute offset value to the index
+        DWORD       dwDirCount;             // Number of folders
+        DWORD       dwDirNameLength;        // Folder name legth (4 byte unites. Example ： SYSTEM == 8 bytes)
+        DWORD       dwFileCount;            // Number of files
+        DWORD       dwFileNameLength;       // File name length
+        DWORD       dwFileCountEx;          // File count (Extended version)
+        DWORD       dwFileNameLengthEx;     // File name length (Extended version)
+    };
 
-	struct	STCD3DirInfo
-	{
-		DWORD				dwFileCount;				// ファイル数
-		DWORD				dwFileNameOffset;			// ファイル名へのオフセット値
-		DWORD				dwFileOffset;				// ファイルへのオフセット値
-		DWORD				dwReserve;					// リザーブ
-	};
+    struct STCD3DirInfo
+    {
+        DWORD       dwFileCount;            // Number of files
+        DWORD       dwFileNameOffset;       // File name offset value
+        DWORD       dwFileOffset;           // Fil offset value
+        DWORD       dwReserve;              // Reserved
+    };
 
-	BOOL									Mount( CArcFile* pclArc );
+    BOOL Mount( CArcFile* pclArc );
 
 
 protected:
 
-	virtual	BOOL							DecompRLE2( void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize );
+    virtual BOOL DecompRLE2( void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize );
 };

@@ -1,4 +1,3 @@
-
 #pragma	once
 
 class	CCircusPak : public CExtractBase

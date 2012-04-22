@@ -1,33 +1,32 @@
-
 #include	"stdafx.h"
 #include	"YCUtil.h"
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルフォーマットを設定
+//	Set File Format
 
 YCString	YCUtil::SetFileFormat(
-	const YCString&		rfcstFileName					// ファイル名
+	const YCString&		rfcstFileName					// Filename
 	)
 {
-	// 拡張子を取得
+	// Retrieves the extension
 
 	LPCTSTR				pszFileExt = PathFindExtension( rfcstFileName );
 
 	if( pszFileExt == NULL )
 	{
-		// 拡張子が存在しない
+		// Extension does not exist
 
 		return	_T("");
 	}
 
 	if( lstrlen( pszFileExt ) < 2 )
 	{
-		// 拡張子が"."しかない
+		// Extension is not only "."
 
 		return	_T("");
 	}
 
-	// 拡張子を大文字に変換
+	// Converted to uppercase extension
 
 	TCHAR				szFileFormat[256];
 
@@ -38,11 +37,11 @@ YCString	YCUtil::SetFileFormat(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	数値を指定した桁ごとにカンマで区切る
+//	Separates digits by a comma 
 
 YCString	YCUtil::SetCommaFormat(
-	DWORD				dwSize,							// 数値
-	DWORD				dwDigit							// 区切る桁
+	DWORD				dwSize,							// Number
+	DWORD				dwDigit							// Separate digit
 	)
 {
 	YCString			cstSize;
@@ -72,11 +71,11 @@ YCString	YCUtil::SetCommaFormat(
 }
 */
 //////////////////////////////////////////////////////////////////////////////////////////
-//	作成したい最下層のディレクトリまで作成
+//	Creates the lowest level directory you want to create
 
 void	YCUtil::CreateDirectory(
-	LPCTSTR				pszPathToFile,					// ファイルパス
-	BOOL				bFileName						// ファイルパスにファイル名が含まれているか(TRUE：含まれている、FALSE：含まれていない)
+	LPCTSTR				pszPathToFile,					// File path
+	BOOL				bFileName						// Contains a file name or file path(TRUE： Included, FALSE： Not included)
 	)
 {
 	std::vector<YCString>	vcDirPathList;
@@ -84,18 +83,18 @@ void	YCUtil::CreateDirectory(
 
 	while( (pszPathToFile = PathFindNextComponent( pszPathToFile )) != NULL )
 	{
-		YCString				clsDirPath( pszFilePathBase, pszPathToFile - pszFilePathBase - 1 ); // 念のため-1して末尾に'\'を付けないようにする
+		YCString				clsDirPath( pszFilePathBase, pszPathToFile - pszFilePathBase - 1 ); // Do not put a '\' at the end just to be sure to -1
 
 		vcDirPathList.push_back( clsDirPath );
 	}
 
-	// ルートから順にディレクトリを作成
+	// Create a directory in the order from the root
 
 	size_t					uMax = vcDirPathList.size();
 
 	if( bFileName )
 	{
-		// ファイル名のディレクトリを作成しないように-1する
+		// To -1 so as not to create a directory of the file name
 
 		uMax--;
 	}
@@ -107,19 +106,19 @@ void	YCUtil::CreateDirectory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スラッシュをバックスラッシュに置換
+//	Replace forward slashes with backward slashes
 
 void	YCUtil::ReplaceSlashToBackslash(
-	LPSTR				pszFileName						// ファイル名
+	LPSTR				pszFileName						// Filename
 	)
 {
 	while( *pszFileName != '\0' )
 	{
 		if( !::IsDBCSLeadByte( *pszFileName ) )
 		{
-			// 1バイト文字
+			// 1 byte character
 
-			// スラッシュをバックスラッシュに置換
+			// Replace forward slashes with backward slashes
 
 			if( *pszFileName == '/' )
 			{
@@ -127,24 +126,24 @@ void	YCUtil::ReplaceSlashToBackslash(
 			}
 		}
 
-		// 次の文字へ
+		// Advance to next character
 
 		pszFileName = ::CharNextA( pszFileName );
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スラッシュをバックスラッシュに置換
+//	Replace forward slashes with backward slashes
 
 void	YCUtil::ReplaceSlashToBackslash(
-	LPWSTR				pwszFileName					// ファイル名
+	LPWSTR				pwszFileName					// Filename
 	)
 {
 	for( ; *pwszFileName != L'\0' ; pwszFileName++ )
 	{
 		if( *pwszFileName == L'/' )
 		{
-			// スラッシュ
+			// Slash
 
 			*pwszFileName = L'\\';
 		}
@@ -152,7 +151,7 @@ void	YCUtil::ReplaceSlashToBackslash(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	エンディアン変換(4byte)
+//	Convert Endian (4byte)
 
 DWORD	YCUtil::ConvEndian(
 	DWORD				dwSrc
@@ -169,7 +168,7 @@ DWORD	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	エンディアン変換(4byte)
+//	Convert Endian (4byte)
 
 void	YCUtil::ConvEndian(
 	LPDWORD				pdwDst
@@ -179,7 +178,7 @@ void	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	エンディアン変換(2byte)
+//	Convert Endian (2byte)
 
 WORD	YCUtil::ConvEndian(
 	WORD				wSrc
@@ -196,7 +195,7 @@ WORD	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	エンディアン変換(2byte)
+//	Convert Endian (2byte)
 
 void	YCUtil::ConvEndian(
 	LPWORD				pwDst
@@ -206,14 +205,14 @@ void	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリの内容を比較
+//	Compares the contents of memory
 //
-//	備考	標準関数memcmp()のワイルドカード対応版
+//	Remark: Wildcard compatible version of the standard memcmp() function
 
 BOOL	YCUtil::CompareMemory(
-	const void*			pvData1,						// 比較データ1
-	const void*			pvData2,						// 比較データ2
-	DWORD				dwSize							// 比較サイズ
+	const void*			pvData1,						// Comparison Data 1
+	const void*			pvData2,						// Comparison Data 2
+	DWORD				dwSize							// Size Comparison
 	)
 {
 	BYTE*				pbtData1 = (BYTE*)pvData1;
@@ -223,13 +222,13 @@ BOOL	YCUtil::CompareMemory(
 	{
 		if( (pbtData1[i] != pbtData2[i]) && (pbtData2[i] != '*') )
 		{
-			// 不一致
+			// Mismatch
 
 			return	FALSE;
 		}
 	}
 
-	// 一致
+	// Match
 
 	return	TRUE;
 }

@@ -2,38 +2,38 @@
 
 class CCyc : public CExtractBase {
 public:
-	// マウント
+	// Mount
 	BOOL Mount(CArcFile* pclArc);
-	// gtbを参照し、gpkをマウント(dwqがアーカイブされている)
+	// References gtb, Mount gpk (dwq has been archived)
 	BOOL MountGpk(CArcFile* pclArc);
-	// vtbを参照し、vpkをマウント(wgqがアーカイブされている)
+	// References vtb, Mount vpk (wgq has been archived)
 	BOOL MountVpk(CArcFile* pclArc);
-	// dwqをマウント(BMP: PACKTYPE=0, PACKBMP+MASK: PACKTYPE=3A, JPEG: PACKTYPE=5, JPEG+MASK: PACKTYPE=7A)
+	// Mount dwq (BMP: PACKTYPE=0, PACKBMP+MASK: PACKTYPE=3A, JPEG: PACKTYPE=5, JPEG+MASK: PACKTYPE=7A)
 	BOOL MountDwq(CArcFile* pclArc);
-	// wgqをマウント(OGG: PACKTYPE=6)
+	// Mount wgq (OGG: PACKTYPE=6)
 	BOOL MountWgq(CArcFile* pclArc);
-	// vawをマウント(WAV: PACKTYPE=0, RIFF OGG: PACKTYPE=2)
+	// Mount vaw (WAV: PACKTYPE=0, RIFF OGG: PACKTYPE=2)
 	BOOL MountVaw(CArcFile* pclArc);
-	// xtxをマウント(テキストデータ)
+	// Mount xtx (Text Data)
 	BOOL MountXtx(CArcFile* pclArc);
-	// fxfをマウント(xtxをビット反転したデータ)
+	// Mount fxf (Inverted data bit xtx)
 	BOOL MountFxf(CArcFile* pclArc);
 
-	// デコード
+	// Decode
 	BOOL Decode(CArcFile* pclArc);
-	// dwqをデコード
+	// Decode dwq
 	BOOL DecodeDwq(CArcFile* pclArc);
-	// wgqをデコード
+	// Decode wgq
 	BOOL DecodeWgq(CArcFile* pclArc);
-	// vawをデコード
+	// Decode vaw
 	BOOL DecodeVaw(CArcFile* pclArc);
-	// xtxをデコード
+	// Decode xtx
 	BOOL DecodeXtx(CArcFile* pclArc);
-	// fxfをデコード
+	// Decode fxf
 	BOOL DecodeFxf(CArcFile* pclArc);
 
-	// RLEをdstに解凍
+	// RLE decompression to dst
 	void DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height);
-	// RGBをBGRに並べ替える
+	// RGB to BGR
 	void RGBtoBGR(LPBYTE buf, LONG widht, LONG height);
 };

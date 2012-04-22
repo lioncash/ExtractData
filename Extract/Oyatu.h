@@ -1,22 +1,21 @@
+#pragma once
 
-#pragma		once
+#include "../ExtractBase.h"
 
-#include	"../ExtractBase.h"
-
-class	COyatu : public CExtractBase
+class COyatu : public CExtractBase
 {
 public:
 
-	BOOL									Mount( CArcFile* pclArc );
-	BOOL									Decode( CArcFile* pclArc );
+    BOOL Mount( CArcFile* pclArc );
+    BOOL Decode( CArcFile* pclArc );
 
 
 protected:
 
-	BOOL									IsSupported( CArcFile* pclArc );
+    BOOL IsSupported( CArcFile* pclArc );
 
-	BOOL									DecodeSound( CArcFile* pclArc, const BYTE* pbtKey );
-	BOOL									DecodeBGM( CArcFile* pclArc );
-	BOOL									DecodeKOE( CArcFile* pclArc );
-	BOOL									DecodeMSE( CArcFile* pclArc );
+    BOOL DecodeSound( CArcFile* pclArc, const BYTE* pbtKey );
+    BOOL DecodeBGM( CArcFile* pclArc );
+    BOOL DecodeKOE( CArcFile* pclArc );
+    BOOL DecodeMSE( CArcFile* pclArc );
 };

@@ -1,4 +1,3 @@
-
 #pragma		once
 
 #include	"../ExtractBase.h"
@@ -9,10 +8,10 @@ public:
 
 	struct	SABMHeader
 	{
-		BITMAPFILEHEADER	stBMPFileHeader;			// ビットマップファイルヘッダ
-		BITMAPINFOHEADER	stBMPInfoHeader;			// ビットマップインフォヘッダ
-		WORD				wUnknown[2];				// 不明
-		DWORD				dwFrames;					// フレーム数
+		BITMAPFILEHEADER	stBMPFileHeader;			// Bitmap File Header
+		BITMAPINFOHEADER	stBMPInfoHeader;			// Bitmap Info Header
+		WORD				wUnknown[2];				// Unknown
+		DWORD				dwFrames;					// Number of frames
 
 	};
 

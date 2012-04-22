@@ -5,8 +5,8 @@ private:
 
 	struct	SFileNameInfo
 	{
-		YCString			clsFileName;				// ÉtÉ@ÉCÉãñº
-		DWORD				dwCount;					// âÒêî
+		YCString			clsFileName;				// Filename
+		DWORD				dwCount;					// Number of times
 	};
 
 	BOOL DecodeB( CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize );
