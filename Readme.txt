@@ -1,15 +1,19 @@
 
 ■License information
-ExtractDataは、PS2版CLANNADの音声抽出にGPLで保護されたソースを使用しています。
-よって、ExtractDataのソースも同様にGPLとして配布しています。
-ソースを使用する際にはGPLに基づいてご使用ください。
+You are using source code that is protected by the GPLv2.
+
+When making derivative works, please follow the GPL.
+
 
 ■ Compile Information
 
 Visual C++ 2005 Express Edition
 
-なお、zlibとlibpngのライブラリはソースに含めておりません。
-http://www.zlib.net/ から zlib source code と、
-http://www.libpng.org/pub/png/libpng.html から Source code をダウンロードし、
-zlib.libとlibpng.libを作成してください。
+In addition, zlib and libpng are not included in the source
+
+zlib source code can be obtained from http://www.zlib.net/
+
+libpng source code can be downloaded from http://www.libpng.org/pub/png/libpng.html 
+
+zlib.lib and libpng.lib are needed
 
