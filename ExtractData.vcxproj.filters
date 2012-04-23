@@ -433,6 +433,12 @@
     <ClCompile Include="WinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bzip2\compress.cpp">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
+    <ClCompile Include="bzip2\blocksort.cpp">
+      <Filter>Source Files\bzip2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arc\LZSS.h">

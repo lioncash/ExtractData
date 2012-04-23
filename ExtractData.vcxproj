@@ -109,6 +109,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArcFile.cpp" />
+    <ClCompile Include="bzip2\blocksort.cpp" />
+    <ClCompile Include="bzip2\compress.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="Extract.cpp" />
     <ClCompile Include="ExtractBase.cpp" />
