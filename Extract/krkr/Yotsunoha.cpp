@@ -1,42 +1,41 @@
-
 #include	"stdafx.h"
 #include	"Yotsunoha.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decrypted
 
 BOOL	CYotsunoha::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	return	CheckTpm( "AAF0A99EAF4018CB1AA5E0D9065C2239" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Key
 
 DWORD	CYotsunoha::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// 復号キー
+	// Decryption key
 
 	return	(((pstFileInfo->key >> 8) & 0xFF) ^ (pstFileInfo->key & 0xFF));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decryption Process
 
 DWORD	CYotsunoha::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
+	BYTE*				pbtTarget,						// Data to be decoded
+	DWORD				dwTargetSize,					// Decoding Size
+	DWORD				dwOffset,						// Location of data to decode (offset)
+	DWORD				dwDecryptKey					// Decryption Key
 	)
 {
-	// 復号
+	// Decryption
 
 	BYTE				btDecryptKey = (BYTE) dwDecryptKey;
 

@@ -1,73 +1,72 @@
-
 #include	"stdafx.h"
 #include	"TokiPaku.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decoded
 
 BOOL	CTokiPaku::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
 //	return	CheckTpm( "510BE09DF50DB143E90D3837D416FD0F" );
-	return	CheckTpm( "A9D18BCE341E20D25DB4DBFAAE7FBF5B" );
+    return	CheckTpm( "A9D18BCE341E20D25DB4DBFAAE7FBF5B" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Process
 
 DWORD	CTokiPaku::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
+    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
 
-	if( lstrcmp( pszFileExt, _T(".dll") ) == 0 )
-	{
-		// 復号しないファイル
+    if( lstrcmp( pszFileExt, _T(".dll") ) == 0 )
+    {
+        // Don't decrypt
 
-		SetDecryptRequirement( FALSE );
-		return	0;
-	}
+        SetDecryptRequirement( FALSE );
+        return	0;
+    }
 
-	// 復号するサイズ
+    // Size to decrypt
 
-	if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
-	{
-		SetDecryptSize( 256 );
-	}
+    if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
+    {
+        SetDecryptSize( 256 );
+    }
 
-	// 復号キー
+    // Decryption Key
 
-	DWORD				dwDecryptKey = 0xFFFFFFFF;
+    DWORD				dwDecryptKey = 0xFFFFFFFF;
 
-	BYTE*				pbtKey = &(BYTE&) dwDecryptKey;
+    BYTE*				pbtKey = &(BYTE&) dwDecryptKey;
 
-	for( int i = 0 ; i < lstrlen( pszFileExt ) ; i++ )
-	{
-		pbtKey[i] = ~pszFileExt[i];
-	}
+    for( int i = 0 ; i < lstrlen( pszFileExt ) ; i++ )
+    {
+        pbtKey[i] = ~pszFileExt[i];
+    }
 
-	return	dwDecryptKey;
+    return	dwDecryptKey;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decryption Process
 
 DWORD	CTokiPaku::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decoded
+    DWORD				dwTargetSize,					// Decoding size
+    DWORD				dwOffset,						// Location of data to decode (offset)
+    DWORD				dwDecryptKey					// Decryption Key
+    )
 {
-	// 復号
+    // Decrypt
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
-	{
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey;
-	}
+    for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+    {
+        *(DWORD*) &pbtTarget[i] ^= dwDecryptKey;
+    }
 
-	return	dwTargetSize;
+    return	dwTargetSize;
 }

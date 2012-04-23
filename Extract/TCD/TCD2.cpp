@@ -1,233 +1,232 @@
-
 #include	"stdafx.h"
 #include	"../../Image.h"
 #include	"../../Ogg.h"
 #include	"TCD2.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CTCD2::Mount(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( pclArc->GetArcExten() != _T(".TCD") )
-	{
-		return	FALSE;
-	}
+    if( pclArc->GetArcExten() != _T(".TCD") )
+    {
+        return	FALSE;
+    }
 
-	if( memcmp( pclArc->GetHed(), "TCD2", 4 ) != 0 )
-	{
-		return	FALSE;
-	}
+    if( memcmp( pclArc->GetHed(), "TCD2", 4 ) != 0 )
+    {
+        return	FALSE;
+    }
 
-	pclArc->SeekHed( 4 );
+    pclArc->SeekHed( 4 );
 
-	// ファイル数の取得
+    // Get file count
 
-	DWORD				dwFiles;
+    DWORD				dwFiles;
 
-	pclArc->Read( &dwFiles, 4 );
+    pclArc->Read( &dwFiles, 4 );
 
-	// インデックス情報の取得
+    // Get index info
 
-	STCD2IndexInfo		astTCD2IndexInfo[5];
+    STCD2IndexInfo		astTCD2IndexInfo[5];
 
-	pclArc->Read( astTCD2IndexInfo, (sizeof(STCD2IndexInfo) * 5) );
+    pclArc->Read( astTCD2IndexInfo, (sizeof(STCD2IndexInfo) * 5) );
 
-	// キーテーブルの作成
+    // Create key table
 
-	static BYTE			abtKey[5] =
-	{
-		0x1F, 0x61, 0x43, 0x76, 0x76
-	};
+    static BYTE			abtKey[5] =
+    {
+        0x1F, 0x61, 0x43, 0x76, 0x76
+    };
 
-	// 拡張子テーブルの作成
+    // Create extension table
 
-	static YCString		aclsFileExt[5] =
-	{
-		_T(".tct"), _T(".tsf"), _T(".spd"), _T(".ogg"), _T(".wav")
-	};
+    static YCString		aclsFileExt[5] =
+    {
+        _T(".tct"), _T(".tsf"), _T(".spd"), _T(".ogg"), _T(".wav")
+    };
 
-	// インデックスの読み込み
+    // Read index
 
-	for( DWORD dwFileType = 0 ; dwFileType < 5 ; dwFileType++ )
-	{
-		if( astTCD2IndexInfo[dwFileType].dwFileSize == 0 )
-		{
-			// インデックスが存在しない
+    for( DWORD dwFileType = 0 ; dwFileType < 5 ; dwFileType++ )
+    {
+        if( astTCD2IndexInfo[dwFileType].dwFileSize == 0 )
+        {
+            // Index doesn't exist
 
-			continue;
-		}
+            continue;
+        }
 
-		// インデックスへ移動
+        // Go to index
 
-		pclArc->SeekHed( astTCD2IndexInfo[dwFileType].dwIndexOffset );
+        pclArc->SeekHed( astTCD2IndexInfo[dwFileType].dwIndexOffset );
 
-		// フォルダ名
+        // Folder name
 
-		DWORD				dwAllDirNameLength = astTCD2IndexInfo[dwFileType].dwDirNameLength;
+        DWORD				dwAllDirNameLength = astTCD2IndexInfo[dwFileType].dwDirNameLength;
 
-		YCMemory<BYTE>		clmbtAllDirName( dwAllDirNameLength );
+        YCMemory<BYTE>		clmbtAllDirName( dwAllDirNameLength );
 
-		pclArc->Read( &clmbtAllDirName[0], dwAllDirNameLength );
+        pclArc->Read( &clmbtAllDirName[0], dwAllDirNameLength );
 
-		// フォルダ名の復号
+        // Decode folder name
 
-		for( DWORD i = 0 ; i < dwAllDirNameLength ; i++ )
-		{
-			clmbtAllDirName[i] -= abtKey[dwFileType];
-		}
+        for( DWORD i = 0 ; i < dwAllDirNameLength ; i++ )
+        {
+            clmbtAllDirName[i] -= abtKey[dwFileType];
+        }
 
-		// フォルダ情報の取得
+        // Get folder info
 
-		YCMemory<STCD2DirInfo>	clmstTCD2DirInfo( astTCD2IndexInfo[dwFileType].dwDirCount );
+        YCMemory<STCD2DirInfo>	clmstTCD2DirInfo( astTCD2IndexInfo[dwFileType].dwDirCount );
 
-		pclArc->Read( &clmstTCD2DirInfo[0], (sizeof(STCD2DirInfo) * astTCD2IndexInfo[dwFileType].dwDirCount) );
+        pclArc->Read( &clmstTCD2DirInfo[0], (sizeof(STCD2DirInfo) * astTCD2IndexInfo[dwFileType].dwDirCount) );
 
-		// ファイル名
+        // File name
 
-		DWORD				dwAllFileNameLength = astTCD2IndexInfo[dwFileType].dwFileNameLength;
+        DWORD				dwAllFileNameLength = astTCD2IndexInfo[dwFileType].dwFileNameLength;
 
-		YCMemory<BYTE>		clmbtAllFileName( dwAllFileNameLength );
+        YCMemory<BYTE>		clmbtAllFileName( dwAllFileNameLength );
 
-		pclArc->Read( &clmbtAllFileName[0], dwAllFileNameLength );
+        pclArc->Read( &clmbtAllFileName[0], dwAllFileNameLength );
 
-		// ファイル名の復号
+        // Decode file name
 
-		for( DWORD i = 0 ; i < dwAllFileNameLength ; i++ )
-		{
-			clmbtAllFileName[i] -= abtKey[dwFileType];
-		}
+        for( DWORD i = 0 ; i < dwAllFileNameLength ; i++ )
+        {
+            clmbtAllFileName[i] -= abtKey[dwFileType];
+        }
 
-		// ファイルへのオフセット
+        // File offset
 
-		DWORD				dwAllFileOffsetLength = (astTCD2IndexInfo[dwFileType].dwFileCount + 1);
+        DWORD				dwAllFileOffsetLength = (astTCD2IndexInfo[dwFileType].dwFileCount + 1);
 
-		YCMemory<DWORD>		clmdwAllFileOffset( dwAllFileOffsetLength );
+        YCMemory<DWORD>		clmdwAllFileOffset( dwAllFileOffsetLength );
 
-		pclArc->Read( &clmdwAllFileOffset[0], (sizeof(DWORD) * dwAllFileOffsetLength) );
+        pclArc->Read( &clmdwAllFileOffset[0], (sizeof(DWORD) * dwAllFileOffsetLength) );
 
-		// 情報の格納
+        // Store info
 
-		DWORD				dwDirNamePtr = 0;
+        DWORD				dwDirNamePtr = 0;
 
-		for( DWORD dwDir = 0 ; dwDir < astTCD2IndexInfo[dwFileType].dwDirCount ; dwDir++ )
-		{
-			// フォルダ名の取得
+        for( DWORD dwDir = 0 ; dwDir < astTCD2IndexInfo[dwFileType].dwDirCount ; dwDir++ )
+        {
+            // Get folder name
 
-			char				szDirName[_MAX_DIR];
+            char				szDirName[_MAX_DIR];
 
-			strcpy( szDirName, (char*) &clmbtAllDirName[dwDirNamePtr] );
+            strcpy( szDirName, (char*) &clmbtAllDirName[dwDirNamePtr] );
 
-			dwDirNamePtr += strlen( szDirName ) + 1;
+            dwDirNamePtr += strlen( szDirName ) + 1;
 
-			DWORD				dwFileNamePtr = 0;
+            DWORD				dwFileNamePtr = 0;
 
-			for( DWORD dwFile = 0 ; dwFile < clmstTCD2DirInfo[dwDir].dwFileCount ; dwFile++ )
-			{
-				// ファイル名の取得
+            for( DWORD dwFile = 0 ; dwFile < clmstTCD2DirInfo[dwDir].dwFileCount ; dwFile++ )
+            {
+                // Get file name
 
-				char				szFileName[_MAX_FNAME];
+                char				szFileName[_MAX_FNAME];
 
-				strcpy( szFileName, (char*) &clmbtAllFileName[clmstTCD2DirInfo[dwDir].dwFileNameOffset + dwFileNamePtr] );
+                strcpy( szFileName, (char*) &clmbtAllFileName[clmstTCD2DirInfo[dwDir].dwFileNameOffset + dwFileNamePtr] );
 
-				dwFileNamePtr += strlen( szFileName ) + 1;
+                dwFileNamePtr += strlen( szFileName ) + 1;
 
-				// フォルダ名 + ファイル名 + 拡張子
+                // Folder name + File name + Extension
 
-				TCHAR				szFullName[_MAX_PATH];
+                TCHAR				szFullName[_MAX_PATH];
 
-				_stprintf( szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType] );
+                _stprintf( szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType] );
 
-				// 情報の格納
+                // Store info
 
-				SFileInfo			stFileInfo;
+                SFileInfo			stFileInfo;
 
-				stFileInfo.name = szFullName;
-				stFileInfo.start = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 0];
-				stFileInfo.end = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 1];
-				stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-				stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+                stFileInfo.name = szFullName;
+                stFileInfo.start = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 0];
+                stFileInfo.end = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 1];
+                stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
+                stFileInfo.sizeOrg = stFileInfo.sizeCmp;
 
-				pclArc->AddFileInfo( stFileInfo );
-			}
-		}
-	}
+                pclArc->AddFileInfo( stFileInfo );
+            }
+        }
+    }
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	RLEの解凍(タイプ2)
+//	RLE Decompression (Type 2)
 
 BOOL	CTCD2::DecompRLE2(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納サイズ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力データサイズ
-	)
+    void*				pvDst,							// Destination
+    DWORD				dwDstSize,						// Destination Size
+    const void*			pvSrc,							// Input Data
+    DWORD				dwSrcSize						// Input Data Size
+    )
 {
-	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
-	BYTE*				pbtDst = (BYTE*) pvDst;
+    const BYTE*			pbtSrc = (const BYTE*) pvSrc;
+    BYTE*				pbtDst = (BYTE*) pvDst;
 
-	DWORD				dwOffset = *(DWORD*) &pbtSrc[0];
-	DWORD				dwPixelCount = *(DWORD*) &pbtSrc[4];
+    DWORD				dwOffset = *(DWORD*) &pbtSrc[0];
+    DWORD				dwPixelCount = *(DWORD*) &pbtSrc[4];
 
-	DWORD				dwSrcHeaderPtr = 8;
-	DWORD				dwSrcDataPtr = dwOffset;
-	DWORD				dwDstPtr = 0;
+    DWORD				dwSrcHeaderPtr = 8;
+    DWORD				dwSrcDataPtr = dwOffset;
+    DWORD				dwDstPtr = 0;
 
-	while( (dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
-	{
-		BYTE				btWork = pbtSrc[dwSrcHeaderPtr++];
-		WORD				wLength;
+    while( (dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+    {
+        BYTE				btWork = pbtSrc[dwSrcHeaderPtr++];
+        WORD				wLength;
 
-		switch( btWork )
-		{
-		case	0:
-			// 0で埋める
+        switch( btWork )
+        {
+        case	0:
+            // Fill in 0
 
-			wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
+            wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
 
-			for( DWORD i = 0 ; i < wLength ; i++ )
-			{
-				for( DWORD j = 0 ; j < 4 ; j++ )
-				{
-					pbtDst[dwDstPtr++] = 0x00;
-				}
-			}
+            for( DWORD i = 0 ; i < wLength ; i++ )
+            {
+                for( DWORD j = 0 ; j < 4 ; j++ )
+                {
+                    pbtDst[dwDstPtr++] = 0x00;
+                }
+            }
 
-			break;
+            break;
 
-		case	1:
-			// アルファ値0xFF
+        case	1:
+            // Alpha value 0xFF
 
-			wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
+            wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
 
-			for( DWORD i = 0 ; i < wLength ; i++ )
-			{
-				for( DWORD j = 0 ; j < 3 ; j++ )
-				{
-					pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
-				}
+            for( DWORD i = 0 ; i < wLength ; i++ )
+            {
+                for( DWORD j = 0 ; j < 3 ; j++ )
+                {
+                    pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+                }
 
-				pbtDst[dwDstPtr++] = 0xFF;
-			}
+                pbtDst[dwDstPtr++] = 0xFF;
+            }
 
-			break;
+            break;
 
-		default:
-			// アルファ値0x01～0xFE
+        default:
+            // Alpha values 0x01~0xFE
 
-			for( DWORD j = 0 ; j < 3 ; j++ )
-			{
-				pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
-			}
+            for( DWORD j = 0 ; j < 3 ; j++ )
+            {
+                pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+            }
 
-			pbtDst[dwDstPtr++] = ~(btWork - 1);
-		}
-	}
+            pbtDst[dwDstPtr++] = ~(btWork - 1);
+        }
+    }
 
-	return	TRUE;
+    return	TRUE;
 }

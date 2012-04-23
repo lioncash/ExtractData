@@ -1,43 +1,42 @@
-
 #include	"stdafx.h"
 #include	"Braban.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Determine if it can be decoded
 
 BOOL	CBraban::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	CheckTpm( "C42B141D42FCBCDA29850FA9E9FE3FF2" );
+    return	CheckTpm( "C42B141D42FCBCDA29850FA9E9FE3FF2" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialization of Decoding Process
 
 DWORD	CBraban::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	((pclArc->GetOpenFileInfo()->key ^ 0xFF) & 0xFF) - 1;
+    return	((pclArc->GetOpenFileInfo()->key ^ 0xFF) & 0xFF) - 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decoding Process
 
 DWORD	CBraban::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decoded
+    DWORD				dwTargetSize,					// Decoding Size
+    DWORD				dwOffset,						// Location of data to be decoded (offset)
+    DWORD				dwDecryptKey					// Decryption key
+    )
 {
-	BYTE				btDecryptkey = (BYTE) dwDecryptKey;
+    BYTE				btDecryptkey = (BYTE) dwDecryptKey;
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i++ )
-	{
-		pbtTarget[i] ^= btDecryptkey;
-	}
+    for( DWORD i = 0 ; i < dwTargetSize ; i++ )
+    {
+        pbtTarget[i] ^= btDecryptkey;
+    }
 
-	return	dwTargetSize;
+    return	dwTargetSize;
 }

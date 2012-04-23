@@ -1,12 +1,11 @@
-
 #include	"stdafx.h"
 #include	"Fate.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Determine if decodable
 
 BOOL	CFate::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static const char*	apszMD5[] =
@@ -27,23 +26,23 @@ BOOL	CFate::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialization of Decryption Routine
 
 DWORD	CFate::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	return	0x36;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decoding Process
 
 DWORD	CFate::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
+	BYTE*				pbtTarget,						// Data to be decrypted
+	DWORD				dwTargetSize,					// Decryption size
+	DWORD				dwOffset,						// Location of data to be decoded (offset)
+	DWORD				dwDecryptKey					// Decryption key
 	)
 {
 	for( DWORD i = 0 ; i < dwTargetSize ; i++ )

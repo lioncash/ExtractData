@@ -1,64 +1,63 @@
-
 #include	"stdafx.h"
 #include	"SisMiko.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decrypted
 
 BOOL	CSisMiko::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	pclArc->CheckExe( _T("SisuMiko.exe") );
+    return	pclArc->CheckExe( _T("SisuMiko.exe") );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Process
 
 DWORD	CSisMiko::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
-	DWORD				dwKey = pclArc->GetOpenFileInfo()->key;
+    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
+    DWORD				dwKey = pclArc->GetOpenFileInfo()->key;
 
-	if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
-	{
-		// 復号しないファイル
+    if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
+    {
+        // Files we don't decrypt
 
-		SetDecryptRequirement( FALSE );
-		return	0;
-	}
+        SetDecryptRequirement( FALSE );
+        return	0;
+    }
 
-	// 復号するサイズ
+    // Size to decrypt
 
-	if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
-	{
-		SetDecryptSize( 256 );
-	}
+    if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
+    {
+        SetDecryptSize( 256 );
+    }
 
-	// 復号キー
+    // Decryption Key
 
-	return	~((dwKey << 16) | (dwKey >> 16));
+    return	~((dwKey << 16) | (dwKey >> 16));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decryption Process
 
 DWORD	CSisMiko::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decoded
+    DWORD				dwTargetSize,					// Decoding size
+    DWORD				dwOffset,						// Location of data to be decoded (offset)
+    DWORD				dwDecryptKey					// Decryption Key
+    )
 {
-	// 復号
+    // Decrypt
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
-	{
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey;
-	}
+    for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+    {
+        *(DWORD*) &pbtTarget[i] ^= dwDecryptKey;
+    }
 
-	return	dwTargetSize;
+    return	dwTargetSize;
 }

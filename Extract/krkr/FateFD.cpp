@@ -1,12 +1,11 @@
-
 #include	"stdafx.h"
 #include	"FateFD.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decoded
 
 BOOL	CFateFD::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcName() != _T("video.xp3") )
@@ -18,10 +17,10 @@ BOOL	CFateFD::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Routine
 
 DWORD	CFateFD::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -64,7 +63,7 @@ DWORD	CFateFD::OnInitDecrypt(
 	}
 	else
 	{
-		// その他
+		// Other
 
 		SetDecryptRequirement( FALSE );
 	}
@@ -73,13 +72,13 @@ DWORD	CFateFD::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decoding Process
 
 DWORD	CFateFD::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
+	BYTE*				pbtTarget,						// Data to be decoded
+	DWORD				dwTargetSize,					// Decoding size
+	DWORD				dwOffset,						// Location of data to be decoded (offset)
+	DWORD				dwDecryptKey					// Decryption key
 	)
 {
 	for( DWORD i = 0 ; i < dwTargetSize ; i++ )

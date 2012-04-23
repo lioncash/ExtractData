@@ -1,79 +1,78 @@
-
 #include	"stdafx.h"
 #include	"Tengu.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decoded
 
 BOOL	CTengu::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	CheckTpm( "CE093BB86595E62ADBCB1280CA6583EF" );
+    return	CheckTpm( "CE093BB86595E62ADBCB1280CA6583EF" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Process
 
 DWORD	CTengu::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	// 復号キー
+    // Decryption Key
 
-	return	0x08;
+    return	0x08;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decryption Process
 
 DWORD	CTengu::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decoded
+    DWORD				dwTargetSize,					// Decoding size
+    DWORD				dwOffset,						// Location of data to be decoded (offset)
+    DWORD				dwDecryptKey					// Decryption Key
+    )
 {
-	BYTE				btDecryptKey = (BYTE) dwDecryptKey;
+    BYTE				btDecryptKey = (BYTE) dwDecryptKey;
 
-	// 復号
+    // Decryption 
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i++ )
-	{
-		pbtTarget[i] ^= btDecryptKey;
-	}
+    for( DWORD i = 0 ; i < dwTargetSize ; i++ )
+    {
+        pbtTarget[i] ^= btDecryptKey;
+    }
 
-	if( memcmp( pbtTarget, "\xFE\xFE\x01\xFF\xFE", 5 ) != 0 )
-	{
-		return	dwTargetSize;
-	}
+    if( memcmp( pbtTarget, "\xFE\xFE\x01\xFF\xFE", 5 ) != 0 )
+    {
+        return	dwTargetSize;
+    }
 
-	// テンポラリにコピー
+    // Temporary Copy
 
-	YCMemory<BYTE>		clmbtTemporary( dwTargetSize );
+    YCMemory<BYTE>		clmbtTemporary( dwTargetSize );
 
-	memcpy( &clmbtTemporary[0], pbtTarget, dwTargetSize );
+    memcpy( &clmbtTemporary[0], pbtTarget, dwTargetSize );
 
-	ZeroMemory( pbtTarget, dwTargetSize );
+    ZeroMemory( pbtTarget, dwTargetSize );
 
-	// 復号
+    // Decryption 
 
-	for( DWORD i = 5, j = 0 ; i < dwTargetSize ; i += 2, j += 2 )
-	{
-		WORD				wWork1 = *(WORD*) &clmbtTemporary[i];
-		WORD				wWork2 = wWork1;
+    for( DWORD i = 5, j = 0 ; i < dwTargetSize ; i += 2, j += 2 )
+    {
+        WORD				wWork1 = *(WORD*) &clmbtTemporary[i];
+        WORD				wWork2 = wWork1;
 
-		wWork1 = (wWork1 & 0x5555) << 1;
-		wWork2 = (wWork2 & 0xAAAA) >> 1;
+        wWork1 = (wWork1 & 0x5555) << 1;
+        wWork2 = (wWork2 & 0xAAAA) >> 1;
 
-		*(WORD*) &pbtTarget[j] = (wWork1 | wWork2);
-	}
+        *(WORD*) &pbtTarget[j] = (wWork1 | wWork2);
+    }
 
-	// マルチバイト文字に変換
+    // Convert to a multi-byte character
 
-	YCStringA			clsWork = (wchar_t*) pbtTarget;
+    YCStringA			clsWork = (wchar_t*) pbtTarget;
 
-	strcpy( (char*) pbtTarget, clsWork );
+    strcpy( (char*) pbtTarget, clsWork );
 
-	return	(DWORD) clsWork.GetLength();
+    return	(DWORD) clsWork.GetLength();
 }

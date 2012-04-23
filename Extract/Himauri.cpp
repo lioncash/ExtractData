@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../Image.h"
@@ -6,667 +5,664 @@
 #include	"Himauri.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CHimauri::Mount(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( pclArc->GetArcExten() != _T(".hxp") )
-	{
-		return	FALSE;
-	}
+    if( pclArc->GetArcExten() != _T(".hxp") )
+    {
+        return	FALSE;
+    }
 
-	if( MountHim4( pclArc) )
-	{
-		return	TRUE;
-	}
+    if( MountHim4( pclArc) )
+    {
+        return	TRUE;
+    }
 
-	if( MountHim5( pclArc ) )
-	{
-		return	TRUE;
-	}
+    if( MountHim5( pclArc ) )
+    {
+        return	TRUE;
+    }
 
-	return	FALSE;
+    return	FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Him4のマウント
+//	Mount Him4
 
 BOOL	CHimauri::MountHim4(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( memcmp( pclArc->GetHed(), "Him4", 4 ) != 0 )
-	{
-		return	FALSE;
-	}
+    if( memcmp( pclArc->GetHed(), "Him4", 4 ) != 0 )
+    {
+        return	FALSE;
+    }
 
-	// ファイル数取得
+    // Get file count
 
-	DWORD				dwFiles;
+    DWORD				dwFiles;
 
-	pclArc->SeekHed( 4 );
-	pclArc->Read( &dwFiles, 4 );
+    pclArc->SeekHed( 4 );
+    pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+    // Get index size from file count
 
-	DWORD				dwIndexSize = dwFiles * 4;
+    DWORD				dwIndexSize = dwFiles * 4;
 
-	// インデックス取得
+    // Get index
 
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
+    YCMemory<BYTE>		clmbtIndex( dwIndexSize );
+    DWORD				dwIndexPtr = 0;
 
-	pclArc->Read( &clmbtIndex[0], dwIndexSize );
+    pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	TCHAR				szArcName[_MAX_FNAME];
+    TCHAR				szArcName[_MAX_FNAME];
 
-	lstrcpy( szArcName, pclArc->GetArcName() );
-	PathRemoveExtension( szArcName );
+    lstrcpy( szArcName, pclArc->GetArcName() );
+    PathRemoveExtension( szArcName );
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
-	{
-		TCHAR				szFileName[_MAX_FNAME];
+    for( DWORD i = 0 ; i < dwFiles ; i++ )
+    {
+        TCHAR				szFileName[_MAX_FNAME];
 
-		_stprintf( szFileName, _T("%s_%06d"), szArcName, i );
+        _stprintf( szFileName, _T("%s_%06d"), szArcName, i );
 
-		// リストビューに追加
+        // Add to list view
 
-		SFileInfo			stFileInfo;
+        SFileInfo			stFileInfo;
 
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(LPDWORD) &clmbtIndex[dwIndexPtr + 0];
-		stFileInfo.end = ((i + 1) < dwFiles) ? *(DWORD*) &clmbtIndex[dwIndexPtr + 4] : pclArc->GetArcSize();
-		stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+        stFileInfo.name = szFileName;
+        stFileInfo.start = *(LPDWORD) &clmbtIndex[dwIndexPtr + 0];
+        stFileInfo.end = ((i + 1) < dwFiles) ? *(DWORD*) &clmbtIndex[dwIndexPtr + 4] : pclArc->GetArcSize();
+        stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
+        stFileInfo.sizeOrg = stFileInfo.sizeCmp;
 
-		if( stFileInfo.sizeCmp != 10 )
-		{
-			// ダミーファイルではない
+        if( stFileInfo.sizeCmp != 10 )
+        {
+            // Is not a dummy file
 
-			pclArc->AddFileInfo( stFileInfo );
-		}
+            pclArc->AddFileInfo( stFileInfo );
+        }
 
-		dwIndexPtr += 4;
-	}
+        dwIndexPtr += 4;
+    }
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Him5のマウント
+//	Mount Him5
 
 BOOL	CHimauri::MountHim5(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( memcmp( pclArc->GetHed(), "Him5", 4 ) != 0 )
-	{
-		return	FALSE;
-	}
+    if( memcmp( pclArc->GetHed(), "Him5", 4 ) != 0 )
+    {
+        return	FALSE;
+    }
 
-	// ファイル数取得
+    // Get file count
 
-	DWORD				dwFiles;
+    DWORD				dwFiles;
 
-	pclArc->SeekHed( 4 );
-	pclArc->Read( &dwFiles, 4 );
+    pclArc->SeekHed( 4 );
+    pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+    // Get index size from file count
 
-	DWORD				dwIndexSize = dwFiles * 8;
+    DWORD				dwIndexSize = dwFiles * 8;
 
-	// インデックス取得
+    // Get index
 
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
+    YCMemory<BYTE>		clmbtIndex( dwIndexSize );
+    DWORD				dwIndexPtr = 0;
 
-	pclArc->Read( &clmbtIndex[0], dwIndexSize );
+    pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// インデックスからインデックス2のサイズ取得
+    // Gets index 2's size from the first index
 
-	DWORD				dwIndexSize2 = *(DWORD*) &clmbtIndex[dwFiles * 8 - 4] - *(DWORD*) &clmbtIndex[4] + *(DWORD*) &clmbtIndex[dwFiles * 8 - 8];
+    DWORD				dwIndexSize2 = *(DWORD*) &clmbtIndex[dwFiles * 8 - 4] - *(DWORD*) &clmbtIndex[4] + *(DWORD*) &clmbtIndex[dwFiles * 8 - 8];
 
-	// インデックス2取得
+    // Get index 2
 
-	YCMemory<BYTE>		clmbtIndex2( dwIndexSize2 );
-	DWORD				dwIndexPtr2 = 0;
+    YCMemory<BYTE>		clmbtIndex2( dwIndexSize2 );
+    DWORD				dwIndexPtr2 = 0;
 
-	pclArc->Read( &clmbtIndex2[0], dwIndexSize2 );
+    pclArc->Read( &clmbtIndex2[0], dwIndexSize2 );
 
-	// ダミー除去
+    // Remove dummy
 
-	for( DWORD i = dwFiles ; i > 0 ; i-- )
-	{
-		if( *(DWORD*) &clmbtIndex[dwIndexPtr + 0] == 0 )
-		{
-			dwFiles--;
-		}
+    for( DWORD i = dwFiles ; i > 0 ; i-- )
+    {
+        if( *(DWORD*) &clmbtIndex[dwIndexPtr + 0] == 0 )
+        {
+            dwFiles--;
+        }
+    }
 
-		dwIndexPtr += 8;
-	}
+    // Gets difference increment
 
-	// 差分合成の有効性の取得
-	// 夏めろ用の処理
+    BOOL				bDiffCompose = (pclArc->GetArcName() == _T("natsucha.hxp"));
 
-	BOOL				bDiffCompose = (pclArc->GetArcName() == _T("natsucha.hxp"));
+    // Gets file info
 
-	// ファイル情報の取得
+    std::vector<SFileInfo>	vcFileInfo;
+    std::vector<SFileInfo>	vcDiffFileInfo;
 
-	std::vector<SFileInfo>	vcFileInfo;
-	std::vector<SFileInfo>	vcDiffFileInfo;
+    for( DWORD i = 0 ; i < dwFiles ; i++ )
+    {
+        while( 1 )
+        {
+            // Gets the length of a segment
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
-	{
-		while( 1 )
-		{
-			// 1セグメントの長さ取得
+            DWORD				dwSegLength = clmbtIndex2[dwIndexPtr2 + 0];
 
-			DWORD				dwSegLength = clmbtIndex2[dwIndexPtr2 + 0];
+            // Get the file name from index 2
 
-			// インデックス2からファイル名取得
+            DWORD				dwFileNameLength = (dwSegLength - 5);
 
-			DWORD				dwFileNameLength = (dwSegLength - 5);
+            char				szFileName[_MAX_FNAME];
 
-			char				szFileName[_MAX_FNAME];
+            memcpy( szFileName, &clmbtIndex2[dwIndexPtr2 + 5], dwFileNameLength );
 
-			memcpy( szFileName, &clmbtIndex2[dwIndexPtr2 + 5], dwFileNameLength );
+            SFileInfo			stFileInfo;
 
-			SFileInfo			stFileInfo;
+            stFileInfo.name = szFileName;
+            stFileInfo.start = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + 1] );
 
-			stFileInfo.name = szFileName;
-			stFileInfo.start = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + 1] );
+            // Get the exit address
 
-			// 終了アドレス取得
+            if( clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0 )
+            {
+                if( (i + 1) == dwFiles )
+                {
+                    stFileInfo.end = pclArc->GetArcSize();
+                }
+                else
+                {
+                    stFileInfo.end = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + dwSegLength + 2] );
+                }
+            }
+            else
+            {
+                stFileInfo.end = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + dwSegLength + 1] );
+            }
 
-			if( clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0 )
-			{
-				if( (i + 1) == dwFiles )
-				{
-					stFileInfo.end = pclArc->GetArcSize();
-				}
-				else
-				{
-					stFileInfo.end = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + dwSegLength + 2] );
-				}
-			}
-			else
-			{
-				stFileInfo.end = pclArc->ConvEndian( *(DWORD*) &clmbtIndex2[dwIndexPtr2 + dwSegLength + 1] );
-			}
+            stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
+            stFileInfo.sizeOrg = stFileInfo.sizeCmp;
 
-			stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-			stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+            if( stFileInfo.sizeCmp != 10 )
+            {
+                // Is not a dummy file
 
-			if( stFileInfo.sizeCmp != 10 )
-			{
-				// ダミーファイルではない
+                if( bDiffCompose )
+                {
+                    // Difference composition is enabled
 
-				if( bDiffCompose )
-				{
-					// 差分合成が有効
+                    char*				pszDiffMark = strrchr( szFileName, _T('_') );
 
-					char*				pszDiffMark = strrchr( szFileName, _T('_') );
+                    if( (pszDiffMark != NULL) && (strlen( pszDiffMark ) >= 2) && isdigit( pszDiffMark[1] ) )
+                    {
+                        // Difference file
 
-					if( (pszDiffMark != NULL) && (strlen( pszDiffMark ) >= 2) && isdigit( pszDiffMark[1] ) )
-					{
-						// 差分ファイル
+                        int					nPos = stFileInfo.name.ReverseFind( _T('_') );
 
-						int					nPos = stFileInfo.name.ReverseFind( _T('_') );
+                        stFileInfo.name.Delete( (nPos + 1), stFileInfo.name.GetLength() );
 
-						stFileInfo.name.Delete( (nPos + 1), stFileInfo.name.GetLength() );
+                        vcDiffFileInfo.push_back( stFileInfo );
+                    }
+                    else
+                    {
+                        vcFileInfo.push_back( stFileInfo );
+                    }
+                }
+                else
+                {
+                    pclArc->AddFileInfo( stFileInfo );
+                }
+            }
 
-						vcDiffFileInfo.push_back( stFileInfo );
-					}
-					else
-					{
-						vcFileInfo.push_back( stFileInfo );
-					}
-				}
-				else
-				{
-					pclArc->AddFileInfo( stFileInfo );
-				}
-			}
+            // 1セグメントの最後が0なら1ファイル終了と判断
 
-			// 1セグメントの最後が0なら1ファイル終了と判断
+            if( clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0 )
+            {
+                dwIndexPtr2 += dwSegLength + 1;
+                break;
+            }
 
-			if( clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0 )
-			{
-				dwIndexPtr2 += dwSegLength + 1;
-				break;
-			}
+            dwIndexPtr2 += dwSegLength;
+        }
+    }
 
-			dwIndexPtr2 += dwSegLength;
-		}
-	}
+    if( bDiffCompose )
+    {
+        // Difference composition is enabled
 
-	if( bDiffCompose )
-	{
-		// 差分合成が有効
+        for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
+        {
+            int					nPos = vcFileInfo[i].name.ReverseFind( _T('_') );
 
-		for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
-		{
-			int					nPos = vcFileInfo[i].name.ReverseFind( _T('_') );
+            if( nPos >= 0 )
+            {
+                YCString			clsBaseFileName = vcFileInfo[i].name.Left( (nPos + 1) );
 
-			if( nPos >= 0 )
-			{
-				YCString			clsBaseFileName = vcFileInfo[i].name.Left( (nPos + 1) );
+                for( size_t j = 0 ; j < vcDiffFileInfo.size() ; j++ )
+                {
+                    if( clsBaseFileName == vcDiffFileInfo[j].name )
+                    {
+                        // Within the difference range
 
-				for( size_t j = 0 ; j < vcDiffFileInfo.size() ; j++ )
-				{
-					if( clsBaseFileName == vcDiffFileInfo[j].name )
-					{
-						// 差分画像である
+                        vcFileInfo[i].starts.push_back( vcDiffFileInfo[j].start );
+                        vcFileInfo[i].sizesCmp.push_back( vcDiffFileInfo[j].sizeCmp );
+                        vcFileInfo[i].sizesOrg.push_back( vcDiffFileInfo[j].sizeOrg );
+                    }
+                }
+            }
 
-						vcFileInfo[i].starts.push_back( vcDiffFileInfo[j].start );
-						vcFileInfo[i].sizesCmp.push_back( vcDiffFileInfo[j].sizeCmp );
-						vcFileInfo[i].sizesOrg.push_back( vcDiffFileInfo[j].sizeOrg );
-					}
-				}
-			}
+            pclArc->AddFileInfo( vcFileInfo[i] );
+        }
+    }
 
-			pclArc->AddFileInfo( vcFileInfo[i] );
-		}
-	}
-
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decode
 
 BOOL	CHimauri::Decode(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( pclArc->GetArcExten() != _T(".hxp") )
-	{
-		return	FALSE;
-	}
+    if( pclArc->GetArcExten() != _T(".hxp") )
+    {
+        return	FALSE;
+    }
 
-	if( memcmp( pclArc->GetHed(), "Him", 3 ) != 0 )
-	{
-		return	FALSE;
-	}
+    if( memcmp( pclArc->GetHed(), "Him", 3 ) != 0 )
+    {
+        return	FALSE;
+    }
 
-	// 入力サイズ取得
+    // Get input size
 
-	DWORD				dwSrcSize;
+    DWORD				dwSrcSize;
 
-	pclArc->Read( &dwSrcSize, 4 );
+    pclArc->Read( &dwSrcSize, 4 );
 
-	// 出力サイズ取得
+    // Get output size
 
-	DWORD				dwDstSize;
+    DWORD				dwDstSize;
 
-	pclArc->Read( &dwDstSize, 4 );
+    pclArc->Read( &dwDstSize, 4 );
 
-	// バッファ確保
+    // Ensure buffer
 
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
+    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	if( dwSrcSize == 0 )
-	{
-		// 無圧縮ファイル
+    if( dwSrcSize == 0 )
+    {
+        // Not a compressed file
 
-		pclArc->Read( &clmbtDst[0], dwDstSize );
-	}
-	else
-	{
-		// 圧縮ファイル
+        pclArc->Read( &clmbtDst[0], dwDstSize );
+    }
+    else
+    {
+        // Compressed file
 
-		pclArc->Read( &clmbtSrc[0], dwSrcSize );
-		Decomp( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
-	}
+        pclArc->Read( &clmbtSrc[0], dwSrcSize );
+        Decomp( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
+    }
 
-	YCString				sFileExt;
+    YCString				sFileExt;
 
-	if( memcmp( &clmbtDst[0], "OggS", 4 ) == 0 )
-	{
-		// Ogg Vorbis
+    if( memcmp( &clmbtDst[0], "OggS", 4 ) == 0 )
+    {
+        // Ogg Vorbis
 
-		sFileExt = _T(".ogg");
-	}
-	else if( memcmp( &clmbtDst[0], "RIFF", 4 ) == 0 )
-	{
-		// WAVE
+        sFileExt = _T(".ogg");
+    }
+    else if( memcmp( &clmbtDst[0], "RIFF", 4 ) == 0 )
+    {
+        // WAVE
 
-		sFileExt = _T(".wav");
-	}
-	else if( memcmp( &clmbtDst[0], "Himauri", 7 ) == 0 )
-	{
-		// hst
+        sFileExt = _T(".wav");
+    }
+    else if( memcmp( &clmbtDst[0], "Himauri", 7 ) == 0 )
+    {
+        // hst
 
-		sFileExt = _T(".txt");
-	}
-	else if( memcmp( &clmbtDst[0], "BM", 2 ) == 0 )
-	{
-		// BMP
+        sFileExt = _T(".txt");
+    }
+    else if( memcmp( &clmbtDst[0], "BM", 2 ) == 0 )
+    {
+        // BMP
 
-		CImage				clImage;
+        CImage				clImage;
 
-		clImage.Init( pclArc, &clmbtDst[0] );
-		clImage.Write( dwDstSize );
+        clImage.Init( pclArc, &clmbtDst[0] );
+        clImage.Write( dwDstSize );
 
-		return	TRUE;
-	}
-	else if( (clmbtDst[0] == 0) && (clmbtDst[1] <= 1) && (clmbtDst[2] > 0) && (memcmp( &clmbtDst[3], "\x00\x00\x00\x00\x00", 5 ) == 0) )
-	{
-		// TGA
+        return	TRUE;
+    }
+    else if( (clmbtDst[0] == 0) && (clmbtDst[1] <= 1) && (clmbtDst[2] > 0) && (memcmp( &clmbtDst[3], "\x00\x00\x00\x00\x00", 5 ) == 0) )
+    {
+        // TGA
 
-		SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+        SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-		if( pstFileInfo->starts.empty() )
-		{
-			// 差分が存在しない
+        if( pstFileInfo->starts.empty() )
+        {
+            // Difference does not exist
 
-			CTga				clTga;
+            CTga				clTga;
 
-			clTga.Decode( pclArc, &clmbtDst[0], dwDstSize );
-		}
-		else
-		{
-			// 差分が存在する
+            clTga.Decode( pclArc, &clmbtDst[0], dwDstSize );
+        }
+        else
+        {
+            // There is a difference
 
-			// ベース画像のTGAヘッダの取得
+            // Get TGA image-based header
 
-			CTga::STGAHeader*	psttgahBase = (CTga::STGAHeader*) &clmbtDst[0];
+            CTga::STGAHeader*	psttgahBase = (CTga::STGAHeader*) &clmbtDst[0];
 
-			// TGA解凍
+            // TGA Decompression
 
-			DWORD				dwDstSize2 = ((psttgahBase->wWidth * (psttgahBase->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahBase->wHeight;
+            DWORD				dwDstSize2 = ((psttgahBase->wWidth * (psttgahBase->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahBase->wHeight;
 
-			YCMemory<BYTE>		clmbtDst2( dwDstSize2 );
+            YCMemory<BYTE>		clmbtDst2( dwDstSize2 );
 
-			CTga				clTga;
+            CTga				clTga;
 
-			clTga.Decomp( &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize );
+            clTga.Decomp( &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize );
 
-			// 差分合成して出力
+            // Outputs difference
 
-			for( size_t i = 0 ; i < pstFileInfo->starts.size() ; i++ )
-			{
-				pclArc->SeekHed( pstFileInfo->starts[i] );
+            for( size_t i = 0 ; i < pstFileInfo->starts.size() ; i++ )
+            {
+                pclArc->SeekHed( pstFileInfo->starts[i] );
 
-				// 差分画像の入力サイズ取得
+                // Get image input size difference
 
-				DWORD				dwSrcSizeForDiff;
+                DWORD				dwSrcSizeForDiff;
 
-				pclArc->Read( &dwSrcSizeForDiff, 4 );
+                pclArc->Read( &dwSrcSizeForDiff, 4 );
 
-				// 差分画像の出力サイズ取得
+                // Get image output size difference
 
-				DWORD				dwDstSizeForDiff;
+                DWORD				dwDstSizeForDiff;
 
-				pclArc->Read( &dwDstSizeForDiff, 4 );
+                pclArc->Read( &dwDstSizeForDiff, 4 );
 
-				// 差分画像のバッファ確保
+                // Ensure image difference buffer
 
-				YCMemory<BYTE>		clmbtSrcForDiff( dwSrcSizeForDiff );
-				YCMemory<BYTE>		clmbtDstForDiff( dwDstSizeForDiff );
+                YCMemory<BYTE>		clmbtSrcForDiff( dwSrcSizeForDiff );
+                YCMemory<BYTE>		clmbtDstForDiff( dwDstSizeForDiff );
 
-				// 差分画像の取得
+                // Get image difference
 
-				if( dwSrcSizeForDiff == 0 )
-				{
-					// 無圧縮ファイル
+                if( dwSrcSizeForDiff == 0 )
+                {
+                    // Uncompressed file
 
-					pclArc->Read( &clmbtDstForDiff[0], dwDstSizeForDiff );
-				}
-				else
-				{
-					// 圧縮ファイル
+                    pclArc->Read( &clmbtDstForDiff[0], dwDstSizeForDiff );
+                }
+                else
+                {
+                    // Compressed file
 
-					pclArc->Read( &clmbtSrcForDiff[0], dwSrcSizeForDiff );
-					Decomp( &clmbtDstForDiff[0], dwDstSizeForDiff, &clmbtSrcForDiff[0], dwSrcSizeForDiff );
-				}
+                    pclArc->Read( &clmbtSrcForDiff[0], dwSrcSizeForDiff );
+                    Decomp( &clmbtDstForDiff[0], dwDstSizeForDiff, &clmbtSrcForDiff[0], dwSrcSizeForDiff );
+                }
 
-				// 差分画像のTGAヘッダの取得
+                // Get TGA image header difference
 
-				CTga::STGAHeader*	psttgahDiff = (CTga::STGAHeader*) &clmbtDstForDiff[0];
+                CTga::STGAHeader*	psttgahDiff = (CTga::STGAHeader*) &clmbtDstForDiff[0];
 
-				// TGA解凍
+                // TGA Decompression
 
-				DWORD				dwDstSizeForDiff2 = ((psttgahDiff->wWidth * (psttgahDiff->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahDiff->wHeight;
+                DWORD				dwDstSizeForDiff2 = ((psttgahDiff->wWidth * (psttgahDiff->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahDiff->wHeight;
 
-				YCMemory<BYTE>		clmbtDstForDiff2( dwDstSizeForDiff );
+                YCMemory<BYTE>		clmbtDstForDiff2( dwDstSizeForDiff );
 
-				clTga.Decomp( &clmbtDstForDiff2[0], dwDstSizeForDiff, &clmbtDstForDiff[0], dwDstSizeForDiff );
+                clTga.Decomp( &clmbtDstForDiff2[0], dwDstSizeForDiff, &clmbtDstForDiff[0], dwDstSizeForDiff );
 
-				// 差分合成
+                // Difference Composition
 
-				DWORD				dwDstSizeForCompose = dwDstSize2;
+                DWORD				dwDstSizeForCompose = dwDstSize2;
 
-				YCMemory<BYTE>		clmbtDstForCompose( dwDstSizeForCompose );
+                YCMemory<BYTE>		clmbtDstForCompose( dwDstSizeForCompose );
 
-				Compose( &clmbtDstForCompose[0], dwDstSizeForCompose, &clmbtDst2[0], dwDstSize2, &clmbtDstForDiff2[0], dwDstSizeForDiff2 );
+                Compose( &clmbtDstForCompose[0], dwDstSizeForCompose, &clmbtDst2[0], dwDstSize2, &clmbtDstForDiff2[0], dwDstSizeForDiff2 );
 
-				// ファイル名の末尾変更
+                // End of filename changes
 
-				TCHAR				szLastName[_MAX_FNAME];
+                TCHAR				szLastName[_MAX_FNAME];
 
-				_stprintf( szLastName, _T("_%03d.bmp"), i );
+                _stprintf( szLastName, _T("_%03d.bmp"), i );
 
-				// プログレスバー進捗要求
+                // Regrest progressbar progress
 
-				BOOL				bProgress = (i == 0);
+                BOOL				bProgress = (i == 0);
 
-				// 出力
+                // Output
 
-				CImage				clImage;
+                CImage				clImage;
 
-				clImage.Init( pclArc, psttgahBase->wWidth, psttgahBase->wHeight, psttgahBase->btDepth, NULL, 0, szLastName );
-				clImage.Write( &clmbtDstForCompose[0], dwDstSizeForCompose, bProgress );
-				clImage.Close();
-			}
-		}
+                clImage.Init( pclArc, psttgahBase->wWidth, psttgahBase->wHeight, psttgahBase->btDepth, NULL, 0, szLastName );
+                clImage.Write( &clmbtDstForCompose[0], dwDstSizeForCompose, bProgress );
+                clImage.Close();
+            }
+        }
 
-		return	TRUE;
-	}
-	else if( memcmp( &clmbtDst[0], "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16 ) == 0 )
-	{
-		// 勝手にマスク画像と断定
+        return	TRUE;
+    }
+    else if( memcmp( &clmbtDst[0], "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16 ) == 0 )
+    {
+        // Mask image
 
-		CImage				clImage;
+        CImage				clImage;
 
-		clImage.Init( pclArc, 800, 600, 8 );
-		clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+        clImage.Init( pclArc, 800, 600, 8 );
+        clImage.WriteReverse( &clmbtDst[0], dwDstSize );
 
-		return	TRUE;
-	}
-	else
-	{
-		// その他
+        return	TRUE;
+    }
+    else
+    {
+        // Other
 
-		sFileExt = _T(".txt");
-	}
+        sFileExt = _T(".txt");
+    }
 
-	pclArc->OpenFile( sFileExt );
-	pclArc->WriteFile( &clmbtDst[0], dwDstSize, pclArc->GetOpenFileInfo()->sizeCmp );
+    pclArc->OpenFile( sFileExt );
+    pclArc->WriteFile( &clmbtDst[0], dwDstSize, pclArc->GetOpenFileInfo()->sizeCmp );
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍
+//	Decompression
 
 void	CHimauri::Decomp(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
-	)
+    BYTE*				pbtDst,							// Destination
+    DWORD				dwDstSize,						// Destination Size
+    const BYTE*			pbtSrc,							// Compressed Data
+    DWORD				dwSrcSize						// Compressed Data Size
+    )
 {
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
-	DWORD				dwCode = 0;
-	DWORD				dwBack = 0;
+    DWORD				dwSrcPtr = 0;
+    DWORD				dwDstPtr = 0;
+    DWORD				dwCode = 0;
+    DWORD				dwBack = 0;
 
-	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
-	{
-		if( dwCode == 0 )
-		{
-			dwCode = pbtSrc[dwSrcPtr++];
+    while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+    {
+        if( dwCode == 0 )
+        {
+            dwCode = pbtSrc[dwSrcPtr++];
 
-			if( dwCode < 0x20 )
-			{
-				dwBack = 0;
+            if( dwCode < 0x20 )
+            {
+                dwBack = 0;
 
-				if( dwCode < 0x1D )
-				{
-					dwCode++;
-				}
-				else if( dwCode == 0x1D )
-				{
-					dwCode = pbtSrc[dwSrcPtr++] + 0x1E;
-				}
-				else if( dwCode == 0x1E )
-				{
-					dwCode = pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode += 0x11E;
-				}
-				else if (dwCode == 0x1F)
-				{
-					dwCode = pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-				}
-			}
-			else
-			{
-				if( dwCode >= 0x80 )
-				{
-					dwBack = ((dwCode & 0x1F) << 8) | pbtSrc[dwSrcPtr++];
-					dwCode = (dwCode >> 5) & 3;
-				}
-				else
-				{
-					DWORD				dwCode2 = (dwCode & 0x60);
+                if( dwCode < 0x1D )
+                {
+                    dwCode++;
+                }
+                else if( dwCode == 0x1D )
+                {
+                    dwCode = pbtSrc[dwSrcPtr++] + 0x1E;
+                }
+                else if( dwCode == 0x1E )
+                {
+                    dwCode = pbtSrc[dwSrcPtr++];
+                    dwCode <<= 8;
+                    dwCode |= pbtSrc[dwSrcPtr++];
+                    dwCode += 0x11E;
+                }
+                else if (dwCode == 0x1F)
+                {
+                    dwCode = pbtSrc[dwSrcPtr++];
+                    dwCode <<= 8;
+                    dwCode |= pbtSrc[dwSrcPtr++];
+                    dwCode <<= 8;
+                    dwCode |= pbtSrc[dwSrcPtr++];
+                    dwCode <<= 8;
+                    dwCode |= pbtSrc[dwSrcPtr++];
+                }
+            }
+            else
+            {
+                if( dwCode >= 0x80 )
+                {
+                    dwBack = ((dwCode & 0x1F) << 8) | pbtSrc[dwSrcPtr++];
+                    dwCode = (dwCode >> 5) & 3;
+                }
+                else
+                {
+                    DWORD				dwCode2 = (dwCode & 0x60);
 
-					if( dwCode2 == 0x20 )
-					{
-						dwBack = (dwCode >> 2) & 7;
-						dwCode &= 3;
-					}
-					else
-					{
-						dwCode &= 0x1F;
+                    if( dwCode2 == 0x20 )
+                    {
+                        dwBack = (dwCode >> 2) & 7;
+                        dwCode &= 3;
+                    }
+                    else
+                    {
+                        dwCode &= 0x1F;
 
-						if( dwCode2 == 0x40 )
-						{
-							dwBack = pbtSrc[dwSrcPtr++];
-							dwCode += 4;
-						}
-						else
-						{
-							dwBack = (dwCode << 8) | pbtSrc[dwSrcPtr++];
-							dwCode = pbtSrc[dwSrcPtr++];
+                        if( dwCode2 == 0x40 )
+                        {
+                            dwBack = pbtSrc[dwSrcPtr++];
+                            dwCode += 4;
+                        }
+                        else
+                        {
+                            dwBack = (dwCode << 8) | pbtSrc[dwSrcPtr++];
+                            dwCode = pbtSrc[dwSrcPtr++];
 
-							if( dwCode == 0xFE )
-							{
-								dwCode = pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode += 0x102;
-							}
-							else if( dwCode == 0xFF )
-							{
-								dwCode = pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-							}
-							else
-							{
-								dwCode += 4;
-							}
-						}
-					}
-				}
+                            if( dwCode == 0xFE )
+                            {
+                                dwCode = pbtSrc[dwSrcPtr++];
+                                dwCode <<= 8;
+                                dwCode |= pbtSrc[dwSrcPtr++];
+                                dwCode += 0x102;
+                            }
+                            else if( dwCode == 0xFF )
+                            {
+                                dwCode = pbtSrc[dwSrcPtr++];
+                                dwCode <<= 8;
+                                dwCode |= pbtSrc[dwSrcPtr++];
+                                dwCode <<= 8;
+                                dwCode |= pbtSrc[dwSrcPtr++];
+                                dwCode <<= 8;
+                                dwCode |= pbtSrc[dwSrcPtr++];
+                            }
+                            else
+                            {
+                                dwCode += 4;
+                            }
+                        }
+                    }
+                }
 
-				dwBack++;
-				dwCode += 3;
-			}
-		}
+                dwBack++;
+                dwCode += 3;
+            }
+        }
 
-		// 今回出力する長さ取得
+        // Get output length
 
-		DWORD				dwLength = dwCode;
+        DWORD				dwLength = dwCode;
 
-		if( (dwDstPtr + dwLength) > dwDstSize )
-		{
-			dwLength = (dwDstSize - dwDstPtr);
-		}
+        if( (dwDstPtr + dwLength) > dwDstSize )
+        {
+            dwLength = (dwDstSize - dwDstPtr);
+        }
 
-		dwCode -= dwLength;
+        dwCode -= dwLength;
 
-		// 出力
+        // Output
 
-		if( dwBack > 0 )
-		{
-			// 前に出力したデータを出力
+        if( dwBack > 0 )
+        {
+            // Output previous data
 
-			for( DWORD i = 0 ; i < dwLength ; i++ )
-			{
-				pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
-			}
+            for( DWORD i = 0 ; i < dwLength ; i++ )
+            {
+                pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
+            }
 
-			dwDstPtr += dwLength;
-		}
-		else
-		{
-			// 入力データを出力
+            dwDstPtr += dwLength;
+        }
+        else
+        {
+            // Output input data
 
-			memcpy( &pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength );
+            memcpy( &pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength );
 
-			dwSrcPtr += dwLength;
-			dwDstPtr += dwLength;
-		}
-	}
+            dwSrcPtr += dwLength;
+            dwDstPtr += dwLength;
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	差分合成
+//	Difference Composition
 
 BOOL	CHimauri::Compose(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtBase,						// ベース画像
-	DWORD				dwBaseSize,						// ベース画像サイズ
-	const BYTE*			pbtDiff,						// 差分画像
-	DWORD				dwDiffSize						// 差分画像サイズ
-	)
+    BYTE*				pbtDst,							// Destination
+    DWORD				dwDstSize,						// Destination Size
+    const BYTE*			pbtBase,						// Image base
+    DWORD				dwBaseSize,						// Image base size
+    const BYTE*			pbtDiff,						// Image difference
+    DWORD				dwDiffSize						// Image difference size
+    )
 {
-	// ベース画像と差分画像を合成
+    // Synthesize base image and difference image
 
-	memcpy( pbtDst, pbtBase, dwDstSize );
+    memcpy( pbtDst, pbtBase, dwDstSize );
 
-	for( DWORD i = 0 ; i < dwDstSize ; i += 4 )
-	{
-		// 32bit -> 24bit
+    for( DWORD i = 0 ; i < dwDstSize ; i += 4 )
+    {
+        // 32bit -> 24bit
 
-		if( pbtDiff[i + 3] > 0 )
-		{
-			for( int j = 0 ; j < 3 ; j++ )
-			{
-				pbtDst[i + j] = (pbtDiff[i + j] - pbtBase[i + j]) * pbtDiff[i + 3] / 255 + pbtBase[i + j];
-			}
+        if( pbtDiff[i + 3] > 0 )
+        {
+            for( int j = 0 ; j < 3 ; j++ )
+            {
+                pbtDst[i + j] = (pbtDiff[i + j] - pbtBase[i + j]) * pbtDiff[i + 3] / 255 + pbtBase[i + j];
+            }
 
-			pbtDst[i + 3] = 0xFF;
-		}
-	}
+            pbtDst[i + 3] = 0xFF;
+        }
+    }
 
-	return	TRUE;
+    return	TRUE;
 }

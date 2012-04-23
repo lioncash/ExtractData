@@ -1,22 +1,21 @@
-
 #include	"stdafx.h"
 #include	"ef_sfm.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	対応ファイルかどうか
+//	Check if files are supported
 
 BOOL	CEFsfm::IsSupported(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	return	(memcmp( pclArc->GetHed(), "ef_sfm", 6 ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CEFsfm::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( !IsSupported( pclArc ) )
@@ -24,7 +23,7 @@ BOOL	CEFsfm::Mount(
 		return	FALSE;
 	}
 
-	// 32バイトスキップ
+	// Skip 32 bytes
 
 	pclArc->SeekHed( 32 );
 
@@ -32,10 +31,10 @@ BOOL	CEFsfm::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decode
 
 BOOL	CEFsfm::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( !IsSupported( pclArc ) )
@@ -47,10 +46,10 @@ BOOL	CEFsfm::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウントキーの初期化
+//	Initialize Mount Key
 
 void	CEFsfm::InitMountKey(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static const SKeyInfo	astKeyInfo[] =
@@ -69,10 +68,10 @@ void	CEFsfm::InitMountKey(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコードキーの初期化
+//	Initialize Decode Key
 
 void	CEFsfm::InitDecodeKey(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static const SKeyInfo	astKeyInfo[] =
@@ -93,10 +92,10 @@ void	CEFsfm::InitDecodeKey(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ムービーテーブルの初期化
+//	Initialize Movie Table
 
 DWORD	CEFsfm::InitMovieTable(
-	void*				pvTable							// テーブル
+	void*				pvTable							// Table
 	)
 {
 	BYTE*				pbtTable = (BYTE*)pvTable;
@@ -113,11 +112,11 @@ DWORD	CEFsfm::InitMovieTable(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ムービーの復号
+//	Decode Movie Data
 
 void	CEFsfm::DecodeMovieData(
-	void*				pvTarget,						// 復号対象データ
-	DWORD				dwSize							// 復号サイズ
+	void*				pvTarget,						// Data to be decoded
+	DWORD				dwSize							// Decoding Size
 	)
 {
 	BYTE*				pbtTarget = (BYTE*)pvTarget;
@@ -131,10 +130,10 @@ void	CEFsfm::DecodeMovieData(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ムービーバッファサイズを取得
+//	Get Movie Buffer Size
 
 DWORD	CEFsfm::GetMovieBufSize(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	return	65536;

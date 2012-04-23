@@ -5,818 +5,818 @@
 #include	"Ethornell.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CEthornell::Mount(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	if( pclArc->GetArcExten() != _T(".arc") )
-	{
-		return	FALSE;
-	}
+    if( pclArc->GetArcExten() != _T(".arc") )
+    {
+        return	FALSE;
+    }
 
-	if( memcmp( pclArc->GetHed(), "PackFile    ", 12 ) != 0 )
-	{
-		return	FALSE;
-	}
+    if( memcmp( pclArc->GetHed(), "PackFile    ", 12 ) != 0 )
+    {
+        return	FALSE;
+    }
 
-	pclArc->SeekHed( 12 );
+    pclArc->SeekHed( 12 );
 
-	// ファイル数取得
+    // Get file count
 
-	DWORD				dwFiles;
+    DWORD				dwFiles;
 
-	pclArc->Read( &dwFiles, 4 );
+    pclArc->Read( &dwFiles, 4 );
 
-	// インデックスサイズ取得
+    // Get index size
 
-	DWORD				dwIndexSize = (32 * dwFiles);
+    DWORD				dwIndexSize = (32 * dwFiles);
 
-	// インデックス取得
+    // Get index
 
-	YCMemory<BYTE>		clmIndex( dwIndexSize );
+    YCMemory<BYTE>		clmIndex( dwIndexSize );
 
-	pclArc->Read( &clmIndex[0], dwIndexSize );
+    pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	// オフセット取得
+    // Get offset
 
-	DWORD				dwOffset = 16 + dwIndexSize;
+    DWORD				dwOffset = 16 + dwIndexSize;
 
-	// ファイル情報の取得
+    // Get file info
 
-	for( DWORD i = 0 ; i < dwIndexSize ; i += 32 )
-	{
-		SFileInfo			stFileInfo;
+    for( DWORD i = 0 ; i < dwIndexSize ; i += 32 )
+    {
+        SFileInfo			stFileInfo;
 
-		stFileInfo.name.Copy( (char*) &clmIndex[i], 16 );
-		stFileInfo.start = *(DWORD*) &clmIndex[i + 16] + dwOffset;
-		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[i + 20];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+        stFileInfo.name.Copy( (char*) &clmIndex[i], 16 );
+        stFileInfo.start = *(DWORD*) &clmIndex[i + 16] + dwOffset;
+        stFileInfo.sizeCmp = *(DWORD*) &clmIndex[i + 20];
+        stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+        stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
-		pclArc->AddFileInfo( stFileInfo );
-	}
+        pclArc->AddFileInfo( stFileInfo );
+    }
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decode
 
 BOOL	CEthornell::Decode(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	BYTE				abtHeader[16];
+    BYTE				abtHeader[16];
 
-	pclArc->Read( abtHeader, sizeof(abtHeader) );
-	pclArc->SeekCur( -(int)sizeof(abtHeader) );
+    pclArc->Read( abtHeader, sizeof(abtHeader) );
+    pclArc->SeekCur( -(int)sizeof(abtHeader) );
 
-	if( memcmp( abtHeader, "DSC FORMAT 1.00\0", 16 ) == 0 )
-	{
-		// DSC
+    if( memcmp( abtHeader, "DSC FORMAT 1.00\0", 16 ) == 0 )
+    {
+        // DSC
 
-		return	DecodeDSC( pclArc );
-	}
-	else if( memcmp( abtHeader, "CompressedBG___\0", 16 ) == 0 )
-	{
-		// CompressedBG
+        return	DecodeDSC( pclArc );
+    }
+    else if( memcmp( abtHeader, "CompressedBG___\0", 16 ) == 0 )
+    {
+        // CompressedBG
 
-		return	DecodeCBG( pclArc );
-	}
+        return	DecodeCBG( pclArc );
+    }
 
-	// その他
+    // Other
 
-	return	DecodeStd( pclArc );
+    return	DecodeStd( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	DSCのデコード
+//	Decode DSC
 
 BOOL	CEthornell::DecodeDSC(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// 読み込み
+    // Read
 
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
+    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
 
-	pclArc->Read( &clmbtSrc[0], dwSrcSize );
+    pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// 出力用バッファ確保
+    // Ensure output buffer
 
-	DWORD				dwDstSize = *(DWORD*) &clmbtSrc[20];
+    DWORD				dwDstSize = *(DWORD*) &clmbtSrc[20];
 
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
+    YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// DSC解凍
+    // Decompress DSC
 
-	DecompDSC( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
+    DecompDSC( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
 
-	// 画像情報取得
+    // Get image information
 
-	long				lWidth = *(WORD*) &clmbtDst[0];
-	long				lHeight = *(WORD*) &clmbtDst[2];
-	WORD				wBpp = *(WORD*) &clmbtDst[4];
-	WORD				wFlags = *(WORD*) &clmbtDst[6];
+    long				lWidth = *(WORD*) &clmbtDst[0];
+    long				lHeight = *(WORD*) &clmbtDst[2];
+    WORD				wBpp = *(WORD*) &clmbtDst[4];
+    WORD				wFlags = *(WORD*) &clmbtDst[6];
 
-	DWORD				dwOffset = *(DWORD*) &clmbtDst[0];
+    DWORD				dwOffset = *(DWORD*) &clmbtDst[0];
 
-	// 出力
+    // Output
 
-	if( ((wBpp == 8) || (wBpp == 24) || (wBpp == 32)) && (memcmp( &clmbtDst[8], "\0\0\0\0\0\0\0\0", 8 ) == 0) )
-	{
-		// 画像
+    if( ((wBpp == 8) || (wBpp == 24) || (wBpp == 32)) && (memcmp( &clmbtDst[8], "\0\0\0\0\0\0\0\0", 8 ) == 0) )
+    {
+        // Image
 
-		CImage				clImage;
-		YCMemory<BYTE>		clmbtDst2;
-		DWORD				dwDstSize2;
+        CImage				clImage;
+        YCMemory<BYTE>		clmbtDst2;
+        DWORD				dwDstSize2;
 
-		switch( wFlags )
-		{
-		case	0:
-			// 通常
+        switch( wFlags )
+        {
+        case	0:
+            // Common
 
-			clImage.Init( pclArc, lWidth, lHeight, wBpp );
-			clImage.WriteReverse( &clmbtDst[16], (dwDstSize - 16) );
+            clImage.Init( pclArc, lWidth, lHeight, wBpp );
+            clImage.WriteReverse( &clmbtDst[16], (dwDstSize - 16) );
 
-			break;
+            break;
 
-		case	1:
-			// 暗号タイプ1
+        case	1:
+            // Type 1 encryption
 
-			dwDstSize2 = (dwDstSize - 16);
+            dwDstSize2 = (dwDstSize - 16);
 
-			clmbtDst2.resize( dwDstSize2 );
+            clmbtDst2.resize( dwDstSize2 );
 
-			// 復号化
+            // Decryption
 
-			DecryptBGType1( &clmbtDst2[0], &clmbtDst[16], lWidth, lHeight, wBpp );
+            DecryptBGType1( &clmbtDst2[0], &clmbtDst[16], lWidth, lHeight, wBpp );
 
-			// 出力
+            // Output
 
-			clImage.Init( pclArc, lWidth, lHeight, wBpp );
-			clImage.WriteReverse( &clmbtDst2[0], dwDstSize2 );
+            clImage.Init( pclArc, lWidth, lHeight, wBpp );
+            clImage.WriteReverse( &clmbtDst2[0], dwDstSize2 );
 
-			break;
+            break;
 
-		default:
-			// 未知の形式
+        default:
+            // Unknown Format
 
-			pclArc->OpenFile();
-			pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
-		}
-	}
-	else if( (dwOffset < (dwDstSize - 4)) && (memcmp( &clmbtDst[dwOffset], "OggS", 4 ) == 0) )
-	{
-		// Ogg Vorbis
+            pclArc->OpenFile();
+            pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
+        }
+    }
+    else if( (dwOffset < (dwDstSize - 4)) && (memcmp( &clmbtDst[dwOffset], "OggS", 4 ) == 0) )
+    {
+        // Ogg Vorbis
 
-		pclArc->OpenFile( _T(".ogg") );
-		pclArc->WriteFile( &clmbtDst[dwOffset], (dwDstSize - dwOffset), dwSrcSize );
-	}
-	else
-	{
-		// その他
+        pclArc->OpenFile( _T(".ogg") );
+        pclArc->WriteFile( &clmbtDst[dwOffset], (dwDstSize - dwOffset), dwSrcSize );
+    }
+    else
+    {
+        // Other
 
-		pclArc->OpenFile();
-		pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
-	}
+        pclArc->OpenFile();
+        pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
+    }
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CompressedBGのデコード
+//	Decode CompressedBG
 
 BOOL	CEthornell::DecodeCBG(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// CompressedBG読み込み
+    // Read CompressedBG
 
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
+    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
 
-	pclArc->Read( &clmbtSrc[0], dwSrcSize );
+    pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// 幅、高さ、色数取得
+    // Width, Height, Get number of colors
 
-	long				lWidth = *(WORD*) &clmbtSrc[16];
-	long				lHeight = *(WORD*) &clmbtSrc[18];
-	WORD				wBpp = *(WORD*) &clmbtSrc[20];
+    long				lWidth = *(WORD*) &clmbtSrc[16];
+    long				lHeight = *(WORD*) &clmbtSrc[18];
+    WORD				wBpp = *(WORD*) &clmbtSrc[20];
 
-	// 出力用バッファ確保
+    // Ensure output buffer
 
-	DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
+    DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
 
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
+    YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// CompressedBG解凍
+    // CompressedBG Decompression
 
-	DecompCBG( &clmbtDst[0], &clmbtSrc[0] );
+    DecompCBG( &clmbtDst[0], &clmbtSrc[0] );
 
-	// 画像出力
+    // Output Image
 
-	CImage				clImage;
+    CImage				clImage;
 
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+    clImage.Init( pclArc, lWidth, lHeight, wBpp );
+    clImage.WriteReverse( &clmbtDst[0], dwDstSize );
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	その他ファイルのデコード
+//	Decode other files
 
 BOOL	CEthornell::DecodeStd(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	// オフセット取得
+    // Get offset
 
-	DWORD				dwOffset;
+    DWORD				dwOffset;
 
-	pclArc->Read( &dwOffset, 4 );
+    pclArc->Read( &dwOffset, 4 );
 
-	// ファイルヘッダチェック
+    // Check file header
 
-	BYTE				abtHeader[4];
+    BYTE				abtHeader[4];
 
-	if( (pclArc->GetArcPointer() + dwOffset) < pclArc->GetArcSize() )
-	{
-		// ファイルシーク可能なオフセット値
+    if( (pclArc->GetArcPointer() + dwOffset) < pclArc->GetArcSize() )
+    {
+        // Seek possible file offset value
 
-		pclArc->SeekCur( dwOffset - 4 );
-		pclArc->Read( abtHeader, sizeof(abtHeader) );
-	}
-	else
-	{
-		// ファイルシーク不可能なオフセット値(オフセット値ではないと断定)
+        pclArc->SeekCur( dwOffset - 4 );
+        pclArc->Read( abtHeader, sizeof(abtHeader) );
+    }
+    else
+    {
+        // Cannot find a file offset value (Not an offset value)
 
-		dwOffset = 0;
+        dwOffset = 0;
 
-		ZeroMemory( abtHeader, sizeof(abtHeader) );
-	}
+        ZeroMemory( abtHeader, sizeof(abtHeader) );
+    }
 
-	// 出力
+    // Output
 
-	if( memcmp( abtHeader, "OggS", 4 ) == 0 )
-	{
-		// Ogg Vorbis
+    if( memcmp( abtHeader, "OggS", 4 ) == 0 )
+    {
+        // Ogg Vorbis
 
-		pclArc->SeekHed( pclArc->GetOpenFileInfo()->start + dwOffset );
+        pclArc->SeekHed( pclArc->GetOpenFileInfo()->start + dwOffset );
 
-		pclArc->OpenFile( _T(".ogg") );
-	}
-	else
-	{
-		// その他
+        pclArc->OpenFile( _T(".ogg") );
+    }
+    else
+    {
+        // Other
 
-		dwOffset = 0;
+        dwOffset = 0;
 
-		pclArc->SeekHed( pclArc->GetOpenFileInfo()->start );
+        pclArc->SeekHed( pclArc->GetOpenFileInfo()->start );
 
-		pclArc->OpenFile();
-	}
+        pclArc->OpenFile();
+    }
 
-	pclArc->ReadWrite( pclArc->GetOpenFileInfo()->sizeOrg - dwOffset );
+    pclArc->ReadWrite( pclArc->GetOpenFileInfo()->sizeOrg - dwOffset );
 
-	return	TRUE;
+    return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	キーの取得
+//	Get Key
 
 DWORD	CEthornell::GetKey(
-	DWORD*				pdwKey							// 生成元キー
-	)
+    DWORD*				pdwKey							// Key generator
+    )
 {
-	DWORD				dwWork1 = 20021 * (*pdwKey & 0xFFFF);
-	DWORD				dwWork2 = 20021 * (*pdwKey >> 16);
-	DWORD				dwWork  = 346 * (*pdwKey) + dwWork2 + (dwWork1 >> 16);
+    DWORD				dwWork1 = 20021 * (*pdwKey & 0xFFFF);
+    DWORD				dwWork2 = 20021 * (*pdwKey >> 16);
+    DWORD				dwWork  = 346 * (*pdwKey) + dwWork2 + (dwWork1 >> 16);
 
-	*pdwKey = (dwWork << 16) + (dwWork1 & 0xFFFF) + 1;
+    *pdwKey = (dwWork << 16) + (dwWork1 & 0xFFFF) + 1;
 
-	return	(dwWork & 0x7FFF);
+    return	(dwWork & 0x7FFF);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	可変長データの取得
+//	Get variable-length data
 
 DWORD	CEthornell::GetVariableData(
-	const BYTE*			pbtSrc,							// 入力データ
-	DWORD*				pdwDstOfReadLength				// 読み込んだ長さの格納先
-	)
+    const BYTE*			pbtSrc,							// Input data
+    DWORD*				pdwDstOfReadLength				// Destination of read length
+    )
 {
-	DWORD				dwData = 0;
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwShift = 0;
-	BYTE				btCurrentSrc;
+    DWORD				dwData = 0;
+    DWORD				dwSrcPtr = 0;
+    DWORD				dwShift = 0;
+    BYTE				btCurrentSrc;
 
-	do
-	{
-		btCurrentSrc = pbtSrc[dwSrcPtr++];
+    do
+    {
+        btCurrentSrc = pbtSrc[dwSrcPtr++];
 
-		dwData |= (btCurrentSrc & 0x7F) << dwShift;
+        dwData |= (btCurrentSrc & 0x7F) << dwShift;
 
-		dwShift += 7;
-	}
-	while( btCurrentSrc & 0x80 );
+        dwShift += 7;
+    }
+    while( btCurrentSrc & 0x80 );
 
-	if( pdwDstOfReadLength != NULL )
-	{
-		*pdwDstOfReadLength = dwSrcPtr;
-	}
+    if( pdwDstOfReadLength != NULL )
+    {
+        *pdwDstOfReadLength = dwSrcPtr;
+    }
 
-	return	dwData;
+    return	dwData;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	DSCの解凍
+//	DSC Decompression
 
 void	CEthornell::DecompDSC(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
-	)
+    BYTE*				pbtDst,							// Destination
+    DWORD				dwDstSize,						// Destination Size
+    const BYTE*			pbtSrc,							// Compressed Data
+    DWORD				dwSrcSize						// Compressed Data Size
+    )
 {
-	DWORD				dwSrcPtr = 32;
-	DWORD				dwDstPtr = 0;
+    DWORD				dwSrcPtr = 32;
+    DWORD				dwDstPtr = 0;
 
-	DWORD				adwBuffer[512 + 1];
-	DWORD				adwBuffer2[1024];
-	BYTE				abtBuffer3[0x3FF0];
+    DWORD				adwBuffer[512 + 1];
+    DWORD				adwBuffer2[1024];
+    BYTE				abtBuffer3[0x3FF0];
 
-	DWORD				dwCount;
-	DWORD				dwWork;
-	BYTE				btWork;
+    DWORD				dwCount;
+    DWORD				dwWork;
+    BYTE				btWork;
 
-	ZeroMemory( adwBuffer, sizeof(adwBuffer) );
-	ZeroMemory( adwBuffer2, sizeof(adwBuffer2) );
-	ZeroMemory( abtBuffer3, sizeof(abtBuffer3) );
+    ZeroMemory( adwBuffer, sizeof(adwBuffer) );
+    ZeroMemory( adwBuffer2, sizeof(adwBuffer2) );
+    ZeroMemory( abtBuffer3, sizeof(abtBuffer3) );
 
-	// 
+    // 
 
-	DWORD				dwKey = *(DWORD*) &pbtSrc[16];
-	DWORD				dwBufferSize = 0;
+    DWORD				dwKey = *(DWORD*) &pbtSrc[16];
+    DWORD				dwBufferSize = 0;
 
-	for( DWORD i = 0 ; i < 512 ; i++ )
-	{
-		btWork = pbtSrc[dwSrcPtr] - (BYTE) GetKey( &dwKey );
+    for( DWORD i = 0 ; i < 512 ; i++ )
+    {
+        btWork = pbtSrc[dwSrcPtr] - (BYTE) GetKey( &dwKey );
 
-		if( btWork != 0 )
-		{
-			adwBuffer[dwBufferSize++] = (btWork << 16) + i;
-		}
+        if( btWork != 0 )
+        {
+            adwBuffer[dwBufferSize++] = (btWork << 16) + i;
+        }
 
-		dwSrcPtr++;
-	}
+        dwSrcPtr++;
+    }
 
-	adwBuffer[dwBufferSize] = 0;
+    adwBuffer[dwBufferSize] = 0;
 
-	// ソート
+    // Sort
 
-	for( DWORD i = 0 ; i < (dwBufferSize - 1) ; i++ )
-	{
-		for( DWORD j = (i + 1) ; j < dwBufferSize ; j++ )
-		{
-			if( adwBuffer[i] > adwBuffer[j] )
-			{
-				std::swap( adwBuffer[i], adwBuffer[j] );
-			}
-		}
-	}
+    for( DWORD i = 0 ; i < (dwBufferSize - 1) ; i++ )
+    {
+        for( DWORD j = (i + 1) ; j < dwBufferSize ; j++ )
+        {
+            if( adwBuffer[i] > adwBuffer[j] )
+            {
+                std::swap( adwBuffer[i], adwBuffer[j] );
+            }
+        }
+    }
 
-	// 
+    // 
 
-	int					nMin = 0;
-	int					nMax = 1;
-	DWORD				dwBufferPtr = 0;
-	DWORD				dwBufferPtr2 = 0;
-	DWORD				dwBufferPtrPrev2 = 0x200;
-	DWORD				dwCode = 1;
-	DWORD				dwIndex;
+    int					nMin = 0;
+    int					nMax = 1;
+    DWORD				dwBufferPtr = 0;
+    DWORD				dwBufferPtr2 = 0;
+    DWORD				dwBufferPtrPrev2 = 0x200;
+    DWORD				dwCode = 1;
+    DWORD				dwIndex;
 
-	for( dwIndex = 0 ; dwBufferPtr < dwBufferSize ; dwIndex++ )
-	{
-		if( dwIndex & 1 )
-		{
-			dwBufferPtr2 = 0;
-			dwBufferPtrPrev2 = 512;
-		}
-		else
-		{
-			dwBufferPtr2 = 512;
-			dwBufferPtrPrev2 = 0;
-		}
+    for( dwIndex = 0 ; dwBufferPtr < dwBufferSize ; dwIndex++ )
+    {
+        if( dwIndex & 1 )
+        {
+            dwBufferPtr2 = 0;
+            dwBufferPtrPrev2 = 512;
+        }
+        else
+        {
+            dwBufferPtr2 = 512;
+            dwBufferPtrPrev2 = 0;
+        }
 
-		nMin = 0;
+        nMin = 0;
 
-		while( (adwBuffer[dwBufferPtr] >> 16) == dwIndex )
-		{
-			DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
+        while( (adwBuffer[dwBufferPtr] >> 16) == dwIndex )
+        {
+            DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
 
-			pdwBuffer3[0] = 0;
-			pdwBuffer3[1] = adwBuffer[dwBufferPtr] & 0x1FF;
+            pdwBuffer3[0] = 0;
+            pdwBuffer3[1] = adwBuffer[dwBufferPtr] & 0x1FF;
 
-			dwBufferPtr++;
-			dwBufferPtrPrev2++;
+            dwBufferPtr++;
+            dwBufferPtrPrev2++;
 
-			nMin++;
-		}
+            nMin++;
+        }
 
-		for( int i = nMin ; i < nMax ; i++ )
-		{
-			DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
-			DWORD				dwBufferPtr3 = 0;
+        for( int i = nMin ; i < nMax ; i++ )
+        {
+            DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
+            DWORD				dwBufferPtr3 = 0;
 
-			pdwBuffer3[dwBufferPtr3] = 1;
-			dwBufferPtr3 += 2;
+            pdwBuffer3[dwBufferPtr3] = 1;
+            dwBufferPtr3 += 2;
 
-			adwBuffer2[dwBufferPtr2] = dwCode;
-			pdwBuffer3[dwBufferPtr3] = dwCode;
-			dwBufferPtr2++;
-			dwBufferPtr3++;
-			dwCode++;
+            adwBuffer2[dwBufferPtr2] = dwCode;
+            pdwBuffer3[dwBufferPtr3] = dwCode;
+            dwBufferPtr2++;
+            dwBufferPtr3++;
+            dwCode++;
 
-			adwBuffer2[dwBufferPtr2] = dwCode;
-			pdwBuffer3[dwBufferPtr3] = dwCode;
-			dwBufferPtr2++;
-			dwBufferPtr3++;
-			dwCode++;
+            adwBuffer2[dwBufferPtr2] = dwCode;
+            pdwBuffer3[dwBufferPtr3] = dwCode;
+            dwBufferPtr2++;
+            dwBufferPtr3++;
+            dwCode++;
 
-			dwBufferPtrPrev2++;
-		}
+            dwBufferPtrPrev2++;
+        }
 
-		nMax = (nMax - nMin) * 2;
-	}
+        nMax = (nMax - nMin) * 2;
+    }
 
-	//
+    //
 
-	DWORD				dwSize = *(DWORD*) &pbtSrc[24];
-	DWORD				dwSrc;
+    DWORD				dwSize = *(DWORD*) &pbtSrc[24];
+    DWORD				dwSrc;
 
-	dwCount = 0;
+    dwCount = 0;
 
-	for( DWORD i = 0 ; (i < dwSize) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) ; i++ )
-	{
-		dwIndex = 0;
+    for( DWORD i = 0 ; (i < dwSize) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) ; i++ )
+    {
+        dwIndex = 0;
 
-		do
-		{
-			if( dwCount == 0 )
-			{
-				dwSrc = pbtSrc[dwSrcPtr++];
-				dwCount = 8;
-			}
+        do
+        {
+            if( dwCount == 0 )
+            {
+                dwSrc = pbtSrc[dwSrcPtr++];
+                dwCount = 8;
+            }
 
-			dwIndex = dwIndex * 4 + ((dwSrc & 0xFF) >> 7);
-			dwSrc <<= 1;
-			dwCount--;
+            dwIndex = dwIndex * 4 + ((dwSrc & 0xFF) >> 7);
+            dwSrc <<= 1;
+            dwCount--;
 
-			dwIndex = *(DWORD*) &abtBuffer3[4 * dwIndex + 8];
-		}
-		while( *(DWORD*) &abtBuffer3[dwIndex << 4] != 0 );
+            dwIndex = *(DWORD*) &abtBuffer3[4 * dwIndex + 8];
+        }
+        while( *(DWORD*) &abtBuffer3[dwIndex << 4] != 0 );
 
-		dwIndex <<= 4;
-		btWork = abtBuffer3[dwIndex + 4];
+        dwIndex <<= 4;
+        btWork = abtBuffer3[dwIndex + 4];
 
-		if( abtBuffer3[dwIndex + 5] == 1 )
-		{
-			DWORD				dwBitBuffer = (dwSrc & 0xFF) >> (8 - dwCount);
-			DWORD				dwBitCount = dwCount;
+        if( abtBuffer3[dwIndex + 5] == 1 )
+        {
+            DWORD				dwBitBuffer = (dwSrc & 0xFF) >> (8 - dwCount);
+            DWORD				dwBitCount = dwCount;
 
-			if( dwCount < 12 )
-			{
-				dwWork = (19 - dwCount) >> 3;
-				dwBitCount = dwCount + 8 * dwWork;
+            if( dwCount < 12 )
+            {
+                dwWork = (19 - dwCount) >> 3;
+                dwBitCount = dwCount + 8 * dwWork;
 
-				for( DWORD j = 0 ; j < dwWork ; j++ )
-				{
-					dwBitBuffer = (dwBitBuffer << 8) + pbtSrc[dwSrcPtr++];
-				}
-			}
+                for( DWORD j = 0 ; j < dwWork ; j++ )
+                {
+                    dwBitBuffer = (dwBitBuffer << 8) + pbtSrc[dwSrcPtr++];
+                }
+            }
 
-			DWORD				dwBack;
-			DWORD				dwLength;
+            DWORD				dwBack;
+            DWORD				dwLength;
 
-			dwCount = dwBitCount - 12;
-			dwSrc = (dwBitBuffer << (8 - dwCount));
-			dwBack = ((dwBitBuffer >> dwCount) & 0xFFFF) + 2;
-			dwLength = btWork + 2;
+            dwCount = dwBitCount - 12;
+            dwSrc = (dwBitBuffer << (8 - dwCount));
+            dwBack = ((dwBitBuffer >> dwCount) & 0xFFFF) + 2;
+            dwLength = btWork + 2;
 
-			if( (dwBack > dwDstPtr) || (dwDstPtr >= dwDstSize) )
-			{
-				break;
-			}
+            if( (dwBack > dwDstPtr) || (dwDstPtr >= dwDstSize) )
+            {
+                break;
+            }
 
-			for( DWORD j = 0 ; j < dwLength ; j++ )
-			{
-				pbtDst[dwDstPtr + j] = pbtDst[dwDstPtr + j - dwBack];
-			}
+            for( DWORD j = 0 ; j < dwLength ; j++ )
+            {
+                pbtDst[dwDstPtr + j] = pbtDst[dwDstPtr + j - dwBack];
+            }
 
-			dwDstPtr += dwLength;
-		}
-		else
-		{
-			pbtDst[dwDstPtr++] = btWork;
-		}
-	}
+            dwDstPtr += dwLength;
+        }
+        else
+        {
+            pbtDst[dwDstPtr++] = btWork;
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-//	CompressedBGの解凍
+//	CompressedBG Decompression
 
 void	CEthornell::DecompCBG(
-	BYTE*				pbtDst,							// 格納先
-	BYTE*				pbtSrc							// 圧縮データ
-	)
+    BYTE*				pbtDst,							// Destination
+    BYTE*				pbtSrc							// Compressed Data
+    )
 {
-	DWORD				dwSrcPtr = 48;
-	DWORD				dwDstPtr = 0;
+    DWORD				dwSrcPtr = 48;
+    DWORD				dwDstPtr = 0;
 
-	long				lWidth = *(WORD*) &pbtSrc[16];
-	long				lHeight = *(WORD*) &pbtSrc[18];
-	WORD				wBpp = *(WORD*) &pbtSrc[20];
+    long				lWidth = *(WORD*) &pbtSrc[16];
+    long				lHeight = *(WORD*) &pbtSrc[18];
+    WORD				wBpp = *(WORD*) &pbtSrc[20];
 
-	DWORD				dwDstSizeOfHuffman = *(DWORD*) &pbtSrc[32];
-	DWORD				dwKey = *(DWORD*) &pbtSrc[36];
-	DWORD				dwDecryptSize = *(DWORD*) &pbtSrc[40];
+    DWORD				dwDstSizeOfHuffman = *(DWORD*) &pbtSrc[32];
+    DWORD				dwKey = *(DWORD*) &pbtSrc[36];
+    DWORD				dwDecryptSize = *(DWORD*) &pbtSrc[40];
 
-	DWORD				dwWork;
-	BYTE				btWork;
+    DWORD				dwWork;
+    BYTE				btWork;
 
-	// 復号
+    // Decryption
 
-	for( DWORD i = 0 ; i < dwDecryptSize ; i++ )
-	{
-		pbtSrc[dwSrcPtr + i] -= (BYTE) GetKey( &dwKey );
-	}
+    for( DWORD i = 0 ; i < dwDecryptSize ; i++ )
+    {
+        pbtSrc[dwSrcPtr + i] -= (BYTE) GetKey( &dwKey );
+    }
 
-	// 頻度テーブルの取得
+    // Get frequency table
 
-	DWORD				adwFreq[256];
+    DWORD				adwFreq[256];
 
-	for( DWORD i = 0 ; i < 256 ; i++ )
-	{
-		adwFreq[i] = GetVariableData( &pbtSrc[dwSrcPtr], &dwWork );
+    for( DWORD i = 0 ; i < 256 ; i++ )
+    {
+        adwFreq[i] = GetVariableData( &pbtSrc[dwSrcPtr], &dwWork );
 
-		dwSrcPtr += dwWork;
-	}
+        dwSrcPtr += dwWork;
+    }
 
-	// 葉ノードの登録
+    // Leaf node entry
 
-	SNodeInfo			astNodeInfo[511];
-	DWORD				dwFreqTotal = 0;
+    SNodeInfo			astNodeInfo[511];
+    DWORD				dwFreqTotal = 0;
 
-	for( DWORD i = 0 ; i < 256 ; i++ )
-	{
-		astNodeInfo[i].bValidity = (adwFreq[i] > 0);
-		astNodeInfo[i].dwFreq = adwFreq[i];
-		astNodeInfo[i].dwLeft = i;
-		astNodeInfo[i].dwRight = i;
+    for( DWORD i = 0 ; i < 256 ; i++ )
+    {
+        astNodeInfo[i].bValidity = (adwFreq[i] > 0);
+        astNodeInfo[i].dwFreq = adwFreq[i];
+        astNodeInfo[i].dwLeft = i;
+        astNodeInfo[i].dwRight = i;
 
-		dwFreqTotal += adwFreq[i];
-	}
+        dwFreqTotal += adwFreq[i];
+    }
 
-	// 枝ノードの初期化
+    // Initialization of the branch node
 
-	for( DWORD i = 256 ; i < 511 ; i++ )
-	{
-		astNodeInfo[i].bValidity = FALSE;
-		astNodeInfo[i].dwFreq = 0;
-		astNodeInfo[i].dwLeft = (DWORD) -1;
-		astNodeInfo[i].dwRight = (DWORD) -1;
-	}
+    for( DWORD i = 256 ; i < 511 ; i++ )
+    {
+        astNodeInfo[i].bValidity = FALSE;
+        astNodeInfo[i].dwFreq = 0;
+        astNodeInfo[i].dwLeft = (DWORD) -1;
+        astNodeInfo[i].dwRight = (DWORD) -1;
+    }
 
-	// 枝ノードの登録
+    // Branch node entry
 
-	DWORD				dwNodes;
+    DWORD				dwNodes;
 
-	for( dwNodes = 256 ; dwNodes < 511 ; dwNodes++ )
-	{
-		// 最小の二値を得る
+    for( dwNodes = 256 ; dwNodes < 511 ; dwNodes++ )
+    {
+        // Obtain value of minimum two
 
-		DWORD				dwMin;
-		DWORD				dwFreq = 0;
-		DWORD				adwChild[2];
+        DWORD				dwMin;
+        DWORD				dwFreq = 0;
+        DWORD				adwChild[2];
 
-		for( DWORD i = 0 ; i < 2 ; i++ )
-		{
-			dwMin = 0xFFFFFFFF;
-			adwChild[i] = (DWORD) -1;
+        for( DWORD i = 0 ; i < 2 ; i++ )
+        {
+            dwMin = 0xFFFFFFFF;
+            adwChild[i] = (DWORD) -1;
 
-			for( DWORD j = 0 ; j < dwNodes ; j++ )
-			{
-				if( astNodeInfo[j].bValidity && (astNodeInfo[j].dwFreq < dwMin) )
-				{
-					dwMin = astNodeInfo[j].dwFreq;
-					adwChild[i] = j;
-				}
-			}
+            for( DWORD j = 0 ; j < dwNodes ; j++ )
+            {
+                if( astNodeInfo[j].bValidity && (astNodeInfo[j].dwFreq < dwMin) )
+                {
+                    dwMin = astNodeInfo[j].dwFreq;
+                    adwChild[i] = j;
+                }
+            }
 
-			if( adwChild[i] != (DWORD) -1 )
-			{
-				astNodeInfo[adwChild[i]].bValidity = FALSE;
+            if( adwChild[i] != (DWORD) -1 )
+            {
+                astNodeInfo[adwChild[i]].bValidity = FALSE;
 
-				dwFreq += astNodeInfo[adwChild[i]].dwFreq;
-			}
-		}
+                dwFreq += astNodeInfo[adwChild[i]].dwFreq;
+            }
+        }
 
-		// 枝ノードの登録
+        // Registration of branch node 
 
-		astNodeInfo[dwNodes].bValidity = TRUE;
-		astNodeInfo[dwNodes].dwFreq = dwFreq;
-		astNodeInfo[dwNodes].dwLeft = adwChild[0];
-		astNodeInfo[dwNodes].dwRight = adwChild[1];
+        astNodeInfo[dwNodes].bValidity = TRUE;
+        astNodeInfo[dwNodes].dwFreq = dwFreq;
+        astNodeInfo[dwNodes].dwLeft = adwChild[0];
+        astNodeInfo[dwNodes].dwRight = adwChild[1];
 
-		if( dwFreq == dwFreqTotal )
-		{
-			// 終了
+        if( dwFreq == dwFreqTotal )
+        {
+            // Exit
 
-			break;
-		}
-	}
+            break;
+        }
+    }
 
-	// ハフマンの解凍
+    // Huffman Decompression
 
-	DWORD				dwRoot = dwNodes;
-	DWORD				dwMask = 0x80;
+    DWORD				dwRoot = dwNodes;
+    DWORD				dwMask = 0x80;
 
-	YCMemory<BYTE>		clmbtDstOfHuffman( dwDstSizeOfHuffman );
+    YCMemory<BYTE>		clmbtDstOfHuffman( dwDstSizeOfHuffman );
 
-	for( DWORD i = 0 ; i < dwDstSizeOfHuffman ; i++ )
-	{
-		DWORD				dwNode = dwRoot;
+    for( DWORD i = 0 ; i < dwDstSizeOfHuffman ; i++ )
+    {
+        DWORD				dwNode = dwRoot;
 
-		while( dwNode >= 256 )
-		{
-			if( pbtSrc[dwSrcPtr] & dwMask )
-			{
-				dwNode = astNodeInfo[dwNode].dwRight;
-			}
-			else
-			{
-				dwNode = astNodeInfo[dwNode].dwLeft;
-			}
+        while( dwNode >= 256 )
+        {
+            if( pbtSrc[dwSrcPtr] & dwMask )
+            {
+                dwNode = astNodeInfo[dwNode].dwRight;
+            }
+            else
+            {
+                dwNode = astNodeInfo[dwNode].dwLeft;
+            }
 
-			dwMask >>= 1;
+            dwMask >>= 1;
 
-			if( dwMask == 0 )
-			{
-				dwSrcPtr++;
-				dwMask = 0x80;
-			}
-		}
+            if( dwMask == 0 )
+            {
+                dwSrcPtr++;
+                dwMask = 0x80;
+            }
+        }
 
-		clmbtDstOfHuffman[i] = (BYTE) dwNode;
-	}
+        clmbtDstOfHuffman[i] = (BYTE) dwNode;
+    }
 
-	// RLEの解凍
+    // RLE Decompression
 
-	DWORD				dwDstPtrOfHuffman = 0;
-	BYTE				btZeroFlag = 0;
+    DWORD				dwDstPtrOfHuffman = 0;
+    BYTE				btZeroFlag = 0;
 
-	while( dwDstPtrOfHuffman < dwDstSizeOfHuffman )
-	{
-		DWORD				dwLength = GetVariableData( &clmbtDstOfHuffman[dwDstPtrOfHuffman], &dwWork );
+    while( dwDstPtrOfHuffman < dwDstSizeOfHuffman )
+    {
+        DWORD				dwLength = GetVariableData( &clmbtDstOfHuffman[dwDstPtrOfHuffman], &dwWork );
 
-		dwDstPtrOfHuffman += dwWork;
+        dwDstPtrOfHuffman += dwWork;
 
-		if( btZeroFlag )
-		{
-			ZeroMemory( &pbtDst[dwDstPtr], dwLength );
+        if( btZeroFlag )
+        {
+            ZeroMemory( &pbtDst[dwDstPtr], dwLength );
 
-			dwDstPtr += dwLength;
-		}
-		else
-		{
-			memcpy( &pbtDst[dwDstPtr], &clmbtDstOfHuffman[dwDstPtrOfHuffman], dwLength );
+            dwDstPtr += dwLength;
+        }
+        else
+        {
+            memcpy( &pbtDst[dwDstPtr], &clmbtDstOfHuffman[dwDstPtrOfHuffman], dwLength );
 
-			dwDstPtr += dwLength;
-			dwDstPtrOfHuffman += dwLength;
-		}
+            dwDstPtr += dwLength;
+            dwDstPtrOfHuffman += dwLength;
+        }
 
-		btZeroFlag ^= 1;
-	}
+        btZeroFlag ^= 1;
+    }
 
-	// 
+    // 
 
-	WORD				wColors = (wBpp >> 3);
-	long				lLine = lWidth * wColors;
+    WORD				wColors = (wBpp >> 3);
+    long				lLine = lWidth * wColors;
 
-	dwDstPtr = 0;
+    dwDstPtr = 0;
 
-	for( long lY = 0 ; lY < lHeight ; lY++ )
-	{
-		for( long lX = 0 ; lX < lWidth ; lX++ )
-		{
-			for( WORD i = 0 ; i < wColors ; i++ )
-			{
-				if( (lY == 0) && (lX == 0) )
-				{
-					// 左上隅
+    for( long lY = 0 ; lY < lHeight ; lY++ )
+    {
+        for( long lX = 0 ; lX < lWidth ; lX++ )
+        {
+            for( WORD i = 0 ; i < wColors ; i++ )
+            {
+                if( (lY == 0) && (lX == 0) )
+                {
+                    // Top-left corner
 
-					btWork = 0;
-				}
-				else if( lY == 0 )
-				{
-					// 上隅
-					// 左のピクセルを取得
+                    btWork = 0;
+                }
+                else if( lY == 0 )
+                {
+                    // Upper
+                    // Gets the pixel on the left
 
-					btWork = pbtDst[dwDstPtr - wColors];
-				}
-				else if( lX == 0 )
-				{
-					// 左隅
-					// 上のピクセルを取得
+                    btWork = pbtDst[dwDstPtr - wColors];
+                }
+                else if( lX == 0 )
+                {
+                    // Left-hand corner
+                    // Gets the pixel above
 
-					btWork = pbtDst[dwDstPtr - lLine];
-				}
-				else
-				{
-					// その他
-					// 左と上のピクセルの平均を取得
+                    btWork = pbtDst[dwDstPtr - lLine];
+                }
+                else
+                {
+                    // Other
+                    // Gets the average pixels on the left
 
-					btWork = (pbtDst[dwDstPtr - wColors] + pbtDst[dwDstPtr - lLine]) >> 1;
-				}
+                    btWork = (pbtDst[dwDstPtr - wColors] + pbtDst[dwDstPtr - lLine]) >> 1;
+                }
 
-				pbtDst[dwDstPtr++] += btWork;
-			}
-		}
-	}
+                pbtDst[dwDstPtr++] += btWork;
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	画像の復号化
+//	Image Decoding
 
 void	CEthornell::DecryptBGType1(
-	BYTE*				pbtDst,							// 復号化した画像の格納先
-	BYTE*				pbtSrc,							// 暗号化された画像データ
-	long				lWidth,							// 画像の幅
-	long				lHeight,						// 画像の高さ
-	WORD				wBpp							// ビット深度
-	)
+    BYTE*				pbtDst,							// Destination for the decoded images
+    BYTE*				pbtSrc,							// Encrypted image data
+    long				lWidth,							// Image width
+    long				lHeight,						// Image height
+    WORD				wBpp							// Bit depth
+    )
 {
-	WORD				wColors = (wBpp >> 3);
+    WORD				wColors = (wBpp >> 3);
 
-	// 各色成分へのポインタを取得
+    // Get a pointer to each color component
 
-	BYTE*				apbtSrc[4];
+    BYTE*				apbtSrc[4];
 
-	for( WORD i = 0 ; i < wColors ; i++ )
-	{
-		apbtSrc[i] = &pbtSrc[lWidth * lHeight * i];
-	}
+    for( WORD i = 0 ; i < wColors ; i++ )
+    {
+        apbtSrc[i] = &pbtSrc[lWidth * lHeight * i];
+    }
 
-	// 変数の初期化
+    // Initialization of variables
 
-	BYTE				abtPrev[4];
+    BYTE				abtPrev[4];
 
-	ZeroMemory( abtPrev, sizeof( abtPrev ) );
+    ZeroMemory( abtPrev, sizeof( abtPrev ) );
 
-	// 復号化
+    // Decryption
 
-	BYTE*				pbtDst2 = pbtDst;
+    BYTE*				pbtDst2 = pbtDst;
 
-	for( long i = 0 ; i < lHeight ; i++ )
-	{
-		if( i & 0x01 )
-		{
-			pbtDst2 += (lWidth * wColors);
+    for( long i = 0 ; i < lHeight ; i++ )
+    {
+        if( i & 0x01 )
+        {
+            pbtDst2 += (lWidth * wColors);
 
-			for( long j = 0 ; j < lWidth ; j++ )
-			{
-				pbtDst2 -= wColors;
+            for( long j = 0 ; j < lWidth ; j++ )
+            {
+                pbtDst2 -= wColors;
 
-				for( WORD k = 0 ; k < wColors ; k++ )
-				{
-					pbtDst2[k] = *apbtSrc[k]++ + abtPrev[k];
-					abtPrev[k] = pbtDst2[k];
-				}
-			}
+                for( WORD k = 0 ; k < wColors ; k++ )
+                {
+                    pbtDst2[k] = *apbtSrc[k]++ + abtPrev[k];
+                    abtPrev[k] = pbtDst2[k];
+                }
+            }
 
-			pbtDst2 += (lWidth * wColors);
-		}
-		else
-		{
-			for( long j = 0 ; j < lWidth ; j++ )
-			{
-				for( WORD k = 0 ; k < wColors ; k++ )
-				{
-					*pbtDst2 = *apbtSrc[k]++ + abtPrev[k];
-					abtPrev[k] = *pbtDst2++;
-				}
-			}
-		}
-	}
+            pbtDst2 += (lWidth * wColors);
+        }
+        else
+        {
+            for( long j = 0 ; j < lWidth ; j++ )
+            {
+                for( WORD k = 0 ; k < wColors ; k++ )
+                {
+                    *pbtDst2 = *apbtSrc[k]++ + abtPrev[k];
+                    abtPrev[k] = *pbtDst2++;
+                }
+            }
+        }
+    }
 }

@@ -1,44 +1,43 @@
-
 #include	"stdafx.h"
 #include	"Specialite.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decrypted
 
 BOOL	CSpecialite::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	CheckTpm( "F78FF15C0BD396080BCDF431AED59211" );
+    return	CheckTpm( "F78FF15C0BD396080BCDF431AED59211" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Process
 
 DWORD	CSpecialite::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	0xAF;
+    return	0xAF;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+// Decryption Process
 
 DWORD	CSpecialite::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decrypted
+    DWORD				dwTargetSize,					// Decoding Size
+    DWORD				dwOffset,						// Location of data to be decoded (offset)
+    DWORD				dwDecryptKey					// Decryption Key
+    )
 {
-	BYTE				btDecryptKey = (BYTE) dwDecryptKey;
+    BYTE				btDecryptKey = (BYTE) dwDecryptKey;
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i++ )
-	{
-		pbtTarget[i] ^= btDecryptKey;
-		pbtTarget[i] += 1;
-	}
+    for( DWORD i = 0 ; i < dwTargetSize ; i++ )
+    {
+        pbtTarget[i] ^= btDecryptKey;
+        pbtTarget[i] += 1;
+    }
 
-	return	dwTargetSize;
+    return	dwTargetSize;
 }

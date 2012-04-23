@@ -1,74 +1,73 @@
-
 #include	"stdafx.h"
 #include	"Hachukano.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Check if it can be decoded
 
 BOOL	CHachukano::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	return	pclArc->CheckExe( _T("hachukano.exe") );
+    return	pclArc->CheckExe( _T("hachukano.exe") );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize Decryption Process
 
 DWORD	CHachukano::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
-	)
+    CArcFile*			pclArc							// Archive
+    )
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
+    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
 
-	if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
-	{
-		// 復号しないファイル
+    if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
+    {
+        // Files we don't decode
 
-		SetDecryptRequirement( FALSE );
-		return	0;
-	}
+        SetDecryptRequirement( FALSE );
+        return	0;
+    }
 
-	// 復号するサイズ
+    // Size to decrypt
 
-	if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
-	{
-		SetDecryptSize( 512 );
-	}
+    if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
+    {
+        SetDecryptSize( 512 );
+    }
 
-	// 復号キー
+    // Decryption key
 
-	m_dwChangeDecryptKey = 0;
+    m_dwChangeDecryptKey = 0;
 
-	return	(pstFileInfo->key ^ 0x03020100);
+    return	(pstFileInfo->key ^ 0x03020100);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decoding Process
 
 DWORD	CHachukano::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
-	)
+    BYTE*				pbtTarget,						// Data to be decoded
+    DWORD				dwTargetSize,					// Decoding Size
+    DWORD				dwOffset,						// Location of data to be decoded (offset)
+    DWORD				dwDecryptKey					// Decryption Key
+    )
 {
-	// 復号
+    // Decrypt
 
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
-	{
-		if( (i & 255) == 0 )
-		{
-			m_dwChangeDecryptKey = 0;
-		}
-		else
-		{
-			m_dwChangeDecryptKey += 0x04040404;
-		}
+    for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+    {
+        if( (i & 255) == 0 )
+        {
+            m_dwChangeDecryptKey = 0;
+        }
+        else
+        {
+            m_dwChangeDecryptKey += 0x04040404;
+        }
 
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
-	}
+        *(DWORD*) &pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
+    }
 
-	return	dwTargetSize;
+    return	dwTargetSize;
 }

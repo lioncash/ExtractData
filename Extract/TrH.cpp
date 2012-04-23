@@ -7,10 +7,11 @@ BOOL CTrH::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".px")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
 		return FALSE;
+
 	return pclArc->Mount();
 }
 
-// WAVに変換して抽出する関数
+// Function to convert to WAV
 BOOL CTrH::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
@@ -18,11 +19,11 @@ BOOL CTrH::Decode(CArcFile* pclArc)
 	if ((pInfFile->format != _T("PX")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
 		return FALSE;
 
-	// pxヘッダ読み込み
+	// Read px header
 	PXHed pxHed;
 	pclArc->Read(&pxHed, sizeof(PXHed));
 
-	// 出力
+	// Output
 	CWav wav;
 	wav.Init(pclArc, pInfFile->sizeOrg - 44, pxHed.freq, pxHed.channels, pxHed.bits);
 	wav.Write();
