@@ -7,24 +7,24 @@
 
 class CFile {
 protected:
-	HANDLE m_hFile;
+    HANDLE m_hFile;
 
 public:
-	CFile();
-	virtual ~CFile();
+    CFile();
+    virtual ~CFile();
 
-	virtual HANDLE Open(LPCTSTR pFileName, DWORD Mode);
-	virtual BOOL OpenForRead(LPCTSTR pszFileName);
-	virtual BOOL OpenForWrite(LPCTSTR pszFileName);
-	virtual void Close();
-	virtual DWORD Read(LPVOID buf, DWORD size);
-	virtual DWORD ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode = FALSE);
-	virtual DWORD Write(LPCVOID buf, DWORD size);
-	virtual void WriteLine(LPCVOID buf);
-	virtual QWORD Seek(INT64 offset, DWORD SeekMode);
-	virtual QWORD SeekHed(INT64 offset = 0);
-	virtual QWORD SeekEnd(INT64 offset = 0);
-	virtual QWORD SeekCur(INT64 offset);
-	virtual QWORD GetFilePointer();
-	virtual QWORD GetFileSize();
+    virtual HANDLE Open(LPCTSTR pFileName, DWORD Mode);
+    virtual BOOL OpenForRead(LPCTSTR pszFileName);
+    virtual BOOL OpenForWrite(LPCTSTR pszFileName);
+    virtual void Close();
+    virtual DWORD Read(LPVOID buf, DWORD size);
+    virtual DWORD ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode = FALSE);
+    virtual DWORD Write(LPCVOID buf, DWORD size);
+    virtual void WriteLine(LPCVOID buf);
+    virtual QWORD Seek(INT64 offset, DWORD SeekMode);
+    virtual QWORD SeekHed(INT64 offset = 0);
+    virtual QWORD SeekEnd(INT64 offset = 0);
+    virtual QWORD SeekCur(INT64 offset);
+    virtual QWORD GetFilePointer();
+    virtual QWORD GetFileSize();
 };

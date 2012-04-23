@@ -1,6 +1,6 @@
-#pragma		once
+#pragma once
 
-#include	"../ArcFile.h"
+#include "../ArcFile.h"
 
 class CLZSS
 {
