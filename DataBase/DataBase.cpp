@@ -9,7 +9,7 @@
 
 CDataBase::CDataBase()
 {
-	// データベースファイルをフルパスで取得
+	// Retrieves the full path and database file
 	TCHAR modulePath[MAX_PATH];
 	GetModuleFileName(NULL, modulePath, MAX_PATH);
 	PathRemoveFileSpec(modulePath);
@@ -21,7 +21,7 @@ CDataBase::~CDataBase()
 
 }
 
-// データベースからファイルパスとファイル数を取得する関数
+// Function to retrieve a number from the database file path and file
 BOOL CDataBase::ReadFileInfo()
 {/*
 	CFile DBFile;
@@ -33,12 +33,12 @@ BOOL CDataBase::ReadFileInfo()
 		if ((buf >= _T("A:")) && (buf <= _T("Z:"))) {
 			FILEINFODB infFile = {0, buf, 0};
 
-			// ファイル位置取得
+			// Get file position
 			size_t offset = buf.length();
 			file.start = DataBaseFile.tellg();
 			file.start -= offset + 2;
 
-			// ファイル内容取得
+			// Get file contents
 			while (getline(DataBaseFile, buf)) {
 				if (buf == _T(""))
 					break;
@@ -52,26 +52,26 @@ BOOL CDataBase::ReadFileInfo()
 	return 0;
 }
 
-// 選択アイテムを削除する関数
+// Function to delete the selected item
 int CDataBase::DelFileInfo()
 {
 	//HWND DataBaseList = m_DataBaseList;
 	//std::vector<DBFI> *pDBFileInfoList = &m_DBFileInfoList;
 
-	//// 何も選択していなければ削除しない
+	//// Do not delete anything unless it is selected
 	//if (ListView_GetSelectedCount(DataBaseList) <= 0)
 	//	return -1;
 
-	//// UNDO取得
+	//// Get UNDO
 	//GetUndo();
 
-	//// 選択されていないアイテムを取得
+	//// Retrieve the items that are not selected
 	//std::vector<DBFI> NoSelectedItemList;
 	//int FocusedItem = -1, FirstSelectedItem = -1;
 	//int nItemCount = pDBFileInfoList->size();
 	//for (int i = 0; i < nItemCount; i++) {
 	//	UINT uiState = ListView_GetItemState(DataBaseList, i, LVIS_SELECTED | LVIS_FOCUSED);
-	//	// フォーカス状態のアイテム番号取得
+	//	// Get the item number of the focus state
 	//	if ((FocusedItem == -1) && (uiState & LVIS_FOCUSED))
 	//		FocusedItem = i;
 	//	if ((FirstSelectedItem == -1) && (uiState & LVIS_SELECTED))
@@ -80,35 +80,35 @@ int CDataBase::DelFileInfo()
 	//		NoSelectedItemList.push_back((*pDBFileInfoList)[i]);
 	//}
 
-	//// DBFileInfoListに選択されていないアイテムを格納することで、選択されたアイテムを削除することができる(eraseだと遅い)
+	//// By storing items that are not selected in the DBFileInfoList (slow to erase) it is possible to deleted the selected item
 	//pDBFileInfoList->clear();
 	//*pDBFileInfoList = NoSelectedItemList;
 	//NoSelectedItemList.clear();
 
 	//SendMessage(DataBaseList, WM_SETREDRAW, FALSE, 0);
 
-	//// リストビュー更新
+	//// Update listview
 	//ListView listview(m_hWnd);
 	//listview.Update(DataBaseList, *pDBFileInfoList, FirstSelectedItem);
 
 	//nItemCount = pDBFileInfoList->size();
-	//// 連続して削除出来るようにアイテムを選択状態にする
-	//if (FocusedItem < nItemCount) { // 何故か中括弧をつけないとコンパイルできない
+	//// State so that you can continually remove selected items
+	//if (FocusedItem < nItemCount) { // Can not compile without a brace for some reason
 	//	ListView_SetItemState(DataBaseList, FocusedItem, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
 	//}
-	//// 総項目数を超えていたら一番下のアイテムにフォーカス
+	//// Item focus at the bottom has exceeded the total number of items
 	//else
 	//	ListView_SetItemState(DataBaseList, nItemCount - 1, LVIS_FOCUSED, LVIS_FOCUSED);
 
 	//SendMessage(DataBaseList, WM_SETREDRAW, TRUE, 0);
 
-	//// REDO取得
+	//// Get REDO
 	//GetRedo();
 
 	return 0;
 }
 
-// 編集後の内容に従ってデータベースを保存
+// After editing, save the contents of the database
 BOOL CDataBase::SaveFileInfo()
 {
 	//CFile DBFile;
@@ -117,20 +117,20 @@ BOOL CDataBase::SaveFileInfo()
 
 	//std::vector<DBFI>& pEntDB = m_entDB;
 
-	//// データベースファイルの容量取得
+	//// Obtain the capacity of the database file
 	//QWORD FileSize = DBFile.GetFileSize();
 
-	//// ファイルサイズが0だったら保存する必要がないので終了
+	//// End because there is no need to save when the file size is 0
 	//if (FileSize == 0)
 	//	return -1;
 
 	//try {
-	//	// 容量分のメモリを割り当てる
+	//	// Allocate memory 
 	//	char *str = new char[FileSize + 1];
 	//	ZeroMemory(str, FileSize + 1);
 	//	char *pstr = str;
 
-	//	// strに保存するデータベースを読み込む
+	//	// Read the database string that you want to save to str
 	//	size_t FileCount = pDBFileInfoList->size();
 	//	for (size_t i = 0; i < FileCount; i++) {
 	//		rDataBaseFile.seekg((*pDBFileInfoList)[i].start);
@@ -146,7 +146,7 @@ BOOL CDataBase::SaveFileInfo()
 	//		}
 	//	}
 
-	//	// database.txtに書き込み
+	//	// Write database.txt
 	//	std::ofstream wDataBaseFile(m_DataBaseName);
 	//	wDataBaseFile << str;
 
@@ -161,7 +161,7 @@ BOOL CDataBase::SaveFileInfo()
 	//	std::ifstream DataBaseFile_tmp(DataBaseName_tmp);
 	//	std::ofstream DataBaseFile(m_DataBaseName);
 
-	//	// database.txtに書き込み
+	//	// Write database.txt
 	//	size_t FileCount = pDBFileInfoList->size();
 	//	for (DWORD i = 0; i < FileCount; i++) {
 	//		DataBaseFile_tmp.seekg((*pDBFileInfoList)[i].start);
@@ -178,7 +178,7 @@ BOOL CDataBase::SaveFileInfo()
 	return 0;
 }
 
-// 選択したアイテム番号をリストに格納する関数
+// Function to store the selected items in a list
 int CDataBase::GetSelItem(std::vector<int> *SelectedItemList)
 {
 	//HWND DataBaseList = m_DataBaseList;
@@ -197,7 +197,7 @@ int CDataBase::GetSelItem(std::vector<int> *SelectedItemList)
 	return 0;
 }
 
-// UndoRedoListをクリアする関数
+// Function to clear the UndoRedoList
 void CDataBase::ClearUndoRedo()
 {
 	//std::vector<UndoRedo> *pUndoRedoList = &m_UndoRedoList;
@@ -211,38 +211,38 @@ void CDataBase::ClearUndoRedo()
 	//}
 }
 
-// UNDOを取得する関数
+// Function that retrieves UNDO
 int CDataBase::GetUndo()
 {
-	//// 前回のUndoRedoList消去
+	//// Erase previous UndoRedoList
 	//ClearUndoRedo();
 
 	//HWND DataBaseList = m_DataBaseList;
 	//std::vector<UndoRedo> *pUndoRedoList = &m_UndoRedoList;
 
-	//// 新たなUndo作成
+	//// Create a new undo
 	//UndoRedo newUndo;
 	//newUndo.DBFileInfoList = m_DBFileInfoList;
 	//GetSelItem(&newUndo.SelectedItemList);
 	//newUndo.FocusedItem = ListView_GetNextItem(DataBaseList, -1, LVNI_ALL | LVNI_FOCUSED);
-	//// UndoRedoListに追加
+	//// Add to UndoRedoList
 	//pUndoRedoList->push_back(newUndo);
 
 	return 0;
 }
 
-// REDOを取得する関数
+// Function that gets REDO
 int CDataBase::GetRedo()
 {
 	//HWND DataBaseList = m_DataBaseList;
 	//std::vector<UndoRedo> *pUndoRedoList = &m_UndoRedoList;
 
-	//// 新たなRedo作成
+	//// Create a new redo
 	//UndoRedo newRedo;
 	//newRedo.DBFileInfoList = m_DBFileInfoList;
 	//GetSelItem(&newRedo.SelectedItemList);
 	//newRedo.FocusedItem = ListView_GetNextItem(DataBaseList, -1, LVNI_ALL | LVNI_FOCUSED);
-	//// UndoRedoListに追加
+	//// Add to UndoRedoList
 	//pUndoRedoList->push_back(newRedo);
 
 	//m_Redo_flag = false;
@@ -250,7 +250,7 @@ int CDataBase::GetRedo()
 	return 0;
 }
 
-// 取り消しを行う関数
+// Do the undo function
 int CDataBase::SetUndo()
 {
 	//HWND DataBaseList = m_DataBaseList;
@@ -258,22 +258,22 @@ int CDataBase::SetUndo()
 	//std::vector<UndoRedo> *pUndoRedoList = &m_UndoRedoList;
 	//bool Redo_flag = m_Redo_flag;
 
-	//// UndoRedoListが空だったら何もしない
+	//// If nothing, empty list
 	//if (pUndoRedoList->empty())
 	//	return -1;
 
-	//// リストアイテム復元
+	//// Restore a list item
 	//SendMessage(DataBaseList, WM_SETREDRAW, FALSE, 0);
 	//*pDBFileInfoList = (*pUndoRedoList)[Redo_flag].DBFileInfoList;
 	//ListView listview(m_hWnd);
 	//listview.Update(DataBaseList, *pDBFileInfoList, ListView_GetTopIndex(DataBaseList));
 
-	//// 選択状態復元
+	//// Restore the selected state
 	//size_t size = (*pUndoRedoList)[Redo_flag].SelectedItemList.size();
 	//for (int i = 0; i < (int)size; i++)
 	//	ListView_SetItemState(DataBaseList, (*pUndoRedoList)[Redo_flag].SelectedItemList[i], LVIS_SELECTED, LVIS_SELECTED);
 
-	//// フォーカス復元
+	//// Restore focus
 	//ListView_SetItemState(DataBaseList, (*pUndoRedoList)[Redo_flag].FocusedItem, LVIS_FOCUSED, LVIS_FOCUSED);
 	//SendMessage(DataBaseList, WM_SETREDRAW, TRUE, 0);
 
@@ -289,34 +289,34 @@ void CDataBase::DoModal(HWND hWnd)
 	DialogBoxParam(hInst, _T("DATABASE"), hWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
 }
 
-// データベース編集ダイアログ
+// Edit database dialog
 LRESULT CDataBase::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg) {
 		case WM_INITDIALOG:
 		{
-			// データベースリスト作成
+			// Create database list
 			m_listview.Create(hWnd, *m_pOption);
-			// 各種ボタン作成
-			m_DelButton.Create(hWnd, _T("削除"), ID_DB_BUTTON1);
-			m_UndoButton.Create(hWnd, _T("元に戻す"), ID_DB_BUTTON2);
-			m_AllSelButton.Create(hWnd, _T("すべて選択"), ID_DB_BUTTON3);
-			m_EndButton.Create(hWnd, _T("編集終了"), ID_DB_BUTTON4);
-			// 親ウィンドウの中央に表示する座標を求める
+			// Create various buttons
+			m_DelButton.Create(hWnd, _T("Edit"), ID_DB_BUTTON1);
+			m_UndoButton.Create(hWnd, _T("Undo"), ID_DB_BUTTON2);
+			m_AllSelButton.Create(hWnd, _T("Select all"), ID_DB_BUTTON3);
+			m_EndButton.Create(hWnd, _T("Finish"), ID_DB_BUTTON4);
+			// Seek the coordinates displayed in the center of the parent window
 			RECT rc;
 			GetWindowRect(GetParent(hWnd), (LPRECT)&rc);
 			int width = 600;
 			int height = 400;
 			int left = rc.left + ((rc.right - rc.left) - width) / 2;
 			int top = rc.top + ((rc.bottom - rc.top) - height) / 2;
-			// ウィンドウ位置・サイズ設定
+			// Window position and size settings
 			//SaveLoadIni slini(hWnd);
 			//slini.LoadWindowPlacement(idsDataBaseWindow, left, top, width, height);
 			//slini.LoadListView(idsDataBaseList, &sort_param, 1);
 
-			// データベースファイル読み込み
+			// Read database file
 			ReadFileInfo();
-			// ソートして表示
+			// Sort
 			m_listview.Sort();
 
 			SetFocus(hWnd);
@@ -326,28 +326,28 @@ LRESULT CDataBase::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_COMMAND:
 		{
 			switch (LOWORD(wp)) {
-				case ID_DB_BUTTON1: // 削除
+				case ID_DB_BUTTON1: // Edit
 				//case IDM_DEL:
 					DelFileInfo();
 					m_listview.SetFocus();
 					return FALSE;
 
-				case ID_DB_BUTTON2: // 取り消し
+				case ID_DB_BUTTON2: // Undo
 				//case IDM_UNDO:
 					SetUndo();
 					m_listview.SetFocus();
 					return FALSE;
 
-				case ID_DB_BUTTON3: // すべて選択
+				case ID_DB_BUTTON3: // Select all
 				//case IDM_SELECTALL:
 					m_listview.SetAllItemSelect();
 					m_listview.SetFocus();
 					return FALSE;
 
-				case ID_DB_BUTTON4: // 編集終了
+				case ID_DB_BUTTON4: // Finish
 					SaveFileInfo();
-				case IDCANCEL: // キャンセル
-					m_EndButton.SetFocus(); // 落ちるのを防ぐ
+				case IDCANCEL: // Cancel
+					m_EndButton.SetFocus(); // Prevent lack of focus
 
 					//SaveLoadIni slini(hWnd);
 					//slini.SaveWindowPlacement(idsDataBaseWindow);
@@ -370,7 +370,7 @@ LRESULT CDataBase::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			if (wp == ID_LISTVIEW2) { //IDチェック
+			if (wp == ID_LISTVIEW2) { //ID Check
 				LPNMLISTVIEW pNM = (LPNMLISTVIEW)lp;
 				switch (pNM->hdr.code) {
 					case LVN_COLUMNCLICK:
@@ -401,12 +401,12 @@ LRESULT CDataBase::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	return FALSE;
 }
 
-// 1度読み込んだことのあるファイルかどうかをデータベースファイルからチェックする関数
+// Function to check whether the file from the database file may be read or not
 BOOL CDataBase::Check(CArcFile* pArc)
 {
 	//OPTION* pOption = pArc->GetOpt();
 
-	//// データベース機能を使わない場合はFALSEを返し、ファイルから情報を取得する
+	//// If you do not want to use the database function, it returns FALSE
 	//if (pOption->bUseDB == FALSE)
 	//	return FALSE;
 
@@ -414,23 +414,23 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	//if (DBFile.Open(m_DBFilePath) == NULL)
 	//	return FALSE;
 
-	//// ヘッダチェック
+	//// Check header
 	//if (memcmp(DBFile.GetFilePointer(), "EDDB", 4) != 0)
 	//	return FALSE;
 
-	//// アーカイブ数取得
+	//// Get archive count
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPDWORD pCtArc = (LPDWORD)DBFile.GetFilePointer();
 
-	//// インデックスサイズ取得
+	//// Get index size
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPDWORD pIndexSize = (LPDWORD)DBFile.GetFilePointer();
 
-	//// インデックス取得
+	//// Get index
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPBYTE pIndex = (LPBYTE)DBFile.GetFilePointer();
 
-	//// 前に一度読み込んだことがないかチェック
+	//// Check whether or not the file has already been read
 	//BOOL bOpen = FALSE;
 	//DWORD IndexOffset = 0;
 	//for (DWORD i = 0; i < *pCtArc; i++) {
@@ -444,7 +444,7 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	//	IndexOffset += offset;
 	//}
 
-	//// 読み込んだことがなければFALSEを返す
+	//// Returns false if the file has not been read
 	//if (bOpen == FALSE)
 	//	return FALSE;
 
@@ -452,7 +452,7 @@ BOOL CDataBase::Check(CArcFile* pArc)
 
 	//tstring buf;
 	//while (DBFile.ReadLine(buf) == TRUE) {
-	//	// データベースに同じファイル名があったら同ファイルと判断し、データベースからファイル情報取得
+	//	// Determines if the same file with the same name is in the database
 	//	if (buf == pArc->GetArcPath()) {
 	//		//std::vector<CFI> *pCFileInfoList = &g_CFileInfoList;
 	//		size_t size_prev = pArc->GetFileInfo().size();
@@ -460,7 +460,7 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	//		sFileExt += pOption->szExtMode;
 
 	//		while (DBFile.ReadLine(buf) == TRUE) {
-	//			// 改行まで読んだら抜ける
+	//			// After reading up to the newline escape
 	//			if (buf == _T(""))
 	//				break;
 
@@ -471,14 +471,14 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	//			is >> infFile.name >> infFile.sizeOrg >> infFile.start;
 	//			//sscanf(buf.c_str(), "%s %d %x", filename, &cfile.size, &cfile.start);
 
-	//			// モードに合った拡張子のファイル情報だけ取得(標準モードのときはすべて取得)
-	//			if ((lstrcmp(pOption->szExtMode, _T("標準")) == 0) || (lstrcmpi(PathFindExtension(infFile.name.c_str()), sFileExt.c_str()) == 0)) {
+	//			// Only get file information that matches the mode of extension (When in standard mode, get everything)
+	//			if ((lstrcmp(pOption->szExtMode, _T("Standard")) == 0) || (lstrcmpi(PathFindExtension(infFile.name.c_str()), sFileExt.c_str()) == 0)) {
 	//				infFile.sizeCmp = infFile.sizeOrg;
 	//				infFile.end = infFile.start + infFile.sizeOrg;
 	//				infFile.format = extract.SetFileFormat(cfile.name);
 	//				pArc->SetFileInfo(infFile);
 	//			}
-	//			// MPG抽出モードでsfdファイルが読まれたら取得
+	//			// Once the file is in get mode. sfd extraction mode
 	//			else if ((lstrcmp(pOption.ExtMode, _T("MPG")) == 0) && (lstrcmpi(PathFindExtension(infFile.name.c_str()), _T(".sfd")) == 0)) {
 	//				infFile.sizeCmp = infFile.sizeOrg;
 	//				infFile.end = infFile.start + infFile.sizeOrg;
@@ -487,7 +487,7 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	//			}
 	//		}
 
-	//		// 増えていなかったらこのモードでは読み込んだことがないと判断
+	//		// If in this mode, determine if the size has changed
 	//		if (size_prev == pArc->GetFileInfo().size())
 	//			return FALSE;
 	//		else
@@ -498,10 +498,10 @@ BOOL CDataBase::Check(CArcFile* pArc)
 	return FALSE;
 }
 
-// 読み込んだ情報をデータベースファイルに書き込む関数
+// Function that writes information to the database
 BOOL CDataBase::Add(CArcFile* pArc)
 {
-	// データベース機能を使わない場合はデータベースファイルに書き込まない
+	// If you do not want to use the database
 	//if (pArc->GetOpt()->bUseDB == FALSE)
 	//	return FALSE;
 
@@ -510,7 +510,7 @@ BOOL CDataBase::Add(CArcFile* pArc)
 	//size_t nEndEnt = pEnt.size();
 	//size_t ctFile = nEndEnt - nStartEnt;
 
-	//// 最後まで読み込み、モードに合った拡張子のファイルが見つかったときデータベースファイルに書き込む
+	//// Write to the database file when read to the end, the file extension that matches the mode is found
 	//if (ctFile == 0)
 	//	return FALSE;
 
@@ -518,23 +518,23 @@ BOOL CDataBase::Add(CArcFile* pArc)
 	//if (DBFile.Open(m_DBFilePath) == NULL)
 	//	return FALSE;
 
-	//// ヘッダチェック
+	//// Check header
 	//if (memcmp(DBFile.GetFilePointer(), "EDDB", 4) != 0)
 	//	return FALSE;
 
-	//// アーカイブ数取得
+	//// Get archive count
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPDWORD pCtArc = (LPDWORD)DBFile.GetFilePointer();
 
-	//// インデックスサイズ取得
+	//// Get index size
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPDWORD pIndexSize = (LPDWORD)DBFile.GetFilePointer();
 
-	//// インデックス取得
+	//// Get index
 	//DBFile.Seek(4, FILE_CURRENT);
 	//LPBYTE pIndex = (LPBYTE)DBFile.GetFilePointer();
 
-	//// 前に一度読み込んだことがないかチェック
+	//// Check whether or not the file has been read before
 	//BOOL bOpen = FALSE;
 	//DWORD IndexOffset = 0;
 	//for (DWORD i = 0; i < *pCtArc; i++) {
@@ -553,17 +553,17 @@ BOOL CDataBase::Add(CArcFile* pArc)
 	//	
 	//}
 	//else {
-	//	// ヘッダ更新
+	//	// Update header
 	//	(*pCtArc)++;
 	//	*pIndexSize += pArc->GetArcPath().length() + 13;
 
-	//	// インデックス追加
+	//	// Add index
 	//	DBFile.Append(pArc->GetArcPath().c_str(), pArc->GetArcPath().length() + 1);
 	//	LPDWORD pDataSize = (LPDWORD)DBFile.Append(&ctFile, 4);
 	//	LPDWORD pOffset = DBFile.Append(NULL, 4);
 	//	DBFile.Append(NULL, 4);
 
-	//	// データ追加
+	//	// Add data
 	//	LPDWORD offset = DBFile.SeekEnd();
 	//	for (size_t i = nStartEnt; i < nEndEnt; i++) {
 	//		DBFile.Append(pEnt[i].name.c_str(), pEnt[i].name.length() + 1);

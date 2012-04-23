@@ -8,7 +8,8 @@ CDropSource::CDropSource()
 
 HRESULT WINAPI CDropSource::QueryInterface(const IID& iid, LPVOID* ppv)
 {
-	if ((iid == IID_IDropSource) || (iid == IID_IUnknown)) {
+	if ((iid == IID_IDropSource) || (iid == IID_IUnknown))
+    {
 		*ppv = (LPVOID)this;
 		AddRef();
 		return S_OK;
@@ -30,6 +31,7 @@ ULONG WINAPI CDropSource::Release()
 {
 	if (InterlockedDecrement(&m_RefCount) == 0)
 		delete this;
+        
 	return (ULONG)m_RefCount;
 }
 
@@ -38,14 +40,17 @@ HRESULT WINAPI CDropSource::QueryContinueDrag(BOOL bEscapePressed, DWORD grfKeyS
 	/* Decide whether or not to contine the drag */
 
 	/* When the mouse button is pressed or if the ESC has been pressed, both will discontinue the drag */
-	if (bEscapePressed || (MK_LBUTTON | MK_RBUTTON) == (grfKeyState & (MK_LBUTTON | MK_RBUTTON))){
+	if (bEscapePressed || (MK_LBUTTON | MK_RBUTTON) == (grfKeyState & (MK_LBUTTON | MK_RBUTTON)))
+    {
 		return DRAGDROP_S_CANCEL;
 	}
 
 	/* When the mouse button is releasedd, then drop */
-	if ((grfKeyState & (MK_LBUTTON | MK_RBUTTON)) == 0){
+	if ((grfKeyState & (MK_LBUTTON | MK_RBUTTON)) == 0)
+    {
 		return DRAGDROP_S_DROP;
 	}
+    
 	return S_OK;
 }
 

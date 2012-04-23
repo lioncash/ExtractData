@@ -9,7 +9,8 @@ CDataObject::CDataObject()
 
 HRESULT WINAPI CDataObject::QueryInterface(const IID& iid, LPVOID* ppv)
 {
-    if ((iid == IID_IDataObject) || (iid == IID_IUnknown)) {
+    if ((iid == IID_IDataObject) || (iid == IID_IUnknown))
+    {
         *ppv = (LPVOID)this;
         AddRef();
         return S_OK;
@@ -29,6 +30,7 @@ ULONG WINAPI CDataObject::Release()
 {
     if (InterlockedDecrement(&m_RefCount) == 0)
         delete this;
+        
     return (ULONG)m_RefCount;
 }
 
@@ -41,10 +43,13 @@ HRESULT WINAPI CDataObject::GetData(FORMATETC* pFormatetc, STGMEDIUM* pMedium)
         return DV_E_DVASPECT;
 
     std::vector<CObject>& objects = m_objects;
-    for (int i = 0; i < (int)objects.size(); i++) {
-        if ((objects[i].m_fmt.cfFormat == pFormatetc->cfFormat) && ((objects[i].m_fmt.tymed & pFormatetc->tymed) != 0)) {
+    for (int i = 0; i < (int)objects.size(); i++)
+    {
+        if ((objects[i].m_fmt.cfFormat == pFormatetc->cfFormat) && ((objects[i].m_fmt.tymed & pFormatetc->tymed) != 0))
+        {
             if (CSTGMEDIUM::Dup(pMedium, &objects[i].m_fmt, &objects[i].m_medium) == FALSE)
                 return E_OUTOFMEMORY;
+                
             return S_OK;
         }
     }
@@ -66,7 +71,8 @@ HRESULT WINAPI CDataObject::QueryGetData(FORMATETC* pFormatetc)
         return DV_E_DVASPECT;
 
     std::vector<CObject>& objects = m_objects;
-    for (int i = 0; i < (int)objects.size(); i++){
+    for (int i = 0; i < (int)objects.size(); i++)
+    {
         if ((objects[i].m_fmt.cfFormat == pFormatetc->cfFormat) && ((objects[i].m_fmt.tymed & pFormatetc->tymed) != 0))
             return S_OK;
     }
@@ -80,14 +86,17 @@ HRESULT WINAPI CDataObject::EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC** pp
         return E_INVALIDARG;
     
     *ppEnumFormatetc = NULL;
-    switch (dwDirection) {
+    switch (dwDirection)
+    {
         case DATADIR_GET:
         {
             CEnumFORMATETC* pfmt = new CEnumFORMATETC();
             if (pfmt == NULL)
                 return E_OUTOFMEMORY;
+                
             for (int i = 0; i < (int)m_objects.size(); i++)
                 pfmt->SetFormat(&m_objects[i].m_fmt);
+                
             *ppEnumFormatetc = pfmt;
             break;
         }

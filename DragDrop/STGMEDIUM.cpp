@@ -5,7 +5,8 @@ BOOL CSTGMEDIUM::Dup(STGMEDIUM* pdest, const FORMATETC* pFormatetc, const STGMED
 {
 	HANDLE hVoid = NULL;
 
-	switch (pMedium->tymed) {
+	switch (pMedium->tymed)
+    {
 	case TYMED_HGLOBAL:
 		hVoid = OleDuplicateData(pMedium->hGlobal, pFormatetc->cfFormat, (UINT)NULL);
 		pdest->hGlobal = (HGLOBAL)hVoid;

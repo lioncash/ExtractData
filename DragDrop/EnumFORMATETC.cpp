@@ -9,7 +9,8 @@ CEnumFORMATETC::CEnumFORMATETC()
 
 HRESULT WINAPI CEnumFORMATETC::QueryInterface(const IID& iid, LPVOID* ppv)
 {
-	if ((iid == IID_IEnumFORMATETC) || (iid == IID_IUnknown)) {
+	if ((iid == IID_IEnumFORMATETC) || (iid == IID_IUnknown))
+    {
 		*ppv = (LPVOID)this;
 		AddRef();
 		return S_OK;
@@ -29,6 +30,7 @@ ULONG WINAPI CEnumFORMATETC::Release()
 {
 	if (InterlockedDecrement(&m_RefCount) == 0)
 		delete this;
+        
 	return (ULONG)m_RefCount;
 }
 
@@ -46,11 +48,13 @@ HRESULT WINAPI CEnumFORMATETC::Next(ULONG celt, FORMATETC* rgelt, ULONG* pceltFe
 		return S_FALSE;
 
 	ULONG n = celt;
-	while ((m_current < (int)fmt.size()) && (n > 0)) {
+	while ((m_current < (int)fmt.size()) && (n > 0))
+    {
 		*rgelt++ = fmt[m_current];
 		m_current++;
 		n--;
 	}
+    
 	if (pceltFetched != NULL)
 		*pceltFetched = celt - n;
     

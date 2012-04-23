@@ -24,16 +24,22 @@ public:
 	BOOL allocate(int num);
 
 protected:
-	class CObject {
+	class CObject
+    {
+    
 	public:
 		FORMATETC m_fmt;
 		STGMEDIUM m_medium;
+        
 	public:
 		CObject() { m_medium.tymed = TYMED_NULL; }
         ~CObject() { if (m_medium.tymed != TYMED_NULL) ReleaseStgMedium(&m_medium); }
-		BOOL Set(FORMATETC* pf, STGMEDIUM* pm, BOOL bRelease) {
+		
+        BOOL Set(FORMATETC* pf, STGMEDIUM* pm, BOOL bRelease)
+        {
 			m_fmt = *pf;
-			if (bRelease) {
+			if (bRelease)
+            {
 				m_medium = *pm;
 				return TRUE;
 			}
