@@ -1,7 +1,6 @@
-
-#include	"stdafx.h"
-#include	"Common.h"
-#include	"LastDir.h"
+#include "stdafx.h"
+#include "Common.h"
+#include "LastDir.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Constructor
@@ -14,7 +13,7 @@ CLastDir::CLastDir()
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Load ini file
 
-void	CLastDir::LoadIni()
+void    CLastDir::LoadIni()
 {
 	YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
 
@@ -29,7 +28,7 @@ void	CLastDir::LoadIni()
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Save ini file
 
-void	CLastDir::SaveIni()
+void    CLastDir::SaveIni()
 {
 	YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
 
@@ -44,7 +43,7 @@ void	CLastDir::SaveIni()
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Get the last opened folder
 
-LPTSTR	CLastDir::GetOpen()
+LPTSTR  CLastDir::GetOpen()
 {
 	return	m_szOpen;
 }
@@ -52,7 +51,7 @@ LPTSTR	CLastDir::GetOpen()
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Get the last folder where something was saved to it
 
-LPTSTR	CLastDir::GetSave()
+LPTSTR  CLastDir::GetSave()
 {
 	return	m_szSave;
 }

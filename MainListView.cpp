@@ -136,7 +136,8 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
 {
     static std::vector<SFileInfo>& pEnt = m_ent;
 
-    switch (ptip->iSubItem) {
+    switch (ptip->iSubItem)
+    {
         case 0:
             // dwFlags to display (when the character is hidden), in this case 0
             // dwFlags (even when the left-most column is not hidden) in this case 1
@@ -172,7 +173,8 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
 BOOL CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 {
     static SORTPARAM* pSort = m_pSort;
-    switch (pSort->column) {
+    switch (pSort->column)
+    {
         case 1:
             return (retCompare(a.name, b.name));
         case 2:
@@ -188,6 +190,7 @@ BOOL CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
         case 7:
             return (retCompare(a.end, b.end));
     }
+
     return FALSE;
 }
 

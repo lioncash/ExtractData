@@ -1,6 +1,6 @@
-#include	"stdafx.h"
-#include	"File.h"
-#include	"MD5.h"
+#include "stdafx.h"
+#include "File.h"
+#include "MD5.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Constructor

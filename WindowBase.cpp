@@ -1,7 +1,6 @@
-
-#include	"stdafx.h"
-#include	"Common.h"
-#include	"WindowBase.h"
+#include "stdafx.h"
+#include "Common.h"
+#include "WindowBase.h"
 
 CWindowBase::CWindowBase()
 {

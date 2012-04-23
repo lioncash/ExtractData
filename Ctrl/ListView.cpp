@@ -1,8 +1,7 @@
-
-#include	"stdafx.h"
-#include	"../Common.h"
-#include	"../res/ResExtractData.h"
-#include	"ListView.h"
+#include "stdafx.h"
+#include "../Common.h"
+#include "../res/ResExtractData.h"
+#include "ListView.h"
 
 SORTPARAM* CListView::m_pSort;
 
