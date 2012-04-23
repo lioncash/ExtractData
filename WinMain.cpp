@@ -33,11 +33,11 @@
 int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow)
 {
 #ifdef	_DEBUG
-	::_CrtSetDbgFlag( _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF );
+    ::_CrtSetDbgFlag( _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF );
 #endif
 
-	CWinMain main;
-	return main.WinMain(hInst, hPrevInst, lpsCmdLine, nCmdShow);
+    CWinMain main;
+    return main.WinMain(hInst, hPrevInst, lpsCmdLine, nCmdShow);
 }
 
 #define	WINDOWCLASS_NAME								_T("ExtractDataClass")
@@ -45,13 +45,13 @@ int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, in
 
 CWinMain::CWinMain()
 {
-	m_hWnd = NULL;
-	ZeroMemory(&m_wc, sizeof(WNDCLASSEX));
+    m_hWnd = NULL;
+    ZeroMemory(&m_wc, sizeof(WNDCLASSEX));
 
-	m_hInst = NULL;
-	m_hPrevInst = NULL;
-	m_lpsCmdLine = NULL;
-	m_nCmdShow = 0;
+    m_hInst = NULL;
+    m_hPrevInst = NULL;
+    m_lpsCmdLine = NULL;
+    m_nCmdShow = 0;
 }
 
 CWinMain::~CWinMain()
@@ -60,441 +60,462 @@ CWinMain::~CWinMain()
 
 int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow)
 {
-	// WinMain function receives an argument of the program, which is assigned to a member variable
-	m_hInst = hInst;
-	m_hPrevInst = hPrevInst;
-	m_lpsCmdLine = lpsCmdLine;
-	m_nCmdShow = nCmdShow;
+    // WinMain function receives an argument of the program, which is assigned to a member variable
+    m_hInst = hInst;
+    m_hPrevInst = hPrevInst;
+    m_lpsCmdLine = lpsCmdLine;
+    m_nCmdShow = nCmdShow;
 
-	OleInitialize(NULL);
+    OleInitialize(NULL);
 
-	if (!InitApp())
-		return FALSE;
+    if (!InitApp())
+        return FALSE;
 
-	if (!InitInstance())
-		return FALSE;
+    if (!InitInstance())
+        return FALSE;
 
-	HACCEL hAccel = LoadAccelerators(hInst, _T("MYACCEL"));
-	if (!hAccel)
-		return FALSE;
+    HACCEL hAccel = LoadAccelerators(hInst, _T("MYACCEL"));
+    if (!hAccel)
+        return FALSE;
 
-	COption option;
-	MSG msg;
-	int bRet;
-	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
-		if (bRet == -1)
-			break;
-		else if (!TranslateAccelerator(m_hWnd, hAccel, &msg)) {
-			//if (option.GetHandle() || !PropSheet_IsDialogMessage(option.GetHandle(), &msg)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			//}
-			//if (option.GetHandle() && PropSheet_GetCurrentPageHwnd(option.GetHandle()) == NULL) {
-				// Exits the property sheet
-			//	option.Close();
-			//}
-		}
-	}
+    COption option;
+    MSG msg;
+    int bRet;
+    while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
+    {
+        if (bRet == -1)
+        {
+            break;
+        }
+        else if (!TranslateAccelerator(m_hWnd, hAccel, &msg))
+        {
+            //if (option.GetHandle() || !PropSheet_IsDialogMessage(option.GetHandle(), &msg))
+            //{
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            //}
+            //if (option.GetHandle() && PropSheet_GetCurrentPageHwnd(option.GetHandle()) == NULL)
+            //{
+                // Exits the property sheet
+            //	option.Close();
+            //}
+        }
+    }
 
-	OleUninitialize();
-	return (int)msg.wParam;
+    OleUninitialize();
+    return (int)msg.wParam;
 }
 
 // Window class registration
 ATOM CWinMain::InitApp()
 {
-	WNDCLASSEX wc;
-	wc.cbSize			= sizeof(WNDCLASSEX);
-	wc.style			= CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc		= (WNDPROC)CWindowBase::WndStaticProc; // Procedure name
-	wc.cbClsExtra		= 0;
-	wc.cbWndExtra		= 0;
-	wc.hInstance		= m_hInst;	// Instance
-	wc.hIcon			= LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
-	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
-	wc.lpszMenuName		= _T("MAINMENU"); // Menu name
-	wc.lpszClassName	= WINDOWCLASS_NAME;
-	wc.hIconSm			= LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
+    WNDCLASSEX wc;
+    wc.cbSize			= sizeof(WNDCLASSEX);
+    wc.style			= CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc		= (WNDPROC)CWindowBase::WndStaticProc; // Procedure name
+    wc.cbClsExtra		= 0;
+    wc.cbWndExtra		= 0;
+    wc.hInstance		= m_hInst;	// Instance
+    wc.hIcon			= LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
+    wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground	= (HBRUSH)(COLOR_BTNFACE+1);
+    wc.lpszMenuName		= _T("MAINMENU"); // Menu name
+    wc.lpszClassName	= WINDOWCLASS_NAME;
+    wc.hIconSm			= LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
 
-	m_wc = wc;
-	return (RegisterClassEx(&m_wc));
+    m_wc = wc;
+    return (RegisterClassEx(&m_wc));
 }
 
 // Window creation
 BOOL CWinMain::InitInstance()
 {
-	m_hWnd = CreateWindow(WINDOWCLASS_NAME,
-		WINDOW_NAME,	// This name will be displayed in the title bar
-		WS_OVERLAPPEDWINDOW,	// Type of window
-		0,	// X Coordinate
-		0,	// Y Coordinate
-		0,	// Width
-		0,	// Height
-		NULL,	// When creating the parent window handle, the parent is NULL
-		NULL,	// When creating the menu handle, the handle is NULL
-		m_hInst,	// Instance handle
-		(LPVOID)this);
-	if (!m_hWnd)
-		return FALSE;
+    m_hWnd = CreateWindow(WINDOWCLASS_NAME,
+        WINDOW_NAME,	// This name will be displayed in the title bar
+        WS_OVERLAPPEDWINDOW,	// Type of window
+        0,	// X Coordinate
+        0,	// Y Coordinate
+        0,	// Width
+        0,	// Height
+        NULL,	// When creating the parent window handle, the parent is NULL
+        NULL,	// When creating the menu handle, the handle is NULL
+        m_hInst,	// Instance handle
+        (LPVOID)this);
+    if (!m_hWnd)
+        return FALSE;
 
-	Init(idsMainWindow, 640, 480);
-	UpdateWindow(m_hWnd);
+    Init(idsMainWindow, 640, 480);
+    UpdateWindow(m_hWnd);
 
-	return TRUE;
+    return TRUE;
 }
 
 // Window Procedure
 LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	static CMainToolBar MainToolBar;
-	static CSearchToolBar SearchToolBar;
-	static CMainListView listview;
-	static CStatusBar statusbar;
-	static CExtractData extract;
-	static COption option;
-	static CVersionInfo version;
-	static CLastDir lastdir;
-	static TCHAR ReadmeFileName[MAX_PATH], HistoryFileName[MAX_PATH], StateFileName[MAX_PATH];
-	INITCOMMONCONTROLSEX ic;
+    static CMainToolBar MainToolBar;
+    static CSearchToolBar SearchToolBar;
+    static CMainListView listview;
+    static CStatusBar statusbar;
+    static CExtractData extract;
+    static COption option;
+    static CVersionInfo version;
+    static CLastDir lastdir;
+    static TCHAR ReadmeFileName[MAX_PATH], HistoryFileName[MAX_PATH], StateFileName[MAX_PATH];
+    INITCOMMONCONTROLSEX ic;
 
-	switch (msg) {
-	case WM_CREATE:
-		{
-			// Allow D&D (Drag & Drop)
-			DragAcceptFiles(hWnd, TRUE);
+    switch (msg) {
+    case WM_CREATE:
+        {
+            // Allow D&D (Drag & Drop)
+            DragAcceptFiles(hWnd, TRUE);
 
-			option.Init(SearchToolBar, listview);
+            option.Init(SearchToolBar, listview);
 
-			// Initialization of the common installation configuration
-			ic.dwSize = sizeof(INITCOMMONCONTROLSEX);
-			ic.dwICC = ICC_WIN95_CLASSES;
-			InitCommonControlsEx(&ic);
-			// Create main toolbar
-			MainToolBar.Create(hWnd);
-			SearchToolBar.Create(hWnd);
-			// Create list view
-			listview.Create(hWnd, option.GetOpt());
-			// Create status bar
-			statusbar.Create(hWnd, option.GetOpt(), listview);
+            // Initialization of the common installation configuration
+            ic.dwSize = sizeof(INITCOMMONCONTROLSEX);
+            ic.dwICC = ICC_WIN95_CLASSES;
+            InitCommonControlsEx(&ic);
+            // Create main toolbar
+            MainToolBar.Create(hWnd);
+            SearchToolBar.Create(hWnd);
+            // Create list view
+            listview.Create(hWnd, option.GetOpt());
+            // Create status bar
+            statusbar.Create(hWnd, option.GetOpt(), listview);
 
-			// Get full path
-			TCHAR ModulePath[MAX_PATH];
-			GetModuleFileName(NULL, ModulePath, MAX_PATH);
-			PathRemoveFileSpec(ModulePath);
-			// Retrieves full path of the location of Readme.txt
-			lstrcpy(ReadmeFileName, ModulePath);
-			PathAppend(ReadmeFileName, _T("Readme.txt"));
-			// Retrieves full path of the location of History.txt
-			lstrcpy(HistoryFileName, ModulePath);
-			PathAppend(HistoryFileName, _T("History.txt"));
-			// Retrieves full path of the location of State.txt
-			lstrcpy(StateFileName, ModulePath);
-			PathAppend(StateFileName, _T("State.txt"));
+            // Get full path
+            TCHAR ModulePath[MAX_PATH];
+            GetModuleFileName(NULL, ModulePath, MAX_PATH);
+            PathRemoveFileSpec(ModulePath);
+            // Retrieves full path of the location of Readme.txt
+            lstrcpy(ReadmeFileName, ModulePath);
+            PathAppend(ReadmeFileName, _T("Readme.txt"));
+            // Retrieves full path of the location of History.txt
+            lstrcpy(HistoryFileName, ModulePath);
+            PathAppend(HistoryFileName, _T("History.txt"));
+            // Retrieves full path of the location of State.txt
+            lstrcpy(StateFileName, ModulePath);
+            PathAppend(StateFileName, _T("State.txt"));
 
-			extract.Init(hWnd, option.GetOpt(), listview);
-			break;
-		}
+            extract.Init(hWnd, option.GetOpt(), listview);
+            break;
+        }
 
-	case WM_DROPFILES:
-		extract.OpenDrop(wp);
-		MainToolBar.AddOpenHistory(extract.GetArcList());
-		statusbar.SetCount();
-		break;
+    case WM_DROPFILES:
+        extract.OpenDrop(wp);
+        MainToolBar.AddOpenHistory(extract.GetArcList());
+        statusbar.SetCount();
+        break;
 
-	case WM_COMMAND:
-		switch (LOWORD(wp)) {
-		case IDM_OPEN: // Open a file to load
-			extract.Open(lastdir.GetOpen());
-			MainToolBar.AddOpenHistory(extract.GetArcList());
-			statusbar.SetCount();
-			lastdir.SaveIni();
-			break;
+    case WM_COMMAND:
+        switch (LOWORD(wp)) {
+        case IDM_OPEN: // Open a file to load
+            extract.Open(lastdir.GetOpen());
+            MainToolBar.AddOpenHistory(extract.GetArcList());
+            statusbar.SetCount();
+            lastdir.SaveIni();
+            break;
 
-		case	IDM_CLOSE:
-			// Close the opened file
+        case	IDM_CLOSE:
+            // Close the opened file
 
-			extract.Close();
-			statusbar.SetCount();
-			break;
+            extract.Close();
+            statusbar.SetCount();
+            break;
 
-		// Open a file from history
-		case ID_TOOLBAR_OPEN_HISTORY:
-		case ID_TOOLBAR_OPEN_HISTORY+1:
-		case ID_TOOLBAR_OPEN_HISTORY+2:
-		case ID_TOOLBAR_OPEN_HISTORY+3:
-		case ID_TOOLBAR_OPEN_HISTORY+4:
-		case ID_TOOLBAR_OPEN_HISTORY+5:
-		case ID_TOOLBAR_OPEN_HISTORY+6:
-		case ID_TOOLBAR_OPEN_HISTORY+7:
-		case ID_TOOLBAR_OPEN_HISTORY+8:
-		case ID_TOOLBAR_OPEN_HISTORY+9:
-			extract.OpenHistory(MainToolBar.GetHistory()[LOWORD(wp)-ID_TOOLBAR_OPEN_HISTORY]);
-			MainToolBar.AddOpenHistory(extract.GetArcList());
-			statusbar.SetCount();
-			break;
+        // Open a file from history
+        case ID_TOOLBAR_OPEN_HISTORY:
+        case ID_TOOLBAR_OPEN_HISTORY+1:
+        case ID_TOOLBAR_OPEN_HISTORY+2:
+        case ID_TOOLBAR_OPEN_HISTORY+3:
+        case ID_TOOLBAR_OPEN_HISTORY+4:
+        case ID_TOOLBAR_OPEN_HISTORY+5:
+        case ID_TOOLBAR_OPEN_HISTORY+6:
+        case ID_TOOLBAR_OPEN_HISTORY+7:
+        case ID_TOOLBAR_OPEN_HISTORY+8:
+        case ID_TOOLBAR_OPEN_HISTORY+9:
+            extract.OpenHistory(MainToolBar.GetHistory()[LOWORD(wp)-ID_TOOLBAR_OPEN_HISTORY]);
+            MainToolBar.AddOpenHistory(extract.GetArcList());
+            statusbar.SetCount();
+            break;
 
-		// Search button configuration file
-		case IDM_AHX:
-		case IDM_BMP:
-		case IDM_JPG:
-		case IDM_MID:
-		case IDM_MPG:
-		case IDM_OGG:
-		case IDM_PNG:
-		case IDM_WAV:
-		case IDM_WMV:
-			SearchToolBar.SetSearch(LOWORD(wp));
-			break;
+        // Search button configuration file
+        case IDM_AHX:
+        case IDM_BMP:
+        case IDM_JPG:
+        case IDM_MID:
+        case IDM_MPG:
+        case IDM_OGG:
+        case IDM_PNG:
+        case IDM_WAV:
+        case IDM_WMV:
+            SearchToolBar.SetSearch(LOWORD(wp));
+            break;
 
-		// Quick settings
-		case IDM_QUICKSET_STD_SEARCHOGG:
-		case IDM_QUICKSET_EXTRACT_CREATEFOLDER:
-		case IDM_QUICKSET_EXTRACT_FIXOGG:
-		case IDM_QUICKSET_EXTRACT_EASYDECRYPT:
-		case IDM_QUICKSET_EXTRACT_DSTPNG:
-		case IDM_QUICKSET_EXTRACT_ALPHABLEND:
-		case IDM_QUICKSET_SUSIE_USE:
-		case IDM_QUICKSET_SUSIE_FIRST:
-			SetQuickMenuItem(LOWORD(wp));
-			break;
+        // Quick settings
+        case IDM_QUICKSET_STD_SEARCHOGG:
+        case IDM_QUICKSET_EXTRACT_CREATEFOLDER:
+        case IDM_QUICKSET_EXTRACT_FIXOGG:
+        case IDM_QUICKSET_EXTRACT_EASYDECRYPT:
+        case IDM_QUICKSET_EXTRACT_DSTPNG:
+        case IDM_QUICKSET_EXTRACT_ALPHABLEND:
+        case IDM_QUICKSET_SUSIE_USE:
+        case IDM_QUICKSET_SUSIE_FIRST:
+            SetQuickMenuItem(LOWORD(wp));
+            break;
 
-		case IDM_EXIT: // Exit
-			SendMessage(hWnd, WM_CLOSE, 0, 0);
-			break;
+        case IDM_EXIT: // Exit
+            SendMessage(hWnd, WM_CLOSE, 0, 0);
+            break;
 
-		case IDM_EXTRACT:
-			// Extract the selected range
+        case IDM_EXTRACT:
+            // Extract the selected range
 
-			if( listview.GetCountSel() > 0 )
-			{
-				extract.SaveSel( lastdir.GetSave(), TRUE );
-			}
+            if( listview.GetCountSel() > 0 )
+            {
+                extract.SaveSel( lastdir.GetSave(), TRUE );
+            }
 
-			lastdir.SaveIni();
-			break;
+            lastdir.SaveIni();
+            break;
 
-		case IDM_EXTRACTALL:
-			// Extract all
+        case IDM_EXTRACTALL:
+            // Extract all
 
-			if( listview.GetCount() > 0 )
-			{
-				extract.SaveAll( lastdir.GetSave(), TRUE );
-			}
+            if( listview.GetCount() > 0 )
+            {
+                extract.SaveAll( lastdir.GetSave(), TRUE );
+            }
 
-			lastdir.SaveIni();
-			break;
+            lastdir.SaveIni();
+            break;
 
-		case	IDM_EXTRACT_NOTCONVERT:
-			// Extracts the selection without converting it
+        case	IDM_EXTRACT_NOTCONVERT:
+            // Extracts the selection without converting it
 
-			if( listview.GetCountSel() > 0 )
-			{
-				extract.SaveSel( lastdir.GetSave(), FALSE );
-			}
+            if( listview.GetCountSel() > 0 )
+            {
+                extract.SaveSel( lastdir.GetSave(), FALSE );
+            }
 
-			lastdir.SaveIni();
-			break;
+            lastdir.SaveIni();
+            break;
 
-		case	IDM_EXTRACTALL_NOTCONVERT:
-			// Extracts all without conversion
+        case	IDM_EXTRACTALL_NOTCONVERT:
+            // Extracts all without conversion
 
-			if( listview.GetCount() > 0 )
-			{
-				extract.SaveAll( lastdir.GetSave(), FALSE );
-			}
+            if( listview.GetCount() > 0 )
+            {
+                extract.SaveAll( lastdir.GetSave(), FALSE );
+            }
 
-			lastdir.SaveIni();
-			break;
+            lastdir.SaveIni();
+            break;
 
-		case IDM_SELECTALL: // Select all
-			listview.SetItemSelAll(LVIS_SELECTED);
-			break;
+        case IDM_SELECTALL: // Select all
+            listview.SetItemSelAll(LVIS_SELECTED);
+            break;
 
-		case IDM_OPTION: // Options
-			option.DoModal(hWnd);
-			break;
+        case IDM_OPTION: // Options
+            option.DoModal(hWnd);
+            break;
 
-		case IDM_README: // Open Readme.txt
-			ShellExecute(NULL, _T("open"), ReadmeFileName, NULL, NULL, SW_SHOWNORMAL);
-			break;
+        case IDM_README: // Open Readme.txt
+            ShellExecute(NULL, _T("open"), ReadmeFileName, NULL, NULL, SW_SHOWNORMAL);
+            break;
 
-		case IDM_HISTORY: // Open History.txt
-			ShellExecute(NULL, _T("open"), HistoryFileName, NULL, NULL, SW_SHOWNORMAL);
-			break;
+        case IDM_HISTORY: // Open History.txt
+            ShellExecute(NULL, _T("open"), HistoryFileName, NULL, NULL, SW_SHOWNORMAL);
+            break;
 
-		case IDM_STATE: // Open State.txt
-			ShellExecute(NULL, _T("open"), StateFileName, NULL, NULL, SW_SHOWNORMAL);
-			break;
+        case IDM_STATE: // Open State.txt
+            ShellExecute(NULL, _T("open"), StateFileName, NULL, NULL, SW_SHOWNORMAL);
+            break;
 
-		case IDM_VERSION: // Version info
-			version.DoModal(hWnd);
-			break;
-		}
-		break;
+        case IDM_VERSION: // Version info
+            version.DoModal(hWnd);
+            break;
+        }
+        break;
 
-	// Right-click Menu
-	case WM_CONTEXTMENU:
-		CreateMenu(lp);
-		break;
+    // Right-click Menu
+    case WM_CONTEXTMENU:
+        CreateMenu(lp);
+        break;
 
-	case WM_MOUSEWHEEL:
-		{
-			POINT pos;
-			GetCursorPos(&pos);
-			HWND pWnd = WindowFromPoint(pos);
-			if (pWnd == listview.GetHandle())
-				SendMessage(pWnd, WM_MOUSEWHEEL, wp, lp);
-			break;
-		}
+    case WM_MOUSEWHEEL:
+        {
+            POINT pos;
+            GetCursorPos(&pos);
+            HWND pWnd = WindowFromPoint(pos);
+            if (pWnd == listview.GetHandle())
+                SendMessage(pWnd, WM_MOUSEWHEEL, wp, lp);
+            break;
+        }
 
-	case WM_NOTIFY:
-		{
-			// Toolbar
-			if (wp == ID_TOOLBAR) {
-				LPNMTOOLBAR pNM = (LPNMTOOLBAR)lp;
-				switch (pNM->hdr.code) {
-					// File History
-					case TBN_DROPDOWN:
-						MainToolBar.CreateMenuHistory(pNM->iItem);
-						break;
-				}
-			}
+    case WM_NOTIFY:
+        {
+            // Toolbar
+            if (wp == ID_TOOLBAR)
+            {
+                LPNMTOOLBAR pNM = (LPNMTOOLBAR)lp;
+                switch (pNM->hdr.code)
+                {
+                    // File History
+                    case TBN_DROPDOWN:
+                        MainToolBar.CreateMenuHistory(pNM->iItem);
+                        break;
+                }
+            }
 
-			// List view
-			if (wp == idsMainList) {
-				LPNMLISTVIEW pNM = (LPNMLISTVIEW)lp;
-				switch (pNM->hdr.code) {
-				// Sort
-				case LVN_COLUMNCLICK:
-					listview.Sort(pNM->iSubItem);
-					break;
-				// Show Tooltips
-				case LVN_GETINFOTIP:
-					listview.ShowTip((LPNMLVGETINFOTIP)lp);
-					break;
-				// View
-				case LVN_GETDISPINFO:
-					listview.Show((NMLVDISPINFO*)lp);
-					break;
-				// D&D (Drag & Drop)
-				case LVN_BEGINDRAG:
-					//extract.SaveDrop();
-					LRESULT				lResult;
-					listview.OnBeginDrag( (NMHDR*)lp, &lResult );
-					break;
-				// Playback / Viewing by double-clicking
-				case NM_DBLCLK:
-					if (listview.GetCountSel() > 0) {
-						extract.DecodeTmp();
-						extract.OpenRelate();
-					}
-					break;
-				}
-			}
-			break;
-		}
+            // List view
+            if (wp == idsMainList)
+            {
+                LPNMLISTVIEW pNM = (LPNMLISTVIEW)lp;
+                switch (pNM->hdr.code)
+                {
+                // Sort
+                case LVN_COLUMNCLICK:
+                    listview.Sort(pNM->iSubItem);
+                    break;
+                // Show Tooltips
+                case LVN_GETINFOTIP:
+                    listview.ShowTip((LPNMLVGETINFOTIP)lp);
+                    break;
+                // View
+                case LVN_GETDISPINFO:
+                    listview.Show((NMLVDISPINFO*)lp);
+                    break;
+                // D&D (Drag & Drop)
+                case LVN_BEGINDRAG:
+                    //extract.SaveDrop();
+                    LRESULT				lResult;
+                    listview.OnBeginDrag( (NMHDR*)lp, &lResult );
+                    break;
+                // Playback / Viewing by double-clicking
+                case NM_DBLCLK:
+                    if (listview.GetCountSel() > 0)
+                    {
+                        extract.DecodeTmp();
+                        extract.OpenRelate();
+                    }
+                    break;
+                }
+            }
+            break;
+        }
 
-	case WM_SIZE:
-		MainToolBar.SetWindowPos(0, 0, 100, 26);
-		SearchToolBar.SetWindowPos(100, 0, LOWORD(lp), 26);
-		listview.SetWindowPos(0, 28, LOWORD(lp), HIWORD(lp) - 48);
-		statusbar.SetWindowPos(LOWORD(lp));
-		break;
+    case WM_SIZE:
+        MainToolBar.SetWindowPos(0, 0, 100, 26);
+        SearchToolBar.SetWindowPos(100, 0, LOWORD(lp), 26);
+        listview.SetWindowPos(0, 28, LOWORD(lp), HIWORD(lp) - 48);
+        statusbar.SetWindowPos(LOWORD(lp));
+        break;
 
-	case WM_CLOSE:
-		// Save
-		SaveIni();
-		listview.SaveIni();
-		// Clean up
-		extract.Close();
-		DestroyWindow(hWnd);
-		break;
+    case WM_CLOSE:
+        // Save
+        SaveIni();
+        listview.SaveIni();
+        // Clean up
+        extract.Close();
+        DestroyWindow(hWnd);
+        break;
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
 
-	default:
-		return (DefWindowProc(hWnd, msg, wp, lp));
-	}
+    default:
+        return (DefWindowProc(hWnd, msg, wp, lp));
+    }
 
-	return 0;
+    return 0;
 }
 
 void CWinMain::CreateMenu(LPARAM lp)
 {
-	POINT pt;
-	pt.x = LOWORD(lp);
-	pt.y = HIWORD(lp);
+    POINT pt;
+    pt.x = LOWORD(lp);
+    pt.y = HIWORD(lp);
 
-	HMENU rMenu = LoadMenu(m_hInst, _T("RMENU"));
-	HMENU rSubMenu = GetSubMenu(rMenu, 0);
+    HMENU rMenu = LoadMenu(m_hInst, _T("RMENU"));
+    HMENU rSubMenu = GetSubMenu(rMenu, 0);
 
-	SetQuickMenu(rMenu);
+    SetQuickMenu(rMenu);
 
-	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, NULL);
-	DestroyMenu(rMenu);
+    TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, NULL);
+    DestroyMenu(rMenu);
 }
 
 void CWinMain::SetQuickMenu(HMENU hMenu)
 {
-	COption clOption;
-	SOption& stOption = clOption.GetOpt();
+    COption clOption;
+    SOption& stOption = clOption.GetOpt();
 
-	struct SQuickSet {
-		LPBOOL pbOption;
-		int nID;
-	} stQuickSet[] = {
-		{&stOption.bHighSearchOgg,	IDM_QUICKSET_STD_SEARCHOGG},
-		{&stOption.bCreateFolder,	IDM_QUICKSET_EXTRACT_CREATEFOLDER},
-		{&stOption.bFixOgg,			IDM_QUICKSET_EXTRACT_FIXOGG},
-		{&stOption.bEasyDecrypt,	IDM_QUICKSET_EXTRACT_EASYDECRYPT},
-		{&stOption.bDstPNG,			IDM_QUICKSET_EXTRACT_DSTPNG},
-		{&stOption.bAlphaBlend,		IDM_QUICKSET_EXTRACT_ALPHABLEND},
-		{&stOption.bSusieUse,		IDM_QUICKSET_SUSIE_USE},
-		{&stOption.bSusieFirst,		IDM_QUICKSET_SUSIE_FIRST}
-	};
+    struct SQuickSet 
+    {
+        LPBOOL pbOption;
+        int nID;
+    } 
+    
+    stQuickSet[] = {
+        {&stOption.bHighSearchOgg,	IDM_QUICKSET_STD_SEARCHOGG},
+        {&stOption.bCreateFolder,	IDM_QUICKSET_EXTRACT_CREATEFOLDER},
+        {&stOption.bFixOgg,			IDM_QUICKSET_EXTRACT_FIXOGG},
+        {&stOption.bEasyDecrypt,	IDM_QUICKSET_EXTRACT_EASYDECRYPT},
+        {&stOption.bDstPNG,			IDM_QUICKSET_EXTRACT_DSTPNG},
+        {&stOption.bAlphaBlend,		IDM_QUICKSET_EXTRACT_ALPHABLEND},
+        {&stOption.bSusieUse,		IDM_QUICKSET_SUSIE_USE},
+        {&stOption.bSusieFirst,		IDM_QUICKSET_SUSIE_FIRST}
+    };
 
-	for (int i = 0; i < ARRAYSIZE(stQuickSet); i++) {
-		UINT uCheck = MF_BYCOMMAND | (*stQuickSet[i].pbOption == TRUE) ? MF_CHECKED : MF_UNCHECKED;
-		CheckMenuItem(hMenu, stQuickSet[i].nID, uCheck);
-	}
+    for (int i = 0; i < ARRAYSIZE(stQuickSet); i++)
+    {
+        UINT uCheck = MF_BYCOMMAND | (*stQuickSet[i].pbOption == TRUE) ? MF_CHECKED : MF_UNCHECKED;
+        CheckMenuItem(hMenu, stQuickSet[i].nID, uCheck);
+    }
 }
 
 void CWinMain::SetQuickMenuItem(int nID)
 {
-	COption clOption;
-	SOption& stOption = clOption.GetOpt();
+    COption clOption;
+    SOption& stOption = clOption.GetOpt();
 
-	struct SQuickSet {
-		LPBOOL pbOption;
-		int nID;
-	} stQuickSet[] = {
-		{&stOption.bHighSearchOgg,	IDM_QUICKSET_STD_SEARCHOGG},
-		{&stOption.bCreateFolder,	IDM_QUICKSET_EXTRACT_CREATEFOLDER},
-		{&stOption.bFixOgg,			IDM_QUICKSET_EXTRACT_FIXOGG},
-		{&stOption.bEasyDecrypt,	IDM_QUICKSET_EXTRACT_EASYDECRYPT},
-		{&stOption.bDstPNG,			IDM_QUICKSET_EXTRACT_DSTPNG},
-		{&stOption.bAlphaBlend,		IDM_QUICKSET_EXTRACT_ALPHABLEND},
-		{&stOption.bSusieUse,		IDM_QUICKSET_SUSIE_USE},
-		{&stOption.bSusieFirst,		IDM_QUICKSET_SUSIE_FIRST}
-	};
+    struct SQuickSet
+    {
+        LPBOOL pbOption;
+        int nID;
+    } 
+    
+    stQuickSet[] = {
+        {&stOption.bHighSearchOgg,	IDM_QUICKSET_STD_SEARCHOGG},
+        {&stOption.bCreateFolder,	IDM_QUICKSET_EXTRACT_CREATEFOLDER},
+        {&stOption.bFixOgg,			IDM_QUICKSET_EXTRACT_FIXOGG},
+        {&stOption.bEasyDecrypt,	IDM_QUICKSET_EXTRACT_EASYDECRYPT},
+        {&stOption.bDstPNG,			IDM_QUICKSET_EXTRACT_DSTPNG},
+        {&stOption.bAlphaBlend,		IDM_QUICKSET_EXTRACT_ALPHABLEND},
+        {&stOption.bSusieUse,		IDM_QUICKSET_SUSIE_USE},
+        {&stOption.bSusieFirst,		IDM_QUICKSET_SUSIE_FIRST}
+    };
 
-	for (int i = 0; i < ARRAYSIZE(stQuickSet); i++) {
-		if (stQuickSet[i].nID == nID)
-			*stQuickSet[i].pbOption ^= 1;
-	}
+    for (int i = 0; i < ARRAYSIZE(stQuickSet); i++)
+    {
+        if (stQuickSet[i].nID == nID)
+            *stQuickSet[i].pbOption ^= 1;
+    }
 
-	if (nID == IDM_QUICKSET_EXTRACT_DSTPNG) {
-		// Extract images as PNG or BMP depending on setting
-		stOption.bDstBMP ^= 1;
-	}
-	else if (nID == IDM_QUICKSET_SUSIE_USE && stOption.bSusieUse == TRUE) {
-		// Load Susie Plug-ins
-		CSusie clSusie;
-		clSusie.LoadSpi(stOption.SusieDir);
-	}
+    if (nID == IDM_QUICKSET_EXTRACT_DSTPNG)
+    {
+        // Extract images as PNG or BMP depending on setting
+        stOption.bDstBMP ^= 1;
+    }
+    else if (nID == IDM_QUICKSET_SUSIE_USE && stOption.bSusieUse == TRUE)
+    {
+        // Load Susie Plug-ins
+        CSusie clSusie;
+        clSusie.LoadSpi(stOption.SusieDir);
+    }
 
-	clOption.SaveIni();
+    clOption.SaveIni();
 }

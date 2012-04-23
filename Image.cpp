@@ -166,7 +166,7 @@ BOOL	CImage::Write(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	èoóÕ
+//	Output
 
 BOOL	CImage::Write(
 	const void*			pvBMPData,						// BMP Data(Header not included)
