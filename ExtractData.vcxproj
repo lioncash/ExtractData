@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{26582B53-8D9A-4803-A5FD-6063BB4B843B}</ProjectGuid>
+    <RootNamespace>ExtractData</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">F:\SourceCodes\ExtractData\Libs\zlib-1.2.5;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\Libs\zlib-1.2.5;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>F:\SourceCodes\ExtractData\Libs\zlib-1.2.6;F:\SourceCodes\ExtractData\Libs\lpng1510;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>F:\SourceCodes\ExtractData\Libs\zlib-1.2.6;F:\SourceCodes\ExtractData\Libs\lpng1510;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>Default</CompileAs>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>$(ProjectDir)\Libs\zlib.lib;$(ProjectDir)\Libs\libpng.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ArcFile.cpp" />
+    <ClCompile Include="Error.cpp" />
+    <ClCompile Include="Extract.cpp" />
+    <ClCompile Include="ExtractBase.cpp" />
+    <ClCompile Include="ExtractData.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="FindFile.cpp" />
+    <ClCompile Include="Image.cpp" />
+    <ClCompile Include="LastDir.cpp" />
+    <ClCompile Include="MainListView.cpp" />
+    <ClCompile Include="MainToolBar.cpp" />
+    <ClCompile Include="MD5.cpp" />
+    <ClCompile Include="Mzx.cpp" />
+    <ClCompile Include="Ogg.cpp" />
+    <ClCompile Include="Option.cpp" />
+    <ClCompile Include="ProgressBar.cpp" />
+    <ClCompile Include="Reg.cpp" />
+    <ClCompile Include="SearchBase.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Susie.cpp" />
+    <ClCompile Include="SusieListView.cpp" />
+    <ClCompile Include="Tga.cpp" />
+    <ClCompile Include="Wav.cpp" />
+    <ClCompile Include="WindowBase.cpp" />
+    <ClCompile Include="WinMain.cpp" />
+    <ClCompile Include="Extract\Ahx.cpp" />
+    <ClCompile Include="Extract\Alcot.cpp" />
+    <ClCompile Include="Extract\AOS.cpp" />
+    <ClCompile Include="Extract\Aselia.cpp" />
+    <ClCompile Include="Extract\Axl.cpp" />
+    <ClCompile Include="Extract\Baldr.cpp" />
+    <ClCompile Include="Extract\Circus.cpp" />
+    <ClCompile Include="Extract\CircusPak.cpp" />
+    <ClCompile Include="Extract\Clannad.cpp" />
+    <ClCompile Include="Extract\Cyc.cpp" />
+    <ClCompile Include="Extract\EntisGLS.cpp" />
+    <ClCompile Include="Extract\Ethornell.cpp" />
+    <ClCompile Include="Extract\Himauri.cpp" />
+    <ClCompile Include="Extract\InnocentGrey.cpp" />
+    <ClCompile Include="Extract\Izumo.cpp" />
+    <ClCompile Include="Extract\Katakoi.cpp" />
+    <ClCompile Include="Extract\LostChild.cpp" />
+    <ClCompile Include="Extract\Majiro.cpp" />
+    <ClCompile Include="Extract\MeltyBlood.cpp" />
+    <ClCompile Include="Extract\Navel.cpp" />
+    <ClCompile Include="Extract\Nitro.cpp" />
+    <ClCompile Include="Extract\Nscr.cpp" />
+    <ClCompile Include="Extract\Oyatu.cpp" />
+    <ClCompile Include="Extract\Pajamas.cpp" />
+    <ClCompile Include="Extract\QLIE.cpp" />
+    <ClCompile Include="Extract\Retouch.cpp" />
+    <ClCompile Include="Extract\Spitan.cpp" />
+    <ClCompile Include="Extract\Standard.cpp" />
+    <ClCompile Include="Extract\SummerDays.cpp" />
+    <ClCompile Include="Extract\TaskForce.cpp" />
+    <ClCompile Include="Extract\TH2.cpp" />
+    <ClCompile Include="Extract\TrH.cpp" />
+    <ClCompile Include="Extract\VA.cpp" />
+    <ClCompile Include="Extract\Will.cpp" />
+    <ClCompile Include="Extract\Windmill.cpp" />
+    <ClCompile Include="Extract\Ykc.cpp" />
+    <ClCompile Include="Extract\Yuris.cpp" />
+    <ClCompile Include="Extract\krkr\Braban.cpp" />
+    <ClCompile Include="Extract\krkr\Fate.cpp" />
+    <ClCompile Include="Extract\krkr\FateFD.cpp" />
+    <ClCompile Include="Extract\krkr\FlyingShine.cpp" />
+    <ClCompile Include="Extract\krkr\Hachukano.cpp" />
+    <ClCompile Include="Extract\krkr\Himesyo.cpp" />
+    <ClCompile Include="Extract\krkr\Krkr.cpp" />
+    <ClCompile Include="Extract\krkr\Natsupochi.cpp" />
+    <ClCompile Include="Extract\krkr\SisMiko.cpp" />
+    <ClCompile Include="Extract\krkr\Specialite.cpp" />
+    <ClCompile Include="Extract\krkr\Tengu.cpp" />
+    <ClCompile Include="Extract\krkr\Tlg.cpp" />
+    <ClCompile Include="Extract\krkr\TokiPaku.cpp" />
+    <ClCompile Include="Extract\krkr\Yotsunoha.cpp" />
+    <ClCompile Include="Extract\paz\AngelType.cpp" />
+    <ClCompile Include="Extract\paz\BSFre.cpp" />
+    <ClCompile Include="Extract\paz\ef_ffd.cpp" />
+    <ClCompile Include="Extract\paz\ef_first.cpp" />
+    <ClCompile Include="Extract\paz\ef_latter.cpp" />
+    <ClCompile Include="Extract\paz\ef_sfm.cpp" />
+    <ClCompile Include="Extract\paz\ef_trial.cpp" />
+    <ClCompile Include="Extract\paz\Haruoto.cpp" />
+    <ClCompile Include="Extract\paz\HaruotoFD.cpp" />
+    <ClCompile Include="Extract\paz\Paz.cpp" />
+    <ClCompile Include="Extract\paz\WindRP.cpp" />
+    <ClCompile Include="Extract\cpz\Cmv.cpp" />
+    <ClCompile Include="Extract\cpz\Cpz.cpp" />
+    <ClCompile Include="Extract\cpz\JBP1.cpp" />
+    <ClCompile Include="Extract\cpz\PB.cpp" />
+    <ClCompile Include="Extract\cpz\PB2A.cpp" />
+    <ClCompile Include="Extract\cpz\PB3B.cpp" />
+    <ClCompile Include="Extract\TCD\TCD2.cpp" />
+    <ClCompile Include="Extract\TCD\TCD3.cpp" />
+    <ClCompile Include="Extract\TCD\TCDBase.cpp" />
+    <ClCompile Include="Search\AhxSearch.cpp" />
+    <ClCompile Include="Search\BmpSearch.cpp" />
+    <ClCompile Include="Search\JpgSearch.cpp" />
+    <ClCompile Include="Search\MidSearch.cpp" />
+    <ClCompile Include="Search\MpgSearch.cpp" />
+    <ClCompile Include="Search\OggSearch.cpp" />
+    <ClCompile Include="Search\PngSearch.cpp" />
+    <ClCompile Include="Search\WavSearch.cpp" />
+    <ClCompile Include="Search\WmvSearch.cpp" />
+    <ClCompile Include="Ctrl\Button.cpp" />
+    <ClCompile Include="Ctrl\CheckBox.cpp" />
+    <ClCompile Include="Ctrl\Color.cpp" />
+    <ClCompile Include="Ctrl\CtrlBase.cpp" />
+    <ClCompile Include="Ctrl\EditBox.cpp" />
+    <ClCompile Include="Ctrl\Font.cpp" />
+    <ClCompile Include="Ctrl\GroupBox.cpp" />
+    <ClCompile Include="Ctrl\Label.cpp" />
+    <ClCompile Include="Ctrl\ListView.cpp" />
+    <ClCompile Include="Ctrl\RadioBtn.cpp" />
+    <ClCompile Include="Ctrl\StatusBar.cpp" />
+    <ClCompile Include="Ctrl\ToolBar.cpp" />
+    <ClCompile Include="Ctrl\UpDown.cpp" />
+    <ClCompile Include="Dialog\ExistsDialog.cpp" />
+    <ClCompile Include="Dialog\FileDialog.cpp" />
+    <ClCompile Include="Dialog\FolderDialog.cpp" />
+    <ClCompile Include="Dialog\FolderInputDialog.cpp" />
+    <ClCompile Include="Dialog\SearchDialog.cpp" />
+    <ClCompile Include="Dialog\VersionInfo.cpp" />
+    <ClCompile Include="bzip2\bzlib.cpp" />
+    <ClCompile Include="bzip2\crctable.cpp" />
+    <ClCompile Include="bzip2\decompress.cpp" />
+    <ClCompile Include="bzip2\huffman.cpp" />
+    <ClCompile Include="bzip2\randtable.cpp" />
+    <ClCompile Include="Arc\LZSS.cpp" />
+    <ClCompile Include="Arc\Zlib.cpp" />
+    <ClCompile Include="Image\Bmp.cpp" />
+    <ClCompile Include="Image\ImageBase.cpp" />
+    <ClCompile Include="Image\Png.cpp" />
+    <ClCompile Include="Base\YCFile.cpp" />
+    <ClCompile Include="Base\YCFileFind.cpp" />
+    <ClCompile Include="Base\YCFileFindSx.cpp" />
+    <ClCompile Include="Base\YCIni.cpp" />
+    <ClCompile Include="Base\YCLibrary.cpp" />
+    <ClCompile Include="Base\YCLocalMemory.cpp" />
+    <ClCompile Include="Base\YCMultiFile.cpp" />
+    <ClCompile Include="Base\YCStdioFile.cpp" />
+    <ClCompile Include="Base\YCString.cpp" />
+    <ClCompile Include="Base\YCUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArcFile.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="Error.h" />
+    <ClInclude Include="Extract.h" />
+    <ClInclude Include="ExtractBase.h" />
+    <ClInclude Include="ExtractData.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="FindFile.h" />
+    <ClInclude Include="Image.h" />
+    <ClInclude Include="LastDir.h" />
+    <ClInclude Include="MainListView.h" />
+    <ClInclude Include="MainToolBar.h" />
+    <ClInclude Include="MD5.h" />
+    <ClInclude Include="Mzx.h" />
+    <ClInclude Include="Ogg.h" />
+    <ClInclude Include="Option.h" />
+    <ClInclude Include="ProgressBar.h" />
+    <ClInclude Include="Reg.h" />
+    <ClInclude Include="res\ResExtractData.h" />
+    <ClInclude Include="SearchBase.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="Susie.h" />
+    <ClInclude Include="SusieListView.h" />
+    <ClInclude Include="Tga.h" />
+    <ClInclude Include="Wav.h" />
+    <ClInclude Include="WindowBase.h" />
+    <ClInclude Include="WinMain.h" />
+    <ClInclude Include="Extract\Ahx.h" />
+    <ClInclude Include="Extract\Alcot.h" />
+    <ClInclude Include="Extract\AOS.h" />
+    <ClInclude Include="Extract\Aselia.h" />
+    <ClInclude Include="Extract\Axl.h" />
+    <ClInclude Include="Extract\Baldr.h" />
+    <ClInclude Include="Extract\Circus.h" />
+    <ClInclude Include="Extract\CircusPak.h" />
+    <ClInclude Include="Extract\Clannad.h" />
+    <ClInclude Include="Extract\Cyc.h" />
+    <ClInclude Include="Extract\EntisGLS.h" />
+    <ClInclude Include="Extract\Ethornell.h" />
+    <ClInclude Include="Extract\Himauri.h" />
+    <ClInclude Include="Extract\InnocentGrey.h" />
+    <ClInclude Include="Extract\Izumo.h" />
+    <ClInclude Include="Extract\Katakoi.h" />
+    <ClInclude Include="Extract\LostChild.h" />
+    <ClInclude Include="Extract\Majiro.h" />
+    <ClInclude Include="Extract\MeltyBlood.h" />
+    <ClInclude Include="Extract\Navel.h" />
+    <ClInclude Include="Extract\Nitro.h" />
+    <ClInclude Include="Extract\Nscr.h" />
+    <ClInclude Include="Extract\Oyatu.h" />
+    <ClInclude Include="Extract\Pajamas.h" />
+    <ClInclude Include="Extract\QLIE.h" />
+    <ClInclude Include="Extract\Retouch.h" />
+    <ClInclude Include="Extract\Spitan.h" />
+    <ClInclude Include="Extract\Standard.h" />
+    <ClInclude Include="Extract\SummerDays.h" />
+    <ClInclude Include="Extract\TaskForce.h" />
+    <ClInclude Include="Extract\TH2.h" />
+    <ClInclude Include="Extract\TrH.h" />
+    <ClInclude Include="Extract\VA.h" />
+    <ClInclude Include="Extract\Will.h" />
+    <ClInclude Include="Extract\Windmill.h" />
+    <ClInclude Include="Extract\Ykc.h" />
+    <ClInclude Include="Extract\Yuris.h" />
+    <ClInclude Include="Extract\krkr\Braban.h" />
+    <ClInclude Include="Extract\krkr\Fate.h" />
+    <ClInclude Include="Extract\krkr\FateFD.h" />
+    <ClInclude Include="Extract\krkr\FlyingShine.h" />
+    <ClInclude Include="Extract\krkr\Hachukano.h" />
+    <ClInclude Include="Extract\krkr\Himesyo.h" />
+    <ClInclude Include="Extract\krkr\Krkr.h" />
+    <ClInclude Include="Extract\krkr\Natsupochi.h" />
+    <ClInclude Include="Extract\krkr\SisMiko.h" />
+    <ClInclude Include="Extract\krkr\Specialite.h" />
+    <ClInclude Include="Extract\krkr\Tengu.h" />
+    <ClInclude Include="Extract\krkr\Tlg.h" />
+    <ClInclude Include="Extract\krkr\TokiPaku.h" />
+    <ClInclude Include="Extract\krkr\Yotsunoha.h" />
+    <ClInclude Include="Extract\paz\AngelType.h" />
+    <ClInclude Include="Extract\paz\BSFre.h" />
+    <ClInclude Include="Extract\paz\ef_ffd.h" />
+    <ClInclude Include="Extract\paz\ef_first.h" />
+    <ClInclude Include="Extract\paz\ef_latter.h" />
+    <ClInclude Include="Extract\paz\ef_sfm.h" />
+    <ClInclude Include="Extract\paz\ef_trial.h" />
+    <ClInclude Include="Extract\paz\Haruoto.h" />
+    <ClInclude Include="Extract\paz\HaruotoFD.h" />
+    <ClInclude Include="Extract\paz\Paz.h" />
+    <ClInclude Include="Extract\paz\WindRP.h" />
+    <ClInclude Include="Extract\cpz\Cmv.h" />
+    <ClInclude Include="Extract\cpz\Cpz.h" />
+    <ClInclude Include="Extract\cpz\JBP1.h" />
+    <ClInclude Include="Extract\cpz\PB.h" />
+    <ClInclude Include="Extract\cpz\PB2A.h" />
+    <ClInclude Include="Extract\cpz\PB3B.h" />
+    <ClInclude Include="Extract\TCD\TCD2.h" />
+    <ClInclude Include="Extract\TCD\TCD3.h" />
+    <ClInclude Include="Extract\TCD\TCDBase.h" />
+    <ClInclude Include="Search\AhxSearch.h" />
+    <ClInclude Include="Search\BmpSearch.h" />
+    <ClInclude Include="Search\JpgSearch.h" />
+    <ClInclude Include="Search\MidSearch.h" />
+    <ClInclude Include="Search\MpgSearch.h" />
+    <ClInclude Include="Search\OggSearch.h" />
+    <ClInclude Include="Search\PngSearch.h" />
+    <ClInclude Include="Search\WavSearch.h" />
+    <ClInclude Include="Search\WmvSearch.h" />
+    <ClInclude Include="Ctrl\Button.h" />
+    <ClInclude Include="Ctrl\CheckBox.h" />
+    <ClInclude Include="Ctrl\Color.h" />
+    <ClInclude Include="Ctrl\CtrlBase.h" />
+    <ClInclude Include="Ctrl\EditBox.h" />
+    <ClInclude Include="Ctrl\Font.h" />
+    <ClInclude Include="Ctrl\GroupBox.h" />
+    <ClInclude Include="Ctrl\Label.h" />
+    <ClInclude Include="Ctrl\ListView.h" />
+    <ClInclude Include="Ctrl\RadioBtn.h" />
+    <ClInclude Include="Ctrl\StatusBar.h" />
+    <ClInclude Include="Ctrl\ToolBar.h" />
+    <ClInclude Include="Ctrl\UpDown.h" />
+    <ClInclude Include="Dialog\ExistsDialog.h" />
+    <ClInclude Include="Dialog\FileDialog.h" />
+    <ClInclude Include="Dialog\FolderDialog.h" />
+    <ClInclude Include="Dialog\FolderInputDialog.h" />
+    <ClInclude Include="Dialog\SearchDialog.h" />
+    <ClInclude Include="Dialog\VersionInfo.h" />
+    <ClInclude Include="bzip2\bzlib.h" />
+    <ClInclude Include="bzip2\bzlib_private.h" />
+    <ClInclude Include="Arc\LZSS.h" />
+    <ClInclude Include="Arc\Zlib.h" />
+    <ClInclude Include="Image\Bmp.h" />
+    <ClInclude Include="Image\ImageBase.h" />
+    <ClInclude Include="Image\Png.h" />
+    <ClInclude Include="Base\YCFile.h" />
+    <ClInclude Include="Base\YCFileFind.h" />
+    <ClInclude Include="Base\YCFileFindSx.h" />
+    <ClInclude Include="Base\YCIni.h" />
+    <ClInclude Include="Base\YCLibrary.h" />
+    <ClInclude Include="Base\YCLocalMemory.h" />
+    <ClInclude Include="Base\YCMemory.h" />
+    <ClInclude Include="Base\YCMultiFile.h" />
+    <ClInclude Include="Base\YCStdioFile.h" />
+    <ClInclude Include="Base\YCString.h" />
+    <ClInclude Include="Base\YCUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="res\ExtractData.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

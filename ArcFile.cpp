@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"Common.h"
 #include	"Dialog/ExistsDialog.h"

@@ -39,7 +39,7 @@ FONT 10, "Segoe UI"
 //----------------------------------
 // Dialog (OPTION)
 //----------------------------------
-OPTION DIALOG DISCARDABLE 0, 0, 288, 198
+OPTION DIALOG DISCARDABLE 0, 0, 370, 198
 STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_SETFONT
 CAPTION "Options"
 FONT 10, "Segoe UI"
