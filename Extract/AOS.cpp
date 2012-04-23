@@ -1,13 +1,12 @@
-
 #include	"stdafx.h"
 #include	"../Image.h"
 #include	"AOS.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CAOS::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".aos") )
@@ -15,23 +14,23 @@ BOOL	CAOS::Mount(
 		return	FALSE;
 	}
 
-	// 不明な4バイト
+	// Unknown 4 bytes
 
 	pclArc->SeekHed( 4 );
 
-	// オフセットの取得
+	// Get offset
 
 	DWORD				dwOffset;
 
 	pclArc->Read( &dwOffset, 4 );
 
-	// インデックスサイズの取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
 	pclArc->Read( &dwIndexSize, 4 );
 
-	// アーカイブファイル名の取得
+	// Get archive filename
 
 	char				szArchiveName[261];
 
@@ -39,19 +38,19 @@ BOOL	CAOS::Mount(
 
 	if( pclArc->GetArcName() != szArchiveName )
 	{
-		// アーカイブファイル名が異なる
+		// Archive filename is different
 
 		pclArc->SeekHed();
 		return	FALSE;
 	}
 
-	// インデックスの取得
+	// Get index
 
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	// ファイル情報の取得
+	// Get file info
 
 	for( DWORD i = 0 ; i < dwIndexSize ; i += 40 )
 	{
@@ -70,10 +69,10 @@ BOOL	CAOS::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decode
 
 BOOL	CAOS::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".aos") )
@@ -92,13 +91,13 @@ BOOL	CAOS::Decode(
 	}
 	else if( pstFileInfo->format == _T("MSK") )
 	{
-		// マスク画像
+		// Image mask
 
 		bReturn = DecodeMask( pclArc );
 	}
 	else if( pstFileInfo->format == _T("SCR") )
 	{
-		// スクリプト
+		// Script
 
 		bReturn = DecodeScript( pclArc );
 	}
@@ -107,15 +106,15 @@ BOOL	CAOS::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ABMのデコード
+//	ABM Decoding
 
 BOOL	CAOS::DecodeABM(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// データの読み込み
+	// Read data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -123,7 +122,7 @@ BOOL	CAOS::DecodeABM(
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// ビットマップヘッダの取得
+	// Get bitmap header
 
 	BITMAPFILEHEADER*	pstbfhSrc = (BITMAPFILEHEADER*) &clmSrc[0];
 	BITMAPINFOHEADER*	pstbihSrc = (BITMAPINFOHEADER*) &clmSrc[14];
@@ -140,7 +139,7 @@ BOOL	CAOS::DecodeABM(
 	switch( pstbihSrc->biBitCount )
 	{
 	case	1:
-		// マルチフレーム
+		// Multi-frame
 
 		dwFrames = *(DWORD*) &clmSrc[58];
 		dwOffsetToData = *(DWORD*) &clmSrc[66];
@@ -151,12 +150,12 @@ BOOL	CAOS::DecodeABM(
 
 		if( dwFrames >= 2 )
 		{
-			// 複数ファイル
+			// Multiple files
 
 			clsLastName.Format( _T("_000") );
 		}
 
-		// 解凍
+		// Decompression
 
 		dwSrcPtr = dwOffsetToData;
 
@@ -168,7 +167,7 @@ BOOL	CAOS::DecodeABM(
 			clmDst[i + 3] = 0xFF;
 		}
 
-		// 出力
+		// Output
 
 		clImage.Init( pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, 32, NULL, 0, clsLastName );
 		clImage.WriteReverse( &clmDst[0], dwDstSize );
@@ -182,13 +181,13 @@ BOOL	CAOS::DecodeABM(
 
 			clsLastName.Format( _T("_%03d"), i );
 
-			// 解凍
+			// Decompression
 
 			ZeroMemory( &clmDst[0], dwDstSize );
 
 			DecompABM( &clmDst[0], dwDstSize, &clmSrc[dwOffsetToFrame], (dwSrcSize - dwOffsetToFrame) );
 
-			// 出力
+			// Output
 
 			clImage.Init( pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, 32, NULL, 0, clsLastName );
 			clImage.WriteReverse( &clmDst[0], dwDstSize, FALSE );
@@ -204,11 +203,11 @@ BOOL	CAOS::DecodeABM(
 
 		clmDst.resize( dwDstSize );
 
-		// 解凍
+		// Decompression
 
 		DecompABM( &clmDst[0], dwDstSize, &clmSrc[54], (dwSrcSize - 54) );
 
-		// 出力
+		// Output
 
 		clImage.Init( pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, pstbihSrc->biBitCount );
 		clImage.WriteReverse( &clmDst[0], dwDstSize );
@@ -217,7 +216,7 @@ BOOL	CAOS::DecodeABM(
 		break;
 
 	default:
-		// その他
+		// Other
 
 		pclArc->OpenFile();
 		pclArc->WriteFile( &clmSrc[0], dwSrcSize );
@@ -228,15 +227,15 @@ BOOL	CAOS::DecodeABM(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マスク画像のデコード
+//	Decode Image Mask
 
 BOOL	CAOS::DecodeMask(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// データの読み込み
+	// Read Data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -244,7 +243,7 @@ BOOL	CAOS::DecodeMask(
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -256,15 +255,15 @@ BOOL	CAOS::DecodeMask(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スクリプトのデコード
+//	Decode Script
 
 BOOL	CAOS::DecodeScript(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// 圧縮データの読み込み
+	// Read compressed data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -272,17 +271,17 @@ BOOL	CAOS::DecodeScript(
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 解凍用バッファの確保
+	// Buffer allocation for extraction
 
 	DWORD				dwDstSize = *(DWORD*) &clmSrc[0];
 
 	YCMemory<BYTE>		clmDst( dwDstSize );
 
-	// 解凍
+	// Decompression
 
 	DecompScript( &clmDst[0], dwDstSize, &clmSrc[4], (dwSrcSize - 4) );
 
-	// 出力
+	// Output
 
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile( &clmDst[0], dwDstSize, dwSrcSize );
@@ -292,13 +291,13 @@ BOOL	CAOS::DecodeScript(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ABMの解凍
+//	ABM Decompression
 
 BOOL	CAOS::DecompABM(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize						// Compressed data size
 	)
 {
 	DWORD				dwSrcPtr = 0;
@@ -316,7 +315,7 @@ BOOL	CAOS::DecompABM(
 		switch( btCurrentSrc )
 		{
 		case	0:
-			// 0x00である
+			// Is 0x00
 
 			dwLength = pbtSrc[dwSrcPtr++];
 
@@ -337,7 +336,7 @@ BOOL	CAOS::DecompABM(
 			break;
 
 		case	255:
-			// 0xFFである
+			// Is 0xFF
 
 			dwLength = pbtSrc[dwSrcPtr++];
 
@@ -358,7 +357,7 @@ BOOL	CAOS::DecompABM(
 			break;
 
 		default:
-			// その他
+			// Other
 
 			pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
 
@@ -378,16 +377,16 @@ BOOL	CAOS::DecompABM(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スクリプトの解凍
+//	Decompress Script
 
 BOOL	CAOS::DecompScript(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const BYTE*			pbtSrc,							// Compressed Data
+	DWORD				dwSrcSize						// Compressed Data Size
 	)
 {
-	// テーブルの構築
+	// Construct huffman table
 
 	DWORD				adwTableOfBit0[511];
 	DWORD				adwTableOfBit1[511];
@@ -401,7 +400,7 @@ BOOL	CAOS::DecompScript(
 
 	dwTablePtr = CreateHuffmanTable( adwTableOfBit0, adwTableOfBit1, pbtSrc, &dwSrcPtr, &dwTablePtr, &dwCurrentSrc, &dwBitShift );
 
-	// 解凍
+	// Decompress
 
 	DecompHuffman( pbtDst, dwDstSize, adwTableOfBit0, adwTableOfBit1, &pbtSrc[dwSrcPtr], dwTablePtr, dwCurrentSrc, dwBitShift );
 
@@ -409,16 +408,16 @@ BOOL	CAOS::DecompScript(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	テーブルの構築
+//	Construct Huffman Table
 
 DWORD	CAOS::CreateHuffmanTable(
-	DWORD*				pdwTableOfBit0,					// bit0用テーブル
-	DWORD*				pdwTableOfBit1,					// bit1用テーブル
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD*				pdwSrcPtr,						// 圧縮データ参照位置
-	DWORD*				pdwTablePtr,					// テーブル参照位置
-	DWORD*				pdwCurrentSrc,					// 現在のデータ
-	DWORD*				pdwBitShift						// ビットシフト
+	DWORD*				pdwTableOfBit0,					// bit0 Table
+	DWORD*				pdwTableOfBit1,					// bit1 Table
+	const BYTE*			pbtSrc,							// Compressed Data
+	DWORD*				pdwSrcPtr,						// Compressed Data Pointer
+	DWORD*				pdwTablePtr,					// Table Pointer
+	DWORD*				pdwCurrentSrc,					// Current Data
+	DWORD*				pdwBitShift						// Bit shift
 	)
 {
 	DWORD				dwReturn = 0;
@@ -426,7 +425,7 @@ DWORD	CAOS::CreateHuffmanTable(
 
 	if( *pdwBitShift == 0 )
 	{
-		// 8bit読み切った
+		// Read 8-bits
 
 		*pdwCurrentSrc = pbtSrc[(*pdwSrcPtr)++];
 		*pdwBitShift = 8;
@@ -436,7 +435,7 @@ DWORD	CAOS::CreateHuffmanTable(
 
 	if( (*pdwCurrentSrc >> *pdwBitShift) & 1 )
 	{
-		// ビットが1
+		// Bit 1
 
 		dwTablePtr = *pdwTablePtr;
 
@@ -452,7 +451,7 @@ DWORD	CAOS::CreateHuffmanTable(
 	}
 	else
 	{
-		// ビットが0
+		// Bit 0
 
 		DWORD				dwBitShiftTemp = 8;
 		DWORD				dwResult = 0;
@@ -481,17 +480,17 @@ DWORD	CAOS::CreateHuffmanTable(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ハフマンの解凍
+//	Huffman Decompression
 
 BOOL	CAOS::DecompHuffman(
-	BYTE*				pbtDst,							// 出力先
-	DWORD				dwDstSize,						// 出力先サイズ
-	const DWORD*		pdwTableOfBit0,					// bit0用テーブル
-	const DWORD*		pdwTableOfBit1,					// bit1用テーブル
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwRoot,							// テーブル参照位置
-	DWORD				dwCurrentSrc,					// 現在のデータ
-	DWORD				dwBitShift						// ビットシフト
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const DWORD*		pdwTableOfBit0,					// bit0 Table
+	const DWORD*		pdwTableOfBit1,					// bit1 Table
+	const BYTE*			pbtSrc,							// Compressed Data
+	DWORD				dwRoot,							// Table Position Reference
+	DWORD				dwCurrentSrc,					// Current Data
+	DWORD				dwBitShift						// Bit Shift
 	)
 {
 	if( dwDstSize <= 0 )
@@ -510,7 +509,7 @@ BOOL	CAOS::DecompHuffman(
 		{
 			if( dwBitShift == 0 )
 			{
-				// 8bit読み切った
+				// Read 8-bits
 
 				dwCurrentSrc = pbtSrc[dwSrcPtr++];
 				dwBitShift = 8;
@@ -520,13 +519,13 @@ BOOL	CAOS::DecompHuffman(
 
 			if( (dwCurrentSrc >> dwBitShift) & 1 )
 			{
-				// bitが1
+				// bit1
 
 				dwTablePtr = pdwTableOfBit1[dwTablePtr];
 			}
 			else
 			{
-				// bitが0
+				// bit0
 
 				dwTablePtr = pdwTableOfBit0[dwTablePtr];
 			}

@@ -3,7 +3,7 @@
 #include "Baldr.h"
 
 BOOL	CBaldr::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pac") )
@@ -21,27 +21,27 @@ BOOL	CBaldr::Mount(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get filecount
 
 	DWORD				dwFiles;
 
 	pclArc->Seek( 4, FILE_BEGIN );
 	pclArc->Read( &dwFiles, 4 );
 
-	// フラグ取得
+	// Get flags
 
 	DWORD				dwFlags;
 
 	pclArc->Read( &dwFlags, 4 );
 
-	// 圧縮フォーマットの取得
+	// Get compressed formats
 
 	YCString				clsFormat;
 
 	switch( dwFlags )
 	{
 	case	0:
-		// 無圧縮
+		// No compression
 
 		break;
 
@@ -52,7 +52,7 @@ BOOL	CBaldr::Mount(
 		break;
 
 	case	2:
-		// 不明
+		// Unknown
 
 		break;
 
@@ -63,17 +63,17 @@ BOOL	CBaldr::Mount(
 		break;
 	}
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<SPACFileInfo>	clmpacfiIndex( dwFiles );
 
 	pclArc->Read( &clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles) );
 
-	// ファイル情報取得
+	// Get file info
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[65];
 
@@ -86,7 +86,7 @@ BOOL	CBaldr::Mount(
 			return	FALSE;
 		}
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
