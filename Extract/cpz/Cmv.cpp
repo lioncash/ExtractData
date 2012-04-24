@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../../ExtractBase.h"
 #include	"../../Image.h"
@@ -6,10 +5,10 @@
 #include	"Cmv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CCmv::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".cmv") )
@@ -22,39 +21,39 @@ BOOL	CCmv::Mount(
 		return	FALSE;
 	}
 
-	// ヘッダ読み込み
+	// Read Header
 
 	BYTE				abtHeader[44];
 
 	pclArc->Read( abtHeader, sizeof(abtHeader) );
 
-	// オフセット取得
+	// Get offset
 
 	DWORD				dwOffset = *(DWORD*) &abtHeader[4];
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize = *(DWORD*) &abtHeader[4] - 44;
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles = *(DWORD*) &abtHeader[16] + 1;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// アーカイブ名の取得
+	// Get archive name
 
 	TCHAR				szArcName[_MAX_FNAME];
 
 	lstrcpy( szArcName, pclArc->GetArcName() );
 	PathRenameExtension( szArcName, _T("_") );
 
-	// ファイル情報の取得
+	// Get file info
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
@@ -76,13 +75,13 @@ BOOL	CCmv::Mount(
 				break;
 		}
 
-		// 連番ファイル名の作成
+		// Create the file name serial number
 
 		TCHAR				szFileName[_MAX_FNAME];
 
 		_stprintf( szFileName, _T("%s%06d%s"), szArcName, i, szFileExt );
 
-		// リストビューに追加
+		// Add to list view
 
 		SFileInfo			stFileInfo;
 
