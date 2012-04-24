@@ -1,18 +1,17 @@
-
-#include	"stdafx.h"
-#include	"../../ExtractBase.h"
-#include	"../../Arc/Zlib.h"
-#include	"../../Image.h"
-#include	"../../Ogg.h"
-#include	"../../FindFile.h"
-#include	"Tlg.h"
-#include	"Krkr.h"
+#include "stdafx.h"
+#include "../../ExtractBase.h"
+#include "../../Arc/Zlib.h"
+#include "../../Image.h"
+#include "../../Ogg.h"
+#include "../../FindFile.h"
+#include "Tlg.h"
+#include "Krkr.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mount
 
 BOOL	CKrkr::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	DWORD				dwOffset;
@@ -25,7 +24,7 @@ BOOL	CKrkr::Mount(
 	}
 	else if( memcmp( pclArc->GetHed(), "MZ", 2 ) == 0 )
 	{
-		// EXE型
+		// EXE Type
 
 		if( !FindXP3FromExecuteFile( pclArc, &dwOffset ) )
 		{
@@ -39,20 +38,20 @@ BOOL	CKrkr::Mount(
 
 	m_pclArc = pclArc;
 
-	// tpmのMD5値の設定
+	// Set MD5 value for tpm
 
 	SetMD5ForTpm( pclArc );
 
-	// 復号可能かチェック
+	// Check if archive can be decoded
 
 	if( !OnCheckDecrypt( pclArc ) )
 	{
-		// このアーカイブは復号できない
+		// Archive can not be decoded
 
 		return	FALSE;
 	}
 
-	// インデックスの位置取得
+	// Get index position
 
 	INT64				n64IndexPos;
 
@@ -73,7 +72,7 @@ BOOL	CKrkr::Mount(
 		break;
 	}
 
-	// インデックスヘッダ読み込み
+	// Read the index header
 
 	BYTE				btCmpIndex;
 
@@ -85,31 +84,31 @@ BOOL	CKrkr::Mount(
 
 	if( btCmpIndex )
 	{
-		// インデックスが圧縮されている
+		// Index has been compressed
 
 		pclArc->Read( &u64CompIndexSize, 8 );
 	}
 
 	pclArc->Read( &u64IndexSize, 8 );
 
-	// バッファ確保
+	// Ensure buffer
 
 	YCMemory<BYTE>		clmbtIndex( u64IndexSize );
 	DWORD				dwIndexPtr = 0;
 
-	// インデックスヘッダが圧縮されている場合、解凍する
+	// If the index header is compressed, decompress it
 
 	if( btCmpIndex )
 	{
-		// インデックスが圧縮されている
+		// Index has been compressed
 
 		CZlib				clZlib;
 
-		// バッファ確保
+		// Ensure buffer
 
 		YCMemory<BYTE>		clmbtCompIndex( u64CompIndexSize );
 
-		// zlib解凍
+		// zlib Decompression
 
 		pclArc->Read( &clmbtCompIndex[0], u64CompIndexSize );
 
@@ -117,16 +116,16 @@ BOOL	CKrkr::Mount(
 	}
 	else
 	{
-		// 無圧縮インデックス
+		// Index is not compressed
 
 		pclArc->Read( &clmbtIndex[0], u64IndexSize );
 	}
 
-	// インデックスからファイル情報取得
+	// Get index file information
 
 	for( UINT64 i = 0 ; i < u64IndexSize ; )
 	{
-		// "File" チャンク
+		// "File" Chunk
 
 		FileChunk			stFileChunk;
 
@@ -141,7 +140,7 @@ BOOL	CKrkr::Mount(
 
 		i += 12;
 
-		// "info" チャンク
+		// "info" Chunk
 
 		InfoChunk			stInfoChunk;
 
@@ -161,7 +160,7 @@ BOOL	CKrkr::Mount(
 
 		i += 12 + stInfoChunk.size;
 
-		// "segm" チャンク
+		// "segm" Chunk
 
 		SegmChunk			stSegmChunk;
 
@@ -195,13 +194,13 @@ BOOL	CKrkr::Mount(
 			i += 28;
 		}
 
-		// 他にチャンクがないかチェック
+		// Check for any other chunks
 
 		UINT64				u64Remainder = stFileChunk.size - 12 - stInfoChunk.size - 12 - stSegmChunk.size;
 
 		if( u64Remainder > 0 )
 		{
-			// "adlr" チャンク
+			// "adlr" Chunk
 
 			if( memcmp( &clmbtIndex[i], "adlr", 4 ) == 0 )
 			{
@@ -218,7 +217,7 @@ BOOL	CKrkr::Mount(
 			i += u64Remainder;
 		}
 
-		// リストビュー表示表の構造体に格納
+		// Store and show the stucture in a listview
 
 		stFileInfo.name.Copy( stInfoChunk.filename, stInfoChunk.nameLen );
 		stFileInfo.sizeOrg = stInfoChunk.orgSize;
@@ -238,10 +237,10 @@ BOOL	CKrkr::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decode
 
 BOOL	CKrkr::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -261,13 +260,13 @@ BOOL	CKrkr::Decode(
 //_stprintf(s, "%08X", pInfFile->key);
 //MessageBox(NULL, s, "", 0);
 
-	// バッファ確保
+	// Ensure buffer
 
 	DWORD				dwBufferSize = pclArc->GetBufSize();
 
 	YCMemory<BYTE>		clmbtBuffer;
 
-	// メモリに結合するかどうか
+	// Whether or not it's bound to memory
 
 	BOOL				bComposeMemory = FALSE;
 
@@ -275,7 +274,7 @@ BOOL	CKrkr::Decode(
 		((clsFileExt == _T(".ogg")) && pclArc->GetOpt()->bFixOgg) ||
 		(clsFileExt == _T(".bmp")) )
 	{
-		// TLG, OGG(CRC修正有り), BMP
+		// TLG, OGG(Fix CRC), BMP
 
 		clmbtBuffer.resize( pstFileInfo->sizeOrg + 3 );
 		bComposeMemory = TRUE;
@@ -294,12 +293,12 @@ BOOL	CKrkr::Decode(
 	}
 	else
 	{
-		// その他
+		// Other
 
 		clmbtBuffer.resize( dwBufferSize + 3 );
 	}
 
-	// 出力ファイル生成
+	// Create output file
 
 	if( !bComposeMemory )
 	{
@@ -318,11 +317,11 @@ BOOL	CKrkr::Decode(
 
 		if( pstFileInfo->bCmps[i] )
 		{
-			// 圧縮データ
+			// Compressed data
 
 			CZlib				clZlib;
 
-			// バッファ確保
+			// Ensure buffer
 
 			DWORD				dwSrcSize = pstFileInfo->sizesCmp[i];
 
@@ -332,7 +331,7 @@ BOOL	CKrkr::Decode(
 
 			YCMemory<BYTE>		clmbtDst( dwDstSize + 3 );
 
-			// zlib解凍
+			// zlib Decompression
 
 			pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
@@ -342,7 +341,7 @@ BOOL	CKrkr::Decode(
 
 			if( bComposeMemory )
 			{
-				// バッファに結合
+				// Bound to the buffer
 
 				memcpy( &clmbtBuffer[dwBufferPtr], &clmbtDst[0], dwDataSize );
 
@@ -350,7 +349,7 @@ BOOL	CKrkr::Decode(
 			}
 			else
 			{
-				// 出力
+				// Output
 
 				pclArc->WriteFile( &clmbtDst[0], dwDataSize, dwDstSize );
 			}
@@ -359,11 +358,11 @@ BOOL	CKrkr::Decode(
 		}
 		else
 		{
-			// 無圧縮データ
+			// Uncompressed data
 
 			if( bComposeMemory )
 			{
-				// バッファに結合
+				// Bound to the buffer
 
 				DWORD				dwDstSize = pstFileInfo->sizesOrg[i];
 
@@ -380,7 +379,7 @@ BOOL	CKrkr::Decode(
 
 				for( DWORD dwWroteSizes = 0 ; dwWroteSizes != dwDstSize ; dwWroteSizes += dwBufferSize )
 				{
-					// バッファサイズ調整
+					// Adjust buffer size
 
 					pclArc->SetBufSize( &dwBufferSize, dwWroteSizes, dwDstSize );
 
@@ -398,7 +397,7 @@ BOOL	CKrkr::Decode(
 
 	if( clsFileExt == _T(".tlg") )
 	{
-		// tlgをbmpに変換
+		// Convert tlg to bmp
 
 		CTlg				clTLG;
 
@@ -406,7 +405,7 @@ BOOL	CKrkr::Decode(
 	}
 	else if( clsFileExt == _T(".ogg") && pclArc->GetOpt()->bFixOgg )
 	{
-		// oggのCRCを修正
+		// Fix CRC of OGG files
 
 		COgg				clOGG;
 
@@ -414,7 +413,7 @@ BOOL	CKrkr::Decode(
 	}
 	else if( clsFileExt == _T(".bmp") )
 	{
-		// bmp出力(png変換)
+		// bmp output (png conversion)
 
 		CImage				clImage;
 
@@ -428,7 +427,7 @@ BOOL	CKrkr::Decode(
 		(clsFileExt == _T(".asd")) ||
 		(clsFileExt == _T(".txt"))) )
 	{
-		// テキストファイル
+		// Text file
 
 		DWORD				dwDstSize = pstFileInfo->sizeOrg;
 
@@ -446,10 +445,10 @@ BOOL	CKrkr::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	抽出
+//	Extraction
 
 BOOL	CKrkr::Extract(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -471,7 +470,7 @@ BOOL	CKrkr::Extract(
 
 		for( DWORD dwWroteSizes = 0 ; dwWroteSizes != dwDstSize ; dwWroteSizes += dwBufferSize )
 		{
-			// バッファサイズ調整
+			// Adjust buffer size
 
 			pclArc->SetBufSize( &dwBufferSize, dwWroteSizes, dwDstSize );
 
@@ -486,33 +485,33 @@ BOOL	CKrkr::Extract(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	アーカイブフォルダ内にあるtpmのMD5値を設定
+//	Set MD5 value for tpm in the archive folder
 
 void	CKrkr::SetMD5ForTpm(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->CheckMD5OfSet() )
 	{
-		// すでに設定済み
+		// If it has already been set
 
 		return;
 	}
 
-	// アーカイブのディレクトリパスの取得
+	// Get directory path to the archive
 
 	TCHAR				szBasePathToTpm[MAX_PATH];
 
 	lstrcpy( szBasePathToTpm, pclArc->GetArcPath() );
 	PathRemoveFileSpec( szBasePathToTpm );
 
-	// tpmのファイルパスの取得
+	// Get the tpm file path
 
 	CFindFile				clFindFile;
 
 	std::vector<YCString>&	vtsPathToTpm = clFindFile.DoFind( szBasePathToTpm, _T("*.tpm") );
 
-	// tpmのMD5値の設定
+	// Set the tpm MD5 value
 
 	CMD5				clmd5Tpm;
 
@@ -525,29 +524,29 @@ void	CKrkr::SetMD5ForTpm(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号可能か判定
+//	Determine if the archive is decodable
 
 BOOL	CKrkr::OnCheckDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	アーカイブフォルダ内にあるtpmのMD5と一致するかの確認
+//	Verifies that the MD5 value of tpm in the archive folder matches
 
 BOOL	CKrkr::CheckTpm(
 	const char*			pszMD5							// MD5
 	)
 {
-	// 比較
+	// Comparison
 
 	for( size_t i = 0 ; i < m_pclArc->GetMD5().size() ; i++ )
 	{
 		if( memcmp( pszMD5, m_pclArc->GetMD5()[i].szABCD, 32 ) == 0 )
 		{
-			// 一致した
+			// Matches
 
 			return	TRUE;
 		}
@@ -557,39 +556,39 @@ BOOL	CKrkr::CheckTpm(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理の初期化
+//	Initialize decryption process
 
 void	CKrkr::InitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	m_pclArc = pclArc;
 
-	// 復号要求の有効化
+	// Enable decryption request
 
 	SetDecryptRequirement( TRUE );
 
-	// 復号サイズの設定
+	// Set decryption size
 
 	SetDecryptSize( 0 );
 
-	// オーバーライドされた復号初期化関数を呼ぶ
+	// Call the initialization function that has been overwritten
 
 	m_dwDecryptKey = OnInitDecrypt( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デフォルトで簡易復号を使用
+//	By default, use simple decoding
 
 DWORD	CKrkr::OnInitDecrypt(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	DWORD				dwDecryptKey = pclArc->InitDecrypt();
 
 	if( dwDecryptKey == 0 )
 	{
-		// 暗号化されていない
+		// Unencrypted
 
 		SetDecryptRequirement( FALSE );
 	}
@@ -598,19 +597,19 @@ DWORD	CKrkr::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号処理
+//	Decryption Process
 
 DWORD	CKrkr::Decrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset						// 復号対象データの位置
+	BYTE*				pbtTarget,						// Data to be decoded
+	DWORD				dwTargetSize,					// Decoding Size
+	DWORD				dwOffset						// Location of data to be decoded (offset)
 	)
 {
-	// 復号しないファイル
+	// Don't decode files
 
 	if( !m_bDecrypt )
 	{
-		// 復号要求なし
+		// No decryption requests
 
 		return	dwTargetSize;
 	}
@@ -619,24 +618,24 @@ DWORD	CKrkr::Decrypt(
 
 	if( dwDecryptSize == 0 )
 	{
-		// 復号サイズが設定されていない
+		// Decoding size has not been set
 
 		return	OnDecrypt( pbtTarget, dwTargetSize, dwOffset, m_dwDecryptKey );
 	}
 	else
 	{
-		// 復号サイズが設定されている
+		// Decoding size has been set
 
 		if( dwOffset >= dwDecryptSize )
 		{
-			// これ以上復号しない
+			// Don't decode anymore
 
 			return	dwTargetSize;
 		}
 
 		if( dwDecryptSize > dwTargetSize )
 		{
-			// 決められた復号サイズがデータサイズより大きい
+			// Size is larger than the predetermined decryption data size
 
 			dwDecryptSize = dwTargetSize;
 		}
@@ -648,15 +647,15 @@ DWORD	CKrkr::Decrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デフォルトで簡易復号を使用
+//	By default, use simple decoding
 //
-//	備考	dwDecryptKeyはOnInitDecryptの戻り値
+//	Remark: The  dwDecryptKey return value from OnInitDecrypt
 
 DWORD	CKrkr::OnDecrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	DWORD				dwOffset,						// 復号対象データの位置
-	DWORD				dwDecryptKey					// 復号キー
+	BYTE*				pbtTarget,						// Data to be decoded
+	DWORD				dwTargetSize,					// Decoding size
+	DWORD				dwOffset,						// Location of data to be decoded (offset)
+	DWORD				dwDecryptKey					// Decryption key
 	)
 {
 	m_pclArc->Decrypt( pbtTarget, dwTargetSize );
@@ -665,36 +664,38 @@ DWORD	CKrkr::OnDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号要求の設定
+//	Set decryption request
 
 void	CKrkr::SetDecryptRequirement(
-	BOOL				bDecrypt						// 復号要求
+	BOOL				bDecrypt						// Decryption request
 	)
 {
 	m_bDecrypt = bDecrypt;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号サイズの設定
+//	Set decoding size
 
 void	CKrkr::SetDecryptSize(
-	DWORD				dwDecryptSize					// 復号サイズ
+	DWORD				dwDecryptSize					// Decoding size
 	)
 {
 	m_dwDecryptSize = dwDecryptSize;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	実行ファイル内からXP3アーカイブへのオフセットを取得
+//	Get the offset for the location of the archive within an EXE file.
+//
+//  Remark: KiriKiri allows its resources to be stored within an executable
 
 BOOL	CKrkr::FindXP3FromExecuteFile(
-	CArcFile*			pclArc,							// アーカイブ
-	DWORD*				pdwOffset						// 格納先
+	CArcFile*			pclArc,							// Archive
+	DWORD*				pdwOffset						// Destination
 	)
 {
 	if( pclArc->GetArcSize() <= 0x200000 )
 	{
-		// 吉里吉里の実行ファイルではない
+		// Is not a kirikiri executable
 
 		return	FALSE;
 	}
@@ -714,7 +715,7 @@ BOOL	CKrkr::FindXP3FromExecuteFile(
 		{
 			if( memcmp( &abtBuffer[j], "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0 )
 			{
-				// XP3アーカイブ発見
+				// Found XP3 archive
 
 				*pdwOffset += j;
 				return	TRUE;
@@ -725,12 +726,12 @@ BOOL	CKrkr::FindXP3FromExecuteFile(
 
 		if( *pdwOffset >= 0x500000 )
 		{
-			// 検索打ち切り
+			// Truncate search
 			
 			break;
 		}
 
-		// キャンセル確認
+		// If canceled
 
 		if( pclArc->GetProg()->OnCancel() )
 		{
@@ -739,7 +740,7 @@ BOOL	CKrkr::FindXP3FromExecuteFile(
 	}
 	while( dwReadSize == sizeof(abtBuffer) );
 
-	// XP3アーカイブなし
+	// No XP3 archive
 
 	*pdwOffset = 0;
 
