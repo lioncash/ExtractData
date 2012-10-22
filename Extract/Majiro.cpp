@@ -26,10 +26,10 @@
 #include	"Majiro.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CMajiro::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountArc1( pclArc ) )
@@ -56,10 +56,10 @@ BOOL	CMajiro::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	アーカイブ1のマウント
+//	Mounting V1 Archives
 
 BOOL	CMajiro::MountArc1(
-	CArcFile*			pclArc						// アーカイブ
+	CArcFile*			pclArc						// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".arc") )
@@ -72,38 +72,38 @@ BOOL	CMajiro::MountArc1(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 16 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイルエントリ部分のインデックスサイズ取得
+	// Get the index size of the file entry
 
 	DWORD				dwIndexSizeOfFileEntry;
 
 	pclArc->Read( &dwIndexSizeOfFileEntry, 4 );
 	dwIndexSizeOfFileEntry -= 28;
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
 	pclArc->Read( &dwIndexSize, 4 );
 	dwIndexSize -= 28;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル名インデックス取得
+	// Get the index filename
 
 	BYTE*				pbtFileNameIndex = &clmbtIndex[dwIndexSizeOfFileEntry];
 
-	// ファイル情報の取得
+	// Getting file information
 
 	std::vector<SFileInfo>	vcFileInfo;
 	std::vector<SFileInfo>	vcMaskFileInfo;
@@ -113,24 +113,24 @@ BOOL	CMajiro::MountArc1(
 	{
 		SFileInfo			stFileInfo;
 
-		// ファイル名インデックスからファイル名取得
+		// Get the filename from the filename index
 
 		TCHAR				szFileName[256];
 
 		lstrcpy( szFileName, (LPCTSTR) pbtFileNameIndex );
 		stFileInfo.name = szFileName;
 
-		// インデックスから開始アドレスと終了アドレス取得
+		// Get the starting and ending addresses from the index
 
 		stFileInfo.start = *(DWORD*) &clmbtIndex[i * 8 + 4];
 		stFileInfo.end = *(DWORD*) &clmbtIndex[i * 8 + 12];
 
-		// ファイルサイズ取得
+		// Get filesize
 
 		stFileInfo.sizeOrg = stFileInfo.end - stFileInfo.start;
 		stFileInfo.sizeCmp = stFileInfo.sizeOrg;
 
-		// ファイル情報リストに追加
+		// Add file information to list
 
 		if( lstrcmpi( PathFindExtension( stFileInfo.name ), _T(".rc8") ) == 0 )
 		{
@@ -151,7 +151,7 @@ BOOL	CMajiro::MountArc1(
 		pbtFileNameIndex += lstrlen( szFileName ) + 1;
 	}
 
-	// ファイル名でソート
+	// Sort by filename
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
@@ -161,7 +161,7 @@ BOOL	CMajiro::MountArc1(
 	{
 		SFileInfo*			pstsiMask = &vcMaskFileInfo[i];
 
-		// 合成するファイル名の取得
+		// Get the name of the file to be created
 
 		TCHAR				szRCTName[_MAX_FNAME];
 
@@ -171,7 +171,7 @@ BOOL	CMajiro::MountArc1(
 
 		PathRenameExtension( szRCTName, _T(".rct") );
 
-		// 合成するファイル情報の取得
+		// Get the file information to be created
 
 		SFileInfo*			pstsiTarget = NULL;
 
@@ -179,25 +179,25 @@ BOOL	CMajiro::MountArc1(
 
 		if( pstsiTarget != NULL )
 		{
-			// マスク画像であると断定
+			// Image is masked
 
 			pstsiTarget->starts.push_back( pstsiMask->start );
 			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
 			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
 
-			// 進捗状況更新
+			// Update progress
 
 			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
 		}
 		else
 		{
-			// マスク画像ではない
+			// Image is not masked
 
 			vcNotMaskFileInfo.push_back( *pstsiMask );
 		}
 	}
 
-	// リストビューに追加
+	// Add to list view
 
 	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
 	{
@@ -213,10 +213,10 @@ BOOL	CMajiro::MountArc1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	アーカイブ2のマウント
+//	Mounting V2 Archives
 
 BOOL	CMajiro::MountArc2(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".arc") )
@@ -229,38 +229,38 @@ BOOL	CMajiro::MountArc2(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 16 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイルエントリ部分のインデックスサイズ取得
+	// Get the index size of the file entry
 
 	DWORD				dwIndexSizeOfFileEntry;
 
 	pclArc->Read( &dwIndexSizeOfFileEntry, 4 );
 	dwIndexSizeOfFileEntry -= 28;
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
 	pclArc->Read( &dwIndexSize, 4 );
 	dwIndexSize -= 28;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル名インデックス取得
+	// Get filename index
 
 	BYTE*				pbtFileNameIndex = &clmbtIndex[dwIndexSizeOfFileEntry];
 
-	// ファイル情報の取得
+	// Getting file information
 
 	std::vector<SFileInfo>	vcFileInfo;
 	std::vector<SFileInfo>	vcMaskFileInfo;
@@ -270,24 +270,24 @@ BOOL	CMajiro::MountArc2(
 	{
 		SFileInfo			stFileInfo;
 
-		// ファイル名インデックスからファイル名取得
+		// Get filename from the filename index
 
 		TCHAR				szFileName[256];
 
 		lstrcpy( szFileName, (LPCTSTR) pbtFileNameIndex );
 		stFileInfo.name = szFileName;
 
-		// インデックスから開始アドレスとファイルサイズ取得
+		// Get the starting address from the index and filesize
 
 		stFileInfo.start = *(LPDWORD)&clmbtIndex[i * 12 + 4];
 		stFileInfo.sizeCmp = *(LPDWORD)&clmbtIndex[i * 12 + 8];
 		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
 
-		// 終了アドレス取得
+		// Get the ending address
 
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
-		// ファイル情報リストに追加
+		// Add file information to list
 
 		if( lstrcmpi( PathFindExtension( stFileInfo.name ), _T(".rc8") ) == 0 )
 		{
@@ -308,7 +308,7 @@ BOOL	CMajiro::MountArc2(
 		pbtFileNameIndex += lstrlen( szFileName ) + 1;
 	}
 
-	// ファイル名でソート
+	// Sort by filename
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
@@ -318,7 +318,7 @@ BOOL	CMajiro::MountArc2(
 	{
 		SFileInfo*			pstsiMask = &vcMaskFileInfo[i];
 
-		// 合成するファイル名の取得
+		// Get the name of the file to be created
 
 		TCHAR				szRCTName[_MAX_FNAME];
 
@@ -328,7 +328,7 @@ BOOL	CMajiro::MountArc2(
 
 		PathRenameExtension( szRCTName, _T(".rct") );
 
-		// 合成するファイル情報の取得
+		// Get the file information to be created
 
 		SFileInfo*			pstsiTarget = NULL;
 
@@ -336,25 +336,25 @@ BOOL	CMajiro::MountArc2(
 
 		if( pstsiTarget != NULL )
 		{
-			// マスク画像であると断定
+			// Image is masked
 
 			pstsiTarget->starts.push_back( pstsiMask->start );
 			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
 			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
 
-			// 進捗状況更新
+			// Update progress
 
 			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
 		}
 		else
 		{
-			// マスク画像ではない
+			// Image is not masked
 
 			vcNotMaskFileInfo.push_back( *pstsiMask );
 		}
 	}
 
-	// リストビューに追加
+	// Add to list view
 
 	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
 	{
@@ -370,10 +370,10 @@ BOOL	CMajiro::MountArc2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	MJOのマウント
+//	MJO Mounting
 
 BOOL	CMajiro::MountMJO(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( memcmp( pclArc->GetHed(), "MajiroObjX", 10 ) != 0 )
@@ -385,10 +385,10 @@ BOOL	CMajiro::MountMJO(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	RCのマウント
+//	RC Mounting
 
 BOOL	CMajiro::MountRC(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( memcmp( pclArc->GetHed(), "六丁", 4 ) != 0 )
@@ -400,10 +400,10 @@ BOOL	CMajiro::MountRC(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CMajiro::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeMJO( pclArc ) )
@@ -420,10 +420,10 @@ BOOL	CMajiro::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	MJOのデコード
+//	MJO Decoding
 
 BOOL	CMajiro::DecodeMJO(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -433,7 +433,7 @@ BOOL	CMajiro::DecodeMJO(
 		return	FALSE;
 	}
 
-	// 復号用テーブル
+	// Decoding table
 
 	static const DWORD	dwKeyTable[] =
 	{
@@ -471,7 +471,7 @@ BOOL	CMajiro::DecodeMJO(
 		0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 	};
 
-	// スキップ
+	// Skip
 
 	DWORD				dwOffset;
 
@@ -480,20 +480,20 @@ BOOL	CMajiro::DecodeMJO(
 
 	dwOffset *= 8;
 
-	// 出力サイズ取得
+	// Get the output size
 
 	DWORD				dwDstSize;
 
 	pclArc->SeekCur( dwOffset );
 	pclArc->Read( &dwDstSize, 4 );
 
-	// 読み込み
+	// Read
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize + 3 );
 
 	pclArc->Read( &clmbtDst[0], dwDstSize );
 
-	// 復号
+	// Decode
 
 	for( DWORD i = 0, j = 0 ; i < dwDstSize ; i += 4 )
 	{
@@ -501,7 +501,7 @@ BOOL	CMajiro::DecodeMJO(
 		j &= 255;
 	}
 
-	// 出力
+	// Output
 
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile( &clmbtDst[0], dwDstSize );
@@ -510,10 +510,10 @@ BOOL	CMajiro::DecodeMJO(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	RCのデコード
+//	RC Decoding
 
 BOOL	CMajiro::DecodeRC(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -523,7 +523,7 @@ BOOL	CMajiro::DecodeRC(
 		return	FALSE;
 	}
 
-	// rc8/rct読み込み
+	// rc8/rct reading
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -531,9 +531,9 @@ BOOL	CMajiro::DecodeRC(
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// 未対応のrc8/rct
+	// rc8/rct not supported
 	//if ((memcmp(z_pbuf, "六丁TC00", 8) != 0) && (memcmp(z_pbuf, "六丁8_00", 8) != 0)) {
-		// 出力
+		// Output
 	//	pclArc->OpenFile();
 	//	pclArc->WriteFile(z_pbuf, pInfFile->sizeCmp);
 	//	return TRUE;
@@ -546,7 +546,7 @@ BOOL	CMajiro::DecodeRC(
 
 	DWORD				dwSrcPtr = 20;
 
-	// 出力用バッファの確保
+	// Ensure output buffer exists
 
 	DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
 
@@ -655,7 +655,7 @@ BOOL	CMajiro::DecodeRC(
 		return	TRUE;
 	}
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -666,14 +666,14 @@ BOOL	CMajiro::DecodeRC(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	RCTの解凍
+//	RCT Extraction
 
 void	CMajiro::read_bits_24(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先のサイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth							// 横幅
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed Data
+	DWORD				dwSrcSize,						// Compressed Data Size
+	long				lWidth							// Width
 	)
 {
 	DWORD				dwSrcPtr = 0;
@@ -775,14 +775,14 @@ void	CMajiro::read_bits_24(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	RC8の解凍
+//	RC8 Extraction
 
 void	CMajiro::read_bits_8(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先のサイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth							// 横幅
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const BYTE*			pbtSrc,							// Compressed Data
+	DWORD				dwSrcSize,						// Compressed Data Size
+	long				lWidth							// Width
 	)
 {
 	DWORD				dwSrcPtr = 0;
@@ -871,11 +871,11 @@ void	CMajiro::read_bits_8(
 //	マスク画像を付加して32bit化する
 
 BOOL	CMajiro::AppendMask(
-	CArcFile*			pclArc,							// アーカイブ
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 24bitデータ
-	DWORD				dwSrcSize						// データサイズ
+	CArcFile*			pclArc,							// Archive
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const BYTE*			pbtSrc,							// 24bit Data
+	DWORD				dwSrcSize						// Data Size
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
