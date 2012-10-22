@@ -68,7 +68,7 @@ BOOL	CHimauri::MountHim4(
     {
         TCHAR				szFileName[_MAX_FNAME];
 
-        _stprintf( szFileName, _T("%s_%06d"), szArcName, i );
+        _stprintf( szFileName, _T("%s_%06u"), szArcName, i );
 
         // Add to list view
 
@@ -444,7 +444,7 @@ BOOL	CHimauri::Decode(
 
                 TCHAR				szLastName[_MAX_FNAME];
 
-                _stprintf( szLastName, _T("_%03d.bmp"), i );
+                _stprintf( szLastName, _T("_%03u.bmp"), i );
 
                 // Regrest progressbar progress
 

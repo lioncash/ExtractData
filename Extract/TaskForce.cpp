@@ -6,10 +6,10 @@
 #include	"TaskForce.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CTaskForce::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountDat( pclArc ) )
@@ -31,10 +31,10 @@ BOOL	CTaskForce::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	datのマウント
+//	dat mounting
 
 BOOL	CTaskForce::MountDat(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".dat") )
@@ -49,19 +49,19 @@ BOOL	CTaskForce::MountDat(
 
 	pclArc->SeekHed( 8 );
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->Read( &dwFiles, 4 );
 
-	// インデックスの取得
+	// Get index
 
 	YCMemory<SFileEntry>	clmIndex( dwFiles );
 
 	pclArc->Read( &clmIndex[0], (sizeof(SFileEntry) * dwFiles) );
 
-	// ファイル情報の取得
+	// Get file information
 
 	DWORD				dwIndexPtr = 0;
 
@@ -89,10 +89,10 @@ BOOL	CTaskForce::MountDat(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	tlzのマウント
+//	tlz mounting
 
 BOOL	CTaskForce::MountTlz(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( (pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")) )
@@ -109,10 +109,10 @@ BOOL	CTaskForce::MountTlz(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	bmaのマウント
+//	bma mounting
 
 BOOL	CTaskForce::MountBma(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".tsz") )
@@ -129,10 +129,10 @@ BOOL	CTaskForce::MountBma(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CTaskForce::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeTlz( pclArc ) )
@@ -154,10 +154,10 @@ BOOL	CTaskForce::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	tlzのデコード
+//	tlz decoding
 
 BOOL	CTaskForce::DecodeTlz(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -167,7 +167,7 @@ BOOL	CTaskForce::DecodeTlz(
 		return	FALSE;
 	}
 
-	// ヘッダの読み込み
+	// Read header
 
 	BYTE				abtHeader[24];
 
@@ -179,28 +179,28 @@ BOOL	CTaskForce::DecodeTlz(
 		return	FALSE;
 	}
 
-	// ファイル情報の取得
+	// Get file information
 
 	DWORD				dwDstSize = *(DWORD*) &abtHeader[16];
 	DWORD				dwSrcSize = *(DWORD*) &abtHeader[20];
 
-	// 圧縮データの読み込み
+	// Read compressed data
 
 	YCMemory<BYTE>		clmSrc( dwSrcSize );
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 解凍後のバッファの確保
+	// Buffer allocation for decompression
 
 	YCMemory<BYTE>		clmDst( dwDstSize );
 
-	// LZSSの解凍
+	// LZSS Decompression
 
 	CLZSS				clLZSS;
 
 	clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
 
-	// 出力
+	// Output
 
 	pclArc->OpenFile();
 	pclArc->WriteFile( &clmDst[0], dwDstSize, dwSrcSize );
@@ -210,10 +210,10 @@ BOOL	CTaskForce::DecodeTlz(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	bmaのデコード
+//	bma decoding
 
 BOOL	CTaskForce::DecodeBma(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -223,7 +223,7 @@ BOOL	CTaskForce::DecodeBma(
 		return	FALSE;
 	}
 
-	// ヘッダの読み込み
+	// Read header
 
 	BYTE				abtHeader[24];
 
@@ -235,30 +235,30 @@ BOOL	CTaskForce::DecodeBma(
 		return	FALSE;
 	}
 
-	// ファイル情報の取得
+	// Get file information
 
 	long				lWidth = *(long*) &abtHeader[4];
 	long				lHeight = *(long*) &abtHeader[8];
 	DWORD				dwDstSize = *(DWORD*) &abtHeader[16];
 	DWORD				dwSrcSize = *(DWORD*) &abtHeader[20];
 
-	// 圧縮データの読み込み
+	// Read compressed data
 
 	YCMemory<BYTE>		clmSrc( dwSrcSize );
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 解凍後のバッファの確保
+	// Buffer allocation for decompression
 
 	YCMemory<BYTE>		clmDst( dwDstSize );
 
-	// LZSSの解凍
+	// LZSS Decoding
 
 	CLZSS				clLZSS;
 
 	clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -270,10 +270,10 @@ BOOL	CTaskForce::DecodeBma(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	TGAのデコード
+//	TGA Decoding
 
 BOOL	CTaskForce::DecodeTGA(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -283,7 +283,7 @@ BOOL	CTaskForce::DecodeTGA(
 		return	FALSE;
 	}
 
-	// データの読み込み
+	// Read data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -293,19 +293,19 @@ BOOL	CTaskForce::DecodeTGA(
 
 	if( pstFileInfo->format == _T("LZ") )
 	{
-		// 圧縮されている
+		// Is compressed
 
 		DWORD				dwDstSize = pstFileInfo->sizeOrg;
 
 		YCMemory<BYTE>		clmDst( dwDstSize );
 
-		// LZSSの解凍
+		// LZSS Decompression
 
 		CLZSS				clLZSS;
 
 		clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
 
-		// 出力
+		// Output
 
 		CTga				clTGA;
 
@@ -313,7 +313,7 @@ BOOL	CTaskForce::DecodeTGA(
 	}
 	else
 	{
-		// 無圧縮
+		// Uncompressed
 
 		CTga				clTGA;
 

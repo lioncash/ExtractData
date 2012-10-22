@@ -79,7 +79,7 @@ BOOL	CCmv::Mount(
 
 		TCHAR				szFileName[_MAX_FNAME];
 
-		_stprintf( szFileName, _T("%s%06d%s"), szArcName, i, szFileExt );
+		_stprintf( szFileName, _T("%s%06u%s"), szArcName, i, szFileExt );
 
 		// Add to list view
 

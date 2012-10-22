@@ -23,7 +23,7 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
 		return FALSE;
 
-	// バージョンチェック
+	// Version check
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
 	DWORD dwFileEntrySize = 0;
 
@@ -39,30 +39,30 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 
 	pclArc->SeekHed(0x1C);
 
-	// ファイル数取得
+	// Get number of files
 	DWORD dwFiles;
 	pclArc->Read(&dwFiles, 4);
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD dwIndexSize = dwFiles * dwFileEntrySize;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> clmbtIndex(dwIndexSize);
 	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
-	// ファイル名インデックス取得
+	// Get index filename
 	YCMemory<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
 	BOOL bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
 
-	// ファイル情報の取得
+	// File information retrieval
 
 	TCHAR szFileName[_MAX_FNAME];
 	TCHAR szWork[_MAX_FNAME];
 
 	if (!bSec) {
-		// ファイル名インデックスの取得に失敗
+		// Failed to get the filename index
 
 		lstrcpy(szWork, pclArc->GetArcName());
 		PathRemoveExtension(szWork);
@@ -70,17 +70,17 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 
 	for (DWORD i = 0; i < dwFiles; i++) {
 		if (!bSec) {
-			// 連番ファイル名を作成
-			_stprintf(szFileName, _T("%s_%06d"), szWork, i);
+			// Create a sequential filename
+			_stprintf(szFileName, _T("%s_%06u"), szWork, i);
 		}
 		else {
-			// ファイル名インデックスからファイル名を取得
+			// Get the name of the file from the filename index
 			lstrcpy(szFileName, (LPCTSTR)&clmbtSec[dwNameIndex]);
 
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// ファイル名
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// ファイルタイプ
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// アーカイブタイプ
-			dwNameIndex += 4 + *(LPDWORD)&clmbtSec[dwNameIndex];			// アーカイブ名長 + アーカイブ名 + ファイル番号長
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// Filename
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// File type
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// Archive type
+			dwNameIndex += 4 + *(LPDWORD)&clmbtSec[dwNameIndex];		// Archive name length + Archive name + File number
 		}
 
 		SFileInfo stfiWork;
@@ -105,7 +105,7 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
 		return FALSE;
 
-	// バージョンチェック
+	// Version check
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
 	DWORD dwFileEntrySize = 0;
 
@@ -118,19 +118,19 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 
 	pclArc->SeekHed(0x08);
 
-	// ファイル数取得
+	// Get the number of files
 	DWORD dwFiles;
 	pclArc->Read(&dwFiles, 4);
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD dwIndexSize = dwFiles * dwFileEntrySize;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> clmbtIndex(dwIndexSize);
 	pclArc->SeekCur(0x04);
 	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
-	// ファイル名インデックス取得
+	// Get the filename index
 	YCMemory<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
@@ -139,13 +139,13 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	// ファイル名インデックスが取得できたかどうかをアーカイブごとに設定(デコードの差分合成時に使用)
 	pclArc->SetFlag(bSec);
 
-	// ファイル情報の取得
+	// Getting file info
 
 	TCHAR szFileName[_MAX_FNAME];
 	TCHAR szWork[_MAX_FNAME];
 
 	if (!bSec) {
-		// ファイル名インデックスの取得に失敗
+		// Failed to get the filename index
 
 		lstrcpy(szWork, pclArc->GetArcName());
 		PathRemoveExtension(szWork);
@@ -153,17 +153,17 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 
 	for (DWORD i = 0; i < dwFiles; i++) {
 		if (!bSec) {
-			// 連番ファイル名を作成
-			_stprintf(szFileName, _T("%s_%06d"), szWork, i);
+			// Create a sequential filename
+			_stprintf(szFileName, _T("%s_%06u"), szWork, i);
 		}
 		else {
-			// ファイル名インデックスからファイル名を取得
+			// Get filename from the filename index
 			lstrcpy(szFileName, (LPCTSTR)&clmbtSec[dwNameIndex]);
 
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// ファイル名
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// ファイルタイプ
-			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// アーカイブタイプ
-			dwNameIndex += 4 + *(LPDWORD)&clmbtSec[dwNameIndex];			// アーカイブ名長 + アーカイブ名 + ファイル番号長
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// File name
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// File type
+			dwNameIndex += strlen((char*)&clmbtSec[dwNameIndex]) + 1;	// Archive type
+			dwNameIndex += 4 + *(LPDWORD)&clmbtSec[dwNameIndex];		// Archive name length + Archive name + File number
 		}
 
 		SFileInfo stfiWork;

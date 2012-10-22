@@ -5,10 +5,10 @@
 #include	"Will.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CWill::Mount(
-	CArcFile*			pclArc							// マウント
+	CArcFile*			pclArc							// Mount
 	)
 {
 	if( lstrcmpi( pclArc->GetArcExten(), _T(".arc") ) != 0 )
@@ -37,13 +37,13 @@ BOOL	CWill::Mount(
 		return	FALSE;
 	}
 
-	// ファイルの種類数取得
+	// Get number of file formats
 
 	DWORD				dwFileFormats;
 
 	pclArc->Read( &dwFileFormats, 4 );
 
-	// ファイルフォーマットインデックス取得
+	// Get file format index
 
 	DWORD				dwFormatIndexSize = 12 * dwFileFormats;
 
@@ -52,7 +52,7 @@ BOOL	CWill::Mount(
 
 	pclArc->Read( &clmbtFormatIndex[0], dwFormatIndexSize );
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize = 0;
 
@@ -61,14 +61,14 @@ BOOL	CWill::Mount(
 		dwIndexSize += *(DWORD*) &clmbtFormatIndex[12 * i + 4] * 17;
 	}
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル情報の取得
+	// Get file information
 
 	std::vector<SFileInfo>	vcFileInfo;
 	std::vector<SFileInfo>	vcMaskFileInfo;
@@ -76,7 +76,7 @@ BOOL	CWill::Mount(
 
 	for( DWORD i = 0 ; i < dwFileFormats ; i++ )
 	{
-		// ファイルの種類から拡張子取得
+		// Get filetype extension
 
 		TCHAR				szFileExt[8];
 
@@ -85,13 +85,13 @@ BOOL	CWill::Mount(
 
 		::CharLower( szFileExt );
 
-		// ファイル情報の取得
+		// Get file information
 
 		DWORD				dwFiles = *(DWORD*) &clmbtFormatIndex[dwFormatIndexPtr + 4];
 
 		for( DWORD j = 0 ; j < dwFiles; j++ )
 		{
-			// ファイル名取得
+			// Get file name
 
 			char				szFileTitle[16];
 
@@ -102,7 +102,7 @@ BOOL	CWill::Mount(
 
 			_stprintf( szFileName, _T("%s.%s"), szFileTitle, szFileExt );
 
-			// ファイル情報リストに追加
+			// Add information to the list
 
 			SFileInfo			stFileInfo;
 
@@ -114,7 +114,7 @@ BOOL	CWill::Mount(
 
 			if( lstrcmp( szFileExt, _T("msk") ) == 0 )
 			{
-				// マスク画像
+				// Masked image
 
 				vcMaskFileInfo.push_back( stFileInfo );
 			}
@@ -129,7 +129,7 @@ BOOL	CWill::Mount(
 		dwFormatIndexPtr += 12;
 	}
 
-	// ファイル名でソート
+	// Sort by filename
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
@@ -139,7 +139,7 @@ BOOL	CWill::Mount(
 	{
 		SFileInfo*			pstsiMask = &vcMaskFileInfo[i];
 
-		// 合成するファイル名の取得
+		// Get the name of the file to be created
 
 		TCHAR				szTargetName[_MAX_FNAME];
 
@@ -147,7 +147,7 @@ BOOL	CWill::Mount(
 
 		PathRenameExtension( szTargetName, _T(".wip") );
 
-		// 合成するファイル情報の取得
+		// Getting file information to be created
 
 		SFileInfo*			pstsiTarget = NULL;
 
@@ -161,7 +161,7 @@ BOOL	CWill::Mount(
 			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
 			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
 
-			// 進捗状況更新
+			// Progress update
 
 			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
 		}
@@ -173,7 +173,7 @@ BOOL	CWill::Mount(
 		}
 	}
 
-	// リストビューに追加
+	// Add to listview
 
 	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
 	{
@@ -189,10 +189,10 @@ BOOL	CWill::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CWill::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -202,7 +202,7 @@ BOOL	CWill::Decode(
 		return	FALSE;
 	}
 
-	// データの読み込み
+	// Read data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -211,14 +211,14 @@ BOOL	CWill::Decode(
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// ファイル数、色数、取得
+	// Get number of files and number of colors
 
 	WORD				wFiles = *(WORD*) &clmbtSrc[4];
 	WORD				wBpp = *(WORD*) &clmbtSrc[6];
 
 	dwSrcPtr += 8;
 
-	// 幅、高さ、取得
+	// Get width and height
 
 	std::vector<long>	vclWidth;
 	std::vector<long>	vclHeight;
@@ -262,14 +262,14 @@ BOOL	CWill::Decode(
 		pclArc->SeekHed( pstFileInfo->starts[0] );
 		pclArc->Read( &clmbtSrcForMask[0], dwSrcSizeForMask );
 
-		// ファイル数、色数、取得
+		// Get number of files and colors
 
 		wFilesForMask = *(WORD*) &clmbtSrcForMask[4];
 		wBppForMask = *(WORD*) &clmbtSrcForMask[6];
 
 		dwSrcPtrForMask += 8;
 
-		// 幅、高さ、取得
+		// Get width and height
 
 		for( WORD i = 0 ; i < wFilesForMask ; i++ )
 		{
@@ -285,7 +285,7 @@ BOOL	CWill::Decode(
 		bExistsMask = (wFiles == wFilesForMask);
 	}
 
-	// 出力
+	// Output
 
 	for( WORD i = 0 ; i < wFiles ; i++ )
 	{
@@ -303,7 +303,7 @@ BOOL	CWill::Decode(
 
 		BYTE*				pbtDst = &clmbtDst[0];
 
-		// パレットの取得
+		// Get pallet
 
 		BYTE*				pbtPallet = NULL;
 
@@ -314,7 +314,7 @@ BOOL	CWill::Decode(
 			dwSrcPtr += 1024;
 		}
 
-		// LZSS解凍
+		// LZSS Decompression
 
 		DecompLZSS( &clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr], vcdwSrcSize[i] );
 
@@ -336,7 +336,7 @@ BOOL	CWill::Decode(
 
 			ZeroMemory( &clmbtDstForMask[0], dwDstSizeForMask );
 
-			// パレットの取得
+			// Get pallet
 
 			BYTE*				pbtPalletForMask = NULL;
 
@@ -347,7 +347,7 @@ BOOL	CWill::Decode(
 				dwSrcPtrForMask += 1024;
 			}
 
-			// LZSS解凍
+			// LZSS Decompression
 
 			DecompLZSS( &clmbtDstForMask[0], dwDstSizeForMask, &clmbtSrcForMask[dwSrcPtrForMask], vcdwSrcSizeForMask[i] );
 
@@ -383,7 +383,7 @@ BOOL	CWill::Decode(
 		{
 			// ファイルが2個以上
 
-			_stprintf( szFileExt, _T("_%03d.bmp"), i );
+			_stprintf( szFileExt, _T("_%03u.bmp"), i );
 		}
 
 		// プログレスバー進捗要求
@@ -395,7 +395,7 @@ BOOL	CWill::Decode(
 			bProgress = FALSE;
 		}
 
-		// 出力
+		// Output
 
 		CImage				clImage;
 
@@ -408,13 +408,13 @@ BOOL	CWill::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSSの解凍
+//	LZSS Decompression
 
 void	CWill::DecompLZSS(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const void*			pvSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const void*			pvSrc,							// Compressed data
+	DWORD				dwSrcSize						// Compressed data size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
@@ -441,7 +441,7 @@ void	CWill::DecompLZSS(
 		{
 			if( btFlags & 1 )
 			{
-				// 無圧縮データ
+				// Uncompressed data
 
 				pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = pbtSrc[dwSrcPtr++];
 
@@ -449,7 +449,7 @@ void	CWill::DecompLZSS(
 			}
 			else
 			{
-				// 圧縮データ
+				// Compressed data
 
 				BYTE				btLow = pbtSrc[dwSrcPtr++];
 				BYTE				btHigh = pbtSrc[dwSrcPtr++];
@@ -458,8 +458,7 @@ void	CWill::DecompLZSS(
 
 				if( dwBack == 0 )
 				{
-					// 解凍完了
-
+					// Completed decompressing
 					return;
 				}
 
@@ -469,12 +468,12 @@ void	CWill::DecompLZSS(
 
 				if( (dwDstPtr + dwLength) > dwDstSize )
 				{
-					// 出力バッファを超えてしまう
+					// Exceeds the output buffer
 
 					dwLength = (dwDstSize - dwDstPtr);
 				}
 
-				// 辞書のデータを入力
+				// Enter data dictionary
 
 				for( DWORD j = 0 ; j < dwLength ; j++ )
 				{
@@ -494,12 +493,12 @@ void	CWill::DecompLZSS(
 //	マスク画像を付加して32bit化する
 
 BOOL	CWill::AppendMask(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 24bitデータ
-	DWORD				dwSrcSize,						// 24bitデータサイズ
-	const BYTE*			pbtMask,						// 8bitデータ(マスク)
-	DWORD				dwMaskSize						// 8bitデータサイズ
+	BYTE*				pbtDst,							// Storage location
+	DWORD				dwDstSize,						// Storage location size
+	const BYTE*			pbtSrc,							// 24bit Data
+	DWORD				dwSrcSize,						// 24bit Data Size
+	const BYTE*			pbtMask,						// 8bit Data (Mask)
+	DWORD				dwMaskSize						// 8bit Data Size
 	)
 {
 	// 合成
