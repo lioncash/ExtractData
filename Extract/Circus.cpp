@@ -6,10 +6,10 @@
 #include	"Circus.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CCircus::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountPCK( pclArc ) )
@@ -36,10 +36,10 @@ BOOL	CCircus::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCKのマウント
+//	PCK Mounting
 
 BOOL	CCircus::MountPCK(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".PCK") )
@@ -47,17 +47,17 @@ BOOL	CCircus::MountPCK(
 		return	FALSE;
 	}
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->Read( &dwFiles, 4 );
 
-	// インデックスサイズの取得
+	// Get index size
 
 	DWORD				dwIndexSize = dwFiles * 64;
 
-	// インデックスの読み込み
+	// Read index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 
@@ -65,11 +65,11 @@ BOOL	CCircus::MountPCK(
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル情報の格納
+	// Store file information in memory
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名の取得
+		// Get filename
 
 		char				szFileName[57];
 
@@ -77,7 +77,7 @@ BOOL	CCircus::MountPCK(
 
 		szFileName[56] = '\0';
 
-		// ファイル情報の格納
+		// Store file information in memory
 
 		SFileInfo			stFileInfo;
 
@@ -94,10 +94,10 @@ BOOL	CCircus::MountPCK(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	voice.datのマウント
+//	voice.dat Mounting
 
 BOOL	CCircus::MountVoiceDat(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( lstrcmpi( pclArc->GetArcName(), _T("voice.dat") ) != 0 )
@@ -107,32 +107,32 @@ BOOL	CCircus::MountVoiceDat(
 
 	if( memcmp( pclArc->GetHed(), "tskforce", 8 ) == 0 )
 	{
-		// 別のアーカイブ
+		// Not the right archive
 
 		return	FALSE;
 	}
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->Read( &dwFiles, 4 );
 
-	// インデックスサイズの取得
+	// Get index size
 
 	DWORD				dwIndexSize = dwFiles * 52;
 
-	// インデックスの読み込み
+	// Read index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル情報の格納
+	// Store file information in memory
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名の取得
+		// Get file name
 
 		char				szFileName[49];
 
@@ -142,13 +142,13 @@ BOOL	CCircus::MountVoiceDat(
 
 		if( strcmpi( PathFindExtensionA( szFileName ), ".pcm" ) != 0 )
 		{
-			// 未対応アーカイブと判定
+			// Unsupported archive
 
 			pclArc->SeekCur( -(INT64)(4 + dwIndexSize) );
 			return	FALSE;
 		}
 
-		// ファイル情報の格納
+		// Store file information in memory
 
 		SFileInfo			stFileInfo;
 
@@ -165,10 +165,10 @@ BOOL	CCircus::MountVoiceDat(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CRXのマウント
+//	CRX Mounting
 
 BOOL	CCircus::MountCRX(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( lstrcmpi( pclArc->GetArcExten(), _T(".CRX") ) != 0 )
@@ -185,10 +185,10 @@ BOOL	CCircus::MountCRX(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMのマウント
+//	PCM Mounting
 
 BOOL	CCircus::MountPCM(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pcm") )
@@ -205,10 +205,10 @@ BOOL	CCircus::MountPCM(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CCircus::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeCRX( pclArc ) )
@@ -225,10 +225,10 @@ BOOL	CCircus::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CRXのデコード
+//	CRX Decoding
 
 BOOL	CCircus::DecodeCRX(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -238,36 +238,36 @@ BOOL	CCircus::DecodeCRX(
 		return	FALSE;
 	}
 
-	// 入力バッファ確保
+	// Ensure input buffer exists
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
 	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
 
-	// 読み込み
+	// Read
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// CRXタイプの取得
+	// Determine CRX type
 
 	WORD				wType = *(WORD*) &clmbtSrc[12];
 
 	switch( wType )
 	{
 	case	1:
-		// LZSS圧縮型
+		// LZSS compression type
 
 		DecodeCRX1( pclArc, &clmbtSrc[0], dwSrcSize );
 		break;
 
 	case	2:
-		// ZLIB圧縮型
+		// ZLIB compression type
 
 		DecodeCRX2( pclArc, &clmbtSrc[0], dwSrcSize );
 		break;
 
 	default:
-		// 未知の形式
+		// Unknown compression format
 
 		pclArc->OpenFile();
 		pclArc->WriteFile( &clmbtSrc[0], dwSrcSize );
@@ -277,17 +277,17 @@ BOOL	CCircus::DecodeCRX(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CRXのデコード(タイプ1)
+//	CRX Decoding (Type 1)
 
 BOOL	CCircus::DecodeCRX1(
-	CArcFile*			pclArc,							// アーカイブ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力データサイズ
+	CArcFile*			pclArc,							// Archive
+	const void*			pvSrc,							// Input data
+	DWORD				dwSrcSize						// Input data size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
 
-	// ヘッダ情報の取得
+	// Get header information
 
 	long				lWidth = *(WORD*) &pbtSrc[8];
 	long				lHeight = *(WORD*) &pbtSrc[10];
@@ -296,7 +296,7 @@ BOOL	CCircus::DecodeCRX1(
 
 	DWORD				dwSrcDataOffset = 20 + dwPalletSize;
 
-	// 出力バッファの確保
+	// Ensure the output buffer exists
 
 	YCMemory<BYTE>		clmbtPallet;
 	BYTE*				pbtPallet = NULL;
@@ -305,11 +305,11 @@ BOOL	CCircus::DecodeCRX1(
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// パレットの取得
+	// Get palette
 
 	if( wBpp == 8 )
 	{
-		// パレットの展開
+		// Expand the palette
 
 		DWORD				dwPalletSize2 = dwPalletSize;
 
@@ -328,11 +328,11 @@ BOOL	CCircus::DecodeCRX1(
 		pbtPallet = &clmbtPallet[0];
 	}
 
-	// LZSS解凍
+	// LZSS decompression
 
 	DecompLZSS( &clmbtDst[0], dwDstSize, &pbtSrc[dwSrcDataOffset], (dwSrcSize - dwSrcDataOffset) );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -343,17 +343,17 @@ BOOL	CCircus::DecodeCRX1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CRXのデコード(タイプ2)
+//	CRX Decoding (Type 2)
 
 BOOL	CCircus::DecodeCRX2(
-	CArcFile*			pclArc,							// アーカイブ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力データサイズ
+	CArcFile*			pclArc,							// Archive
+	const void*			pvSrc,							// Input data
+	DWORD				dwSrcSize						// Input data size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
 
-	// ヘッダ情報の取得
+	// Get header information
 
 	long				lWidth = *(WORD*)&pbtSrc[8];
 	long				lHeight = *(WORD*)&pbtSrc[10];
@@ -378,7 +378,7 @@ BOOL	CCircus::DecodeCRX2(
 		wBpp = 8;
 	}
 
-	// 出力バッファの確保
+	// Ensure the output buffer exists
 
 	YCMemory<BYTE>		clmbtPallet;
 	BYTE*				pbtPallet = NULL;
@@ -391,11 +391,11 @@ BOOL	CCircus::DecodeCRX2(
 
 	YCMemory<BYTE>		clmbtDst2( dwDstSize2 );
 
-	// パレットの取得
+	// Get palette
 
 	if( wBpp == 8 )
 	{
-		// パレットの展開
+		// Expand the palette
 
 		DWORD				dwPalletSize2 = dwPalletSize;
 
@@ -414,11 +414,11 @@ BOOL	CCircus::DecodeCRX2(
 		pbtPallet = &clmbtPallet[0];
 	}
 
-	// 解凍
+	// Decompression
 
 	if( wBpp == 8 )
 	{
-		// zlib解凍
+		// zlib decompression
 
 		CZlib				clZlib;
 
@@ -426,7 +426,7 @@ BOOL	CCircus::DecodeCRX2(
 	}
 	else
 	{
-		// zlib解凍
+		// zlib decompression
 
 		CZlib				clZlib;
 		int					nResult;
@@ -437,7 +437,7 @@ BOOL	CCircus::DecodeCRX2(
 
 			if( nResult == Z_BUF_ERROR )
 			{
-				// 出力バッファのサイズ不足
+				// Insufficient output buffer size
 
 				dwDstSize = dwDstSize * 2;
 				clmbtDst.resize( dwDstSize );
@@ -448,12 +448,12 @@ BOOL	CCircus::DecodeCRX2(
 			}
 		}
 
-		// CRX解凍
+		// CRX Decompression
 
 		DecompCRX2( &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize, lWidth, lHeight, wBpp, wFlags );
 	}
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -464,10 +464,10 @@ BOOL	CCircus::DecodeCRX2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMのデコード
+//	PCM Decoding
 
 BOOL	CCircus::DecodePCM(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -477,18 +477,18 @@ BOOL	CCircus::DecodePCM(
 		return	FALSE;
 	}
 
-	// ヘッダの読み込み
+	// Read header
 
 	SPCMHeader			stPCMHeader;
 
 	pclArc->Read( &stPCMHeader, sizeof(SPCMHeader) );
 
-	// 出力
+	// Output
 
 	switch( stPCMHeader.dwFlags & 0xFF )
 	{
 	case	0:
-		// 無圧縮
+		// Uncompressed
 
 		CWav				clWav;
 
@@ -511,7 +511,7 @@ BOOL	CCircus::DecodePCM(
 		break;
 
 	default:
-		// 未知の形式
+		// Unknown format
 
 		pclArc->SeekCur( -(INT64)sizeof(SPCMHeader) );
 
@@ -523,20 +523,20 @@ BOOL	CCircus::DecodePCM(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMのデコード(タイプ1)
+//	PCM Decoding (Type 1)
 
 BOOL	CCircus::DecodePCM1(
-	CArcFile*			pclArc,							// アーカイブ
-	const SPCMHeader&	rfstPCMHeader					// PCMヘッダ
+	CArcFile*			pclArc,							// Archive
+	const SPCMHeader&	rfstPCMHeader					// PCM Header
 	)
 {
-	// 入力データサイズの取得
+	// Get input data size
 
 	DWORD				dwSrcSize;
 
 	pclArc->Read( &dwSrcSize, 4 );
 
-	// バッファ確保
+	// Ensure buffer exists 
 
 	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
 
@@ -548,19 +548,19 @@ BOOL	CCircus::DecodePCM1(
 
 	YCMemory<BYTE>		clmbtDst2( dwDstSize2 );
 
-	// 読み込み
+	// Read
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// LZSS解凍
+	// LZSS Decompression
 
 	DecompLZSS( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
 
-	// VQ解凍
+	// VQ Decompression
 
 	DecompPCM1( &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize );
 
-	// 出力
+	// Output
 
 	CWav				clWav;
 
@@ -571,14 +571,14 @@ BOOL	CCircus::DecodePCM1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMのデコード(タイプ2)
+//	PCM Decoding(Type 2)
 
 BOOL	CCircus::DecodePCM2(
-	CArcFile*			pclArc,							// アーカイブ
-	const SPCMHeader&	rfstPCMHeader					// PCMヘッダ
+	CArcFile*			pclArc,							// Archive
+	const SPCMHeader&	rfstPCMHeader					// PCM Header
 	)
 {
-	// バッファ確保
+	// Ensure buffer exists
 
 	DWORD				dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader);
 
@@ -588,15 +588,15 @@ BOOL	CCircus::DecodePCM2(
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// 読み込み
+	// Read
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// 解凍
+	// Decompression
 
 	DecompPCM2( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
 
-	// 出力
+	// Output
 
 	CWav				clWav;
 
@@ -607,13 +607,13 @@ BOOL	CCircus::DecodePCM2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSSの解凍
+//	LZSS Decompression
 
 BOOL	CCircus::DecompLZSS(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納サイズ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力サイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// Input Data
+	DWORD				dwSrcSize						// Input Size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*)pvSrc;
@@ -635,13 +635,13 @@ BOOL	CCircus::DecompLZSS(
 
 		if( dwFlags & 1 )
 		{
-			// 無圧縮データ
+			// Uncompressed data
 
 			pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
 		}
 		else
 		{
-			// 圧縮データ
+			// Compressed data
 
 			DWORD				dwLength;
 			DWORD				dwBack;
@@ -697,17 +697,17 @@ BOOL	CCircus::DecompLZSS(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CRXの解凍(タイプ2)
+//	CRX Decompression (Type 2)
 
 BOOL	CCircus::DecompCRX2(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納サイズ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize,						// 入力サイズ
-	long				lWidth,							// 幅
-	long				lHeight,						// 高さ
-	WORD				wBpp,							// ビット深度
-	WORD				wFlags							// フラグ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// Input Data
+	DWORD				dwSrcSize,						// Input Size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp,							// Bit depth
+	WORD				wFlags							// Flags
 	)
 {
 	WORD				wColors = wBpp >> 3;
@@ -731,14 +731,14 @@ BOOL	CCircus::DecompCRX2(
 
 			dwDstPtrTemp = dwDstPtr;
 
-			// 1ピクセル出力
+			// Output one pixel
 
 			for( DWORD j = 0 ; j < wColors ; j++ )
 			{
 				pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++];
 			}
 
-			// 前のピクセルとの差分
+			// Difference between the previous pixel
 
 			for( long j = 0 ; j < (lWidth - 1) ; j++ )
 			{
@@ -755,7 +755,7 @@ BOOL	CCircus::DecompCRX2(
 
 			dwDstPtrTemp = dwDstPtr;
 
-			// 前のラインとの差分
+			// Difference between the previous line
 
 			for( long j = 0 ; j < lWidth ; j++ )
 			{
@@ -771,14 +771,14 @@ BOOL	CCircus::DecompCRX2(
 
 			dwDstPtrTemp = dwDstPtr;
 
-			// 1ピクセル出力
+			// Output one pixel
 
 			for( DWORD j = 0 ; j < wColors ; j++ )
 			{
 				pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++];
 			}
 
-			// 前のラインとの差分
+			// Difference between the previous line
 
 			for( long j = 0 ; j < (lWidth - 1) ; j++ )
 			{
@@ -795,7 +795,7 @@ BOOL	CCircus::DecompCRX2(
 			dwDstPtrTemp = dwDstPtr;
 			dwDstPtrPrev += wColors;
 
-			// 前のラインとの差分
+			// Difference between the previous line
 
 			for( int j = 0 ; j < (lWidth - 1) ; j++ )
 			{
@@ -805,7 +805,7 @@ BOOL	CCircus::DecompCRX2(
 				}
 			}
 
-			// 1ピクセル出力
+			// Output one pixel
 
 			for( int j = 0 ; j < wColors ; j++ )
 			{
@@ -826,7 +826,7 @@ BOOL	CCircus::DecompCRX2(
 
 				while( lWidthTemp > 0 )
 				{
-					// 1バイト出力
+					// Output one byte
 
 					btData = pbtSrc[dwSrcPtr++];
 
@@ -866,7 +866,7 @@ BOOL	CCircus::DecompCRX2(
 	switch( wFlags )
 	{
 	case	0:
-		// ABGRの順でデータが格納されている(BGRAの順に直す必要がある)
+		// Data is stored in the order ABGR (It is necessary to fix the order of BGRA)
 
 		if( wBpp == 32 )
 		{
@@ -885,7 +885,7 @@ BOOL	CCircus::DecompCRX2(
 		break;
 
 	case	1:
-		// 何もしない
+		// Do nothing
 
 		break;
 	}
@@ -894,13 +894,13 @@ BOOL	CCircus::DecompCRX2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMの解凍(タイプ1)
+//	PCM Extraction (Type 1)
 
 BOOL	CCircus::DecompPCM1(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納サイズ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力サイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// Input Data
+	DWORD				dwSrcSize						// Input Size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*)pvSrc;
@@ -909,7 +909,7 @@ BOOL	CCircus::DecompPCM1(
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
 
-	// テーブルの構築
+	// Create tables
 
 	static const DWORD	adwTable[8] = {
 		0x800, 0x800, 0x800, 0x100, 0x100, 0x100, 0x200, 0x400
@@ -1185,7 +1185,7 @@ BOOL	CCircus::DecompPCM1(
 		awTable[i + 1] = wHigh++;
 	}
 
-	// デコード
+	// Decode
 
 	DWORD				dwDstSizeOfHalf = (dwDstSize >> 1);
 
@@ -1195,25 +1195,20 @@ BOOL	CCircus::DecompPCM1(
 
 	while( dwSrcPtr < dwDstSizeOfHalf )
 	{
-
-
-
-
-
-
+		// TODO: Unfinished ?
 	}
 
 	return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PCMの解凍(タイプ2)
+//	PCM Extraction (Type 2)
 
 BOOL	CCircus::DecompPCM2(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納サイズ
-	const void*			pvSrc,							// 入力データ
-	DWORD				dwSrcSize						// 入力サイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// Input Data
+	DWORD				dwSrcSize						// Input Size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*)pvSrc;

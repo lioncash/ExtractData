@@ -7,10 +7,10 @@
 #include	"CircusPak.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CCircusPak::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountPakForKujiraCons( pclArc) )
@@ -40,7 +40,7 @@ BOOL	CCircusPak::Mount(
 //	最終試験くじら-Conservative-向けpakのマウント
 
 BOOL	CCircusPak::MountPakForKujiraCons(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pak") )
@@ -53,29 +53,29 @@ BOOL	CCircusPak::MountPakForKujiraCons(
 		return	FALSE;
 	}
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 16 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// 復号
+	// Decryption
 
 	dwFiles ^= 0xAAAAAAAA;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<SPakFileInfoType1>	clmIndex( dwFiles );
 
 	pclArc->SeekCur( 4 );
 	pclArc->Read( &clmIndex[0], (sizeof(SPakFileInfoType1) * dwFiles) );
 
-	// ファイル情報の取得
+	// Get file information
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get file name
 
 		char				szFileName[25];
 
@@ -86,7 +86,7 @@ BOOL	CCircusPak::MountPakForKujiraCons(
 
 		szFileName[24] = '\0';
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -106,7 +106,7 @@ BOOL	CCircusPak::MountPakForKujiraCons(
 //	最終試験くじら向けpakのマウント
 
 BOOL	CCircusPak::MountPakForKujira(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pak") )
@@ -119,29 +119,29 @@ BOOL	CCircusPak::MountPakForKujira(
 		return	FALSE;
 	}
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 16 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// 復号
+	// Decryption
 
 	dwFiles ^= 0xAAAAAAAA;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<SPakFileInfoType2>	clmIndex( dwFiles );
 
 	pclArc->SeekCur( 4 );
 	pclArc->Read( &clmIndex[0], (sizeof(SPakFileInfoType2) * dwFiles) );
 
-	// ファイル情報の取得
+	// Get file information
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get file name
 
 		char				szFileName[33];
 
@@ -152,7 +152,7 @@ BOOL	CCircusPak::MountPakForKujira(
 
 		szFileName[32] = '\0';
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -172,7 +172,7 @@ BOOL	CCircusPak::MountPakForKujira(
 //	ACDC向けpakのマウント
 
 BOOL	CCircusPak::MountPakForACDC(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pak") )
@@ -185,29 +185,29 @@ BOOL	CCircusPak::MountPakForACDC(
 		return	FALSE;
 	}
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 8 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// 復号
+	// Decryption
 
 	dwFiles ^= 0xA6A6A6A6;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<SPakFileInfoType2>	clmIndex( dwFiles );
 
 	pclArc->SeekCur( 4 );
 	pclArc->Read( &clmIndex[0], (sizeof(SPakFileInfoType2) * dwFiles) );
 
-	// ファイル情報の取得
+	// Get file information
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[33];
 
@@ -218,7 +218,7 @@ BOOL	CCircusPak::MountPakForACDC(
 
 		szFileName[32] = '\0';
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -238,7 +238,7 @@ BOOL	CCircusPak::MountPakForACDC(
 //	DCGS向けpakのマウント
 
 BOOL	CCircusPak::MountPakForDCGS(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pak") )
@@ -253,29 +253,29 @@ BOOL	CCircusPak::MountPakForDCGS(
 
 	pclArc->SeekHed( 4 );
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->Read( &dwFiles, 4 );
 
-	// フラグの取得
+	// Get flags
 
 	DWORD				dwFlags;
 
 	pclArc->Read( &dwFlags, 4 );
 
-	// インデックスサイズの取得
+	// Get index size
 
 	DWORD				dwIndexSize = (sizeof(SPakFileInfoType3) * dwFiles);
 
-	// インデックスの取得
+	// Get index
 
 	YCMemory<SPakFileInfoType3>	clmIndex( dwFiles );
 
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	// インデックスの復号
+	// Decode index
 
 	BYTE*				pbtIndex = (BYTE*) &clmIndex[0];
 
@@ -284,11 +284,11 @@ BOOL	CCircusPak::MountPakForDCGS(
 		pbtIndex[i] = (pbtIndex[i] << 4) | (pbtIndex[i] >> 4);
 	}
 
-	// ファイル情報の取得
+	// Get file information
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -311,10 +311,10 @@ BOOL	CCircusPak::MountPakForDCGS(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CCircusPak::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodePakForKujiraCons( pclArc ) )
@@ -344,7 +344,7 @@ BOOL	CCircusPak::Decode(
 //	最終試験くじら-Conservative-向けpakのデコード
 
 BOOL	CCircusPak::DecodePakForKujiraCons(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -374,11 +374,11 @@ BOOL	CCircusPak::DecodePakForKujiraCons(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decode
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
-		// 出力
+		// Output
 
 		DecodeBMP( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
@@ -392,19 +392,19 @@ BOOL	CCircusPak::DecodePakForKujiraCons(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
 		*(DWORD*) &clmbtSrc[4] ^= 0x80701084;
 
-		// デコード
+		// Decoding
 
 		DecodeCps( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
 	else
 	{
-		// その他
+		// Other
 
 		DecodeEtc( pclArc, Decrypt2, abtKey );
 	}
@@ -416,7 +416,7 @@ BOOL	CCircusPak::DecodePakForKujiraCons(
 //	最終試験くじら向けpakのデコード
 
 BOOL	CCircusPak::DecodePakForKujira(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -438,7 +438,7 @@ BOOL	CCircusPak::DecodePakForKujira(
 
 	if( pstFileInfo->format == _T("BMP") )
 	{
-		// 読み込み
+		// Read
 
 		DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -446,11 +446,11 @@ BOOL	CCircusPak::DecodePakForKujira(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
-		// 出力
+		// Output
 
 		DecodeBMP( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
@@ -464,19 +464,19 @@ BOOL	CCircusPak::DecodePakForKujira(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
 		*(DWORD*) &clmbtSrc[4] ^= 0x80701084;
 
-		// デコード
+		// Decoding
 
 		DecodeCps( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
 	else
 	{
-		// その他
+		// Other
 
 		DecodeEtc( pclArc, Decrypt2, abtKey );
 	}
@@ -488,7 +488,7 @@ BOOL	CCircusPak::DecodePakForKujira(
 //	ACDC向けpakのデコード
 
 BOOL	CCircusPak::DecodePakForACDC(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -518,11 +518,11 @@ BOOL	CCircusPak::DecodePakForACDC(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
-		// 出力
+		// Output
 
 		DecodeBMP( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
@@ -536,11 +536,11 @@ BOOL	CCircusPak::DecodePakForACDC(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
-		// 出力
+		// Output
 
 		CTga				clTGA;
 
@@ -556,7 +556,7 @@ BOOL	CCircusPak::DecodePakForACDC(
 
 		pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-		// 復号
+		// Decryption
 
 		Decrypt1( &clmbtSrc[0], dwSrcSize, abtKey );
 
@@ -569,14 +569,14 @@ BOOL	CCircusPak::DecodePakForACDC(
 			DWORD				dwWork;
 			DWORD				dwWork2;
 
-			// データの入れ替え
+			// Replace data
 
 			dwWork = 8 + (dwSrcSize - 8) - 0xFF;
 			dwWork2 = 8 + ((dwSrcSize - 8) >> 9) + 0xFF;
 
 			std::swap( clmbtSrc[dwWork], clmbtSrc[dwWork2] );
 
-			// データの入れ替え
+			// Replace data
 
 			dwWork = 8 + (dwSrcSize - 8) - (0xFF << 1);
 			dwWork2 = 8 + (((dwSrcSize - 8) >> 9) << 1) + 0xFF;
@@ -584,13 +584,13 @@ BOOL	CCircusPak::DecodePakForACDC(
 			std::swap( clmbtSrc[dwWork], clmbtSrc[dwWork2] );
 		}
 
-		// デコード
+		// Decoding
 
 		DecodeCps( pclArc, &clmbtSrc[0], dwSrcSize );
 	}
 	else
 	{
-		// その他
+		// Other
 
 		DecodeEtc( pclArc, Decrypt2, abtKey );
 	}
@@ -602,7 +602,7 @@ BOOL	CCircusPak::DecodePakForACDC(
 //	DCGS向けpakのデコード
 
 BOOL	CCircusPak::DecodePakForDCGS(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -617,7 +617,7 @@ BOOL	CCircusPak::DecodePakForDCGS(
 		return	FALSE;
 	}
 
-	// 読み込み
+	// Read
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -625,7 +625,7 @@ BOOL	CCircusPak::DecodePakForDCGS(
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 解凍
+	// Decompression
 
 	BYTE*				pbtDst = &clmSrc[0];
 	DWORD				dwDstSize = pstFileInfo->sizeOrg;
@@ -633,11 +633,11 @@ BOOL	CCircusPak::DecodePakForDCGS(
 
 	if( dwSrcSize != dwDstSize )
 	{
-		// 圧縮されている
+		// Is compressed
 
 		clmDst.resize( dwDstSize );
 
-		// 解凍
+		// Decompression
 
 		CLZSS				clLZSS;
 
@@ -646,11 +646,11 @@ BOOL	CCircusPak::DecodePakForDCGS(
 		pbtDst = &clmDst[0];
 	}
 
-	// 出力
+	// Output
 
 	if( pstFileInfo->format == _T("OP2") )
 	{
-		// 画像
+		// Image
 
 		long				lWidth = *(long*) &pbtDst[4];
 		long				lHeight = *(long*) &pbtDst[8];
@@ -663,13 +663,13 @@ BOOL	CCircusPak::DecodePakForDCGS(
 
 		YCMemory<BYTE>		clmDIB( dwDIBSize );
 
-		// 解凍
+		// Decompression
 
 		CLZSS				clLZSS;
 
 		clLZSS.Decomp( &clmDIB[0], dwDIBSize, &pbtDst[dwDataOffset], dwDstSize, 4096, 4078, 3 );
 
-		// 出力
+		// Output
 
 		CImage				clImage;
 
@@ -679,7 +679,7 @@ BOOL	CCircusPak::DecodePakForDCGS(
 	}
 	else
 	{
-		// その他
+		// Other
 
 		pclArc->OpenFile();
 		pclArc->WriteFile( pbtDst, dwDstSize );
@@ -690,12 +690,12 @@ BOOL	CCircusPak::DecodePakForDCGS(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	BMPのデコード
+//	BMP Decoding
 
 BOOL	CCircusPak::DecodeBMP(
-	CArcFile*			pclArc,							// アーカイブ
-	const void*			pvSrc,							// BMPデータ(復号化済みであること)
-	DWORD				dwSrcSize						// BMPデータサイズ
+	CArcFile*			pclArc,							// Archive
+	const void*			pvSrc,							// BMP Data (To be decoded)
+	DWORD				dwSrcSize						// BMP Data Size
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -721,12 +721,12 @@ BOOL	CCircusPak::DecodeBMP(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPSのデコード
+//	CPS Decoding
 
 BOOL	CCircusPak::DecodeCps(
-	CArcFile*			pclArc,							// アーカイブ
-	const void*			pvSrc,							// CPSデータ(復号化済みであること)
-	DWORD				dwSrcSize						// CPSデータサイズ
+	CArcFile*			pclArc,							// Archive
+	const void*			pvSrc,							// CPS Data (To be decoded)
+	DWORD				dwSrcSize						// CPS Data Size
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -738,13 +738,13 @@ BOOL	CCircusPak::DecodeCps(
 
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
 
-	// 出力バッファ確保
+	// Ensure output buffer exists
 
 	DWORD				dwDstSize = *(DWORD*) &pbtSrc[4];
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// 解凍
+	// Decompress
 
 	if( memcmp( pbtSrc, "CCC0", 4 ) == 0 )
 	{
@@ -756,7 +756,7 @@ BOOL	CCircusPak::DecodeCps(
 		long				lHeight = *(WORD*) &clmbtDst[14];
 		WORD				wBpp = clmbtDst[16];
 
-		// 出力
+		// Output
 
 		CImage				clImage;
 
@@ -769,7 +769,7 @@ BOOL	CCircusPak::DecodeCps(
 
 		DecompCCM0( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize );
 
-		// 出力
+		// Output
 
 		BITMAPFILEHEADER*	pstBMPFileHeader = (BITMAPFILEHEADER*) &clmbtDst[0];
 		BITMAPINFOHEADER*	pstBMPInfoHeader = (BITMAPINFOHEADER*) &clmbtDst[14];
@@ -783,7 +783,7 @@ BOOL	CCircusPak::DecodeCps(
 	}
 	else
 	{
-		// 不明
+		// Unknown
 
 		pclArc->OpenFile();
 		pclArc->WriteFile( pbtSrc, dwSrcSize );
@@ -793,12 +793,12 @@ BOOL	CCircusPak::DecodeCps(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	その他のデータのデコード
+//	Decoding 'Other' data
 
 BOOL	CCircusPak::DecodeEtc(
-	CArcFile*			pclArc,							// アーカイブ
-	FDecrypt			pfnDecryptFunc,					// 復号関数へのポインタ
-	const void*			pvKey							// 復号キー
+	CArcFile*			pclArc,							// Archive
+	FDecrypt			pfnDecryptFunc,					// A pointer to the decryption function
+	const void*			pvKey							// Decryption key
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -806,7 +806,7 @@ BOOL	CCircusPak::DecodeEtc(
 
 	YCMemory<BYTE>		clmbtBuf( dwBufSize );
 
-	// 出力ファイル生成
+	// Generate output files
 
 	if( pstFileInfo->format == _T("CS") )
 	{
@@ -819,11 +819,11 @@ BOOL	CCircusPak::DecodeEtc(
 
 	for( DWORD dwWriteSize = 0 ; dwWriteSize < pstFileInfo->sizeOrg ; dwWriteSize += dwBufSize )
 	{
-		// バッファサイズ調整
+		// Buffer size adjustment
 
 		pclArc->SetBufSize( &dwBufSize, dwWriteSize );
 
-		// 復号したデータを出力
+		// Output the decoded data
 
 		pclArc->Read( &clmbtBuf[0], dwBufSize );
 
@@ -836,13 +836,13 @@ BOOL	CCircusPak::DecodeEtc(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CCC0の解凍
+//	CCC0 Extraction
 
 BOOL	CCircusPak::DecompCCC0(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先のサイズ
-	const void*			pvSrc,							// CCC0データ
-	DWORD				dwSrcSize						// CCC0データサイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// CCC0 Data
+	DWORD				dwSrcSize						// CCC0 Data Size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
@@ -851,7 +851,7 @@ BOOL	CCircusPak::DecompCCC0(
 	DWORD				dwSrcPtrOfBit = 0x2C * 8;
 	DWORD				dwDstPtr = 0;
 
-	// 解凍
+	// Decompression
 
 	for( dwDstPtr = 0 ; dwDstPtr < dwDstSize ; dwDstPtr += 2 )
 	{
@@ -894,13 +894,13 @@ BOOL	CCircusPak::DecompCCC0(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CCM0の解凍
+//	CCM0 Extraction
 
 BOOL	CCircusPak::DecompCCM0(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先のサイズ
-	const void*			pvSrc,							// CCM0データ
-	DWORD				dwSrcSize						// CCM0データサイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// CCM0 Data
+	DWORD				dwSrcSize						// CCM0 Data Size
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
@@ -909,11 +909,11 @@ BOOL	CCircusPak::DecompCCM0(
 	DWORD				dwSrcPtrOfBit;
 	DWORD				dwDstPtr = 0;
 
-	// 解凍
+	// Decompression
 
 	if( dwDstSize < 0x80 )
 	{
-		// 無圧縮
+		// Uncompressed
 
 		memcpy( pbtDst, &pbtSrc[8], dwDstSize );
 	}
@@ -932,7 +932,7 @@ BOOL	CCircusPak::DecompCCM0(
 
 			if( dwFlag & 1 )
 			{
-				// 圧縮
+				// Compressed
 
 				DWORD				dwBack = GetBit( pbtSrc, &dwSrcPtrOfBit, 7 ) + 1;
 				DWORD				dwLength = GetBit( pbtSrc, &dwSrcPtrOfBit, 4 ) + 2;
@@ -946,7 +946,7 @@ BOOL	CCircusPak::DecompCCM0(
 			}
 			else
 			{
-				// 無圧縮
+				// Uncompressed
 
 				pbtDst[dwDstPtr++] = GetBit( pbtSrc, &dwSrcPtrOfBit, 8 );
 			}
@@ -957,12 +957,12 @@ BOOL	CCircusPak::DecompCCM0(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ビット列の取得
+//	Get bit sequence
 
 DWORD	CCircusPak::GetBit(
-	const void*			pvSrc,							// 入力データ
-	DWORD*				pdwSrcPtrOfBit,					// 入力データの位置(読み込んだビット数が加算される)
-	DWORD				dwReadBitLength					// 読み込むビット数
+	const void*			pvSrc,							// Input Data
+	DWORD*				pdwSrcPtrOfBit,					// Position of input data (Number of bits read is added)
+	DWORD				dwReadBitLength					// Number of bits to read
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
@@ -979,12 +979,12 @@ DWORD	CCircusPak::GetBit(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号1
+//	Decryption 1
 
 BOOL	CCircusPak::Decrypt1(
-	void*				pvTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	const void*			pvKey							// 復号値
+	void*				pvTarget,						// Data to be decrypted
+	DWORD				dwTargetSize,					// Decryption size
+	const void*			pvKey							// Decryption key
 	)
 {
 	BYTE*				pbtTarget = (BYTE*) pvTarget;
@@ -999,12 +999,12 @@ BOOL	CCircusPak::Decrypt1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号2
+//	Decryption 2
 
 BOOL	CCircusPak::Decrypt2(
-	void*				pvTarget,						// 復号対象データ
-	DWORD				dwTargetSize,					// 復号サイズ
-	const void*			pvKey							// 復号値
+	void*				pvTarget,						// Data to be decrypted
+	DWORD				dwTargetSize,					// Decryption size
+	const void*			pvKey							// Decryption key
 	)
 {
 	BYTE*				pbtTarget = (BYTE*) pvTarget;
