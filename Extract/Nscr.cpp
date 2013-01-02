@@ -110,13 +110,13 @@ BOOL	CNscr::MountNsa(
 
 		switch( btType )
 		{
-		case	1:
-			stFileInfo.format = _T("SPB");
-			break;
+			case	1:
+				stFileInfo.format = _T("SPB");
+				break;
 
-		case	2:
-			stFileInfo.format = _T("LZSS");
-			break;
+			case	2:
+				stFileInfo.format = _T("LZSS");
+				break;
 		}
 
 		pclArc->AddFileInfo( stFileInfo );

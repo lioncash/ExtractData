@@ -86,7 +86,9 @@ void CMeltyBlood::Decrypt(CArcFile* pclArc)
     pclArc->Read(&buf[0], lim);
     // Decryption
     int keylen = (int)pInfFile->name.GetLength();
-    for (int i = 0; i < lim; i++)
+    
+	for (int i = 0; i < lim; i++)
         buf[i] ^= pInfFile->name[i % keylen] + i + 3;
-    pclArc->WriteFile(&buf[0], lim);
+    
+	pclArc->WriteFile(&buf[0], lim);
 }

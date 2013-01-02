@@ -14,17 +14,17 @@ BOOL CVA::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-// *.nwaのファイル情報を取得する関数
+// Function that gets the information of a *.nwa file.
 BOOL CVA::MountNwa(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".nwa"))
 		return FALSE;
 
-	// nwaヘッダ読み込み
+	// Read nwa header
 	NWAHed nwaHed;
 	pclArc->Read(&nwaHed, sizeof(NWAHed));
 
-	// リストビューに追加
+	// Add to listview
 	SFileInfo infFile;
 	infFile.name = pclArc->GetArcName();
 	infFile.sizeOrg = nwaHed.DataSize + 44;
@@ -36,31 +36,32 @@ BOOL CVA::MountNwa(CArcFile* pclArc)
 	return TRUE;
 }
 
-// *.nwkのファイル情報を取得する関数
+// Function that gets the information of a *.nwk file
 BOOL CVA::MountNwk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".nwk"))
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Read(&ctFile, 4);
 
-	// ファイル数からインデックスサイズ取得
+	// Number of files retrieved from the index
 	DWORD index_size = ctFile * 12;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 	pclArc->Read(pIndex, index_size);
 
-	// ベースファイル名取得
+	// Get the base filename
 	TCHAR szBaseFileName[_MAX_FNAME];
 	lstrcpy(szBaseFileName, pclArc->GetArcName());
 	PathRemoveExtension(szBaseFileName);
 
-	for (int i = 0; i < (int)ctFile; i++) {
-		// ファイル名取得
+	for (int i = 0; i < (int)ctFile; i++)
+	{
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		_stprintf(szFileName, _T("%s_%06d.nwa"), szBaseFileName, *(LPDWORD) &pIndex[8]);
 
@@ -71,7 +72,7 @@ BOOL CVA::MountNwk(CArcFile* pclArc)
 		infFile.start = *(LPDWORD)&pIndex[4];
 		infFile.end = infFile.start + infFile.sizeCmp;
 
-		// ファイルサイズ取得
+		// Get filesize
 		pclArc->Seek(infFile.start + 20, FILE_BEGIN);
 		pclArc->Read(&infFile.sizeOrg, 4);
 		infFile.sizeOrg += 44;
@@ -85,48 +86,49 @@ BOOL CVA::MountNwk(CArcFile* pclArc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ovkのファイル情報を取得する
+//	Gets information from .ovk files
 
 BOOL CVA::MountOvk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ovk"))
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->Read(&dwFiles, 4);
 
-	// インデックスサイズの取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
 	dwIndexSize = dwFiles * 16;
 
-	// インデックスの読み込み
+	// Read index
 
 	YCMemory<BYTE>		clmbtIndex(dwIndexSize);
 
 	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
-	// ベースファイル名の取得
+	// Get base filename
 
 	TCHAR szBaseFileName[_MAX_FNAME];
 
 	lstrcpy(szBaseFileName, pclArc->GetArcName());
 	PathRemoveExtension(szBaseFileName);
 
-	// ファイル情報の取得
+	// Get file information
 
-	for (DWORD i = 0; i < dwIndexSize; i += 16) {
-		// ファイル名の取得
+	for (DWORD i = 0; i < dwIndexSize; i += 16)
+	{
+		// Get filename
 
 		TCHAR				szFileName[_MAX_FNAME];
 
 		_stprintf(szFileName, _T("%s_%06d.ogg"), szBaseFileName, *(LPDWORD) &clmbtIndex[i + 8]);
 
-		// ファイル情報の取得
+		// Get file information
 
 		SFileInfo			stfiWork;
 
@@ -144,12 +146,15 @@ BOOL CVA::MountOvk(CArcFile* pclArc)
 
 inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
 {
-	if (shift > 8) {
+	if (shift > 8)
+	{
 		data++;
 		shift -= 8;
 	}
+	
 	int ret = *(LPWORD)data >> shift;
 	shift += bits;
+	
 	return ret & ((1 << bits) - 1); // mask
 }
 
@@ -160,7 +165,7 @@ BOOL CVA::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-// WAVに変換して抽出する関数
+// Function to convert to WAV for extraction
 BOOL CVA::DecodeNwa(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
@@ -168,112 +173,132 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 	if (pInfFile->format != _T("NWA"))
 		return FALSE;
 
-	// nwaヘッダ読み込み
+	// Read nwa header
 	NWAHed nwaHed;
 	pclArc->Read(&nwaHed, sizeof(NWAHed));
 
 	CWav wav;
 	wav.Init(pclArc, nwaHed.DataSize, nwaHed.freq, nwaHed.channels, nwaHed.bits);
 
-	// 無圧縮の場合、WAVヘッダに変えるだけ
+	// If no compression, just change the WAV header
 	if (nwaHed.CmpLevel == 0xFFFFFFFF)
+	{
 		wav.Write();
-	else {
-		// RLEの有効性
+	}
+	else
+	{
+		// RLE compression
 
 		BOOL				bRLE = FALSE;
 
 		if( (nwaHed.CmpLevel == 5) && (nwaHed.channels != 2) )
 		{
-			// RLE有効
+			// Uses RLE 
 
 			bRLE = TRUE;
 		}
 
-		// オフセット用のメモリ確保
+		// Memory allocation of the offset
 		DWORD offset_size = nwaHed.blocks * 4;
 		YCMemory<DWORD> offsets(offset_size);
-		// データ書き込み用のメモリ確保
+		// Allocate memory for writing data
 		DWORD buf_len = nwaHed.BlockSize * (nwaHed.bits >> 3);
 		YCMemory<BYTE> buf(buf_len);
-		// データ読み込み用のメモリ確保
+		// Allocate memory for data loading
 		DWORD z_buf_len = buf_len * 2;
 		YCMemory<BYTE> z_buf(z_buf_len);
 
-		// オフセット読み込み
+		// Read offset
 		pclArc->Read(&offsets[0], offset_size);
 
-		for (int i = 0; i < (int)nwaHed.blocks; i++) {
+		for (int i = 0; i < (int)nwaHed.blocks; i++)
+		{
 			LPBYTE z_pbuf = &z_buf[0];
 			LPBYTE pbuf = &buf[0];
 
-			// 今回読み込む/デコードするデータの大きさを得る
+			// Get the size of the data to be read/decoded
 			DWORD curblocksize, curcompsize;
-			if (i < (int)nwaHed.blocks - 1) {
+			if (i < (int)nwaHed.blocks - 1)
+			{
 				curblocksize = buf_len;
 				curcompsize = offsets[i + 1] - offsets[i];
 			}
-			else {
+			else
+			{
 				curblocksize = nwaHed.RestSize * (nwaHed.bits >> 3);
 				curcompsize = z_buf_len;
 			}
 
-			// バッファの終端
+			// Ensure buffers exist
 
 			BYTE*				pbtSrcEnd = z_pbuf + curcompsize;
 			BYTE*				pbtDstEnd = pbuf + curblocksize;
 
-			// データ読み込み
+			// Read data
 			pclArc->Read(z_pbuf, curcompsize);
 
 			int d[2];
 			int shift = 0;
 
-			// 最初のデータを読み込む
+			// Read first data
 			if (nwaHed.bits == 8)
+			{
 				d[0] = *z_pbuf++;
-			else { // fNWA.bits == 16
+			}
+			else // fNWA.bits == 16
+			{
 				d[0] = *(LPWORD)z_pbuf;
 				z_pbuf += 2;
 			}
 
-			if (nwaHed.channels == 2) {
+			if (nwaHed.channels == 2)
+			{
 				if (nwaHed.bits == 8)
+				{
 					d[1] = *z_pbuf++;
-				else { // fNWA.bits == 16
+				}
+				else  // fNWA.bits == 16
+				{
 					d[1] = *(LPWORD)z_pbuf;
 					z_pbuf += 2;
 				}
 			}
 
 			int dsize = curblocksize / (nwaHed.bits >> 3);
-			BOOL bFlip = 0; // ステレオ用
+			BOOL bFlip = 0; // Stereo
 
 			for (int j = 0; j < dsize; j++)
 			{
 				if( (z_pbuf >= pbtSrcEnd) || (pbuf >= pbtDstEnd) )
 				{
-					// 終了
+					// Exit
 
 					break;
 				}
 
 				int type = getbits(z_pbuf, shift, 3);
 
-				// 7 : 大きな差分
-				if (type == 7) {
+				// 7 : Large difference
+				if (type == 7)
+				{
 					if (getbits(z_pbuf, shift, 1) == 1)
-						d[bFlip] = 0; // 未使用
-					else {
+					{
+						d[bFlip] = 0; // Unused
+					}
+					else
+					{
 						int BITS, SHIFT;
-						if (nwaHed.CmpLevel >= 3) {
+						if (nwaHed.CmpLevel >= 3)
+						{
 							BITS = 8;
 							SHIFT = 9;
 						}
-						else {
+						else
+						{
 							BITS = 8 - nwaHed.CmpLevel;
 							SHIFT = 2 + type + nwaHed.CmpLevel;
 						}
+						
 						const int MASK1 = (1 << (BITS - 1));
 						const int MASK2 = (1 << (BITS - 1)) - 1;
 						int b = getbits(z_pbuf, shift, BITS);
@@ -284,17 +309,21 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 					}
 				}
 
-				// 1-6 : 通常の差分
-				else if (type != 0) {
+				// 1-6 : Ordinary differential
+				else if (type != 0)
+				{
 					int BITS, SHIFT;
-					if (nwaHed.CmpLevel >= 3) {
+					if (nwaHed.CmpLevel >= 3)
+					{
 						BITS = 3 + nwaHed.CmpLevel;
 						SHIFT = 1 + type;
 					}
-					else {
+					else
+					{
 						BITS = 5 - nwaHed.CmpLevel;
 						SHIFT = 2 + type + nwaHed.CmpLevel;
 					}
+					
 					const int MASK1 = (1 << (BITS - 1));
 					const int MASK2 = (1 << (BITS - 1)) - 1;
 					int b = getbits(z_pbuf, shift, BITS);
@@ -309,7 +338,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 				{
 					if( bRLE )
 					{
-						// ランレングス圧縮
+						// Run-length compression 
 
 						int					nRunLength = getbits(z_pbuf, shift, 1);
 
@@ -323,7 +352,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 							}
 						}
 
-						// 前のデータと同じデータを書いていく
+						// Going to write the same data as the previous data
 
 						for( int k = 0 ; k <= nRunLength ; k++ )
 						{
@@ -339,7 +368,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 
 							if (nwaHed.channels == 2)
 							{
-								bFlip ^= 1;	// channel切り替え
+								bFlip ^= 1;	// channel switching
 							}
 						}
 
@@ -360,7 +389,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 
 				if( nwaHed.channels == 2 )
 				{
-					bFlip ^= 1;	// channel切り替え
+					bFlip ^= 1;	// channel switching
 				}
 			}
 

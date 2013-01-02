@@ -8,25 +8,26 @@ BOOL CWindmill::Mount(CArcFile* pclArc)
 	if ((pclArc->GetArcExten() != _T(".int")) || (memcmp(pclArc->GetHed(), "KIF", 3) != 0))
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(&ctFile, 4);
 
-	// ファイル数からインデックスサイズ取得
+	// Number of files retrieved from the index size
 	DWORD index_size = ctFile * 40;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 	pclArc->Read(pIndex, index_size);
 
-	for (int i = 0; i < (int)ctFile; i++) {
-		// ファイル名取得
+	for (int i = 0; i < (int)ctFile; i++)
+	{
+		// Get file name
 		TCHAR szFileName[32];
 		memcpy(szFileName, pIndex, 32);
 
-		// リストビューに追加
+		// Add to listview
 		SFileInfo infFile;
 		infFile.name = szFileName;
 		infFile.start = *(LPDWORD)&pIndex[32];
@@ -48,9 +49,9 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 	if (pInfFile->format != _T("HG2"))
 		return FALSE;
 
-	return FALSE; // まだ完成していないため
+	return FALSE; // TODO: Not completed yet
 
-	// hg2ヘッダ読み込み
+	// Read hg2 header
 	BYTE header[48];
 	pclArc->Read(header, sizeof(header));
 
@@ -62,26 +63,26 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 	else
 		pclArc->Seek(-4, FILE_CURRENT);
 
-	// 幅、高さ、ビット数取得
+	// Width, height, number of bits
 	LONG width = *(LPLONG)&header[0x0C];
 	LONG height = *(LPLONG)&header[0x10];
 	WORD bpp = *(LPWORD)&header[0x14];
 
-	// バッファサイズ取得
+	// Get buffer size
 	DWORD dwSrcSize1 = *(LPDWORD)&header[0x20];
 	DWORD dwDstSize1 = *(LPDWORD)&header[0x24];
 	DWORD dwSrcSize2 = *(LPDWORD)&header[0x28];
 	DWORD dwDstSize2 = *(LPDWORD)&header[0x2C];
 	DWORD dwDstSize = width * height * 4 * 2 + 256;
 
-	// バッファ確保
+	// Ensure buffers exist
 	YCMemory<BYTE> clmbtSrc1(dwSrcSize1);
 	YCMemory<BYTE> clmbtDst1(dwDstSize1);
 	YCMemory<BYTE> clmbtSrc2(dwSrcSize2);
 	YCMemory<BYTE> clmbtDst2(dwDstSize2);
 	YCMemory<BYTE> clmbtDst(dwDstSize);
 
-	// zlib解凍
+	// zlib decompression
 	pclArc->Read(&clmbtSrc1[0], dwSrcSize1);
 	pclArc->Read(&clmbtSrc2[0], dwSrcSize2);
 
@@ -89,7 +90,7 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 	zlib.Decompress(&clmbtDst1[0], &dwDstSize1, &clmbtSrc1[0], dwSrcSize1);
 	zlib.Decompress(&clmbtDst2[0], &dwDstSize2, &clmbtSrc2[0], dwSrcSize2);
 
-	// 解凍
+	// Decoding
 
 	BYTE	abyTable[128] = {0};
 
@@ -127,10 +128,12 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 	EBP = 1;
 
-	while (1) {
+	while (1)
+	{
 		ESI = abyTable[0x40];
 
-		if (ESI == 0) {
+		if (ESI == 0)
+		{
 			abyTable[0x44] = clmbtDst2[dwDst2b++];
 		}
 
@@ -144,7 +147,8 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 		abyTable[0x40] = ESI;
 
-		if (EDX != 0) {
+		if (EDX != 0)
+		{
 			break;
 		}
 
@@ -155,13 +159,16 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 	ESI = 0;
 	EBP >>= 1;
 
-	if (EBP != 0) {
-		while (1) {
+	if (EBP != 0)
+	{
+		while (1)
+		{
 			EDI = abyTable[0x40];
 
 			ESI <<= 1;
 
-			if (EDI == 0) {
+			if (EDI == 0)
+			{
 				abyTable[0x44] = clmbtDst2[dwDst2b++];
 			}
 
@@ -179,7 +186,8 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 			abyTable[0x40] = EDI;
 
-			if (EBP == 0) {
+			if (EBP == 0)
+			{
 				break;
 			}
 		}
@@ -197,22 +205,11 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 	ECX >>= 2;
 
-
-
-
-
 	EAX = abyTable[0x40];
 
 	EDX = clmbtDst1[dwDst1++];
 
 	clmbtDst[dwDst++] = EDX;
-
-
-
-
-
-
-
 
 /*
 	{

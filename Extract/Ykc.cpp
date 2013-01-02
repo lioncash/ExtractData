@@ -7,7 +7,7 @@ BOOL CYkc::Mount(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
 		return FALSE;
 
-	// インデックスへのオフセットとインデックスのサイズの取得
+	// Get the index size and the offset to the index
 
 	DWORD				dwIndexOffset;
 	DWORD				dwIndexSize;
@@ -16,14 +16,14 @@ BOOL CYkc::Mount(CArcFile* pclArc)
 	pclArc->Read(&dwIndexOffset, 4);
 	pclArc->Read(&dwIndexSize, 4);
 
-	// インデックスの取得
+	// Get the index
 
 	YCMemory<BYTE>		clmbtIndex(dwIndexSize);
 
 	pclArc->SeekHed(dwIndexOffset);
 	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
-	// ファイル名インデックスへのオフセットとファイル名インデックスのサイズの取得
+	// Get the offset of the filename, and the offset to the index file name
 
 	DWORD				dwFileNameIndexOffset;
 	DWORD				dwFileNameIndexSize;
@@ -31,30 +31,31 @@ BOOL CYkc::Mount(CArcFile* pclArc)
 	dwFileNameIndexOffset = *(LPDWORD)&clmbtIndex[0];
 	dwFileNameIndexSize = dwIndexOffset - dwFileNameIndexOffset;
 
-	// ファイル名インデックスの取得
+	// Get the filename index
 
 	YCMemory<BYTE> clmbtFileNameIndex(dwFileNameIndexSize);
 
 	pclArc->SeekHed(dwFileNameIndexOffset);
 	pclArc->Read(&clmbtFileNameIndex[0], dwFileNameIndexSize);
 
-	// ファイル情報の取得
+	// Get file information
 
-	for (DWORD i = 0, j = 0; i < dwIndexSize; i += 20) {
-		// ファイル名の長さの取得
+	for (DWORD i = 0, j = 0; i < dwIndexSize; i += 20)
+	{
+		// Get the length of the filename
 
 		DWORD				dwFileNameLen;
 
 		dwFileNameLen = *(LPDWORD)&clmbtIndex[i + 4];
 
-		// ファイル名の取得
+		// Get the filename
 
 		TCHAR				szFileName[_MAX_FNAME];
 
 		lstrcpy(szFileName, (LPCTSTR)&clmbtFileNameIndex[j]);
 		j += dwFileNameLen;
 
-		// ファイル情報の取得
+		// Get file information
 
 		SFileInfo			stfiWork;
 
@@ -91,34 +92,37 @@ BOOL CYkc::DecodeYKS(CArcFile* pclArc)
 	if (pstfiWork->format != _T("YKS"))
 		return FALSE;
 
-	// YKSファイルの読み込み
+	// Read the YKS file
 
 	YCMemory<BYTE>		clmbtSrc(pstfiWork->sizeCmp);
 
 	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
 
-	if (memcmp(&clmbtSrc[0], "YKS001", 6) == 0) {
+	if (memcmp(&clmbtSrc[0], "YKS001", 6) == 0)
+	{
 		// YKS001
 
-		// テキスト部分へのオフセットの取得
+		// Get the offset of the text portion
 
 		DWORD				dwTextOffset;
 
 		dwTextOffset = *(LPDWORD)&clmbtSrc[0x20];
 
-		// テキスト部分の復号
+		// Decode the text portion
 
-		for (DWORD i = dwTextOffset; i < pstfiWork->sizeCmp; i++) {
+		for (DWORD i = dwTextOffset; i < pstfiWork->sizeCmp; i++)
+		{
 			clmbtSrc[i] ^= 0xAA;
 		}
 
-		// 出力
+		// Output
 
 		pclArc->OpenScriptFile();
 		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
 	}
-	else {
-		// その他
+	else
+	{
+		// Other
 
 		pclArc->OpenFile();
 		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
@@ -134,26 +138,28 @@ BOOL CYkc::DecodeYKG(CArcFile* pclArc)
 	if (pstfiWork->format != _T("YKG"))
 		return FALSE;
 
-	// YKGファイルの読み込み
+	// Read the YKG file
 
 	YCMemory<BYTE>		clmbtSrc(pstfiWork->sizeCmp);
 
 	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
 
-	if (memcmp(&clmbtSrc[0], "YKG000", 6) == 0) {
+	if (memcmp(&clmbtSrc[0], "YKG000", 6) == 0)
+	{
 		// YKG000
 
-		// PNGヘッダの修正
+		// Fix the PNG header
 
 		memcpy(&clmbtSrc[0x41], "PNG", 3);
 
-		// 出力
+		// Output
 
 		pclArc->OpenFile( _T(".png") );
 		pclArc->WriteFile( &clmbtSrc[0x40], pstfiWork->sizeCmp - 0x40 );
 	}
-	else {
-		// その他
+	else
+	{
+		// Other
 
 		pclArc->OpenFile();
 		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);

@@ -202,7 +202,8 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
             z_pbuf += z_colorSize[i];
         }
     }
-    else {
+    else
+	{
         width = *(LPWORD)&z_buf[8];
         height = *(LPWORD)&z_buf[10];
 

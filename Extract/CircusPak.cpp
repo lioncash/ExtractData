@@ -169,7 +169,7 @@ BOOL	CCircusPak::MountPakForKujira(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ACDC向けpakのマウント
+//	pak mounting for ACDC
 
 BOOL	CCircusPak::MountPakForACDC(
 	CArcFile*			pclArc							// Archive
@@ -235,7 +235,7 @@ BOOL	CCircusPak::MountPakForACDC(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	DCGS向けpakのマウント
+//	pak mounting for DCGS
 
 BOOL	CCircusPak::MountPakForDCGS(
 	CArcFile*			pclArc							// Archive
@@ -485,7 +485,7 @@ BOOL	CCircusPak::DecodePakForKujira(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ACDC向けpakのデコード
+//	pak decoding for ACDC
 
 BOOL	CCircusPak::DecodePakForACDC(
 	CArcFile*			pclArc							// Archive
@@ -599,7 +599,7 @@ BOOL	CCircusPak::DecodePakForACDC(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	DCGS向けpakのデコード
+//	pak decoding for DCGS
 
 BOOL	CCircusPak::DecodePakForDCGS(
 	CArcFile*			pclArc							// Archive

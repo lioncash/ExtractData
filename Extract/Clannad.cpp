@@ -21,17 +21,19 @@ BOOL CClannad::Mount(CArcFile* pclArc)
 
     // Get index size
     DWORD index_size = HedFile.GetFileSize() - 16;
+   
     // Get index
     YCMemory<BYTE> index(index_size);
     LPBYTE pIndex = &index[0];
     HedFile.Read(pIndex, index_size);
-    // Number of files retrieved from index size
+    
+	// Number of files retrieved from index size
     DWORD ctFile = index_size >> 2;
 
     // If its VOICE.MRG, start from 20000
     DWORD count = (pclArc->GetArcName() == _T("VOICE.MRG")) ? 0 : 20000;
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (unsigned int i = 0; i < (int)ctFile; i++)
     {
         WORD pos = *(LPWORD)&pIndex[0];
         WORD argSize = *(LPWORD)&pIndex[2];

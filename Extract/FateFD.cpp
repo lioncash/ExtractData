@@ -19,7 +19,8 @@ BOOL CFateFD::Mount(CArcFile* pclArc)
 	file[1].end = 0x90693AA;
 
 	// Add to listview
-	for (unsigned int i = 0; i < 2; i++) {
+	for (unsigned int i = 0; i < 2; i++)
+	{
 		SFileInfo infFile;
 		infFile.name = file[i].name;
 		infFile.start = file[i].start;
@@ -94,7 +95,7 @@ BOOL CFateFD::Decode(CArcFile* pclArc)
 			pclArc->Read(&buf[0], BufSize);
 			
 			// Decryption
-			for (int j = 0; j < (int)BufSize; j++)
+			for (unsigned int j = 0; j < (int)BufSize; j++)
 				buf[j] ^= decode[i].key;
 				
 			// Write decoded files

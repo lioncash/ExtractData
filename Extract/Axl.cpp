@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "../ExtractBase.h"
 #include "../Arc/LZSS.h"
 #include "../Image.h"
@@ -280,17 +280,17 @@ BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
 
 /*
     static char* key[] = {
-        "SUMMER",		// ƒ`ƒ…[ƒgƒŠƒAƒ‹ƒTƒ}[
-        "HIDAMARI",		// ‚Ð‚¾‚Ü‚è
-        "KIMIKOE",		// ƒLƒ~‚Ìº‚ª‚«‚±‚¦‚é
+        "SUMMER",		// ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã‚µãƒžãƒ¼
+        "HIDAMARI",		// ã²ã ã¾ã‚Š
+        "KIMIKOE",		// ã‚­ãƒŸã®å£°ãŒãã“ãˆã‚‹
         "CFTRIAL",		// CROSS FIRE Trial Version v1
         "TEST",			// CROSS FIRE, CROSS FIRE Trial Version v2
-        "SAKURA-R",		// ‚³‚­‚çƒŠƒ‰ƒNƒ[[ƒVƒ‡ƒ“
-        "KOICHU",		// ‚±‚¢‚¿‚ãI `—ö‚É—ö‚·‚é‚©‚½‚¨‚à‚¢`
-        "LAVENDURA",	// êt–¾‚Ìƒ‰ƒ”ƒFƒ“ƒfƒ…ƒ‰
-        "HAMA",			// ^Í Œ¶–²ŠÙ, ‚»‚ç‚Ì‚¢‚ëA‚Ý‚¸‚Ì‚¢‚ë
-        "OBA",			// f•ê‚ÌQŽº
-        "KANSEN"		// Š­õ `ˆú—~‚Ì˜A½`
+        "SAKURA-R",		// ã•ãã‚‰ãƒªãƒ©ã‚¯ã‚¼ãƒ¼ã‚·ãƒ§ãƒ³
+        "KOICHU",		// ã“ã„ã¡ã‚…ï¼ ï½žæ‹ã«æ‹ã™ã‚‹ã‹ãŸãŠã‚‚ã„ï½ž
+        "LAVENDURA",	// é»Žæ˜Žã®ãƒ©ãƒ´ã‚§ãƒ³ãƒ‡ãƒ¥ãƒ©
+        "HAMA",			// çœŸç«  å¹»å¤¢é¤¨, ãã‚‰ã®ã„ã‚ã€ã¿ãšã®ã„ã‚
+        "OBA",			// å”æ¯ã®å¯å®¤
+        "KANSEN"		// å§¦æŸ“ ï½žæ·«æ¬²ã®é€£éŽ–ï½ž
     };
 
     YCMemory<BYTE> pIndex_copy(index_size);

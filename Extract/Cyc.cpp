@@ -487,7 +487,8 @@ void CCyc::RGBtoBGR(LPBYTE buf, LONG width, LONG height)
             buf[2] = tmp;
             buf += 3;
         }
-        // Skip padding
+        
+		// Skip padding
         for (int x = lwidth; x < lwidth_rev; x++)
         {
             buf++;

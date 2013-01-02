@@ -5,10 +5,10 @@
 #include	"Yuris.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CYuris::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountYPF( pclArc ) )
@@ -25,10 +25,10 @@ BOOL	CYuris::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YPFのマウント
+//	YPF Mounting
 
 BOOL	CYuris::MountYPF(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ypf") )
@@ -68,26 +68,26 @@ BOOL	CYuris::MountYPF(
 		0x20, 0x22, 0x2A, 0x2C, 0x3A, 0x3B, 0x3C, 0x3E, 0x3F, 0x7C, 0x7F
 	};
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD ctFile;
 
 	pclArc->Seek(8, FILE_BEGIN);
 	pclArc->Read(&ctFile, 4);
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD index_size;
 	pclArc->Read(&index_size, 4);
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 	pclArc->Seek(16, FILE_CURRENT);
 	pclArc->Read(pIndex, index_size);
 
-	// 復号テスト
+	// Decoding test
 
 	static DWORD		adwFileInfoLength[] = { 26, 18 };
 
@@ -104,7 +104,7 @@ BOOL	CYuris::MountYPF(
 
 		for( ; dwCnt < ctFile ; dwCnt++ )
 		{
-			// ファイル名の復号値
+			// Decoded value of the filename
 
 			dwIndex += 4;
 
@@ -134,7 +134,7 @@ BOOL	CYuris::MountYPF(
 
 				if( IsDBCSLeadByte( szFileName[j] ) )
 				{
-					// 2バイト文字
+					// Double-byte character
 
 					j++;
 					continue;
@@ -155,7 +155,7 @@ BOOL	CYuris::MountYPF(
 
 		if( (dwCnt == ctFile) && (dwIndex == index_size) )
 		{
-			// 正常に復号された
+			// Successful decoding
 
 			bSuccess = TRUE;
 			dwFileInfoLength = adwFileInfoLength[i];
@@ -165,14 +165,14 @@ BOOL	CYuris::MountYPF(
 
 	if( !bSuccess )
 	{
-		// 異常検出
+		// Anomaly occurred
 
 		return	FALSE;
 	}
 
 	for( DWORD i = 0 ; i < ctFile ; i++ )
 	{
-		// ファイル名
+		// Filename
 
 		TCHAR				szFileName[256];
 		BYTE				btLength = fnameLenTable[255 - pIndex[4]];
@@ -186,7 +186,7 @@ BOOL	CYuris::MountYPF(
 
 		BYTE bCmp = pIndex[5 + btLength + 1];
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo infFile;
 
@@ -206,10 +206,10 @@ BOOL	CYuris::MountYPF(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YMVのマウント
+//	YMV Mounting
 
 BOOL	CYuris::MountYMV(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ymv") )
@@ -224,7 +224,7 @@ BOOL	CYuris::MountYMV(
 
 	pclArc->SeekHed( 8 );
 
-	// ファイル数の取得
+	// Get file count
 
 	DWORD				dwFiles;
 
@@ -232,7 +232,7 @@ BOOL	CYuris::MountYMV(
 
 	pclArc->SeekCur( 4 );
 
-	// インデックスの取得
+	// Get index
 
 	YCMemory<DWORD>		clmIndexOfOffset( dwFiles );
 	YCMemory<DWORD>		clmIndexOfSize( dwFiles );
@@ -240,7 +240,7 @@ BOOL	CYuris::MountYMV(
 	pclArc->Read( &clmIndexOfOffset[0], (4 * dwFiles) );
 	pclArc->Read( &clmIndexOfSize[0], (4 * dwFiles) );
 
-	// ファイル情報の追加
+	// Additional file information
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
@@ -259,10 +259,10 @@ BOOL	CYuris::MountYMV(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CYuris::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeYMV( pclArc ) )
@@ -274,10 +274,10 @@ BOOL	CYuris::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YMVのデコード
+//	YMV Decoding
 
 BOOL	CYuris::DecodeYMV(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ymv") )
@@ -292,7 +292,7 @@ BOOL	CYuris::DecodeYMV(
 
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-	// 読み込み
+	// Reading
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -300,7 +300,7 @@ BOOL	CYuris::DecodeYMV(
 
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
-	// 復号
+	// Decoding
 
 	for( DWORD i = 0 ; i < dwSrcSize ; i++ )
 	{
@@ -309,7 +309,7 @@ BOOL	CYuris::DecodeYMV(
 		clmSrc[i] ^= btKey;
 	}
 
-	// 出力
+	// Output
 
 	pclArc->OpenFile();
 	pclArc->WriteFile( &clmSrc[0], dwSrcSize );

@@ -133,7 +133,7 @@ BOOL	CWill::Mount(
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
-	// マスク画像を除去したファイル情報の取得
+	// Get file information from the mask image
 
 	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
 	{
@@ -155,7 +155,7 @@ BOOL	CWill::Mount(
 
 		if( pstsiTarget != NULL )
 		{
-			// マスク画像であると断定
+			// Definitely the mask image
 
 			pstsiTarget->starts.push_back( pstsiMask->start );
 			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
@@ -167,7 +167,7 @@ BOOL	CWill::Mount(
 		}
 		else
 		{
-			// マスク画像ではない
+			// Is not a mask image
 
 			vcNotMaskFileInfo.push_back( *pstsiMask );
 		}
@@ -233,11 +233,11 @@ BOOL	CWill::Decode(
 		dwSrcPtr += 24;
 	}
 
-	// マスク画像の有無
+	// Is image mask there or not.
 
 	BOOL				bExistsMask = !pstFileInfo->starts.empty();
 
-	// マスク画像の取得
+	// Get image mask
 
 	DWORD				dwSrcSizeForMask;
 	YCMemory<BYTE>		clmbtSrcForMask;
@@ -250,14 +250,14 @@ BOOL	CWill::Decode(
 
 	if( bExistsMask )
 	{
-		// マスク画像が存在する
+		// Image mask exists
 
 		dwSrcSizeForMask = pstFileInfo->sizesCmp[0];
 		dwSrcPtrForMask = 0;
 
 		clmbtSrcForMask.resize( dwSrcSizeForMask );
 
-		// マスク画像の読み込み
+		// Read image mask
 
 		pclArc->SeekHed( pstFileInfo->starts[0] );
 		pclArc->Read( &clmbtSrcForMask[0], dwSrcSizeForMask );
@@ -280,7 +280,7 @@ BOOL	CWill::Decode(
 			dwSrcPtrForMask += 24;
 		}
 
-		// ファイル数が同じか確認
+		// Check to see if they have the same number of files
 
 		bExistsMask = (wFiles == wFilesForMask);
 	}
@@ -293,7 +293,7 @@ BOOL	CWill::Decode(
 
 		WORD				wBpp = *(WORD*) &clmbtSrc[6];
 
-		// 出力用バッファ確保
+		// Ensure the output buffer exists
 
 		DWORD				dwDstSize = vclWidth[i] * vclHeight[i] * (wBpp >> 3);
 
@@ -328,7 +328,7 @@ BOOL	CWill::Decode(
 
 		if( bExistsMask )
 		{
-			// マスク画像が存在する
+			// Image mask exists
 
 			DWORD				dwDstSizeForMask = vclWidthForMask[i] * vclHeightForMask[i] * (wBppForMask >> 3);
 
@@ -353,7 +353,7 @@ BOOL	CWill::Decode(
 
 			dwSrcPtrForMask += vcdwSrcSizeForMask[i];
 
-			// マスク画像の付加
+			// Add mask to image
 
 			dwDstSizeFor32bit = vclWidth[i] * vclHeight[i] * 4;
 
@@ -361,7 +361,7 @@ BOOL	CWill::Decode(
 
 			if( AppendMask( &clmbtDstFor32bit[0], dwDstSizeFor32bit, &clmbtDst[0], dwDstSize, &clmbtDstForMask[0], dwDstSizeForMask ) )
 			{
-				// マスク画像の付加に成功
+				// Success in adding the mask to the image
 
 				wBpp = 32;
 				dwDstSize = dwDstSizeFor32bit;
@@ -369,24 +369,24 @@ BOOL	CWill::Decode(
 			}
 		}
 
-		// ファイル名の取得
+		// Get file name
 
 		TCHAR				szFileExt[256];
 
 		if( wFiles == 1 )
 		{
-			// ファイルが1個
+			// One file
 
 			lstrcpy( szFileExt, _T("") );
 		}
 		else
 		{
-			// ファイルが2個以上
+			// Two or more files
 
 			_stprintf( szFileExt, _T("_%03u.bmp"), i );
 		}
 
-		// プログレスバー進捗要求
+		// Request progress bar progress
 
 		BOOL				bProgress = TRUE;
 
@@ -423,7 +423,7 @@ void	CWill::DecompLZSS(
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
 
-	// スライド辞書
+	// Slide dictionary
 
 	DWORD				dwDicSize = 4096;
 
@@ -462,7 +462,7 @@ void	CWill::DecompLZSS(
 					return;
 				}
 
-				// 辞書から読み込む長さ取得
+				// Get length from dictionary
 
 				DWORD				dwLength = (btHigh & 0x0F) + 2;
 
@@ -501,7 +501,7 @@ BOOL	CWill::AppendMask(
 	DWORD				dwMaskSize						// 8bit Data Size
 	)
 {
-	// 合成
+	// Make files
 
 	memcpy( pbtDst, pbtSrc, dwSrcSize );
 

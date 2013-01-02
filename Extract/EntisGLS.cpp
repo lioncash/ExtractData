@@ -54,9 +54,5 @@ BOOL	CEntisGLS::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
-
-
-
-
 	return	FALSE;
 }
