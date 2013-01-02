@@ -600,7 +600,7 @@ YCString CArcFile::SetFileFormat(const YCString& sFilePath)
 YCString CArcFile::SetCommaFormat(DWORD dwSize)
 {
     TCHAR buf[256];
-    _stprintf(buf, _T("%d"), dwSize);
+    _stprintf(buf, _T("%u"), dwSize);
     YCString sSize(buf);
 
     int len = sSize.GetLength();

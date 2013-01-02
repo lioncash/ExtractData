@@ -9,6 +9,7 @@ BOOL CKatakoi::Mount(CArcFile* pclArc)
 {
 	if (MountIar(pclArc) == TRUE)
 		return TRUE;
+	
 	if (MountWar(pclArc) == TRUE)
 		return TRUE;
 
@@ -27,13 +28,16 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
 	DWORD dwFileEntrySize = 0;
 
-	if (dwVersion == 2) {
+	if (dwVersion == 2)
+	{
 		dwFileEntrySize = 4;
 	}
-	else if (dwVersion == 3) {
+	else if (dwVersion == 3)
+	{
 		dwFileEntrySize = 8;
 	}
-	else {
+	else
+	{
 		return FALSE;
 	}
 
@@ -61,19 +65,23 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 	TCHAR szFileName[_MAX_FNAME];
 	TCHAR szWork[_MAX_FNAME];
 
-	if (!bSec) {
+	if (!bSec)
+	{
 		// Failed to get the filename index
 
 		lstrcpy(szWork, pclArc->GetArcName());
 		PathRemoveExtension(szWork);
 	}
 
-	for (DWORD i = 0; i < dwFiles; i++) {
-		if (!bSec) {
+	for (DWORD i = 0; i < dwFiles; i++)
+	{
+		if (!bSec)
+		{
 			// Create a sequential filename
 			_stprintf(szFileName, _T("%s_%06u"), szWork, i);
 		}
-		else {
+		else
+		{
 			// Get the name of the file from the filename index
 			lstrcpy(szFileName, (LPCTSTR)&clmbtSec[dwNameIndex]);
 
@@ -109,10 +117,12 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
 	DWORD dwFileEntrySize = 0;
 
-	if (dwVersion == 8) {
+	if (dwVersion == 8)
+	{
 		dwFileEntrySize = 24;
 	}
-	else {
+	else
+	{
 		return FALSE;
 	}
 
@@ -136,7 +146,7 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 
 	BOOL bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
 
-	// ファイル名インデックスが取得できたかどうかをアーカイブごとに設定(デコードの差分合成時に使用)
+	// Set index for each archive filename to see if it is correct(Used in delta synthesis/decoding)
 	pclArc->SetFlag(bSec);
 
 	// Getting file info
@@ -144,19 +154,23 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	TCHAR szFileName[_MAX_FNAME];
 	TCHAR szWork[_MAX_FNAME];
 
-	if (!bSec) {
+	if (!bSec)
+	{
 		// Failed to get the filename index
 
 		lstrcpy(szWork, pclArc->GetArcName());
 		PathRemoveExtension(szWork);
 	}
 
-	for (DWORD i = 0; i < dwFiles; i++) {
-		if (!bSec) {
+	for (DWORD i = 0; i < dwFiles; i++)
+	{
+		if (!bSec)
+		{
 			// Create a sequential filename
 			_stprintf(szFileName, _T("%s_%06u"), szWork, i);
 		}
-		else {
+		else
+		{
 			// Get filename from the filename index
 			lstrcpy(szFileName, (LPCTSTR)&clmbtSec[dwNameIndex]);
 
@@ -181,12 +195,13 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 
 BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex)
 {
-	// ファイル名インデックスファイルを開く
+	// Open the filename represented by the index
 
 	TCHAR szPathToSec[MAX_PATH];
 
-	if (GetPathToSec(szPathToSec, pclArc->GetArcPath()) == FALSE) {
-		// sec5ファイルが見つからなかった
+	if (GetPathToSec(szPathToSec, pclArc->GetArcPath()) == FALSE)
+	{
+		// sec5 file couldn't be found
 
 //		MessageBox(pclArc->GetProg()->GetHandle(), _T("sec5ファイルが見つかりません。\nインストールフォルダ内にsec5ファイルが存在していない可能性があります。"), _T("エラー"), MB_OK);
 		return FALSE;
@@ -194,67 +209,78 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 
 	CFile clfSec;
 
-	if (!clfSec.OpenForRead(szPathToSec)) {
-		// sec5ファイルのオープンに失敗
+	if (!clfSec.OpenForRead(szPathToSec))
+	{
+		// Failed to open the sec5 file
 
 		return FALSE;
 	}
 
 	DWORD dwSecSize = clfSec.GetFileSize();
 
-	// 読み込む
+	// Reading
 	clmbtSec.resize(dwSecSize);
 	clfSec.Read(&clmbtSec[0], dwSecSize);
 
-	if (memcmp(&clmbtSec[0], "SEC5", 4) != 0) {
-		// sec5ファイルが正しくない
+	if (memcmp(&clmbtSec[0], "SEC5", 4) != 0)
+	{
+		// Incorrect sec5 file
 
 		TCHAR szError[MAX_PATH * 2];
 
-		_stprintf(szError, _T("%s が正しくありません。"), szPathToSec);
-//		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("エラー"), MB_OK);
+		_stprintf(szError, _T("%s is incorrect."), szPathToSec);
+//		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("Error"), MB_OK);
 
 		return FALSE;
 	}
 
-	// RESRを探す
+	// Find the RESR
 
-	for (dwNameIndex = 8; dwNameIndex < dwSecSize; ) {
-		if (memcmp(&clmbtSec[dwNameIndex], "RESR", 4) == 0) {
-			// "RESR"が見つかった
+	for (dwNameIndex = 8; dwNameIndex < dwSecSize; )
+	{
+		if (memcmp(&clmbtSec[dwNameIndex], "RESR", 4) == 0)
+		{
+			// Found "RESR"
 
 			DWORD dwNameIndexSize = *(LPDWORD)&clmbtSec[dwNameIndex + 4];
 			DWORD dwNameIndexFiles = *(LPDWORD)&clmbtSec[dwNameIndex + 8];
 
 			dwNameIndex += 12;
 
-			// アーカイブ名と一致するインデックスを探す
+			// Find the index that matches the name of the archive
 
-			for (DWORD i = 0; i < dwNameIndexFiles; i++) {
+			for (DWORD i = 0; i < dwNameIndexFiles; i++)
+			{
 				DWORD dwWork = 0;
-				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// ファイル名
-				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// ファイルタイプ
-				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// アーカイブタイプ
+				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// File name
+				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// File type
+				dwWork += strlen((char*)&clmbtSec[dwNameIndex + dwWork]) + 1;	// Archive type
 
-				DWORD dwLength = *(LPDWORD)&clmbtSec[dwNameIndex + dwWork];		// アーカイブ名 + ファイル番号長
+				DWORD dwLength = *(LPDWORD)&clmbtSec[dwNameIndex + dwWork];		// Archive name + File number
 				dwWork += 4;
 
-				for (DWORD i = (dwNameIndex + dwWork); ; i++) {
-					if (clmbtSec[i] == '\0') {
-						// アーカイブ名と一致するインデックスではない
+				for (DWORD i = (dwNameIndex + dwWork); ; i++)
+				{
+					if (clmbtSec[i] == '\0')
+					{
+						// Index dex doesn't match the name of the archive
 
 						break;
 					}
-					if (lstrcmp((LPCTSTR)&clmbtSec[i], pclArc->GetArcName()) == 0) {
-						// アーカイブ名と一致するインデックスが見つかった
+					
+					if (lstrcmp((LPCTSTR)&clmbtSec[i], pclArc->GetArcName()) == 0)
+					{
+						// Found a match with the name of the archive
 
-						// 差分合成の有効性
+						// Validity
 
-						if (lstrcmp(PathFindFileName(szPathToSec), _T("toa.sec5")) == 0) {
+						if (lstrcmp(PathFindFileName(szPathToSec), _T("toa.sec5")) == 0)
+						{
 							// 杏奈ちゃんにお願い
 							pclArc->SetFlag(TRUE);
 						}
-						else if (lstrcmp(PathFindFileName(szPathToSec), _T("katakoi.sec5")) == 0) {
+						else if (lstrcmp(PathFindFileName(szPathToSec), _T("katakoi.sec5")) == 0)
+						{
 							// 片恋いの月
 							pclArc->SetFlag(TRUE);
 						}
@@ -272,9 +298,9 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 		dwNameIndex += 8 + *(LPDWORD)&clmbtSec[dwNameIndex + 4];
 	}
 
-	// アーカイブ名と一致するインデックスが見つからなかった
+	// No file in the index was a match
 
-//	MessageBox(pclArc->GetProg()->GetHandle(), _T("ファイル名の取得に失敗しました。\nアーカイブファイル名が変更されている可能性があります。"), _T("エラー"), MB_OK);
+//	MessageBox(pclArc->GetProg()->GetHandle(), _T("ファイル名の取得に失敗しました。\nアーカイブファイル名が変更されている可能性があります。"), _T("Error"), MB_OK);
 
 	return FALSE;
 }
@@ -287,15 +313,16 @@ BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 	PathRemoveFileSpec(szWork);
 	PathAppend(szWork, _T("*.sec5"));
 
-	// アーカイブフォルダ内からsec5ファイルを探す
+	// Locate the sec5 file from within the archive folder.
 
 	HANDLE			hFind;
 	WIN32_FIND_DATA	stwfdWork;
 
 	hFind = FindFirstFile(szWork, &stwfdWork);
 
-	if (hFind == INVALID_HANDLE_VALUE) {
-		// インストールフォルダ内(と思われる)からsec5ファイルを探す
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
+		// Locate the sec5 file from the installation folder (hopefully)
 
 		PathRemoveFileSpec(szWork);
 		PathRemoveFileSpec(szWork);
@@ -303,8 +330,9 @@ BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 
 		hFind = FindFirstFile(szWork, &stwfdWork);
 
-		if (hFind == INVALID_HANDLE_VALUE) {
-			// sec5ファイルが見つからなかった
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			// sec5 file couldn't be found
 
 			return FALSE;
 		}
@@ -323,6 +351,7 @@ BOOL CKatakoi::Decode(CArcFile* pclArc)
 {
 	if (DecodeIar(pclArc) == TRUE)
 		return TRUE;
+	
 	if (DecodeWar(pclArc) == TRUE)
 		return TRUE;
 
@@ -339,42 +368,45 @@ BOOL CKatakoi::DecodeIar(CArcFile* pclArc)
 
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
-	// 読み込み
+	// Reading
 	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
 	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
 
-	// 出力バッファ
+	// Output buffer
 	DWORD dwDstSize = *(LPDWORD)&clmbtSrc[8];
 	YCMemory<BYTE> clmbtDst(dwDstSize * 2);
 
-	// 解凍
+	// Decompression
 	DecompImage(&clmbtDst[0], dwDstSize, &clmbtSrc[64], *(LPDWORD)&clmbtSrc[16]);
 
 	long lWidth = *(LPLONG)&clmbtSrc[32];
 	long lHeight = *(LPLONG)&clmbtSrc[36];
 	WORD wBpp;
 
-	switch (*(LPBYTE)&clmbtSrc[0]) {
-	case 0x02:
-		wBpp = 8;
-		break;
-	case 0x1C:
-		wBpp = 24;
-		break;
-	case 0x3C:
-		wBpp = 32;
-		break;
-	default:
-		return FALSE;
+	switch (*(LPBYTE)&clmbtSrc[0])
+	{
+		case 0x02:
+			wBpp = 8;
+			break;
+		case 0x1C:
+			wBpp = 24;
+			break;
+		case 0x3C:
+			wBpp = 32;
+			break;
+		default:
+			return FALSE;
 	}
 
 	BOOL bDiff = (*(LPBYTE)&clmbtSrc[1] == 8);
 
-	if (bDiff) {
-		// 差分ファイル
+	if (bDiff)
+	{
+		// Difference file
 		DecodeCompose(pclArc, &clmbtDst[0], dwDstSize, lWidth, lHeight, wBpp);
 	}
-	else {
+	else
+	{
 		CImage image;
 		image.Init(pclArc, lWidth, lHeight, wBpp);
 		image.WriteReverse(&clmbtDst[0], dwDstSize);
@@ -393,18 +425,20 @@ BOOL CKatakoi::DecodeWar(CArcFile* pclArc)
 
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
-	// 読み込み
+	// Reading
 	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
 	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
 
-	if (memcmp(&clmbtSrc[0], "OggS", 4) == 0) {
+	if (memcmp(&clmbtSrc[0], "OggS", 4) == 0)
+	{
 		// Ogg Vorbis
 
 		COgg ogg;
 		ogg.Decode(pclArc, &clmbtSrc[0]);
 	}
-	else {
-		// WAV(と断定)
+	else
+	{
+		// WAV(Supposedly)
 
 		DWORD	dwDataSize = *(LPDWORD)&clmbtSrc[4];
 		DWORD	dwFreq = *(LPDWORD)&clmbtSrc[12];
@@ -423,8 +457,9 @@ void CKatakoi::GetBit(LPBYTE& pbySrc, DWORD& dwFlags)
 {
 	dwFlags >>= 1;
 
-	if (dwFlags <= 0xFFFF) {
-		// 0xFFFF以下になった
+	if (dwFlags <= 0xFFFF)
+	{
+		// Less than or equal to 0xFFFF
 
 		dwFlags = *(LPWORD)&pbySrc[0] | 0xFFFF0000;
 		pbySrc += 2;
@@ -433,7 +468,7 @@ void CKatakoi::GetBit(LPBYTE& pbySrc, DWORD& dwFlags)
 
 BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize)
 {
-	DWORD dwFlags = 0;		// フラグは必ず初期化すること
+	DWORD dwFlags = 0;		// Flag can always be initialized
 	DWORD dwBack;
 	DWORD dwLength;
 	DWORD dwWork;
@@ -441,42 +476,48 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 	LPBYTE pbySrcEnd = pbySrc + dwSrcSize;
 	LPBYTE pbyDstEnd = pbyDst + dwDstSize;
 
-	while ((pbySrc < pbySrcEnd) && (pbyDst < pbyDstEnd)) {
+	while ((pbySrc < pbySrcEnd) && (pbyDst < pbyDstEnd))
+	{
 		GetBit(pbySrc, dwFlags);
 
-		if (dwFlags & 1) {
-			// 無圧縮データ
+		if (dwFlags & 1)
+		{
+			// Uncompressed data
 
 			*pbyDst++ = *pbySrc++;
 		}
-		else {
-			// 圧縮データ
+		else
+		{
+			// Compressed data
 
 			GetBit(pbySrc, dwFlags);
 
-			if (dwFlags & 1) {
-				// 圧縮パターン1(圧縮データが3バイト以上)
+			if (dwFlags & 1)
+			{
+				// Compression pattern 1 (3 or more compressed bytes)
 
-				// 戻るバイト数を求める
+				// Determine the number of bytes to return
 
 				GetBit(pbySrc, dwFlags);
 
-				// 1バイトプラス
+				// Plus one byte
 
 				dwWork = 1;
 				dwBack = dwFlags & 1;
 
 				GetBit(pbySrc, dwFlags);
 
-				if ((dwFlags & 1) == 0) {
-					// 0x201バイトプラス
+				if ((dwFlags & 1) == 0)
+				{
+					// Plus 0x201 bytes
 
 					GetBit(pbySrc, dwFlags);
 
 					dwWork = 0x201;
 
-					if ((dwFlags & 1) == 0) {
-						// 0x401バイトプラス
+					if ((dwFlags & 1) == 0)
+					{
+						// Plus 0x401 bytes
 
 						GetBit(pbySrc, dwFlags);
 
@@ -485,8 +526,9 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 
 						GetBit(pbySrc, dwFlags);
 
-						if ((dwFlags & 1) == 0) {
-							// 0x801バイトプラス
+						if ((dwFlags & 1) == 0)
+						{
+							// Plus 0x801 bytes
 
 							GetBit(pbySrc, dwFlags);
 
@@ -495,8 +537,9 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 
 							GetBit(pbySrc, dwFlags);
 
-							if ((dwFlags & 1) == 0) {
-								// 0x1001バイトプラス
+							if ((dwFlags & 1) == 0)
+							{
+								// Plus 0x1001 bytes
 
 								GetBit(pbySrc, dwFlags);
 
@@ -509,60 +552,72 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 
 				dwBack = ((dwBack << 8) | *pbySrc++) + dwWork;
 
-				// 圧縮バイト数を求める
+				// Determine the number of compressed bytes
 
 				GetBit(pbySrc, dwFlags);
 
-				if (dwFlags & 1) {
-					// 3バイトの圧縮データ
+				if (dwFlags & 1)
+				{
+					// 3 bytes of compressed data
 
 					dwLength = 3;
 				}
-				else {
+				else
+				{
 					GetBit(pbySrc, dwFlags);
 
-					if (dwFlags & 1) {
-						// 4バイトの圧縮データ
+					if (dwFlags & 1)
+					{
+						// 4 bytes of compressed data
 
 						dwLength = 4;
 					}
-					else {
+					else
+					{
 						GetBit(pbySrc, dwFlags);
 
-						if (dwFlags & 1) {
-							// 5バイトの圧縮データ
+						if (dwFlags & 1)
+						{
+							// 5 bytes of compressed data
 
 							dwLength = 5;
 						}
-						else {
+						else
+						{
 							GetBit(pbySrc, dwFlags);
 
-							if (dwFlags & 1) {
-								// 6バイトの圧縮データ
+							if (dwFlags & 1)
+							{
+								// 6 bytes of compressed data
 
 								dwLength = 6;
 							}
-							else {
+							else
+							{
 								GetBit(pbySrc, dwFlags);
 
-								if (dwFlags & 1) {
-									// 7～8バイトの圧縮データ
+								if (dwFlags & 1)
+								{
+									// 7~8 bytes of compressed data
 
 									GetBit(pbySrc, dwFlags);
 
 									dwLength = (dwFlags & 1);
 									dwLength += 7;
 								}
-								else {
+								else
+								{
 									GetBit(pbySrc, dwFlags);
 
-									if (dwFlags & 1) {
-										// 17バイト以上の圧縮データ
+									if (dwFlags & 1)
+									{
+										// More than 17 bytes of compressed data
 
 										dwLength = *pbySrc++ + 0x11;
 									}
-									else {
-										// 9～16バイトの圧縮データ
+									else
+									{
+										// 9~16 bytes of compressed data
 
 										GetBit(pbySrc, dwFlags);
 										dwLength = (dwFlags & 1) << 2;
@@ -581,16 +636,18 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 					}
 				}
 			}
-			else {
-				// 圧縮パターン2(圧縮データが2バイト)
+			else
+			{
+				// Compression pattern 2 (Compressed data is 2 bytes)
 
 				dwLength = 2;
 
-				// 戻るバイト数を求める
+				// Determine the number of bytes to return
 
 				GetBit(pbySrc, dwFlags);
 
-				if (dwFlags & 1) {
+				if (dwFlags & 1)
+				{
 					GetBit(pbySrc, dwFlags);
 					dwBack = (dwFlags & 1) << 0x0A;
 
@@ -603,26 +660,30 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 					dwBack |= *pbySrc++;
 					dwBack += 0x100;
 				}
-				else {
+				else
+				{
 					dwBack = *pbySrc++ + 1;
 
-					if (dwBack == 0x100) {
-						// 終了
+					if (dwBack == 0x100)
+					{
+						// Exit
 
 						break;
 					}
 				}
 			}
 
-			// 圧縮データの展開
+			// Decompress compressed files
 
-			if (dwBack > (pbyDst - pbyDstBegin)) {
+			if (dwBack > (pbyDst - pbyDstBegin))
+			{
 				return FALSE;
 			}
 
 			LPBYTE pbyWorkOfDst = pbyDst - dwBack;
 
-			for (DWORD k = 0; (k < dwLength) && (pbyDst < pbyDstEnd) && (pbyWorkOfDst < pbyDstEnd); k++) {
+			for (DWORD k = 0; (k < dwLength) && (pbyDst < pbyDstEnd) && (pbyWorkOfDst < pbyDstEnd); k++)
+			{
 				*pbyDst++ = *pbyWorkOfDst++;
 			}
 		}
@@ -645,23 +706,26 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	LPTSTR				pszFileNumberFordiff1 = &szFileNameForBase[lstrlen(szFileNameForBase) - 1];
 	LPTSTR				pszFileNumberFordiff2 = &szFileNameForBase[lstrlen(szFileNameForBase) - 2];
 
-	// 連番を数値に変換
+	// Convert numerical value to a serial number
 
 	long				lFileNumberForDiff1 = _tcstol(pszFileNumberFordiff1, NULL, 10);
 	long				lFileNumberForDiff2 = _tcstol(pszFileNumberFordiff2, NULL, 10);
 
-	if (pclArc->GetFlag()) {
-		// ベースファイルの検索(差分ファイルより前を検索)
+	if (pclArc->GetFlag())
+	{
+		// Base file search(Search from delta file)
 
 		long		lFileNumberForBase = lFileNumberForDiff1;
 		long		lCount = lFileNumberForDiff1;
 
-		while (!bExistsForBase) {
+		while (!bExistsForBase)
+		{
 			lFileNumberForBase--;
 			lCount--;
 
-			if (lCount < 0) {
-				// 検索終了
+			if (lCount < 0)
+			{
+				// End search
 
 				break;
 			}
@@ -670,8 +734,9 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL) {
-				// 欠番ファイル
+			if (pstfiBase == NULL)
+			{
+				// Missing number file
 
 				continue;
 			}
@@ -681,24 +746,27 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			pclArc->SeekHed(pstfiBase->start + 1);
 			pclArc->Read(&byWork, 1);
 
-			if (byWork == 0) {
-				// ベースファイルが見つかった
+			if (byWork == 0)
+			{
+				// Found base file
 
 				bExistsForBase = TRUE;
 			}
 		}
 
-		// ベースファイルの検索(差分ファイルより後を検索)
+		// Base file search(Find difference after the file)
 
 		lFileNumberForBase = lFileNumberForDiff1;
 		lCount = lFileNumberForDiff1;
 
-		while (!bExistsForBase) {
+		while (!bExistsForBase)
+		{
 			lFileNumberForBase++;
 			lCount++;
 
-			if (lCount >= 10) {
-				// 検索終了
+			if (lCount >= 10)
+			{
+				// End search
 
 				break;
 			}
@@ -707,8 +775,9 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL) {
-				// 欠番ファイル
+			if (pstfiBase == NULL)
+			{
+				// Missing number file
 
 				continue;
 			}
@@ -718,24 +787,27 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			pclArc->SeekHed(pstfiBase->start + 1);
 			pclArc->Read(&byWork, 1);
 
-			if (byWork == 0) {
-				// ベースファイルが見つかった
+			if (byWork == 0)
+			{
+				// Found base file
 
 				bExistsForBase = TRUE;
 			}
 		}
 
-		// ベースファイルの検索(2桁目を1つ戻して検索)
+		// Base file search(2桁目を1つ戻して検索)
 
 		lFileNumberForBase = (lFileNumberForDiff2 / 10) * 10;
 		lCount = 10;
 
-		while (!bExistsForBase) {
+		while (!bExistsForBase)
+		{
 			lFileNumberForBase--;
 			lCount--;
 
-			if (lCount < 0) {
-				// 検索終了
+			if (lCount < 0)
+			{
+				// End search
 
 				break;
 			}
@@ -744,8 +816,9 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL) {
-				// 欠番ファイル
+			if (pstfiBase == NULL)
+			{
+				// Missing number file
 
 				continue;
 			}
@@ -755,16 +828,18 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			pclArc->SeekHed(pstfiBase->start + 1);
 			pclArc->Read(&byWork, 1);
 
-			if (byWork == 0) {
-				// ベースファイルが見つかった
+			if (byWork == 0)
+			{
+				// Found base file
 
 				bExistsForBase = TRUE;
 			}
 		}
 	}
 
-	if (bExistsForBase) {
-		// ベースファイルが存在する
+	if (bExistsForBase)
+	{
+		// Base file exists
 
 		YCMemory<BYTE>		clmbtSrcForBase(pstfiBase->sizeCmp);
 
@@ -774,21 +849,22 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 		long		lWidthForBase = *(LPLONG)&clmbtSrcForBase[32];
 		long		lHeightForBase = *(LPLONG)&clmbtSrcForBase[36];
 
-		if ((lWidthForBase >= lWidthForDiff) && (lHeightForBase >= lHeightForDiff)) {
-			// ベースのほうが大きい
+		if ((lWidthForBase >= lWidthForDiff) && (lHeightForBase >= lHeightForDiff))
+		{
+			// Large base
 
 			DWORD				dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
 			YCMemory<BYTE>		clmbtDstForBase(dwDstSizeForBase);
 
-			// ベースファイルの解凍
+			// Decompress base file
 
 			DecompImage(&clmbtDstForBase[0], dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
 
-			// ベースファイルと差分ファイルを合成
+			// Synthesize base file and delta file
 
 			Compose(&clmbtDstForBase[0], dwDstSizeForBase, pbyDiff, dwDiffSize, lWidthForBase, lWidthForDiff, wBppForDiff);
 
-			// 出力
+			// Output
 
 			CImage				cliWork;
 			long				lWidth = *(LPLONG)&clmbtSrcForBase[32];
@@ -800,24 +876,25 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			return TRUE;
 		}
-		else if ((lWidthForDiff >= lWidthForBase) && (lHeightForDiff >= lHeightForBase)) {
-			// 差分の方が大きい
+		else if ((lWidthForDiff >= lWidthForBase) && (lHeightForDiff >= lHeightForBase))
+		{
+			// Difference is greater
 
 			DWORD				dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
 			YCMemory<BYTE>		clmbtDstForBase(dwDstSizeForBase);
 
-			// ベースファイルの解凍
+			// Decompress base file
 
 			DecompImage(&clmbtDstForBase[0], dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
 
-			// 差分のサイズでメモリ確保
+			// The difference in the size of the memory allocation
 
 			DWORD				dwDstSize = lWidthForDiff * lHeightForDiff * (wBppForDiff >> 3);
 			YCMemory<BYTE>		clmbtDst(dwDstSize);
 
 			memset(&clmbtDst[0], 0, dwDstSize);
 
-			// ベースファイルを右下に合わせて配置
+			// Align base file in the lower-right
 
 			long				lX = lWidthForDiff - lWidthForBase;
 			long				lY = lHeightForDiff - lHeightForBase;
@@ -828,11 +905,12 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			long				lLineForBase = lWidthForBase * (wBppForDiff >> 3);
 			long				lLineForDiff = lWidthForDiff * (wBppForDiff >> 3);
 
-			// 縦位置を下に合わせる
+			// Fit under the vertical position
 			pbyDst += lY * lLineForDiff;
 
-			for (long y = lY; y < lHeightForDiff; y++) {
-				// 横位置を右に合わせる
+			for (long y = lY; y < lHeightForDiff; y++)
+			{
+				// According to the horizontal position to the right.
 				pbyDst += lGapForX;
 
 				memcpy(pbyDst, pbyDstForBase, lLineForBase);
@@ -841,11 +919,11 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 				pbyDstForBase += lLineForBase;
 			}
 
-			// ベースファイルと差分ファイルを合成
+			// Synthesize the base file and the delta file
 
 			Compose(&clmbtDst[0], dwDstSize, pbyDiff, dwDiffSize, lWidthForDiff, lWidthForDiff, wBppForDiff);
 
-			// 出力
+			// Output
 
 			CImage				cliWork;
 			long				lWidth = lWidthForDiff;
@@ -859,20 +937,20 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 		}
 	}
 
-	// ベースファイルが存在しない
+	// Base file doesn't exist.
 
 	long				lWidth = lWidthForDiff;
 	long				lHeight = lHeightForDiff;
 	WORD				wBpp = wBppForDiff;
 
-	// 真っ黒のデータを用意
+	// Prepare black data
 
 	DWORD				dwDstSize = ((lWidth * (wBpp >> 3) + 3) & 0xFFFFFFFC) * lHeight;
 	YCMemory<BYTE>		clmbtDst(dwDstSize);
 
 	memset(&clmbtDst[0], 0, dwDstSize);
 
-	// 真っ黒のデータと合成
+	// Synthesize black data
 
 	Compose(&clmbtDst[0], dwDstSize, pbyDiff, dwDiffSize, lWidth, lWidth, wBpp);
 
@@ -881,21 +959,21 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	cliWork.Init(pclArc, lWidth, lHeight, wBpp);
 	cliWork.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	// エラーメッセージの出力
+	// Error message output
 /*
 	if (pclArc->GetFlag()) {
 		TCHAR				szError[1024];
 
 		_stprintf(szError, _T("%s\n\n元画像が見つからなかったため、差分合成を行わずに出力しました。"), pstfiDiff->name);
 
-		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("報告"), MB_OK);
+		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("Info"), MB_OK);
 	}
 */
 	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	基底画像と差分画像を合成する
+//	Synthesizes the base image and the difference image.
 //
 //	十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
 
@@ -907,15 +985,18 @@ BOOL CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSr
 
 	DWORD dwGapForX = 0;
 
-	if (lWidthForDst > lWidthForSrc) {
+	if (lWidthForDst > lWidthForSrc)
+	{
 		dwGapForX = (lWidthForDst - lWidthForSrc) * wColors;
 	}
 
 	DWORD dwSrc = 12;
 	DWORD dwDst = *(LPDWORD)&pbySrc[4] * (dwGapForX + dwLine);
 
-	while ((dwHeight--) && (dwSrc < dwSrcSize)) {
-		for (DWORD x = 0; x < dwGapForX; x++) {
+	while ((dwHeight--) && (dwSrc < dwSrcSize))
+	{
+		for (DWORD x = 0; x < dwGapForX; x++)
+		{
 			pbyDst[dwDst++] = 0;
 		}
 
@@ -924,20 +1005,25 @@ BOOL CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSr
 
 		DWORD dwOffset = 0;
 
-		while (dwCount--) {
+		while (dwCount--)
+		{
 			dwOffset += *(LPWORD)&pbySrc[dwSrc] * wColors;
 			dwSrc += 2;
 
 			DWORD dwLength = *(LPWORD)&pbySrc[dwSrc] * wColors;
 			dwSrc += 2;
 
-			while (dwLength--) {
+			while (dwLength--)
+			{
 				pbyDst[dwDst + dwOffset++] = pbySrc[dwSrc++];
 
-				if ((dwDst + dwOffset) >= dwDstSize) {
+				if ((dwDst + dwOffset) >= dwDstSize)
+				{
 					return TRUE;
 				}
-				if (dwSrc >= dwSrcSize) {
+				
+				if (dwSrc >= dwSrcSize)
+				{
 					return TRUE;
 				}
 			}

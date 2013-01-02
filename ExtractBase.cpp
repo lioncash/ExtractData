@@ -5,7 +5,7 @@
 //	Decode
 
 BOOL	CExtractBase::Decode(
-	CArcFile*			pclArc							// Archive
+	CArcFile*			pclArc				// Archive
 	)
 {
 	return	FALSE;
@@ -15,7 +15,7 @@ BOOL	CExtractBase::Decode(
 //	Extraction
 
 BOOL	CExtractBase::Extract(
-	CArcFile*			pclArc							// Archive
+	CArcFile*			pclArc				// Archive
 	)
 {
 	return	FALSE;

@@ -8,32 +8,33 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".pack"))
 		return FALSE;
 
-	// シグネチャ取得
+	// Get the signature
 	BYTE signature[16];
 	pclArc->Seek(-28, FILE_END);
 	pclArc->Read(signature, sizeof(signature));
 
-	// シグネチャチェック
-	if (memcmp(signature, "FilePackVer", 11) != 0) {
+	// Check the signature
+	if (memcmp(signature, "FilePackVer", 11) != 0)
+	{
 		pclArc->SeekHed();
 		return FALSE;
 	}
 
-	// ファイル数取得
+	// Get the file count
 	DWORD ctFile;
 	pclArc->Read(&ctFile, 4);
 
-	// インデックスの位置取得
+	// Get the index position/offset
 	QWORD index_ofs;
 	pclArc->Read(&index_ofs, 8);
 
-	// インデックスに移動
+	// Go to the index position
 	pclArc->Seek(index_ofs, FILE_BEGIN);
 
-	// インデックスサイズを求める(Ver2.0以降はハッシュサイズも含まれる)
+	// Get the index size (Ver2.0 or later will be included in the hash size)
 	DWORD index_size = pclArc->GetArcSize() - 28 - index_ofs;
 
-	// インデックス読み込み(Ver2.0以降はハッシュも含まれる)
+	// Read the index (Ver2.0 or later will be included in the hash)
 	YCMemory<BYTE> index(index_size);
 	pclArc->Read(&index[0], index_size);
 
@@ -42,42 +43,55 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 	YCString version;
 	void (*DecryptFunc)(LPBYTE, DWORD, DWORD);
 
-	// packのバージョンを確認
-	if (memcmp(signature, "FilePackVer1.0", 14) == 0 || memcmp(signature, "FilePackVer2.0", 14) == 0) {
-		// バージョン
+	// Check the version of 'pack'
+	if (memcmp(signature, "FilePackVer1.0", 14) == 0 || memcmp(signature, "FilePackVer2.0", 14) == 0)
+	{
+		// Version
 		version = _T("FilePackVer1.0");
-		// 復号関数セット
+		
+		// Set the decoding functions
 		DecryptFunc = DecryptFileName;
 	}
-	else if (memcmp(signature, "FilePackVer3.0", 14) == 0) {
+	else if (memcmp(signature, "FilePackVer3.0", 14) == 0)
+	{
 		LPBYTE pIndex2 = pIndex;
+		
 		// Figure out how much data is TOC entries..
-		for (int i = 0; i < (int)ctFile; i++) {
+		for (int i = 0; i < (int)ctFile; i++)
+		{
 			WORD filename_len = *(LPWORD)pIndex2;
 			pIndex2 += 2 + filename_len + 28;
 		}
+		
 		// Compute the obfuscation seed from the CRC(?) of some hash data.
 		LPBYTE hash_bytes = pIndex2 + 32 + *(LPDWORD)&pIndex2[28] + 36;
 		seed = crc_or_something(hash_bytes, 256) & 0x0FFFFFFF;
-		// バージョン
+		
+		// Version
 		version = _T("FilePackVer3.0");
-		// 復号関数セット
+		
+		// Set the decoding functions
 		DecryptFunc = DecryptFileNameV3;
 	}
-	else {
+	else
+	{
 		pclArc->SeekHed();
 		return FALSE;
 	}
 
-	for (int i = 0; i < (int)ctFile; i++) {
-		// ファイル名取得
+	for (int i = 0; i < (int)ctFile; i++)
+	{
+		// Get the filename length
 		WORD FileNameLen = *(LPWORD)&pIndex[0];
+		
 		//pclArc->Read(&FileNameLen, 2);
 		BYTE szFileName[_MAX_FNAME];
 		memcpy(szFileName, &pIndex[2], FileNameLen);
+		
 		//pclArc->Read(szFileName, FileNameLen);
 		szFileName[FileNameLen] = '\0';
-		// ファイル名復号
+		
+		// Get the filename
 		DecryptFunc(szFileName, FileNameLen, seed);
 
 		pIndex += 2 + FileNameLen;
@@ -85,7 +99,7 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 		//BYTE index[28];
 		//pclArc->Read(&index, 28);
 
-		// リストビューに追加
+		// Add to the listview.
 		SFileInfo infFile;
 		infFile.name = (LPTSTR)szFileName;
 		infFile.start = *(LPQWORD)&pIndex[0];
@@ -109,55 +123,64 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
-	// バッファ確保
+	// Ensure buffers exist
 	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-	YCMemory<BYTE> buf; // 圧縮ファイルのときのみresize()で解凍後のバッファを確保する(省メモリ設計)
+	YCMemory<BYTE> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 	LPBYTE pBuf = &z_buf[0];
 
-	// ファイル読み込み
+	// Read the file
 	pclArc->Read(pBuf, pInfFile->sizeCmp);
 
-	// 暗号化ファイルを復号
-	if (pInfFile->title == _T("FilePackVer1.0")) {
+	// Decrypt the encrypted file
+	if (pInfFile->title == _T("FilePackVer1.0"))
+	{
 		if (pInfFile->key)
 			Decrypt(pBuf, pInfFile->sizeCmp, 0);
 	}
 	else if (pInfFile->title == _T("FilePackVer3.0"))
+	{
 		DecryptV3(pBuf, pInfFile->sizeCmp, pInfFile->key);
+	}
 
-	// 圧縮ファイルを解凍
-	if (pInfFile->sizeCmp != pInfFile->sizeOrg) {
+	// Extract the file if it's compressed
+	if (pInfFile->sizeCmp != pInfFile->sizeOrg)
+	{
 		buf.resize(pInfFile->sizeOrg);
 		Decomp(&buf[0], pInfFile->sizeOrg, pBuf, pInfFile->sizeCmp);
 		pBuf = &buf[0];
 	}
 
-	// 出力
-	if (pInfFile->format == _T("BMP")) {
+	// Output
+	if (pInfFile->format == _T("BMP"))
+	{
 		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
 		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
-		// サイズ調整
+		
+		// Output size
 		DWORD dstSize = pInfFile->sizeOrg - 54;
+		
 		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != dstSize)
 			dstSize -= 2;
-		// 出力
+		
+		// Output
 		CImage image;
 		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
 		image.Write(&pBuf[fHed->bfOffBits], dstSize);
 	}
 	else if( pInfFile->format == _T("B") )
 	{
-		// *.bファイル
+		// *.b file
 
 		if( !DecodeB( pclArc, pBuf, pInfFile->sizeOrg ) )
 		{
-			// 未対応
+			// Unsupported
 
 			pclArc->OpenFile();
 			pclArc->WriteFile( pBuf, pInfFile->sizeOrg );
 		}
 	}
-	else {
+	else
+	{
 		pclArc->OpenFile();
 		pclArc->WriteFile(pBuf, pInfFile->sizeOrg);
 	}
@@ -166,12 +189,12 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	*.bファイルの展開
+//	*.b file decompressing
 
 BOOL	CQLIE::DecodeB(
-	CArcFile*			pclArc,							// アーカイブ
-	BYTE*				pbtSrc,							// bファイル
-	DWORD				dwSrcSize						// bファイルサイズ
+	CArcFile*			pclArc,							// Archive
+	BYTE*				pbtSrc,							// .b file
+	DWORD				dwSrcSize						// .b file size
 	)
 {
 	if( memcmp( &pbtSrc[0], "ABMP7", 5 ) == 0 )
@@ -188,63 +211,63 @@ BOOL	CQLIE::DecodeB(
 		return	DecodeABMP10( pclArc, pbtSrc, dwSrcSize );
 	}
 
-	// 未対応
+	// Not supported
 
 	return	FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ABMP7の展開
+//	ABMP7 Decompressing
 
 BOOL	CQLIE::DecodeABMP7(
-	CArcFile*			pclArc,							// アーカイブ
-	BYTE*				pbtSrc,							// bファイル
-	DWORD				dwSrcSize,						// bファイルサイズ
-	DWORD*				pdwSrcIndex,					// 全体のbファイルに対するインデックス(再帰呼び出し後に進んだ分を加算する必要がある)
-	const YCString&		clsBFileName					// 今までのbファイル名(再起呼び出しを行うたびにbファイル名を繋げていく)
+	CArcFile*			pclArc,							// Archive
+	BYTE*				pbtSrc,							// .b file
+	DWORD				dwSrcSize,						// .b file size
+	DWORD*				pdwSrcIndex,					// .b file index (You'll need to add the minutes after the recursive call)
+	const YCString&		clsBFileName					// .b filename for now 	(Filename will change with each recursive call)
 	)
 {
 	DWORD				dwSrcIndex = 0;
 
 	if( (dwSrcIndex + 16) > dwSrcSize )
 	{
-		// 終了
+		// Exit
 
 		return	FALSE;
 	}
 
 	if( memcmp( &pbtSrc[dwSrcIndex], "ABMP7", 5 ) != 0 )
 	{
-		// 未対応
+		// Unsupported
 
 		return	FALSE;
 	}
 
 	dwSrcIndex += 12;
 
-	// 不要なデータサイズの取得
+	// Get the amount of unnecessary data we can skip
 
 	DWORD				dwUnKnownDataSize = *(DWORD*) &pbtSrc[dwSrcIndex];
 
 	dwSrcIndex += 4;
 
-	// 不要なデータをスキップ
+	// Skip the unnecessary data
 
 	dwSrcIndex += dwUnKnownDataSize;
 
-//-- 初回読み込み ------------------------------------------------------------------------
+//-- First read ------------------------------------------------------------------------
 
-	// ファイルサイズの取得
+	// Get filesize
 
 	DWORD				dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
 
 	dwSrcIndex += 4;
 
-	// 拡張子の取得
+	// Get the file extension
 
 	YCString			clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
 
-	// 出力
+	// Output
 
 	if( clsFileExt == _T(".bmp") )
 	{
@@ -258,7 +281,7 @@ BOOL	CQLIE::DecodeABMP7(
 	}
 	else
 	{
-		// その他
+		// Other
 
 		pclArc->OpenFile( clsFileExt );
 		pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
@@ -267,17 +290,17 @@ BOOL	CQLIE::DecodeABMP7(
 
 	dwSrcIndex += dwFileSize;
 
-//-- 2回目以降の読み込み -----------------------------------------------------------------
+//-- Second read (and subsequent reads) -----------------------------------------------------------------
 
 	while( dwSrcIndex < dwSrcSize )
 	{
-		// ファイル名の長さの取得
+		// Get the length of the filename
 
 		DWORD				dwFileNameLength = pbtSrc[dwSrcIndex];
 
 		dwSrcIndex += 1;
 
-		// ファイル名の取得
+		// Get the filename
 
 		char				szFileName[_MAX_FNAME];
 
@@ -287,7 +310,7 @@ BOOL	CQLIE::DecodeABMP7(
 
 		dwSrcIndex += 31;
 
-		// ファイルサイズの取得
+		// Get the file size
 
 		dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
 
@@ -295,22 +318,22 @@ BOOL	CQLIE::DecodeABMP7(
 
 		if( dwFileSize == 0 )
 		{
-			// ファイルサイズが0
+			// Filesize is 0
 
 			continue;
 		}
 
-		// 拡張子の取得
+		// Get file extension
 
 		clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
 
-		// 「bファイル名_ファイル名.拡張子」という名前で書き込む
+		// Write the .b filename extension
 
 		TCHAR				szWork[_MAX_FNAME];
 
 		_stprintf( szWork, _T("_%s%s"), szFileName, clsFileExt );
 
-		// 出力
+		// Output
 
 		if( clsFileExt == _T(".bmp") )
 		{
@@ -324,7 +347,7 @@ BOOL	CQLIE::DecodeABMP7(
 		}
 		else
 		{
-			// その他
+			// Other
 
 			pclArc->OpenFile( szWork );
 			pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
@@ -338,14 +361,14 @@ BOOL	CQLIE::DecodeABMP7(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	abmp10～12の展開
+//	abmp10~12 Decompression
 
 BOOL	CQLIE::DecodeABMP10(
-	CArcFile*			pclArc,							// アーカイブ
-	BYTE*				pbtSrc,							// bファイル
-	DWORD				dwSrcSize,						// bファイルサイズ
-	DWORD*				pdwSrcIndex,					// 全体のbファイルに対するインデックス(再帰呼び出し後に進んだ分を加算する必要がある)
-	const YCString&		clsBFileName					// 今までのbファイル名(再起呼び出しを行うたびにbファイル名を繋げていく)
+	CArcFile*			pclArc,							// Archive
+	BYTE*				pbtSrc,							// .b file
+	DWORD				dwSrcSize,						// .b file size
+	DWORD*				pdwSrcIndex,					// Entire .b file index (You'll need to add the minutes after the recursive call)
+	const YCString&		clsBFileName					// Current .b file name (Will change with each recursive call)
 	)
 {
 	static DWORD						dwDstFiles;
@@ -353,7 +376,7 @@ BOOL	CQLIE::DecodeABMP10(
 
 	if( pdwSrcIndex == NULL )
 	{
-		// 初回の呼び出し
+		// First call
 
 		dwDstFiles = 0;
 		vtFileNameList.clear();
@@ -363,14 +386,14 @@ BOOL	CQLIE::DecodeABMP10(
 
 	if( (dwSrcIndex + 16) > dwSrcSize )
 	{
-		// 終了
+		// Exit
 
 		return	FALSE;
 	}
 
 	if( memcmp( &pbtSrc[dwSrcIndex], "abmp", 4 ) != 0 )
 	{
-		// 未対応
+		// Unsupported
 
 		return	FALSE;
 	}
@@ -379,20 +402,20 @@ BOOL	CQLIE::DecodeABMP10(
 
 	if( memcmp( &pbtSrc[dwSrcIndex], "abdata", 6 ) != 0 )
 	{
-		// 未対応
+		// Unsupported
 
 		return	FALSE;
 	}
 
 	dwSrcIndex += 16;
 
-	// 不要なデータサイズの取得
+	// Get the amount of data we can skip
 
 	DWORD				dwUnKnownDataSize = *(DWORD*) &pbtSrc[dwSrcIndex];
 
 	dwSrcIndex += 4;
 
-	// 不要なデータをスキップ
+	// Skip the unnecessary data
 
 	dwSrcIndex += dwUnKnownDataSize;
 
@@ -400,7 +423,7 @@ BOOL	CQLIE::DecodeABMP10(
 	{
 		if( (dwSrcIndex + 16) > dwSrcSize )
 		{
-			// 終了
+			// Exit
 
 			break;
 		}
@@ -415,14 +438,14 @@ BOOL	CQLIE::DecodeABMP10(
 		}
 		else
 		{
-			// 未対応
+			// Unsupported
 
 			return	FALSE;
 		}
 
 		dwSrcIndex += 16;
 
-		// ファイル数の取得
+		// Get file count
 
 		DWORD				dwFiles = pbtSrc[dwSrcIndex];
 
@@ -432,7 +455,7 @@ BOOL	CQLIE::DecodeABMP10(
 		{
 			if( (dwSrcIndex + 16) > dwSrcSize )
 			{
-				// 終了
+				// Exit
 
 				break;
 			}
@@ -465,26 +488,26 @@ BOOL	CQLIE::DecodeABMP10(
 			}
 			else
 			{
-				// 未対応
+				// Unsupported
 
 				return	FALSE;
 			}
 
 			dwSrcIndex += 16;
 
-			// ファイル名の長さの取得
+			// Get the length of the filename
 
 			DWORD				dwFileNameLength = *(WORD*) &pbtSrc[dwSrcIndex];
 
 			dwSrcIndex += 2;
 
-			// ファイル名の取得
+			// Get the filename
 
 			YCString			clsFileName( (char*) &pbtSrc[dwSrcIndex], dwFileNameLength );
 
 			dwSrcIndex += dwFileNameLength;
 
-			// 不明なデータをスキップ
+			// Skip unknown data
 
 			if( (dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11) )
 			{
@@ -495,7 +518,7 @@ BOOL	CQLIE::DecodeABMP10(
 
 			dwSrcIndex += 1;
 
-			// ファイルサイズの取得
+			// Get file size
 
 			DWORD				dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
 
@@ -503,12 +526,12 @@ BOOL	CQLIE::DecodeABMP10(
 
 			if( dwFileSize == 0 )
 			{
-				// ファイルサイズが0
+				// File size is 0
 
 				continue;
 			}
 
-			// 拡張子の取得
+			// Get the file extension
 
 			YCString			clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
 
@@ -532,25 +555,25 @@ BOOL	CQLIE::DecodeABMP10(
 				continue;
 			}
 
-			// '/'を'_'に置換(全角文字を考慮)
+			// Replace '/' with '_' (Taking into account double-byte characters)
 
 			clsFileName.Replace( _T('/'), _T('_') );
 
-			// パスに使えない文字を消去
+			// Erase illegal chars
 
 			EraseNotUsePathWord( clsFileName );
 
-			// 拡張子を付加
+			// Rename extension
 
-			clsFileName.RenameExtension( clsFileExt );	// ファイル名にpsd等の拡張子が付いている場合があるのでリネームで対処
+			clsFileName.RenameExtension( clsFileExt );	// Renaming because there may be a psd file with the same extension
 
-			// 「bファイル名_ファイル名.拡張子」という名前で書き込む
+			// Write the .b extension
 
 			TCHAR				szWork[_MAX_FNAME];
 
 			if( dwFileNameLength == 0 )
 			{
-				// ファイル名がない(拡張子だけ付ける)
+				// No filename (only put extension)
 
 				_stprintf( szWork, _T("%s%s"), clsBFileName, clsFileName );
 			}
@@ -559,17 +582,17 @@ BOOL	CQLIE::DecodeABMP10(
 				_stprintf( szWork, _T("%s_%s"), clsBFileName, clsFileName );
 			}
 
-			// 同じファイル名が存在していないか確認
+			// Check to see if the same filename doesn't exist
 
 			for( size_t uIndex = 0 ; uIndex < vtFileNameList.size() ; uIndex++ )
 			{
 				if( vtFileNameList[uIndex].clsFileName == szWork )
 				{
-					// 同じファイル名
+					// Same filename
 
 					vtFileNameList[uIndex].dwCount++;
 
-					// 上書きが発生しないようにする
+					// Overwrite will not occur
 
 					TCHAR				szWork2[256];
 
@@ -577,13 +600,13 @@ BOOL	CQLIE::DecodeABMP10(
 
 					PathRenameExtension( szWork, szWork2 );
 
-					// 同じファイル名が存在していないか確認するためにループカウンタをリセット
+					// Reset the loop counter to ensure the same file does not exist now.
 
 					uIndex = (size_t) -1;
 				}
 			}
 
-			// ファイル名を登録
+			// Register the filename
 
 			SFileNameInfo		stFileNameInfo;
 
@@ -592,7 +615,7 @@ BOOL	CQLIE::DecodeABMP10(
 
 			vtFileNameList.push_back( stFileNameInfo );
 
-			// 出力
+			// Output
 
 			if( clsFileExt == _T(".bmp") )
 			{
@@ -606,7 +629,7 @@ BOOL	CQLIE::DecodeABMP10(
 			}
 			else
 			{
-				// その他
+				// Other
 
 				pclArc->OpenFile( szWork );
 				pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
@@ -621,7 +644,7 @@ BOOL	CQLIE::DecodeABMP10(
 
 	if( pdwSrcIndex != NULL )
 	{
-		// 再帰呼び出しが行われている
+		// Recursive call being performed
 
 		*pdwSrcIndex += dwSrcIndex;
 	}
@@ -629,7 +652,7 @@ BOOL	CQLIE::DecodeABMP10(
 	{
 		if( dwDstFiles == 0 )
 		{
-			// ファイルが1つも出力されていない
+			// No output files
 
 			return	FALSE;
 		}
@@ -639,10 +662,10 @@ BOOL	CQLIE::DecodeABMP10(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子の取得
+//	Getting the file extension
 
 YCString	CQLIE::GetExtension(
-	BYTE*				pbtSrc							// 入力バッファ
+	BYTE*				pbtSrc							// Input buffer
 	)
 {
 	YCString			clsFileExt;
@@ -688,10 +711,10 @@ YCString	CQLIE::GetExtension(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	パスに使えない文字を消去
+//	Erase path characters
 
 void	CQLIE::EraseNotUsePathWord(
-	YCString&				clsPath							// パス
+	YCString&				clsPath							// Path
 	)
 {
 	static const TCHAR	aszNotUsePathWord[] =
@@ -723,7 +746,8 @@ void CQLIE::Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed)
 	DWORD x2 = x1;
 	DWORD size = buf_len >> 3;
 
-	for (int i = 0; i < (int)size; i++) {
+	for (int i = 0; i < (int)size; i++)
+	{
 		x1 = (x1 + 0xCE24F523) ^ key1;
 		x2 = (x2 + 0xCE24F523) ^ key2;
 		key1 = ((LPDWORD)buf)[i*2+0] ^= x1;
@@ -745,51 +769,70 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 
 	BYTE x = src[4];
 
-	while ((psrc - src) < ((int)srcSize - 12)) {
+	while ((psrc - src) < ((int)srcSize - 12))
+	{
 		memcpy(&buf[256], buf, 256);
 
-		for (int d = 0; d <= 0xFF; ) {
+		for (int d = 0; d <= 0xFF; )
+		{
 			int c = *psrc++;
-			if (c > 0x7F) {
+			if (c > 0x7F)
+			{
 				d += c - 0x7F;
 				c = 0;
 			}
+			
 			if (d > 0xff)
 				break;
 
-			for (int i = c+1; i > 0; i--) {
+			for (int i = c+1; i > 0; i--)
+			{
 				buf[256 + d] = *psrc++;
+				
 				if (buf[256 + d] != d)
 					buf[512 + d] = *psrc++;
+				
 				d++;
 			}
 		}
 
 		int c;
-		if (x & 1) {
+		if (x & 1)
+		{
 			c = *(LPWORD)psrc;
 			psrc += 2;
 		}
-		else {
+		else
+		{
 			c = *(LPDWORD)psrc;
 			psrc += 4;
 		}
 
-		for (int n = 0; ; ) {
+		for (int n = 0; ; )
+		{
 			int d;
 			if (n)
+			{
 				d = buf[--n + 768];
-			else {
-				if (c == 0) break;
+			}
+			else
+			{
+				if (c == 0)
+					break;
+					
 				c--;
 				d = *psrc++;
 			}
-			if (buf[256 + d] == d) {
+			
+			if (buf[256 + d] == d)
+			{
 				if (pdst - dst > (int)dstSize)
 					return;
+				
 				*pdst++ = d;
 			}
-			else {
+			else
+			{
 				buf[768 + n++] = buf[512 + d];
 				buf[768 + n++] = buf[256 + d];
 			}
@@ -824,7 +867,8 @@ DWORD CQLIE::crc_or_something(LPBYTE buff, DWORD len)
 	LPQWORD p      = (LPQWORD)buff;
 	LPQWORD end    = p + (len / 8);
 
-	while (p < end) {
+	while (p < end)
+	{
 		key = padw(key, 0x0307030703070307);
 
 		QWORD   temp       = *p++ ^ key;
@@ -858,7 +902,8 @@ void CQLIE::DecryptV3(LPBYTE buff, DWORD len, DWORD seed)
 	LPQWORD p   = (LPQWORD)buff;
 	LPQWORD end = p + (len / 8);
 
-	while (p < end) {
+	while (p < end)
+	{
 		// Emulate mmx padd instruction
 		key_words[0] += 0xCE24F523;
 		key_words[1] += 0xCE24F523;

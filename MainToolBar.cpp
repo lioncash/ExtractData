@@ -119,11 +119,11 @@ void CMainToolBar::LoadIni()
 
     clIni.SetSection( _T("OpenHistory") );
 
-    for( int i = 0 ; i < 10 ; i++ )
+    for( unsigned int i = 0 ; i < 10 ; i++ )
     {
         TCHAR				szKey[256];
 
-        _stprintf( szKey, _T("File%d"), i );
+        _stprintf( szKey, _T("File%u"), i );
 
         clIni.SetKey( szKey );
 
@@ -150,7 +150,7 @@ void CMainToolBar::SaveIni()
     {
         TCHAR				szKey[256];
 
-        _stprintf( szKey, _T("File%d"), i );
+        _stprintf( szKey, _T("File%u"), i );
 
         clIni.SetKey( szKey );
         clIni.WriteStr( m_vcOpenHistoryList[i] );

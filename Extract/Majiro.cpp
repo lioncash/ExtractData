@@ -155,7 +155,7 @@ BOOL	CMajiro::MountArc1(
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
-	// マスク画像を除去したファイル情報の取得
+	// Get file information from the masked image
 
 	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
 	{
@@ -312,7 +312,7 @@ BOOL	CMajiro::MountArc2(
 
 	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
 
-	// マスク画像を除去したファイル情報の取得
+	// Get file information from the masked image
 
 	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
 	{
@@ -597,13 +597,13 @@ BOOL	CMajiro::DecodeRC(
 		memcpy( szFileName, &clmbtSrc[dwSrcPtr + 2], wFileNameLen );
 		dwSrcPtr += 2 + wFileNameLen;
 
-		// 基底画像ファイル情報の取得
+		// Get file info for the base image
 
 		const SFileInfo*		pstFileInfoOfBase = pclArc->GetFileInfo( szFileName );
 
 		if( pstFileInfoOfBase != NULL )
 		{
-			// 基底画像ファイルが存在する
+			// Base image file exists
 
 			YCMemory<BYTE>		clmbtSrcOfBase( pstFileInfoOfBase->sizeCmp );
 
@@ -612,13 +612,13 @@ BOOL	CMajiro::DecodeRC(
 
 			read_bits_24( &clmbtDst[0], dwDstSize, &clmbtSrcOfBase[20], *(DWORD*)&clmbtSrcOfBase[16], lWidth );
 
-			// 差分画像の解凍
+			// Decompress the difference image
 
 			YCMemory<BYTE>		clmbtDstOfdiff( dwDstSize );
 
 			read_bits_24( &clmbtDstOfdiff[0], dwDstSize, &clmbtSrc[dwSrcPtr], dwSrcSizeOfData, lWidth );
 
-			// 基底画像に差分を合成
+			// Synthesize the difference between the difference image and the base image
 
 			for( DWORD i = 0 ; i < dwDstSize ; i += 3 )
 			{
@@ -639,7 +639,7 @@ BOOL	CMajiro::DecodeRC(
 
 		if( AppendMask( pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize ) )
 		{
-			// マスク画像の付加に成功
+			// Success in adding the mask image
 
 			wBpp = 32;
 			dwDstSize = dwDstSize2;
@@ -882,12 +882,12 @@ BOOL	CMajiro::AppendMask(
 
 	if( pstFileInfo->starts.empty() )
 	{
-		// マスク画像が存在しない
+		// Mask image doesn't exist.
 
 		return	FALSE;
 	}
 
-	// マスク画像の読み込み
+	// Read image mask
 
 	DWORD				dwSrcSizeOfMask = pstFileInfo->sizesCmp[0];
 
@@ -896,11 +896,11 @@ BOOL	CMajiro::AppendMask(
 	pclArc->SeekHed( pstFileInfo->starts[0] );
 	pclArc->Read( &clmbtSrcOfMask[0], dwSrcSizeOfMask );
 
-	// ヘッダ情報の取得
+	// Get header information
 
 	SRCHeader*			pstrchMask = (SRCHeader*) &clmbtSrcOfMask[0];
 
-	// マスク画像の解凍
+	// Decompress masked image
 
 	DWORD				dwDstSizeOfMask = pstrchMask->lWidth * pstrchMask->lHeight;
 
@@ -908,7 +908,7 @@ BOOL	CMajiro::AppendMask(
 
 	read_bits_8( &clmbtDstOfMask[0], dwDstSizeOfMask, &clmbtSrcOfMask[20 + 768], pstrchMask->dwDataSize, pstrchMask->lWidth );
 
-	// 合成
+	// Make file
 
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwMaskPtr = 0;

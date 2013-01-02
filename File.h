@@ -2,7 +2,7 @@
 
 #include "Common.h"
 
-#define FILE_READ 0
+#define FILE_READ  0
 #define FILE_WRITE 1
 
 class CFile {

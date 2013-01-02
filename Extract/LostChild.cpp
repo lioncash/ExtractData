@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../Arc/LZSS.h"
@@ -6,10 +5,10 @@
 #include	"LostChild.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CLostChild::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( memcmp( pclArc->GetHed(), "EPK ", 4 ) != 0 )
@@ -19,7 +18,7 @@ BOOL	CLostChild::Mount(
 
 	pclArc->SeekHed( 4 );
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
@@ -29,7 +28,7 @@ BOOL	CLostChild::Mount(
 
 	pclArc->SeekCur( 16 );
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
@@ -37,23 +36,23 @@ BOOL	CLostChild::Mount(
 
 	pclArc->SeekCur( 4 );
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	// ファイル名インデックス
+	// Get the filename index
 
 	BYTE*				pbtFileNameIndex = &clmIndex[*(DWORD*) &clmIndex[8]] - 32;
 
-	// 分割アーカイブファイル
+	// Split archive files
 
 	if( pclArc->GetArcName() == _T("data.epk") )
 	{
 		YCString			clsPathToArc = pclArc->GetArcPath();
 
-		for( int i = 1 ; i <= 3 ; i++ )
+		for( unsigned int i = 1 ; i <= 3 ; i++ )
 		{
 			YCString			clsArcExt;
 
@@ -69,14 +68,14 @@ BOOL	CLostChild::Mount(
 		pclArc->SetFirstArc();
 	}
 
-	// ファイル情報の取得
+	// Get file information
 
 	DWORD				dwIndexPtr = 0;
 	DWORD				dwFileNameIndexPtr = 0;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[_MAX_FNAME];
 		DWORD				dwLength = *(DWORD*) &pbtFileNameIndex[dwFileNameIndexPtr];
@@ -90,7 +89,7 @@ BOOL	CLostChild::Mount(
 
 		dwFileNameIndexPtr += 4 + dwLength + 1;
 
-		// リストに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -130,7 +129,7 @@ BOOL	CLostChild::Mount(
 			}
 		}
 
-		// ファイルサイズを足したとき1.2GBを超えたら1.2GB引いて調整
+		// File size adjustment exceeds 1.2GB when adding
 
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
@@ -148,10 +147,10 @@ BOOL	CLostChild::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CLostChild::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -175,10 +174,10 @@ BOOL	CLostChild::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ESURのデコード
+//	ESUR Decoding
 
 BOOL	CLostChild::DecodeESUR(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -190,7 +189,7 @@ BOOL	CLostChild::DecodeESUR(
 
 	DWORD				dwReadSize;
 
-	// 読み込み
+	// Read
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -206,22 +205,22 @@ BOOL	CLostChild::DecodeESUR(
 		pclArc->Read( &clmSrc[dwReadSize], (dwSrcSize - dwReadSize) );
 	}
 
-	// ヘッダ情報の取得
+	// Get header information
 
 	long				lWidth = *(long*) &clmSrc[8];
 	long				lHeight = *(long*) &clmSrc[12];
 	DWORD				dwDstSize = *(DWORD*) &clmSrc[4] - 32;
 	WORD				wBpp = 32;
 
-	// LZSS解凍用バッファの確保
+	// Get a buffer for LZSS decompression
 
 	YCMemory<BYTE>		clmDst( dwDstSize );
 
-	// LZSS解凍
+	// LZSS Decompression
 
 	DecompLZSS( &clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3 );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -233,10 +232,10 @@ BOOL	CLostChild::DecodeESUR(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LADのデコード
+//	LAD Decoding
 
 BOOL	CLostChild::DecodeLAD(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -248,7 +247,7 @@ BOOL	CLostChild::DecodeLAD(
 
 	DWORD				dwReadSize;
 
-	// 読み込み
+	// Reading
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -264,18 +263,18 @@ BOOL	CLostChild::DecodeLAD(
 		pclArc->Read( &clmSrc[dwReadSize], (dwSrcSize - dwReadSize) );
 	}
 
-	// ヘッダ情報の取得
+	// Get header info
 
 	long				lWidth = *(long*) &clmSrc[8];
 	long				lHeight = *(long*) &clmSrc[12];
 	DWORD				dwDstSize = *(DWORD*) &clmSrc[28];
 	WORD				wBpp = 8;
 
-	// LZSS解凍用バッファの確保
+	// Get a buffer for LZSS decoding
 
 	YCMemory<BYTE>		clmDst( dwDstSize );
 
-	// LZSS解凍
+	// LZSS Decompression
 
 	DecompLZSS( &clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3 );
 
@@ -283,7 +282,7 @@ BOOL	CLostChild::DecodeLAD(
 	pclArc->WriteFile( &clmDst[0], dwDstSize, dwSrcSize );
 	pclArc->CloseFile();
 
-	// 出力
+	// Output
 
 //	CImage				clImage;
 
@@ -295,28 +294,28 @@ BOOL	CLostChild::DecodeLAD(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSSの解凍
+//	LZSS Decompression
 
 BOOL	CLostChild::DecompLZSS(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const void*			pvSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	DWORD				dwDicSize,						// 辞書サイズ
-	DWORD				dwDicPtr,						// 辞書初期参照位置
-	DWORD				dwLengthOffset					// 一致長のオフセット
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const void*			pvSrc,							// Input data
+	DWORD				dwSrcSize,						// Input data size
+	DWORD				dwDicSize,						// Dictionary size
+	DWORD				dwDicPtr,						// Dictionary reference position
+	DWORD				dwLengthOffset					// Length offset
 	)
 {
 	BYTE*				pbtDst = (BYTE*) pvDst;
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
 
-	// 辞書バッファの確保
+	// Allocate buffer
 
 	YCMemory<BYTE>		clmbtDic( dwDicSize );
 
 	ZeroMemory( &clmbtDic[0], dwDicSize );
 
-	// 解凍
+	// Decoding
 
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
@@ -327,7 +326,7 @@ BOOL	CLostChild::DecompLZSS(
 	{
 		if( dwBitCount == 0 )
 		{
-			// 8bit読み切った
+			// 8bit reading
 
 			btFlags = pbtSrc[dwSrcPtr++];
 			dwBitCount = 8;
@@ -335,7 +334,7 @@ BOOL	CLostChild::DecompLZSS(
 
 		if( btFlags & 1 )
 		{
-			// 無圧縮データ
+			// Uncompressed data
 
 			pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = pbtSrc[dwSrcPtr];
 
@@ -347,7 +346,7 @@ BOOL	CLostChild::DecompLZSS(
 		}
 		else
 		{
-			// 圧縮データ
+			// Compressed data
 
 			BYTE				btLow = pbtSrc[dwSrcPtr++];
 			BYTE				btHigh = pbtSrc[dwSrcPtr++];
@@ -357,7 +356,7 @@ BOOL	CLostChild::DecompLZSS(
 
 			if( (dwDstPtr + dwLength) > dwDstSize )
 			{
-				// 出力バッファを超えてしまう
+				// Exceeds the output buffer
 
 				dwLength = (dwDstSize - dwDstPtr);
 			}
@@ -383,10 +382,10 @@ BOOL	CLostChild::DecompLZSS(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	抽出
+//	Extraction
 
 BOOL	CLostChild::Extract(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -396,23 +395,23 @@ BOOL	CLostChild::Extract(
 		return	FALSE;
 	}
 
-	// バッファ確保
+	// Ensure buffer exists
 
 	DWORD				dwBufferSize = pclArc->GetBufSize();
 
 	YCMemory<BYTE>		clmBuffer( dwBufferSize );
 
-	// 出力ファイル生成
+	// Generate output files
 
 	pclArc->OpenFile();
 
 	for( DWORD WriteSize = 0 ; WriteSize != pstFileInfo->sizeCmp ; WriteSize += dwBufferSize )
 	{
-		// バッファサイズ調整
+		// Adjust buffer size
 
 		pclArc->SetBufSize( &dwBufferSize, WriteSize );
 
-		// 読み書き
+		// Read
 
 		DWORD				dwReadSize;
 

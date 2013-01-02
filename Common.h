@@ -5,12 +5,12 @@
 //-- Symbol Declaration  -----------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-#define ID_TOOLBAR 10000
-#define ID_LISTVIEW1 10001
-#define ID_STATUS 10002
-#define ID_TIMER 10003
+#define ID_TOOLBAR    10000
+#define ID_LISTVIEW1  10001
+#define ID_STATUS     10002
+#define ID_TIMER      10003
 
-#define ID_LISTVIEW2 10100
+#define ID_LISTVIEW2  10100
 #define ID_DB_BUTTON1 10101
 #define ID_DB_BUTTON2 10102
 #define ID_DB_BUTTON3 10103

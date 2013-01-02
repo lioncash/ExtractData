@@ -60,7 +60,7 @@ HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, in
 	{
 		TCHAR				szColumn[256];
 
-		_stprintf( szColumn, _T("column%d"), i );
+		_stprintf( szColumn, _T("column%u"), i );
 
 		clIni.SetKey( szColumn );
 		clIni.ReadDec( &lvcols[i].cx );

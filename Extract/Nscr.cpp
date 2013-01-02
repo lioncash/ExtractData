@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../bzip2/bzlib.h"
@@ -7,10 +6,10 @@
 #include	"Nscr.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CNscr::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountNsa( pclArc ) )
@@ -32,10 +31,10 @@ BOOL	CNscr::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	nsaのマウント
+//	nsa mounting
 
 BOOL	CNscr::MountNsa(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -45,13 +44,13 @@ BOOL	CNscr::MountNsa(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles = 0;
 
 	if( memcmp( pclArc->GetHed(), "\0\0", 2 ) == 0 )
 	{
-		// 4バイトと断定
+		// Each 4 bytes
 
 		pclArc->Read( &dwFiles, 4 );
 	}
@@ -63,7 +62,7 @@ BOOL	CNscr::MountNsa(
 
 	pclArc->ConvEndian( &dwFiles );
 
-	// オフセット取得
+	// Get offset
 
 	DWORD				dwOffset;
 
@@ -75,13 +74,13 @@ BOOL	CNscr::MountNsa(
 		dwOffset += 2;
 	}
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize = dwOffset;
 
 	dwIndexSize -= (memcmp( pclArc->GetHed(), "\0\0", 2 ) == 0) ? 8 : 6;
 
-	// インデックス取得
+	// Get the index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
@@ -90,7 +89,7 @@ BOOL	CNscr::MountNsa(
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get file name
 
 		TCHAR				szFileName[256];
 
@@ -99,7 +98,7 @@ BOOL	CNscr::MountNsa(
 
 		BYTE				btType = clmbtIndex[dwIndexPtr];
 
-		// リストビューに追加
+		// Add to list view
 
 		SFileInfo			stFileInfo;
 
@@ -129,10 +128,10 @@ BOOL	CNscr::MountNsa(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	sarのマウント
+//	sar mounting
 
 BOOL	CNscr::MountSar(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".sar") )
@@ -140,25 +139,25 @@ BOOL	CNscr::MountSar(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	WORD				dwFiles;
 
 	pclArc->Read( &dwFiles, 2 );
 	pclArc->ConvEndian( &dwFiles );
 
-	// オフセット取得
+	// Get offset
 
 	DWORD				dwOffset;
 
 	pclArc->Read( &dwOffset, 4 );
 	pclArc->ConvEndian( &dwOffset );
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize = dwOffset - 6;
 
-	// インデックス取得
+	// Get the index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
@@ -167,14 +166,14 @@ BOOL	CNscr::MountSar(
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get file name
 
 		TCHAR				szFileName[256];
 
 		lstrcpy( szFileName, (LPCTSTR) &clmbtIndex[dwIndexPtr] );
 		dwIndexPtr += lstrlen( szFileName ) + 1;
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -193,10 +192,10 @@ BOOL	CNscr::MountSar(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スクリプトファイルのマウント
+//	Script file mounting
 
 BOOL	CNscr::MountScr(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcName() != _T("nscript.dat") )
@@ -208,10 +207,10 @@ BOOL	CNscr::MountScr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CNscr::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeScr( pclArc ) )
@@ -238,10 +237,10 @@ BOOL	CNscr::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	スクリプトファイルのデコード
+//	Script file decoding
 
 BOOL	CNscr::DecodeScr(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -251,24 +250,24 @@ BOOL	CNscr::DecodeScr(
 		return	FALSE;
 	}
 
-	// バッファ確保
+	// Ensure buffer exists
 
 	DWORD				dwBufferSize = pclArc->GetBufSize();
 
 	YCMemory<BYTE>		clmbtBuffer( dwBufferSize );
 	YCMemory<BYTE>		clmbtBuffer2( dwBufferSize * 2 );
 
-	// 出力ファイル生成
+	// Generate output files
 
 	pclArc->OpenFile( _T(".txt") );
 
 	for( DWORD dwWriteSize = 0 ; dwWriteSize != pstFileInfo->sizeOrg ; dwWriteSize += dwBufferSize )
 	{
-		// バッファ調整
+		// Buffer adjustment
 
 		pclArc->SetBufSize( &dwBufferSize, dwWriteSize );
 
-		// 読み書き
+		// Reading
 
 		pclArc->Read( &clmbtBuffer[0], dwBufferSize );
 
@@ -276,11 +275,11 @@ BOOL	CNscr::DecodeScr(
 
 		for( DWORD i = 0 ; i < dwBufferSize ; i++ )
 		{
-			// 復号
+			// Decoding
 
 			clmbtBuffer2[dwBufferSize2] = clmbtBuffer[i] ^ 0x84;
 
-			// 改行コードをCR+LFに変更
+			// Change to CR + LF line endings
 
 			if( clmbtBuffer2[dwBufferSize2] == '\n' )
 			{
@@ -298,10 +297,10 @@ BOOL	CNscr::DecodeScr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	NBZの解凍
+//	NBZ Decoding
 
 BOOL	CNscr::DecodeNBZ(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -311,7 +310,7 @@ BOOL	CNscr::DecodeNBZ(
 		return	FALSE;
 	}
 
-	// ファイルサイズ取得
+	// Get file size
 
 	DWORD				dwDstSize;
 
@@ -320,24 +319,24 @@ BOOL	CNscr::DecodeNBZ(
 
 	DWORD				dwSrcSize = (pstFileInfo->sizeCmp - 4);
 
-	// バッファ確保
+	// Ensure buffer exists
 
 	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// NBZ展開
+	// NBZ decompression
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
 	BZ2_bzBuffToBuffDecompress( (char*) &clmbtDst[0], &(UINT&) dwDstSize, (char*) &clmbtSrc[0], dwSrcSize, 0, 0 );
 
-	// ファイル内容から拡張子を取得
+	// Obtain file extension
 
 	YCString			clsFileExt;
 
 	GetFileExt( clsFileExt, &clmbtDst[0] );
 
-	// 出力
+	// Output
 
 	pclArc->OpenFile( clsFileExt );
 	pclArc->WriteFile( &clmbtDst[0], dwDstSize );
@@ -346,11 +345,11 @@ BOOL	CNscr::DecodeNBZ(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子の取得
+//	Getting file extensions
 
 void	CNscr::GetFileExt(
-	YCString&			rfclsDst,						// 格納先
-	const BYTE*			pbtBuffer						// バッファ
+	YCString&			rfclsDst,						// Destination
+	const BYTE*			pbtBuffer						// Buffer
 	)
 {
 	if( memcmp( pbtBuffer, "BM", 2 ) == 0 )
@@ -368,12 +367,12 @@ void	CNscr::GetFileExt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ビット列の取得
+//	Get a stream of bits
 
 DWORD	CNscr::GetBit(
-	const BYTE*			pbtSrc,							// 入力データ
-	DWORD				dwReadBitLength,				// 読み込むビット数
-	DWORD*				pdwReadByteLength				// 読み込んだバイト数
+	const BYTE*			pbtSrc,							// Input data
+	DWORD				dwReadBitLength,				// Number of bits to read
+	DWORD*				pdwReadByteLength				// Number of bytes read
 	)
 {
 	DWORD				dwResult = 0;
@@ -403,10 +402,10 @@ DWORD	CNscr::GetBit(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	SPBの解凍
+//	SPB Decoding
 
 BOOL	CNscr::DecodeSPB(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -416,27 +415,27 @@ BOOL	CNscr::DecodeSPB(
 		return	FALSE;
 	}
 
-	// 横幅の取得
+	// Get the width
 
 	WORD				wWidth;
 
 	pclArc->Read( &wWidth, 2 );
 	pclArc->ConvEndian( &wWidth );
 
-	// 縦幅の取得
+	// Get the height
 
 	WORD				wHeight;
 
 	pclArc->Read( &wHeight, 2 );
 	pclArc->ConvEndian( &wHeight );
 
-	// 画像のパラメータの取得
+	// Parameters for the image
 
 	DWORD				dwColorSize = (wWidth * wHeight);
 	DWORD				dwLine = (wWidth * 3);
 	DWORD				dwPitch = ((dwLine + 3) & 0xFFFFFFFC);
 
-	// バッファ確保
+	// Ensure buffers exist
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp - 4;
 	DWORD				dwDstSize = pstFileInfo->sizeOrg - 54;
@@ -446,11 +445,11 @@ BOOL	CNscr::DecodeSPB(
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 	YCMemory<BYTE>		clmbtWork( dwWorkSize );
 
-	// SPB読み込み
+	// Read the SPB file
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// SPB展開
+	// SPB decompression
 
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
@@ -460,7 +459,7 @@ BOOL	CNscr::DecodeSPB(
 	btMaskForGetBit = 0;
 	btSrcForGetBit = 0;
 
-	for( int i = 0 ; i < 3 ; i++ )
+	for( unsigned int i = 0 ; i < 3 ; i++ )
 	{
 		DWORD				dwReadByteLength;
 		DWORD				dwData;
@@ -474,7 +473,7 @@ BOOL	CNscr::DecodeSPB(
 
 		clmbtWork[dwWorkPtr++] = (BYTE) dwData;
 
-		// 解凍
+		// Decompression
 
 		for( DWORD dwCount = 1 ; dwCount < dwColorSize ; dwCount += 4 )
 		{
@@ -506,7 +505,7 @@ BOOL	CNscr::DecodeSPB(
 				dwFlags2 = (dwFlags + 2);
 			}
 
-			for( int j = 0 ; j < 4 ; j++ )
+			for( unsigned int j = 0 ; j < 4 ; j++ )
 			{
 				if( dwFlags2 == 8 )
 				{
@@ -532,7 +531,7 @@ BOOL	CNscr::DecodeSPB(
 		}
 	}
 
-	// RGBの合成
+	// RGB synthesis
 
 	BYTE*				pbtDst = &clmbtDst[dwPitch * (wHeight - 1)];
 	const BYTE*			apbtWork[3];
@@ -545,7 +544,7 @@ BOOL	CNscr::DecodeSPB(
 	{
 		if( j & 1 )
 		{
-			// 奇数ライン
+			// Odd line
 
 			for( WORD k = 0 ; k < wWidth ; k++ )
 			{
@@ -560,7 +559,7 @@ BOOL	CNscr::DecodeSPB(
 		}
 		else
 		{
-			// 偶数ライン
+			// Even line
 
 			for( WORD k = 0 ; k < wWidth ; k++ )
 			{
@@ -575,7 +574,7 @@ BOOL	CNscr::DecodeSPB(
 		}
 	}
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -586,10 +585,10 @@ BOOL	CNscr::DecodeSPB(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSSの解凍
+//	LZSS Decoding
 
 BOOL	CNscr::DecodeLZSS(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -599,7 +598,7 @@ BOOL	CNscr::DecodeLZSS(
 		return	FALSE;
 	}
 
-	// バッファ確保
+	// Ensure buffers exist
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 	DWORD				dwDstSize = pstFileInfo->sizeOrg;
@@ -611,11 +610,11 @@ BOOL	CNscr::DecodeLZSS(
 
 	ZeroMemory( &clmbtDic[0], dwDicSize );
 
-	// 読み込み
+	// Read
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// LZSS展開
+	// LZSS decompression
 
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
@@ -629,7 +628,7 @@ BOOL	CNscr::DecodeLZSS(
 		DWORD				dwReadByteLength;
 		DWORD				dwData;
 
-		// 圧縮フラグの取得
+		// Get the compression flag
 
 		DWORD				dwFlag = GetBit( &clmbtSrc[dwSrcPtr], 1, &dwReadByteLength );
 
@@ -637,7 +636,7 @@ BOOL	CNscr::DecodeLZSS(
 
 		if( dwFlag & 1 )
 		{
-			// 無圧縮
+			// Uncompressed
 
 			dwData = GetBit( &clmbtSrc[dwSrcPtr], 8, &dwReadByteLength );
 
@@ -649,7 +648,7 @@ BOOL	CNscr::DecodeLZSS(
 		}
 		else
 		{
-			// 圧縮されている
+			// Compressed
 
 			DWORD				dwBack = GetBit( &clmbtSrc[dwSrcPtr], 8, &dwReadByteLength );
 
@@ -661,7 +660,7 @@ BOOL	CNscr::DecodeLZSS(
 
 			if( (dwDstPtr + dwLength) > dwDstSize )
 			{
-				// 出力バッファを超えてしまう
+				// Larger than the output buffer
 
 				dwLength = (dwDstSize - dwDstPtr);
 			}
@@ -676,7 +675,7 @@ BOOL	CNscr::DecodeLZSS(
 		}
 	}
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
