@@ -15,7 +15,7 @@ BOOL CSpitan::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-// スピたんのbm0000, bv00**, k000*のファイル情報を取得する関数
+// Function to get information from  Spitan bm0000, bv00**, k000* files.
 BOOL CSpitan::MountSound(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcName().Left(6) != _T("bm0000")) && (pclArc->GetArcName().Left(4) != _T("bv00")) && (pclArc->GetArcName().Left(4) != _T("k000")))
@@ -23,7 +23,8 @@ BOOL CSpitan::MountSound(CArcFile* pclArc)
 
 	pclArc->Seek(4, FILE_BEGIN);
 
-	for (int i = 1; ; i++) {
+	for (int i = 1; ; i++)
+	{
 		BYTE header[16];
 		pclArc->Read(header, sizeof(header));
 
@@ -32,11 +33,11 @@ BOOL CSpitan::MountSound(CArcFile* pclArc)
 		if (memcmp(header, "\0\0\0\0", 4) == 0)
 			break;
 
-		// ファイル名取得
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		_stprintf(szFileName, _T("%s_%06d.ogg"), pclArc->GetArcName(), i);
 
-		// リストビューに追加
+		// Add to listview
 		SFileInfo infFile;
 		infFile.name = szFileName;
 		infFile.sizeCmp = *(LPDWORD)&header[0];
@@ -49,7 +50,7 @@ BOOL CSpitan::MountSound(CArcFile* pclArc)
 	return TRUE;
 }
 
-// スピたんの*.aifのファイル情報を取得する関数
+// Function to get infomation from Spitan *.aif files
 BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".aif"))
@@ -57,18 +58,19 @@ BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "\x10\0\0\0", 4) != 0)
 		return FALSE;
 
-	for (int i = 1; ; i++) {
+	for (int i = 1; ; i++)
+	{
 		BYTE header[32];
 		pclArc->Read(header, sizeof(header));
 
 		if (memcmp(header, "臼NG", 4) == 0)
 			break;
 
-		// ファイル名取得
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), i);
 
-		// リストビューに追加
+		// Add to listview
 		SFileInfo infFile;
 		infFile.name = szFileName;
 		infFile.start = *(LPDWORD)&header[4];
@@ -81,22 +83,25 @@ BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
 	return TRUE;
 }
 
-// スピたんのf0*のファイル情報を取得する関数
+// Function to get information from Spitan f0* files
 BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 {
 	BOOL flag = FALSE;
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 5; i++)
+	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("f%02d"), i);
 		if (lstrcmp(pclArc->GetArcName(), szArcName) == 0)
 			flag = TRUE;
 	}
+	
 	if (flag == FALSE)
 		return FALSE;
 
-	// .fieldファイルのファイル情報取得
+	// Get .field file information
 	std::vector<FileInfo> FileInfoList;
-	while (1) {
+	while (1)
+	{
 		BYTE header[8];
 		pclArc->Read(header, sizeof(header));
 
@@ -111,12 +116,14 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 		FileInfoList.push_back(file);
 	}
 
-	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++) {
-		// PNGファイルの相対アドレスとファイルサイズ取得
+	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++)
+	{
+		// Get file size and relative address of the PNG file
 		FileInfo file[5];
 
 		pclArc->Seek(FileInfoList[i].start + 24, FILE_BEGIN);
-		for (int j = 0; j < 2; j++) {
+		for (int j = 0; j < 2; j++)
+		{
 			pclArc->Read(&file[j].start, 4);
 			pclArc->Read(&file[j].size, 4);
 		}
@@ -127,19 +134,22 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 		pclArc->Seek(FileInfoList[i].start + file[2].start, FILE_BEGIN);
 
 		int count = 0;
-		while (1) {
-			// 何回ReadFileしたかを数えることによって、3つ目のPNGヘッダの相対アドレスを求めることができる
+		while (1)
+		{
+			// By counting the amount of times ReadFile is called, we can determine the relative address of the third header PNG
 			count++;
 
 			DWORD filesize;
 			pclArc->Read(&filesize, 4);
-			// PNGヘッダが来たら、この.fieldファイルの中のPNGファイル数は4つ(通常は5つ)
-			if (filesize == 0x474E5089) {
+			// PNGヘッダが来たら、この.fieldファイルの中のPNGファイル数は4つ(Usually 5)
+			if (filesize == 0x474E5089)
+			{
 				file[2].size = 0;
 				break;
 			}
-			// 30バイト以上だったらファイルサイズと判定
-			else if (filesize >= 30) {
+			// File size is greater than 30 bytes
+			else if (filesize >= 30)
+			{
 				file[2].size = filesize;
 				file[2].start += 4 * count;
 				break;
@@ -147,21 +157,23 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 		}
 
 		pclArc->Seek(tmp_pos, FILE_BEGIN);
-		for (int j = 3; j < 5; j++) {
+		for (int j = 3; j < 5; j++)
+		{
 			pclArc->Read(&file[j].start, 4);
 			pclArc->Read(&file[j].size, 4);
 		}
 
-		for (int j = 0; j < 5; j++) {
-			// ファイルサイズが0だったらスキップ
+		for (unsigned int j = 0; j < 5; j++)
+		{
+			// Skip it is the file has a size of 0
 			if (file[j].size == 0)
 				continue;
 
-			// ファイル名取得
+			// Get filename
 			TCHAR szFileName[_MAX_FNAME];
 			_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), ctFile++);
 
-			// リストビューに追加
+			// Add to listview
 			SFileInfo infFile;
 			infFile.name = szFileName;
 			infFile.sizeCmp = file[j].size;
@@ -177,31 +189,40 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 	return TRUE;
 }
 
-// スピたんのb0*, c0*, IGNR****のファイル情報を取得する関数
+// Function that gets information from Spitan b0*, c0*, IGNR**** files
 BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 {
 	BOOL flag = FALSE;
+	
 	if (pclArc->GetArcName().Left(4) == _T("IGNR"))
 		flag = TRUE;
-	for (int i = 0; i < 5; i++) {
+	
+	for (unsigned int i = 0; i < 5; i++)
+	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("b%02d"), i);
+		
 		if( pclArc->GetArcName() == szArcName )
 			flag = TRUE;
 	}
-	for (int i = 0; i < 2; i++) {
+	
+	for (unsigned int i = 0; i < 2; i++)
+	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("c%02d"), i);
+		
 		if( pclArc->GetArcName() == szArcName )
 			flag = TRUE;
 	}
+	
 	if (flag == FALSE)
 		return FALSE;
 
 	std::vector<FileInfo> FileInfoList;
 
-	// NORIファイルのファイル情報取得
-	while (1) {
+	// Get information from the NORI file
+	while (1)
+	{
 		BYTE header[8];
 		pclArc->Read(header, sizeof(header));
 
@@ -216,32 +237,35 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 		FileInfoList.push_back(file);
 	}
 
-	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++) {
-		// NORIファイルの中にあるPNGファイル数取得
+	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++)
+	{
+		// Get the number of PNG files in the NORI file
 		DWORD ctPng;
 		pclArc->Seek(FileInfoList[i].start + 0x4C, FILE_BEGIN);
 		pclArc->Read(&ctPng, 4);
 
 		pclArc->Seek(0x40 - 0x1C, FILE_CURRENT);
 
-		for (int j = 0; j < (int)ctPng; j++) {
+		for (int j = 0; j < (int)ctPng; j++)
+		{
 			pclArc->Seek(0x1C, FILE_CURRENT);
 
-			// 1つ目と2つ目のファイルサイズ取得
+			// Get first and second file sizes
 			DWORD filesize[2];
-			for (int k = 0; k < 2; k++)
+			for (unsigned int k = 0; k < 2; k++)
 				pclArc->Read(&filesize[k], 4);
 
-			for (int k = 0; k < 2; k++) {
-				// ファイルサイズが0だったらスキップ
+			for (unsigned int k = 0; k < 2; k++)
+			{
+				// Skip file if the filesize is 0
 				if (filesize[k] == 0)
 					continue;
 
-				// ファイル名取得
+				// Get filename
 				TCHAR szFileName[_MAX_FNAME];
 				_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), ctFile++);
 
-				// リストビューに追加
+				// Add file to listview
 				SFileInfo infFile;
 				infFile.name = szFileName;
 				infFile.sizeCmp = filesize[k];

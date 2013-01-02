@@ -1,12 +1,12 @@
 
 #pragma		once
 
-#define		YCSTRINGT_BUFFERSIZE_ALIGNMENT				64	// バッファのアライメント
+#define		YCSTRINGT_BUFFERSIZE_ALIGNMENT				64	// Buffer alignment
 #define		YCSTRINGT_OFFSET_BUFFERSIZE					16
 #define		YCSTRINGT_OFFSET_LENGTH						12
 
 //----------------------------------------------------------------------------------------
-//-- 基本文字列クラス --------------------------------------------------------------------
+//-- Basic String Class ------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
 class	YCBaseString
@@ -23,7 +23,7 @@ public:
 };
 
 //----------------------------------------------------------------------------------------
-//-- テンプレート文字列クラス ------------------------------------------------------------
+//-- String Class Template ---------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
 // 可変長引数に渡すため、仮想関数を作ってはいけない
@@ -39,7 +39,7 @@ private:
 
 public:
 
-	// コンストラクタ
+	// Constructor
 
 											YCStringT();
 											YCStringT( const char* pszSrc );
@@ -51,11 +51,11 @@ public:
 											YCStringT( const YCStringT<TYPE>& rfclsSrc );
 											YCStringT( const YCStringT<TYPE>& rfclsSrc, int nCount );
 
-	// デストラクタ
+	// Destructor
 
 											~YCStringT();	// 仮想関数にすると__vfptrの存在により可変長引数に渡せなくなる
 
-	// 代入
+	// Assignment
 
 	BOOL									LoadString( UINT uID );
 
@@ -66,7 +66,7 @@ public:
 	void									Copy( const wchar_t* pwszSrc, int nLength );
 	void									Copy( const wchar_t& rfwcSrc );
 
-	// 追加
+	// Adding
 
 	void									Append( const char* pszAppend );
 	void									Append( const char* pszAppend, int nLength );
@@ -75,17 +75,17 @@ public:
 	void									Append( const wchar_t* pwszAppend, int nLength );
 	void									Append( const wchar_t& rfwcAppend );
 
-	// 書式付きデータの設定
+	// Format data
 
 	void									Format( const TYPE* pszFormat, ... );
 	void									AppendFormat( const TYPE* pszFormat, ... );
 
-	// 挿入
+	// Insert
 
 	int										Insert( int nIndex, const TYPE* pszInsert );
 	int										Insert( int nIndex, const TYPE& rfcInsert );
 
-	// 削除
+	// Deleting
 
 	void									Empty();
 
@@ -106,17 +106,17 @@ public:
 	YCStringT<TYPE>&						TrimRight( const TYPE* pszTrim );
 	YCStringT<TYPE>&						TrimRight( const TYPE& rfcTrim );
 
-	// 置換
+	// Replacing
 
 	int										Replace( const TYPE* pszOld, const TYPE* pszNew );
 	int										Replace( const TYPE& rfcOld, const TYPE& rfcNew );
 
-	// 小文字大文字変換
+	// Uppercase - Lowercase
 
 	YCStringT<TYPE>&						MakeLower();
 	YCStringT<TYPE>&						MakeUpper();
 
-	// 比較
+	// Comparison
 
 	int										Compare( const char* pszSrc ) const;
 	int										Compare( const char& rfcSrc ) const;
@@ -128,7 +128,7 @@ public:
 	int										CompareNoCase( const wchar_t* pwszSrc ) const;
 	int										CompareNoCase( const wchar_t& rfwcSrc ) const;
 
-	// 検索
+	// Searching
 
 	int										Find( const TYPE* pszSub, int nStart = 0 ) const;
 	int										Find( const TYPE& rfcSub, int nStart = 0 ) const;
@@ -136,30 +136,30 @@ public:
 	int										ReverseFind( const TYPE* pszSub ) const;
 	int										ReverseFind( const TYPE& rfcSub ) const;
 
-	// 抽出
+	// Extraction
 
 	YCStringT<TYPE>							Left( int nCount ) const;
 	YCStringT<TYPE>							Right( int nCount ) const;
 	YCStringT<TYPE>							Mid( int nFirst ) const;
 	YCStringT<TYPE>							Mid( int nFirst, int nCount ) const;
 
-	// 文字列バッファの取得
+	// Gets a string buffer
 
 	TYPE*									GetBuffer( int nBufferSize );
 
-	// 文字列バッファのポインタの取得
+	// Gets a string buffer pointer
 
 	inline	const TYPE*						GetString() const;
 
-	// 文字列の長さの取得
+	// Gets the length of the string
 
 	inline	int								GetLength() const;
 
-	// 文字列が空かどうか調べる
+	// Determine if a string is empty
 
 	bool									IsEmpty() const;
 
-	// パス関連
+	// Path-related
 
 	void									RenameExtension( const TYPE* ptSrc );
 
@@ -170,7 +170,7 @@ public:
 	int										GetFileExtIndex() const;
 	YCStringT<TYPE>							GetDirPath() const;
 
-	// 代入演算子
+	// Assignment operator
 
 	YCStringT<TYPE>&						operator=( const char* pszSrc );
 	YCStringT<TYPE>&						operator=( const char& rfcSrc );
@@ -178,7 +178,7 @@ public:
 	YCStringT<TYPE>&						operator=( const wchar_t& rfwcSrc );
 	YCStringT<TYPE>&						operator=( const YCStringT<TYPE>& rfclsSrc );
 
-	// +演算子
+	// + Operator
 
 	YCStringT<TYPE>							operator+( const char* pszAppend ) const;
 	YCStringT<TYPE>							operator+( const char& rfcAppend ) const;
@@ -186,7 +186,7 @@ public:
 	YCStringT<TYPE>							operator+( const wchar_t& rfwcAppend ) const;
 	YCStringT<TYPE>							operator+( const YCStringT<TYPE>& rfclsAppend ) const;
 
-	// +演算子(外部関数)
+	// + Operator (External functions)
 
 	template<class TYPE>
 	friend	YCStringT<TYPE>					operator+( const char* pszSrc, const YCStringT<TYPE>& rfclsAppend );
@@ -200,7 +200,7 @@ public:
 	template<class TYPE>
 	friend	YCStringT<TYPE>					operator+( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsAppend );
 
-	// +=演算子
+	// += Operator
 
 	YCStringT<TYPE>&						operator+=( const char* pszAppend );
 	YCStringT<TYPE>&						operator+=( const char& rfcAppend );
@@ -208,7 +208,7 @@ public:
 	YCStringT<TYPE>&						operator+=( const wchar_t& rfwcAppend );
 	YCStringT<TYPE>&						operator+=( const YCStringT<TYPE>& rfclsAppend );
 
-	// ==演算子
+	// == Operator
 
 	bool									operator==( const char* pszSrc ) const;
 	bool									operator==( const char& rfcSrc ) const;
@@ -216,7 +216,7 @@ public:
 	bool									operator==( const wchar_t& rfwcSrc ) const;
 	bool									operator==( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// ==演算子(外部関数)
+	// == Operator(External functions)
 
 	template<class TYPE>
 	friend	bool							operator==( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -230,7 +230,7 @@ public:
 	template<class TYPE>
 	friend	bool							operator==( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// !=演算子
+	// != Operator
 
 	bool									operator!=( const char* pszSrc ) const;
 	bool									operator!=( const char& rfcSrc ) const;
@@ -238,7 +238,7 @@ public:
 	bool									operator!=( const wchar_t& rfwcSrc ) const;
 	bool									operator!=( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// !=演算子(外部関数)
+	// != Operator (External functions)
 
 	template<class TYPE>
 	friend	bool							operator!=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -252,13 +252,13 @@ public:
 	template<class TYPE>
 	friend	bool							operator!=( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// <演算子
+	// < Operator
 
 	bool									operator<( const char* pszSrc ) const;
 	bool									operator<( const wchar_t* pwszSrc ) const;
 	bool									operator<( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// <演算子(外部関数)
+	// < Operator(External functions)
 
 	template<class TYPE>
 	friend	bool							operator<( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -266,13 +266,13 @@ public:
 	template<class TYPE>
 	friend	bool							operator<( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// <=演算子
+	// <= Operator
 
 	bool									operator<=( const char* pszSrc ) const;
 	bool									operator<=( const wchar_t* pwszSrc ) const;
 	bool									operator<=( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// <=演算子(外部関数)
+	// <= Operator (External functions)
 
 	template<class TYPE>
 	friend	bool							operator<=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -280,13 +280,13 @@ public:
 	template<class TYPE>
 	friend	bool							operator<=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// >演算子
+	// > Operator
 
 	bool									operator>( const char* pszSrc ) const;
 	bool									operator>( const wchar_t* pwszSrc ) const;
 	bool									operator>( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// >演算子(外部関数)
+	// > Operator(External functions)
 
 	template<class TYPE>
 	friend	bool							operator>( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -294,13 +294,13 @@ public:
 	template<class TYPE>
 	friend	bool							operator>( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// >=演算子
+	// >= Operator
 
 	bool									operator>=( const char* pszSrc ) const;
 	bool									operator>=( const wchar_t* pwszSrc ) const;
 	bool									operator>=( const YCStringT<TYPE>& rfclsSrc ) const;
 
-	// >=演算子(外部関数)
+	// >= Operator(External functions)
 
 	template<class TYPE>
 	friend	bool							operator>=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
@@ -308,12 +308,12 @@ public:
 	template<class TYPE>
 	friend	bool							operator>=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
-	// []演算子
+	// [] Operator
 
 	inline	TYPE&							operator[]( int nPos );
 	inline	const TYPE&						operator[]( int nPos ) const;
 
-	// const TYPE*演算子
+	// const TYPE* Operator
 
 	inline									operator const TYPE*() const;
 
@@ -336,7 +336,7 @@ typedef	YCStringT<char>									YCStringA;
 typedef	YCStringT<wchar_t>								YCStringW;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT()
 {
@@ -346,10 +346,10 @@ template<class TYPE> YCStringT<TYPE>::YCStringT()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const char*			pszSrc							// 初期値
+	const char*			pszSrc							// Initial value
 	)
 {
 	m_ptString = NULL;
@@ -358,11 +358,11 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const char*			pszSrc,							// 初期値
-	int					nCount							// コピーする長さ
+	const char*			pszSrc,							// Initial value
+	int					nCount							// Length to copy
 	)
 {
 	m_ptString = NULL;
@@ -371,10 +371,10 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const char&			rfcSrc							// 初期値
+	const char&			rfcSrc							// Initial value
 	)
 {
 	m_ptString = NULL;
@@ -383,10 +383,10 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const wchar_t*		pwszSrc							// 初期値
+	const wchar_t*		pwszSrc							// Initial value
 	)
 {
 	m_ptString = NULL;
@@ -395,11 +395,11 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const wchar_t*		pwszSrc,						// 初期値
-	int					nCount							// コピーする長さ
+	const wchar_t*		pwszSrc,						// Initial value
+	int					nCount							// Length to copy
 	)
 {
 	m_ptString = NULL;
@@ -408,10 +408,10 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コンストラクタ
+//	Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const wchar_t&		rfwcSrc							// 初期値
+	const wchar_t&		rfwcSrc							// Initial value
 	)
 {
 	m_ptString = NULL;
@@ -420,10 +420,10 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	コピーコンストラクタ
+//	Copy constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
-	const YCStringT<TYPE>&	rfclsSrc					// コピー元文字列クラス
+	const YCStringT<TYPE>&	rfclsSrc					// Source string class
 	)
 {
 	m_ptString = NULL;
@@ -432,7 +432,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デストラクタ
+//	Destructor
 
 template<class TYPE> YCStringT<TYPE>::~YCStringT()
 {
@@ -440,20 +440,20 @@ template<class TYPE> YCStringT<TYPE>::~YCStringT()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列リソースを読み込む
+//	Reads a string resource
 
 template<class TYPE> BOOL YCStringT<TYPE>::LoadString(
-	UINT				uID								// リソースID
+	UINT				uID								// Resource ID
 	)
 {
 	return	::LoadString( ::GetModuleHandle( NULL ), uID, GetBuffer( 1024 ), 1024 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の代入
+//	Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const char*			pszSrc							// コピー元文字列
+	const char*			pszSrc							// Source string
 	)
 {
 	TYPE*				ptString;
@@ -462,7 +462,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nSrcLength = lstrlenA( pszSrc );
 
@@ -473,7 +473,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nSrcLength = GetBaseTypeLength( pszSrc );
 
@@ -488,11 +488,11 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の代入
+//	Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const char*			pszSrc,							// コピー元文字列
-	int					nCount							// コピーする長さ
+	const char*			pszSrc,							// Source string
+	int					nCount							// Length to copy
 	)
 {
 	TYPE*				ptString;
@@ -501,7 +501,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nSrcLength = nCount;
 
@@ -512,7 +512,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nSrcLength = GetBaseTypeLength( pszSrc, nCount );
 
@@ -527,10 +527,10 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の代入
+//	Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const char&			rfcSrc							// コピー元文字
+	const char&			rfcSrc							// Source string
 	)
 {
 	char				szSrc[2];
@@ -542,10 +542,10 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の代入
+//	Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const wchar_t*		pwszSrc							// コピー元文字列
+	const wchar_t*		pwszSrc							// Source string
 	)
 {
 	TYPE*				ptString;
@@ -554,7 +554,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nSrcLength = GetBaseTypeLength( pwszSrc );
 
@@ -565,7 +565,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nSrcLength = lstrlenW( pwszSrc );
 

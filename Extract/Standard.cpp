@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../Arc/LZSS.h"
@@ -9,13 +8,13 @@
 #include	"Standard.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CStandard::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
-	// ファイル情報格納
+	// Get file info
 
 	SFileInfo			stFileInfo;
 
@@ -31,10 +30,10 @@ BOOL	CStandard::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CStandard::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeLZSS( pclArc ) )
@@ -66,10 +65,10 @@ BOOL	CStandard::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSSのデコード
+//	LZSS Decoding
 
 BOOL	CStandard::DecodeLZSS(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	CLZSS				clLZSS;
@@ -78,10 +77,10 @@ BOOL	CStandard::DecodeLZSS(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	zlibのデコード
+//	zlib Decoding
 
 BOOL	CStandard::DecodeZlib(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	CZlib				clZlib;
@@ -90,10 +89,10 @@ BOOL	CStandard::DecodeZlib(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	AHXのデコード
+//	AHX Decoding
 
 BOOL	CStandard::DecodeAhx(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	CAhx				clAHX;
@@ -102,10 +101,10 @@ BOOL	CStandard::DecodeAhx(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	画像のデコード
+//	Image Decoding
 
 BOOL	CStandard::DecodeImage(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	CImage				clImage;
@@ -114,10 +113,10 @@ BOOL	CStandard::DecodeImage(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Ogg Vorbisのデコード
+//	Ogg Vorbis Decoding
 
 BOOL	CStandard::DecodeOgg(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	COgg				clOgg;
@@ -126,10 +125,10 @@ BOOL	CStandard::DecodeOgg(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	抽出
+//	Extraction
 
 BOOL	CStandard::Extract(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	pclArc->OpenFile();

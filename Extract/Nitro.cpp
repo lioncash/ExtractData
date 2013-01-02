@@ -34,44 +34,45 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "\x01\0\0\0", 4) != 0)
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(&ctFile, 4);
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD index_size;
 	pclArc->Read(&index_size, 4);
 
-	// 圧縮インデックスサイズ取得
+	// Get compressed index size
 	DWORD index_compsize;
 	pclArc->Read(&index_compsize, 4);
 
-	// バッファ確保
+	// Ensure buffer exists
 	YCMemory<BYTE> z_index(index_compsize);
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 
-	// 圧縮インデックス取得
+	// Get compressed index
 	pclArc->Read(&z_index[0], index_compsize);
 
-	// インデックス取得
+	// Get index
 	CZlib zlib;
 	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
 
 	DWORD offset = 0x10 + index_compsize;
 
-	for (int i = 0; i < (int)ctFile; i++) {
+	for (int i = 0; i < (int)ctFile; i++)
+	{
 		SFileInfo infFile;
 
-		// ファイル名取得
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		DWORD len = *(LPDWORD)&pIndex[0];
 		memcpy(szFileName, &pIndex[4], len);
 		szFileName[len] = _T('\0');
 		pIndex += 4 + len;
 
-		infFile.start = *(LPDWORD)&pIndex[0] + offset; // 開始アドレスが0を基準にして始まっているので補正
+		infFile.start = *(LPDWORD)&pIndex[0] + offset; // Correction because it starts with a starting address relative to 0
 		infFile.sizeOrg = *(LPDWORD)&pIndex[4];
 		DWORD bCmp = *(LPDWORD)&pIndex[12];
 		infFile.sizeCmp = *(LPDWORD)&pIndex[16];
@@ -79,7 +80,7 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 			infFile.sizeCmp = infFile.sizeOrg;
 		pIndex += 20;
 
-		// リストビューに追加
+		// Add file to listview
 		infFile.name = szFileName;
 		infFile.end = infFile.start + infFile.sizeCmp;
 		if (bCmp) infFile.format = _T("zlib");
@@ -91,10 +92,10 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	斬魔大聖デモンベインの*.pakのファイル情報を取得する関数
+//	Function to get file information from Demonbane .pak files
 
 BOOL	CNitro::MountPak2(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pak") )
@@ -107,36 +108,36 @@ BOOL	CNitro::MountPak2(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 4 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// インデックスサイズ取得
+	// Get index size
 
 	DWORD				dwIndexSize;
 
 	pclArc->Read( &dwIndexSize, 4 );
 
-	// 圧縮インデックスサイズ取得
+	// Get compressed index size
 
 	DWORD				dwIndexCompSize;
 
 	pclArc->Read( &dwIndexCompSize, 4 );
 
-	// バッファ確保
+	// Ensure buffers exist
 
 	YCMemory<BYTE>		clmCompIndex( dwIndexCompSize );
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
-	// 圧縮インデックス取得
+	// Get compressed index
 
 	pclArc->SeekHed( 0x114 );
 	pclArc->Read( &clmCompIndex[0], dwIndexCompSize );
 
-	// インデックス取得
+	// Get index
 
 	CZlib				clZlib;
 
@@ -149,7 +150,7 @@ BOOL	CNitro::MountPak2(
 	{
 		SFileInfo			stFileInfo;
 
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[_MAX_FNAME];
 
@@ -160,11 +161,11 @@ BOOL	CNitro::MountPak2(
 
 		dwIndexPtr += 4 + dwFileNameLength;
 
-		// フラグの取得
+		// Get flags
 
 		DWORD				dwFlags = *(DWORD*) &clmIndex[dwIndexPtr + 12];
 
-		// リストビューに追加
+		// Add to listview
 
 		stFileInfo.name = szFileName;
 		stFileInfo.start = *(DWORD*) &clmIndex[dwIndexPtr + 0] + dwOffset;
@@ -200,52 +201,55 @@ BOOL CNitro::MountPak3(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "\x03\0\0\0", 4) != 0)
 		return FALSE;
 
-	// シグネチャ読み込み
+	// Read signature
 	BYTE sig[256];
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(sig, sizeof(sig));
 
-	// 復号キー生成
+	// Generate decryption key
 	DWORD key = 0;
-	for (int i = 0; i < 256; i++) {
+	for (unsigned int i = 0; i < 256; i++)
+	{
 		if (sig[i] == 0)
 			break;
+		
 		key *= 0x89;
 		key += sig[i];
 	}
 
-	// ヘッダ読み込み
+	// Read header
 	BYTE header[16];
 	pclArc->Read(header, sizeof(header));
 
-	// 圧縮インデックスサイズ取得
+	// Get compressed index size
 	DWORD index_compsize = *(LPDWORD)&header[0] ^ *(LPDWORD)&header[12];
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD index_size = *(LPDWORD)&header[4] ^ key;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile = *(LPDWORD)&header[8] ^ key;
 
-	// バッファ確保
+	// Ensure buffer exists
 	YCMemory<BYTE> z_index(index_compsize);
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 
-	// 圧縮インデックス取得
+	// Get compressed index
 	pclArc->Read(&z_index[0], index_compsize);
 
-	// インデックス取得
+	// Get index
 	CZlib zlib;
 	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
 
 	DWORD offset = 0x114 + index_compsize;
 	DWORD FileEnd_prev = 0;
 
-	for (int i = 0; i < (int)ctFile; i++) {
+	for (int i = 0; i < (int)ctFile; i++)
+	{
 		SFileInfo infFile;
 
-		// ファイル名取得
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		DWORD len = *(LPDWORD)&pIndex[0];
 		memcpy(szFileName, &pIndex[4], len);
@@ -258,13 +262,15 @@ BOOL CNitro::MountPak3(CArcFile* pclArc)
 		infFile.sizeOrg = *(LPDWORD)&pIndex[4] ^ infFile.key;
 		DWORD bCmp = *(LPDWORD)&pIndex[12] ^ infFile.key;
 		infFile.sizeCmp = *(LPDWORD)&pIndex[16] ^ infFile.key;
+		
 		if (infFile.sizeCmp == 0)
 			infFile.sizeCmp = infFile.sizeOrg;
+		
 		pIndex += 20;
 
-		// リストビューに追加
+		// Add to listview
 		infFile.name = szFileName;
-		infFile.start += offset; // 開始アドレスが0を基準にして始まっているので補正
+		infFile.start += offset; // Correction because it starts with a starting address relative to 0
 		infFile.end = infFile.start + infFile.sizeCmp;
 		if (bCmp) infFile.format = _T("zlib");
 		infFile.title = _T("Pak3");
@@ -276,7 +282,7 @@ BOOL CNitro::MountPak3(CArcFile* pclArc)
 	return TRUE;
 }
 
-// 機神飛翔デモンベインの*.pakのファイル情報を取得する関数
+// Function to get file information from Demonbane .pak files.
 BOOL CNitro::MountPak4(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pak"))
@@ -284,52 +290,55 @@ BOOL CNitro::MountPak4(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "\x04\0\0\0", 4) != 0)
 		return FALSE;
 
-	// シグネチャ読み込み
+	// Read signature
 	BYTE sig[256];
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(sig, sizeof(sig));
 
-	// 復号キー生成
+	// Generate decryption key
 	DWORD key = 0;
-	for (int i = 0; i < 256; i++) {
+	for (unsigned int i = 0; i < 256; i++)
+	{
 		if (sig[i] == 0)
 			break;
+		
 		key *= 0x89;
 		key += sig[i];
 	}
 
-	// ヘッダ読み込み
+	// Read header
 	BYTE header[16];
 	pclArc->Read(header, sizeof(header));
 
-	// 圧縮インデックスサイズ取得
+	// Get compressed index size
 	DWORD index_compsize = *(LPDWORD)&header[0] ^ *(LPDWORD)&header[12];
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD index_size = *(LPDWORD)&header[4] ^ key;
 
-	// ファイル数取得
+	// Get file count 
 	DWORD ctFile = *(LPDWORD)&header[8] ^ key;
 
-	// バッファ確保
+	// Ensure buffers exist
 	YCMemory<BYTE> z_index(index_compsize);
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 
-	// 圧縮インデックス取得
+	// Get compressed index
 	pclArc->Read(&z_index[0], index_compsize);
 
-	// インデックス取得
+	// Get index
 	CZlib zlib;
 	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
 
 	DWORD offset = 0x114 + index_compsize;
 	DWORD FileEnd_prev = 0;
 
-	for (int i = 0; i < (int)ctFile; i++) {
+	for (int i = 0; i < (int)ctFile; i++)
+	{
 		SFileInfo infFile;
 
-		// ファイル名取得
+		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
 		DWORD len = *(LPDWORD)&pIndex[0];
 		memcpy(szFileName, &pIndex[4], len);
@@ -346,9 +355,9 @@ BOOL CNitro::MountPak4(CArcFile* pclArc)
 			infFile.sizeCmp = infFile.sizeOrg;
 		pIndex += 20;
 
-		// リストビューに追加
+		// Add to listview
 		infFile.name = szFileName;
-		infFile.start += offset; // 開始アドレスが0を基準にして始まっているので補正
+		infFile.start += offset; // Correction because it starts with a starting address relative to 0
 		infFile.end = infFile.start + infFile.sizeCmp;
 		if (bCmp) infFile.format = _T("zlib");
 		infFile.title = _T("Pak4");
@@ -367,49 +376,51 @@ BOOL CNitro::MountPK2(CArcFile* pclArc)
 
 	pclArc->Seek(4, FILE_BEGIN);
 
-	// ファイル名圧縮インデックスサイズ取得
+	// Get compressed filename index size
 	DWORD dwNameIndexSizeCmp;
 	pclArc->Read(&dwNameIndexSizeCmp, 4);
 
-	// ファイル名インデックスサイズ取得
+	// Get filename index size
 	DWORD dwNameIndexSizeOrg;
 	pclArc->Read(&dwNameIndexSizeOrg, 4);
 	dwNameIndexSizeOrg &= 0x00FFFFFF;
 
-	// バッファ確保
+	// Ensure buffers exist
 	YCMemory<BYTE> vbyNameIndexCmp(dwNameIndexSizeCmp);
 	YCMemory<BYTE> vbyNameIndexOrg(dwNameIndexSizeOrg);
 
-	// ファイル名圧縮インデックス取得
+	// Get compressed index filename
 	pclArc->Read(&vbyNameIndexCmp[0], dwNameIndexSizeCmp);
 
-	// ファイル名圧縮インデックス解凍
+	// Unzip compressed index filename
 	CZlib zlib;
 	zlib.Decompress(&vbyNameIndexOrg[0], dwNameIndexSizeOrg, &vbyNameIndexCmp[0], dwNameIndexSizeCmp);
 
-	// オフセットインデックスサイズ取得
+	// Get offset index size
 	DWORD dwOffsetIndexSize;
 	pclArc->Read(&dwOffsetIndexSize, 4);
 	pclArc->Seek(8, FILE_CURRENT);
 
-	// バッファ確保
+	// Ensure buffer exists
 	YCMemory<BYTE> vbyOffsetIndex(dwOffsetIndexSize);
 
-	// オフセットインデックス取得
+	// Get offset index
 	pclArc->Read(&vbyOffsetIndex[0], dwOffsetIndexSize);
 
 	LPBYTE pbyNameIndex = &vbyNameIndexOrg[0];
 	LPBYTE pbyOffsetIndex = &vbyOffsetIndex[0];
 
-	for (DWORD i = 0; ; i++) {
-		// インデックスからファイル名取得
+	for (DWORD i = 0; ; i++)
+	{
+		// Get filename from the index
 		char szFileName[MAX_PATH];
 		char* pszFileName = szFileName;
-		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0Dが終端文字となっている
-		pszFileName[-1] = '\0'; // 0x0Dを0x00に置換
+		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0D is a termination character
+		pszFileName[-1] = '\0'; // Substitute 0x0D for 0x00
 
-		if (i == 0) {
-			// 初回は "_*.PK2" という名前が入っているためスキップ
+		if (i == 0)
+		{
+			// Skip first file because is contains "_*.PK2"
 			continue;
 		}
 
@@ -423,8 +434,9 @@ BOOL CNitro::MountPK2(CArcFile* pclArc)
 
 		pbyOffsetIndex += 12;
 
-		if (memcmp(&pbyOffsetIndex[4], "DATA", 4) == 0) {
-			// 完了
+		if (memcmp(&pbyOffsetIndex[4], "DATA", 4) == 0)
+		{
+			// Done
 			break;
 		}
 	}
@@ -439,23 +451,24 @@ BOOL CNitro::MountN3Pk(CArcFile* pclArc)
 
 	pclArc->Seek(4, FILE_BEGIN);
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Read(&ctFile, 4);
 
 	pclArc->Seek(4, FILE_CURRENT);
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD dwIndexSize = 152 * ctFile;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> vbyIndex(dwIndexSize);
 	pclArc->Read(&vbyIndex[0], dwIndexSize);
 
 	LPBYTE pbyIndex = &vbyIndex[0];
 
-	for (DWORD i = 0; i < ctFile; i++) {
-		// ファイル名取得
+	for (DWORD i = 0; i < ctFile; i++)
+	{
+		// Get filename
 		YCString sFileName;
 		sFileName = (char*)&pbyIndex[22];
 		sFileName += _T("/");
@@ -482,27 +495,27 @@ BOOL CNitro::MountPck(CArcFile* pclArc)
 	if ((pclArc->GetArcExten() != _T(".pck")) || (memcmp(&pclArc->GetHed()[12], "\x00\x00\x00\x00", 4) != 0))
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Read(&ctFile, 4);
 
-	// オフセットインデックスサイズ取得
+	// Get offset index size
 	DWORD dwOffsetIndexSize = 12 * (ctFile - 1);
 
-	// ファイル名インデックスサイズ取得
+	// Get filename index size
 	DWORD dwNameIndexSize;
 	pclArc->Read(&dwNameIndexSize, 4);
 
 	pclArc->Seek(4, FILE_CURRENT);
 
-	// バッファ確保
+	// Ensure buffer exists
 	YCMemory<BYTE> vbyOffsetIndex(dwOffsetIndexSize);
 	YCMemory<BYTE> vbyNameIndex(dwNameIndexSize);
 
-	// オフセットインデックス取得
+	// Get offset index
 	pclArc->Read(&vbyOffsetIndex[0], dwOffsetIndexSize);
 
-	// ファイル名インデックス取得
+	// Get filename index
 	pclArc->Read(&vbyNameIndex[0], dwNameIndexSize);
 
 	LPBYTE pbyOffsetIndex = &vbyOffsetIndex[0];
@@ -510,15 +523,17 @@ BOOL CNitro::MountPck(CArcFile* pclArc)
 
 	DWORD dwOffset = 12 + dwOffsetIndexSize + dwNameIndexSize;
 
-	for (DWORD i = 0; i < ctFile; i++) {
-		// インデックスからファイル名取得
+	for (DWORD i = 0; i < ctFile; i++)
+	{
+		// Get the filename from the index
 		char szFileName[MAX_PATH];
 		char* pszFileName = szFileName;
-		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0Dが終端文字となっている
-		pszFileName[-1] = '\0'; // 0x0Dを0x00に置換
+		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0D is a termination character
+		pszFileName[-1] = '\0'; // substitue 0x0D for 0x00
 
-		if (i == 0) {
-			// 初回は "*.pck" という名前が入っているためスキップ
+		if (i == 0)
+		{
+			// Skip the first file since the name contains '.pck'
 			continue;
 		}
 
@@ -537,26 +552,28 @@ BOOL CNitro::MountPck(CArcFile* pclArc)
 }
 
 // 天使ノ二挺拳銃
+// This: http://www.nitroplus.co.jp/pc/lineup/into_07/
 BOOL CNitro::MountNpp(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".npp")) || (memcmp(pclArc->GetHed(), "nitP", 4) != 0))
 		return FALSE;
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(&ctFile, 4);
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from the file count
 	DWORD index_size = 144 * ctFile;
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 	pclArc->Read(pIndex, index_size);
 
-	for (int i = 0; i < (int)ctFile; i++) {
-		// インデックスからフォルダ名とファイル名取得
+	for (int i = 0; i < (int)ctFile; i++)
+	{
+		// Get folder and filename from the index
 		TCHAR szDir[64], szFileName[64];
 		memcpy(szDir, &pIndex[16], 64);
 		memcpy(szFileName, &pIndex[80], 64);
@@ -565,7 +582,7 @@ BOOL CNitro::MountNpp(CArcFile* pclArc)
 		lstrcpy(szFilePath, szDir);
 		PathAppend(szFilePath, szFileName);
 
-		// リストビューに追加
+		// Add to listview
 		SFileInfo infFile;
 		infFile.name = szFilePath;
 		infFile.start = *(LPDWORD)&pIndex[0];
@@ -588,17 +605,17 @@ BOOL CNitro::MountNpa(CArcFile* pclArc)
 
 	pclArc->Seek(25, FILE_BEGIN);
 
-	// ファイル数取得
+	// Get file count
 	DWORD ctFile;
 	pclArc->Read(&ctFile, 4);
 
 	pclArc->Seek(8, FILE_CURRENT);
 
-	// インデックスサイズ取得
+	// Get index size
 	DWORD dwIndexSize;
 	pclArc->Read(&dwIndexSize, 4);
 
-	// インデックス取得
+	// Get index
 	YCMemory<BYTE> vbyIndex(dwIndexSize);
 	pclArc->Read(&vbyIndex[0], dwIndexSize);
 
@@ -606,31 +623,34 @@ BOOL CNitro::MountNpa(CArcFile* pclArc)
 	DWORD dwOffset = 41 + dwIndexSize;
 	DWORD dwBaseKey = 0x87654321;
 
-	for (DWORD i = 0; i < ctFile; ) {
-		// ファイル名取得
+	for (DWORD i = 0; i < ctFile; )
+	{
+		// Get filename
 		char szFileName[MAX_PATH];
 		DWORD dwFileNameLen = *(LPDWORD)&pbyIndex[0];
 		memcpy(szFileName, &pbyIndex[4], dwFileNameLen);
 		szFileName[dwFileNameLen] = '\0';
 		pbyIndex += 4 + dwFileNameLen;
 
-		// ファイル名取得(体験版)
+		// Get filename(trial version)
 		//char szFileName[MAX_PATH];
 		//char* pszFileName = szFileName;
 		//while ((*pszFileName++ = *pbyIndex++) != '\0');
 
-		if (pbyIndex[0] == 1) {
-			// フォルダ
+		if (pbyIndex[0] == 1)
+		{
+			// Folder
 			pbyIndex += 17;
 			continue;
 		}
 
-		// キー取得
+		// Get key
 		DWORD dwKey = dwBaseKey;
 		DWORD dwKeyLen = strlen(szFileName);
 
 		for (DWORD j = 0; j < dwKeyLen; j++)
 			dwKey -= (BYTE)szFileName[j];
+		
 		dwKey *= dwKeyLen;
 
 		SFileInfo infFile;
@@ -676,28 +696,29 @@ BOOL CNitro::DecodePak1(CArcFile* pclArc)
 	if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) != 0)
 		return FALSE;
 
-	// 出力ファイル生成
+	// Create output file
 	pclArc->OpenScriptFile();
 
-	if (pInfFile->format == _T("zlib")) {
-		// zlib圧縮データ
-
-		// バッファ確保
+	// zlib compressed data
+	if (pInfFile->format == _T("zlib"))
+	{
+		// Ensure buffer exists
 		YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
 		YCMemory<BYTE> buf(pInfFile->sizeOrg);
 
-		// 読み込み
+		// Reading
 		pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
 
-		// 解凍
+		// Decompression
 		CZlib zlib;
 		zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
 
-		// 出力
+		// Output
 		pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
 	}
-	else {
-		// 無圧縮データ
+	else
+	{
+		// Uncompressed data
 		pclArc->ReadWrite();
 	}
 
@@ -711,8 +732,9 @@ BOOL CNitro::DecodePak3(CArcFile* pclArc)
 	if (pInfFile->title != _T("Pak3"))
 		return FALSE;
 
-	if (pInfFile->format == _T("BMP")) {
-		// 読み込み
+	if (pInfFile->format == _T("BMP"))
+	{
+		// Reading
 		YCMemory<BYTE> buf(pInfFile->sizeCmp);
 		pclArc->Read(&buf[0], pInfFile->sizeCmp);
 		DecryptPak3(&buf[0], pInfFile->sizeCmp, 0, pInfFile);
@@ -721,40 +743,44 @@ BOOL CNitro::DecodePak3(CArcFile* pclArc)
 		image.Init(pclArc, &buf[0]);
 		image.Write(pInfFile->sizeCmp);
 	}
-	else {
-		// 出力ファイル生成
+	else
+	{
+		// Create output file
 		if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) == 0)
 			pclArc->OpenScriptFile();
 		else
 			pclArc->OpenFile();
 
-		// zlib圧縮データ
-		if (pInfFile->format == _T("zlib")) {
-			// バッファ確保
+		// zlib compressed data
+		if (pInfFile->format == _T("zlib"))
+		{
+			// Ensure buffers exist
 			YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
 			YCMemory<BYTE> buf(pInfFile->sizeOrg);
 
-			// 読み込み
+			// Reading
 			pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
 
-			// 解凍
+			// Decompression
 			CZlib zlib;
 			zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
 
-			// 出力
+			// Output
 			DecryptPak3(&buf[0], pInfFile->sizeOrg, 0, pInfFile);
 			pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
 		}
-		else {
-			// バッファ確保
+		else
+		{
+			// Ensure buffers exist
 			DWORD BufSize = pclArc->GetBufSize();
 			YCMemory<BYTE> buf(BufSize);
 
-			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize) {
-				// バッファ調整
+			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize)
+			{
+				// Adjust buffer size
 				pclArc->SetBufSize(&BufSize, WriteSize);
 
-				// 出力
+				// Output
 				pclArc->Read(&buf[0], BufSize);
 				DecryptPak3(&buf[0], BufSize, WriteSize, pInfFile);
 				pclArc->WriteFile(&buf[0], BufSize);
@@ -772,8 +798,9 @@ BOOL CNitro::DecodePak4(CArcFile* pclArc)
 	if (pInfFile->title != _T("Pak4"))
 		return FALSE;
 
-	if (pInfFile->format == _T("BMP")) {
-		// 読み込み
+	if (pInfFile->format == _T("BMP"))
+	{
+		// Reading
 		YCMemory<BYTE> buf(pInfFile->sizeCmp);
 		pclArc->Read(&buf[0], pInfFile->sizeCmp);
 		DecryptPak4(&buf[0], pInfFile->sizeCmp, 0, pInfFile);
@@ -782,40 +809,44 @@ BOOL CNitro::DecodePak4(CArcFile* pclArc)
 		image.Init(pclArc, &buf[0]);
 		image.Write(pInfFile->sizeCmp);
 	}
-	else {
-		// 出力ファイル生成
+	else
+	{
+		// Create output file
 		if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) == 0)
 			pclArc->OpenScriptFile();
 		else
 			pclArc->OpenFile();
 
-		// zlib圧縮データ
-		if (pInfFile->format == _T("zlib")) {
-			// バッファ確保
+		// zlib compressed data
+		if (pInfFile->format == _T("zlib"))
+		{
+			// Ensure buffer exists
 			YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
 			YCMemory<BYTE> buf(pInfFile->sizeOrg);
 
-			// 読み込み
+			// Read
 			pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
 
-			// 解凍
+			// Decompression
 			CZlib zlib;
 			zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
 
-			// 出力
+			// Output
 			DecryptPak4(&buf[0], pInfFile->sizeOrg, 0, pInfFile);
 			pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
 		}
-		else {
-			// バッファ確保
+		else
+		{
+			// Ensure buffer exists
 			DWORD BufSize = pclArc->GetBufSize();
 			YCMemory<BYTE> buf(BufSize);
 
-			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize) {
-				// バッファ調整
+			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize)
+			{
+				// Adjust buffer size
 				pclArc->SetBufSize(&BufSize, WriteSize);
 
-				// 出力
+				// Output
 				pclArc->Read(&buf[0], BufSize);
 				DecryptPak4(&buf[0], BufSize, WriteSize, pInfFile);
 				pclArc->WriteFile(&buf[0], BufSize);
@@ -837,28 +868,31 @@ BOOL CNitro::DecodePK2(CArcFile* pclArc)
 	if (sFileExt != _T(".nps") && sFileExt != _T(".ini") && sFileExt != _T(".h") && sFileExt != _T(".txt"))
 		return FALSE;
 
-	// ファイルサイズ取得
+	// Get file size
 	DWORD dwSizeOrg;
 	pclArc->Read(&dwSizeOrg, 4);
 	dwSizeOrg &= 0x00FFFFFF;
 
-	// バッファ確保
+	// Ensure buffer exists
 	YCMemory<BYTE> vbyBufCmp(pInfFile->sizeCmp);
 	YCMemory<BYTE> vbyBufOrg(dwSizeOrg);
 
-	// 読み込み
+	// Reading
 	pclArc->Read(&vbyBufCmp[0], pInfFile->sizeCmp);
 
-	// 解凍
+	// Decompression
 	CZlib zlib;
 	zlib.Decompress(&vbyBufOrg[0], dwSizeOrg, &vbyBufCmp[0], pInfFile->sizeCmp);
 
-	if (sFileExt == _T(".nps")) {
-		// 拡張子をtxtに変換
+	if (sFileExt == _T(".nps"))
+	{
+		// Convert to .txt extension
 		pclArc->OpenScriptFile();
 	}
 	else
+	{
 		pclArc->OpenFile();
+	}
 
 	pclArc->WriteFile(&vbyBufOrg[0], dwSizeOrg);
 
@@ -873,7 +907,7 @@ BOOL CNitro::DecodeN3Pk(CArcFile* pclArc)
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 	YCString sFileExt = PathFindExtension(pInfFile->name);
 
-	// バッファ確保
+	// Ensure buffer exists
 	DWORD dwBufSize = pclArc->GetBufSize();
 	YCMemory<BYTE> vbyBuf(dwBufSize);
 
@@ -884,11 +918,12 @@ BOOL CNitro::DecodeN3Pk(CArcFile* pclArc)
 	else
 		pclArc->OpenFile();
 
-	for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize) {
-		// バッファ調整
+	for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize)
+	{
+		// Ensure buffer exists
 		pclArc->SetBufSize(&dwBufSize, dwWriteSize);
 
-		// 出力
+		// Output
 		pclArc->Read(&vbyBuf[0], dwBufSize);
 		DecryptN3Pk(&vbyBuf[0], dwBufSize, dwWriteSize, pInfFile, byKey);
 		pclArc->WriteFile(&vbyBuf[0], dwBufSize);
@@ -910,34 +945,37 @@ BOOL CNitro::DecodeNpa(CArcFile* pclArc)
 	else
 		pclArc->OpenFile();
 
-	if (pInfFile->format == _T("zlib")) {
-		// バッファ確保
+	if (pInfFile->format == _T("zlib"))
+	{
+		// Ensure buffers exist
 		YCMemory<BYTE> vbyBufCmp(pInfFile->sizeCmp);
 		YCMemory<BYTE> vbyBufOrg(pInfFile->sizeOrg);
 
-		// 読み込み
+		// Reading
 		pclArc->Read(&vbyBufCmp[0], pInfFile->sizeCmp);
 
-		// 復号
+		// Decryption
 		DecryptNpa(&vbyBufCmp[0], pInfFile->sizeCmp, 0, pInfFile);
 
-		// 解凍
+		// Decompression
 		CZlib zlib;
 		zlib.Decompress(&vbyBufOrg[0], pInfFile->sizeOrg, &vbyBufCmp[0], pInfFile->sizeCmp);
 
-		// 出力
+		// Output
 		pclArc->WriteFile(&vbyBufOrg[0], pInfFile->sizeOrg);
 	}
-	else {
-		// バッファ確保
+	else
+	{
+		// Ensure buffer exists
 		DWORD dwBufSize = pclArc->GetBufSize();
 		YCMemory<BYTE> vbyBuf(dwBufSize);
 
-		for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize) {
-			// バッファ調整
+		for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize)
+		{
+			// Adjust buffer size
 			pclArc->SetBufSize(&dwBufSize, dwWriteSize);
 
-			// 出力
+			// Output
 			pclArc->Read(&vbyBuf[0], dwBufSize);
 			DecryptNpa(&vbyBuf[0], dwBufSize, dwWriteSize, pInfFile);
 			pclArc->WriteFile(&vbyBuf[0], dwBufSize);
@@ -953,16 +991,16 @@ void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	if( pInfFile->format == _T("zlib") )
 	{
-		// 復号しない
+		// No decoding
 
 		return;
 	}
 
-	// 最大で先頭16バイトを復号する
+	// Decoding the first 16 bytes at most
 
 	size = (size < 16) ? size : 16;
 
-	// 復号
+	// Decoding
 
 	DWORD				dwTargetPtr = 0;
 
@@ -985,12 +1023,12 @@ void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	if( pInfFile->format != _T("zlib") )
 	{
-		// 先頭から1024バイトまで復号
+		// Decoding up to 1024 bytes from the beginning
 
 		size = (size < 1024) ? size : 1024;
 	}
 
-	// 復号
+	// Decoding
 
 	DWORD				dwTargetPtr = 0;
 
@@ -1048,7 +1086,7 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 	switch( pInfFile->type )
 	{
 	case	1:
-		// 全サイズ復号
+		// Decode all sizes
 
 		for( DWORD i = 0 ; i < size ; i++ )
 		{
@@ -1058,7 +1096,7 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 		break;
 
 	case	2:
-		// 先頭から1024バイトまで復号
+		// Decoding up to 1024 bytes from the beginning
 
 		size = (size < 1024) ? size : 1024;
 
@@ -1087,11 +1125,11 @@ void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFi
 
 	BYTE				btKey = (BYTE) (pInfFile->key & 0xFF);
 
-	// 先頭から4096バイトまで復号
+	// Decoding up to 4096 bytes from the beginning
 
 	size = (size < 4096) ? size : 4096;
 
-	// 復号
+	// Decoding
 
 	for( DWORD i = offset, j = 0 ; i < size ; i++, j++ )
 	{

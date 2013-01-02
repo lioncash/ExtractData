@@ -5,10 +5,10 @@
 #include	"Pajamas.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CPajamas::Mount(
-	CArcFile*			pclArc							// マウント
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountDat1( pclArc ) )
@@ -25,10 +25,10 @@ BOOL	CPajamas::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GAMEDAT PACKのマウント
+//	GAMEDAT PACK Mounting
 
 BOOL	CPajamas::MountDat1(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( (pclArc->GetArcExten() != _T(".dat")) && (pclArc->GetArcExten() != _T(".pak")) )
@@ -41,43 +41,43 @@ BOOL	CPajamas::MountDat1(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 12 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from file count
 
 	DWORD				dwIndexSize = dwFiles * 24;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル情報のインデックス取得
+	// Get index of the file information
 
 	DWORD				dwFileNameIndexSize = dwFiles << 4;
 
 	BYTE*				pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
 
-	// オフセット取得(開始アドレスが0から始まっているため補正用のオフセットが必要)
+	// Get offset (Required for correction when the starting address is zero-based)
 
 	DWORD				dwOffset = 16 + dwIndexSize;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		TCHAR				szFileName[16];
 
 		memcpy( szFileName, &clmbtIndex[dwIndexPtr], 16 );
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -97,10 +97,10 @@ BOOL	CPajamas::MountDat1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GAMEDAT PAC2のマウント
+//	GAMEDAT PAC2 Mounting
 
 BOOL	CPajamas::MountDat2(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".dat") )
@@ -113,43 +113,43 @@ BOOL	CPajamas::MountDat2(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 12 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from file count
 
 	DWORD				dwIndexSize = dwFiles * 40;
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
 	DWORD				dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-	// ファイル情報のインデックス取得
+	// Get index of the file information
 
 	DWORD				dwFileNameIndexSize = dwFiles << 5;
 
 	BYTE*				pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
 
-	// オフセット取得(開始アドレスが0から始まっているため補正用のオフセットが必要)
+	// Get offset (Required for correction when the starting address is zero-based)
 
 	DWORD				dwOffset = 16 + dwIndexSize;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		TCHAR				szFileName[32];
 
 		memcpy( szFileName, &clmbtIndex[dwIndexPtr], 32 );
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -169,10 +169,10 @@ BOOL	CPajamas::MountDat2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CPajamas::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeEPA( pclArc ) )
@@ -184,10 +184,10 @@ BOOL	CPajamas::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	EPAのデコード
+//	EPA Decoding
 
 BOOL	CPajamas::DecodeEPA(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -197,13 +197,13 @@ BOOL	CPajamas::DecodeEPA(
 		return	FALSE;
 	}
 
-	// ヘッダ読み込み
+	// Read header
 
 	BYTE				abtHeader[16];
 
 	pclArc->Read( abtHeader, sizeof(abtHeader) );
 
-	// 差分フラグ、色数、幅、高さ取得
+	// Difference flag, Number of colors, width, height
 
 	BYTE				btDiffFlag = abtHeader[3];
 	WORD				wBpp = abtHeader[4];
@@ -232,24 +232,24 @@ BOOL	CPajamas::DecodeEPA(
 	switch( btDiffFlag )
 	{
 	case	1:
-		// 通常
+		// Usual
 
 		break;
 
 	case	2:
-		// 差分
+		// Difference
 
 		pclArc->SeekCur( 40 );
 		break;
 
 	default:
-		// 不明
+		// Unknown
 
 		pclArc->SeekHed( pstFileInfo->start );
 		return	FALSE;
 	}
 
-	// パレットの読み込み
+	// Read palette
 
 	BYTE				abtPallet[768];
 
@@ -258,7 +258,7 @@ BOOL	CPajamas::DecodeEPA(
 		pclArc->Read( abtPallet, sizeof(abtPallet) );
 	}
 
-	// EPAデータ読み込み
+	// Read EPA data
 
 	DWORD				dwSrcSize = pstFileInfo->sizeCmp - 16;
 
@@ -271,7 +271,7 @@ BOOL	CPajamas::DecodeEPA(
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// BMPデータを格納する領域確保
+	// Secure area to store the BMP data
 
 	DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
 
@@ -279,11 +279,11 @@ BOOL	CPajamas::DecodeEPA(
 
 	ZeroMemory( &clmbtDst[0], dwDstSize );
 
-	// EPAを解凍
+	// Decompress EPA
 
 	DecompEPA( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize, lWidth );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -294,14 +294,14 @@ BOOL	CPajamas::DecodeEPA(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	EPAの解凍
+//	EPA Decompression
 
 BOOL	CPajamas::DecompEPA(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const void*			pvSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth							// 横幅
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination Size
+	const void*			pvSrc,							// Input/Compressed data
+	DWORD				dwSrcSize,						// Input/Compressed data size
+	long				lWidth							// Width
 	)
 {
 	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
@@ -310,7 +310,7 @@ BOOL	CPajamas::DecompEPA(
 	DWORD				dwSrcPtr = 0;
 	DWORD				dwDstPtr = 0;
 
-	// オフセットテーブル
+	// Offset table
 
 	const DWORD			adwOffsets[16] =
 	{
@@ -320,7 +320,7 @@ BOOL	CPajamas::DecompEPA(
 		(lWidth << 1) - 2, lWidth - 2, lWidth * 3, 4
 	};
 
-	// 解凍
+	// Decompression
 
 	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
 	{
@@ -342,7 +342,7 @@ BOOL	CPajamas::DecompEPA(
 
 				if( (dwDstPtr + dwLength) > dwDstSize )
 				{
-					// 出力バッファを超えてしまう
+					// Exceeds output buffer
 
 					dwLength = (dwDstSize - dwDstPtr);
 				}

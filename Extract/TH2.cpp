@@ -1,4 +1,3 @@
-
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../Arc/LZSS.h"
@@ -7,10 +6,10 @@
 #include	"TH2.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CTH2::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountKCAP( pclArc ) )
@@ -37,10 +36,10 @@ BOOL	CTH2::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	KCAPのマウント
+//	KCAP Mounting
 
 BOOL	CTH2::MountKCAP(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten().CompareNoCase( _T(".pak") ) != 0 )
@@ -53,18 +52,18 @@ BOOL	CTH2::MountKCAP(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 4 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from file count
 
 	DWORD				dwIndexSize = (dwFiles * 36);
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
@@ -76,7 +75,7 @@ BOOL	CTH2::MountKCAP(
 	{
 		DWORD				dwType = *(DWORD*) &clmIndex[dwIndexPtr + 0];
 
-		// ごみファイルスキップ
+		// Skip garbage files
 
 		if( dwType == 0xCCCCCCCC )
 		{
@@ -84,7 +83,7 @@ BOOL	CTH2::MountKCAP(
 			continue;
 		}
 
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[25];
 
@@ -92,7 +91,7 @@ BOOL	CTH2::MountKCAP(
 
 		szFileName[24] = '\0';
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -117,10 +116,10 @@ BOOL	CTH2::MountKCAP(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LACのマウント
+//	LAC Mounting
 
 BOOL	CTH2::MountLAC(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten().CompareNoCase( _T(".pak") ) != 0 )
@@ -133,18 +132,18 @@ BOOL	CTH2::MountLAC(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	DWORD				dwFiles;
 
 	pclArc->SeekHed( 4 );
 	pclArc->Read( &dwFiles, 4 );
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from file count
 
 	DWORD				dwIndexSize = (dwFiles * 40);
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
@@ -154,7 +153,7 @@ BOOL	CTH2::MountLAC(
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[33];
 
@@ -167,7 +166,7 @@ BOOL	CTH2::MountLAC(
 			szFileName[j] ^= 0xFF;
 		}
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -186,10 +185,10 @@ BOOL	CTH2::MountLAC(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//	Dpl mounting
 
 BOOL	CTH2::MountDpl(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".a") )
@@ -202,18 +201,18 @@ BOOL	CTH2::MountDpl(
 		return	FALSE;
 	}
 
-	// ファイル数取得
+	// Get file count
 
 	WORD				wFiles;
 
 	pclArc->SeekHed( 2 );
 	pclArc->Read( &wFiles, 2 );
 
-	// ファイル数からインデックスサイズ取得
+	// Get index size from file count
 
 	DWORD				dwIndexSize = (wFiles << 5);
 
-	// インデックス取得
+	// Get index
 
 	YCMemory<BYTE>		clmIndex( dwIndexSize );
 
@@ -224,7 +223,7 @@ BOOL	CTH2::MountDpl(
 
 	for( WORD i = 0 ; i < wFiles ; i++ )
 	{
-		// ファイル名取得
+		// Get filename
 
 		char				szFileName[25];
 
@@ -232,7 +231,7 @@ BOOL	CTH2::MountDpl(
 
 		szFileName[24] = '\0';
 
-		// リストビューに追加
+		// Add to listview
 
 		SFileInfo			stFileInfo;
 
@@ -251,10 +250,10 @@ BOOL	CTH2::MountDpl(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	WMVのマウント
+//	WMV Mounting
 
 BOOL	CTH2::MountWMV(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".wmv") )
@@ -271,10 +270,10 @@ BOOL	CTH2::MountWMV(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CTH2::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeWMV( pclArc ) )
@@ -291,10 +290,10 @@ BOOL	CTH2::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	WMVのデコード
+//	WMV Decoding
 
 BOOL	CTH2::DecodeWMV(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -309,13 +308,13 @@ BOOL	CTH2::DecodeWMV(
 		return	FALSE;
 	}
 
-	// バッファの取得
+	// Get buffer
 
 	DWORD				dwBufferSize = pclArc->GetBufSize();
 
 	YCMemory<BYTE>		clmBuffer( dwBufferSize );
 
-	// 出力
+	// Output
 
 	pclArc->OpenFile();
 
@@ -330,10 +329,10 @@ BOOL	CTH2::DecodeWMV(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	その他ファイルのデコード
+//	Decoding other files
 
 BOOL	CTH2::DecodeEtc(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -351,30 +350,30 @@ BOOL	CTH2::DecodeEtc(
 	YCMemory<BYTE>		clmDst;
 	DWORD				dwDstSize;
 
-	// LZ展開
+	// LZ Decoding
 
 	if( pstFileInfo->format == _T("LZ") )
 	{
-		// 入力サイズ取得
+		// Get input size
 
 		DWORD				dwSrcSize = (pstFileInfo->sizeCmp - 8);
 
-		// 出力サイズ取得
+		// Get output size
 
 		pclArc->SeekCur( 4 );
 		pclArc->Read( &dwDstSize, 4 );
 
-		// バッファ確保
+		// Ensure buffers exist
 
 		YCMemory<BYTE>		clmSrc( dwSrcSize );
 
 		clmDst.resize( dwDstSize );
 
-		// 読み込み
+		// Read
 
 		pclArc->Read( &clmSrc[0], dwSrcSize );
 
-		// LZSS解凍
+		// LZSS Decompression
 
 		CLZSS				clLZSS;
 
@@ -382,7 +381,7 @@ BOOL	CTH2::DecodeEtc(
 	}
 	else
 	{
-		// 無圧縮
+		// Uncompressed
 
 		dwDstSize = pstFileInfo->sizeOrg;
 
@@ -412,7 +411,7 @@ BOOL	CTH2::DecodeEtc(
 	}
 	else
 	{
-		// その他
+		// Other
 
 		pclArc->OpenFile();
 		pclArc->WriteFile( &clmDst[0], dwDstSize );

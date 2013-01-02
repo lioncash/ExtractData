@@ -546,11 +546,20 @@ void CTlg::TVPTLG6DecodeLineGeneric(LPDWORD prevline, DWORD *curline, DWORD widt
     for (DWORD i = start_block; i < block_limit; i++)
     {
         int w = width - i * TVP_TLG6_W_BLOCK_SIZE;
-        if (w > TVP_TLG6_W_BLOCK_SIZE) w = TVP_TLG6_W_BLOCK_SIZE;
-        int ww = w;
-        if (step == -1) in += ww - 1;
-        if (i & 1) in += oddskip * ww;
-        switch (filtertypes[i]) {
+        
+		if (w > TVP_TLG6_W_BLOCK_SIZE) 
+			w = TVP_TLG6_W_BLOCK_SIZE;
+        
+		int ww = w;
+        
+		if (step == -1) 
+			in += ww - 1;
+        
+		if (i & 1) 
+			in += oddskip * ww;
+        
+		switch (filtertypes[i])
+		{
 #define IA	(char)((*in >> 24) & 0xff)
 #define IR	(char)((*in >> 16) & 0xff)
 #define IG  (char)((*in >>  8) & 0xff)
@@ -597,11 +606,13 @@ DWORD CTlg::make_gt_mask(DWORD a, DWORD b)
     tmp = ((tmp >> 7) + 0x7f7f7f7f) ^ 0x7f7f7f7f;
     return tmp;
 }
+
 DWORD CTlg::packed_bytes_add(DWORD a, DWORD b)
 {
     DWORD tmp = (((a & b)<<1) + ((a ^ b) & 0xfefefefe) ) & 0x01010100;
     return a + b - tmp;
 }
+
 DWORD CTlg::med2(DWORD a, DWORD b, DWORD c)
 {
     /* Do Median Edge Detector   thx, Mr. sugi  at    kirikiri.info */
@@ -614,6 +625,7 @@ DWORD CTlg::med2(DWORD a, DWORD b, DWORD c)
     DWORD m = ~(n | nn);
     return (n & aa) | (nn & bb) | ((bb & m) - (c & m) + (aa & m));
 }
+
 DWORD CTlg::med(DWORD a, DWORD b, DWORD c, DWORD v)
 {
     return packed_bytes_add(med2(a, b, c), v);
@@ -636,10 +648,13 @@ void CTlg::InitTLG6Table()
     {
         int cnt = 0;
         int j;
-        for (j = 1; j != TVP_TLG6_LeadingZeroTable_SIZE && !(i & j);
+        
+		for (j = 1; j != TVP_TLG6_LeadingZeroTable_SIZE && !(i & j);
             j <<= 1, cnt++);
-        cnt++;
-        if (j == TVP_TLG6_LeadingZeroTable_SIZE) cnt = 0;
+        
+		cnt++;
+        
+		if (j == TVP_TLG6_LeadingZeroTable_SIZE) cnt = 0;
         TVPTLG6LeadingZeroTable[i] = cnt;
     }
 

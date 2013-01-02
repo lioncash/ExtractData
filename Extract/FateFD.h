@@ -3,7 +3,8 @@
 class CFateFD : public CExtractBase {
 protected:
 	// Decode Info
-	struct DecodeInfo {
+	struct DecodeInfo
+	{
 		BYTE key;
 		DWORD size;
 	};

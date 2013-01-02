@@ -1,12 +1,11 @@
-
 #include	"stdafx.h"
 #include	"Oyatu.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	対応しているか調べる
+//	Determine if file is supported
 
 BOOL	COyatu::IsSupported(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( !pclArc->CheckExe( _T("MEBIUS35.DAT") ) )
@@ -14,7 +13,7 @@ BOOL	COyatu::IsSupported(
 		return	FALSE;
 	}
 
-	// MEBIUS35.DATの読み込み
+	// Read MEBIUS35.DAT
 
 	TCHAR				szDatPath[MAX_PATH];
 
@@ -38,26 +37,26 @@ BOOL	COyatu::IsSupported(
 		return	FALSE;
 	}
 
-	// 判定
+	// The decision
 
 	return	(strcmp( szGameTitle, "おやつのじかん" ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting 
 
 BOOL	COyatu::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
-	// 判定
+	// Check if supported
 
 	if( !IsSupported( pclArc ) )
 	{
 		return	FALSE;
 	}
 
-	// マウント
+	// Mount
 
 	if( pclArc->GetArcExten() == _T(".BGM") )
 	{
@@ -78,20 +77,20 @@ BOOL	COyatu::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	COyatu::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
-	// 判定
+	// Check if supported
 
 	if( !IsSupported( pclArc ) )
 	{
 		return	FALSE;
 	}
 
-	// デコード
+	// Decode
 
 	SFileInfo*			pstfiWork = pclArc->GetOpenFileInfo();
 
@@ -120,34 +119,34 @@ BOOL	COyatu::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	サウンドファイルのデコード
+//	Sound file decoding
 
 BOOL	COyatu::DecodeSound(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtKey							// キー
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtKey							// Key
 	)
 {
 	SFileInfo*			pstfiWork = pclArc->GetOpenFileInfo();
 
-	// ヘッダ部分の読み込み
+	// Read header section
 
 	BYTE				abtHeader[44];
 
 	pclArc->Read( abtHeader, sizeof(abtHeader) );
 
-	// データ部分のサイズを取得
+	// Get the size of the data section
 
 	DWORD				dwDataSize = *(DWORD*)&abtHeader[40];
 
-	// 出力ファイルを開く
+	// Open the output file
 
 	pclArc->OpenFile( _T(".wav") );
 
-	// ヘッダ部分を出力
+	// Output the header part
 
 	pclArc->WriteFile( abtHeader, sizeof(abtHeader) );
 
-	// データ部分を出力
+	// Output the data part
 
 	DWORD				dwBufferSize = pclArc->GetBufSize();
 
@@ -155,15 +154,15 @@ BOOL	COyatu::DecodeSound(
 
 	for( DWORD dwWroteSize = 0 ; dwWroteSize < dwDataSize ; dwWroteSize += dwBufferSize )
 	{
-		// バッファサイズの調整
+		// Adjust the buffer size
 
 		pclArc->SetBufSize( &dwBufferSize, dwWroteSize );
 
-		// 読み込み
+		// Read
 
 		pclArc->Read( &clmbtBuffer[0], dwBufferSize );
 
-		// 復号
+		// Decode
 
 		for( DWORD dwCount = 0 ; dwCount < dwBufferSize ; dwCount++ )
 		{
@@ -172,7 +171,7 @@ BOOL	COyatu::DecodeSound(
 			clmbtBuffer[dwCount] ^= pbtKey[dwKeyIndex];
 		}
 
-		// 書き込み
+		// Write
 
 		pclArc->WriteFile( &clmbtBuffer[0], dwBufferSize );
 	}
@@ -181,10 +180,10 @@ BOOL	COyatu::DecodeSound(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	BGMのデコード
+//	BGM Decoding
 
 BOOL	COyatu::DecodeBGM(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static BYTE			abtKey[] = {
@@ -210,10 +209,10 @@ BOOL	COyatu::DecodeBGM(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	KOEのデコード
+//	KOE Decoding
 
 BOOL	COyatu::DecodeKOE(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static BYTE			abtKey[] = {
@@ -239,10 +238,10 @@ BOOL	COyatu::DecodeKOE(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	MSEのデコード
+//	MSE Decoding
 
 BOOL	COyatu::DecodeMSE(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	static BYTE			abtKey[] = {

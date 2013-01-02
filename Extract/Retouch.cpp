@@ -1,14 +1,13 @@
-
 #include	"stdafx.h"
 #include	"../Arc/LZSS.h"
 #include	"../Image.h"
 #include	"Retouch.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//	Mounting
 
 BOOL	CRetouch::Mount(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountGYU( pclArc ) )
@@ -20,10 +19,10 @@ BOOL	CRetouch::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GYUのマウント
+//	GYU Mounting
 
 BOOL	CRetouch::MountGYU(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".gyu") )
@@ -40,10 +39,10 @@ BOOL	CRetouch::MountGYU(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//	Decoding
 
 BOOL	CRetouch::Decode(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeGYU( pclArc ) )
@@ -55,10 +54,10 @@ BOOL	CRetouch::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GYUのデコード
+//	GYU Decoding
 
 BOOL	CRetouch::DecodeGYU(
-	CArcFile*			pclArc							// アーカイブ
+	CArcFile*			pclArc							// Archive
 	)
 {
 	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
@@ -68,7 +67,7 @@ BOOL	CRetouch::DecodeGYU(
 		return	FALSE;
 	}
 
-	// ヘッダの読み込み
+	// Read header
 
 	SGYUHeader			stGYUHeader;
 
@@ -76,13 +75,13 @@ BOOL	CRetouch::DecodeGYU(
 
 	if( memcmp( stGYUHeader.abtIdentifier, "GYU\x1A", 4 ) != 0 )
 	{
-		// 関係ないファイル
+		// File does not matter
 
 		pclArc->SeekCur( -(INT64)sizeof(stGYUHeader) );
 		return	FALSE;
 	}
 
-	// パレットの読み込み
+	// Read pallet
 
 	BYTE				abtPallet[1024];
 	DWORD				dwPalletSize = (stGYUHeader.dwPallets * 4);
@@ -91,7 +90,7 @@ BOOL	CRetouch::DecodeGYU(
 
 	if( dwPalletSize > 0 )
 	{
-		// パレットが存在する
+		// Palette exists
 
 		BYTE				abtBlackPallet[1024];
 
@@ -101,7 +100,7 @@ BOOL	CRetouch::DecodeGYU(
 
 		if( memcmp( abtPallet, abtBlackPallet, dwPalletSize ) == 0 )
 		{
-			// 全てのパレットがゼロ
+			// All pallets set to zero
 
 			for( DWORD i = 0, j = 0 ; i < dwPalletSize ; i += 4, j++ )
 			{
@@ -113,7 +112,7 @@ BOOL	CRetouch::DecodeGYU(
 		}
 	}
 
-	// 読み込み
+	// Read
 
 	DWORD				dwSrcSize = stGYUHeader.adwCompSize[0];
 
@@ -121,27 +120,27 @@ BOOL	CRetouch::DecodeGYU(
 
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-	// 出力用バッファの確保
+	// Ensure output buffers exist
 
 	DWORD				dwDstSize = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight );
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// GYUの復号
+	// Decrypt GYU
 
 	DecryptGYU( &clmbtSrc[0], dwSrcSize, stGYUHeader.dwKey );
 
-	// GYUの解凍
+	// Decompress GYU
 
 	DecompGYU( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
 
-	// 出力
+	// Output
 
 	if( stGYUHeader.adwCompSize[1] != 0 )
 	{
-		// アルファ値が存在する
+		// Alpha value exists
 
-		// 読み込み
+		// Read
 
 		DWORD				dwSrcSize2 = stGYUHeader.adwCompSize[1];
 
@@ -149,23 +148,23 @@ BOOL	CRetouch::DecodeGYU(
 
 		pclArc->Read( &clmbtSrc2[0], dwSrcSize2 );
 
-		// 出力用バッファの確保
+		// Ensure output buffer exists
 
 		DWORD				dwDstSize2 = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight);
 
 		YCMemory<BYTE>		clmbtDst2( dwDstSize2 );
 
-		// GYUの解凍
+		// Decompress GYU
 
 		DecompGYU( &clmbtDst2[0], dwDstSize2, &clmbtSrc2[0], dwSrcSize2 );
 
-		// 出力用バッファの確保
+		// Ensure output buffer exists
 
 		DWORD				dwDstSize32Bit = (stGYUHeader.lWidth * stGYUHeader.lHeight * 4);
 
 		YCMemory<BYTE>		clmbtDst32Bit( dwDstSize32Bit );
 
-		// アルファ値を付加して32bit化
+		// Into 32-bit by adding the alpha value
 
 		for( long i = 0, lY = 0 ; (i < dwDstSize32Bit) && (lY < stGYUHeader.lHeight) ; lY++ )
 		{
@@ -188,7 +187,7 @@ BOOL	CRetouch::DecodeGYU(
 			}
 		}
 
-		// 出力
+		// Output
 
 		CImage				clImage;
 
@@ -197,7 +196,7 @@ BOOL	CRetouch::DecodeGYU(
 	}
 	else
 	{
-		// アルファ値が存在しない
+		// Alpha value does not exist
 
 		CImage				clImage;
 
@@ -209,17 +208,17 @@ BOOL	CRetouch::DecodeGYU(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GYUの復号
+//	GYU Decryption
 
 BOOL	CRetouch::DecryptGYU(
-	void*				pvSrc,							// 暗号データ
-	DWORD				dwSrcSize,						// 暗号データサイズ
-	DWORD				dwKey							// 復号キー
+	void*				pvSrc,							// Encrypted data
+	DWORD				dwSrcSize,						// Encrypted data size
+	DWORD				dwKey							// Decryption key
 	)
 {
 	BYTE*				pbtSrc = (BYTE*)pvSrc;
 
-	// テーブルの構築
+	// Construct table
 
 	DWORD				adwTable[625 * 2];
 	DWORD				dwWork;
@@ -239,7 +238,7 @@ BOOL	CRetouch::DecryptGYU(
 		dwWork = (dwWork * 0x10DCD + 1);
 	}
 
-	// 第一フェーズの準備
+	// Preparation for the first phase
 
 	ULARGE_INTEGER		astuliWork[8];
 
@@ -259,7 +258,7 @@ BOOL	CRetouch::DecryptGYU(
 	astuliWork[1].QuadPart = (*(UINT64*)&adwTable[1] & astuliWork[7].QuadPart);
 	astuliWork[2].QuadPart = *(UINT64*)&adwTable[397];
 
-	// 第一フェーズ
+	// First phase
 
 	for( DWORD i = 0, j = 397 ; (i < 226) && (j < 623) ; i += 2, j += 2 )
 	{
@@ -289,7 +288,7 @@ BOOL	CRetouch::DecryptGYU(
 
 	adwTable[226] = (dwWork ^ dwWork2);
 
-	// 第二フェーズの準備
+	// Preparation for the second phase
 
 	adwTable[624] = adwTable[0];
 
@@ -297,7 +296,7 @@ BOOL	CRetouch::DecryptGYU(
 	astuliWork[1].QuadPart = (*(UINT64*)&adwTable[228] & astuliWork[7].QuadPart);
 	astuliWork[2].QuadPart = *(UINT64*)&adwTable[0];
 
-	// 第二フェーズ
+	// Second phase
 
 	for( DWORD i = 227, j = 0 ; (i < 625) && (j < 398) ; i += 2, j += 2 )
 	{
@@ -319,7 +318,7 @@ BOOL	CRetouch::DecryptGYU(
 		*(UINT64*)&adwTable[i] = astuliWork[3].QuadPart;
 	}
 
-	// 第三フェーズの準備
+	// Preparation for the third phase
 
 	astuliWork[6].LowPart = 0x9D2C5680;
 	astuliWork[6].HighPart = 0x9D2C5680;
@@ -335,7 +334,7 @@ BOOL	CRetouch::DecryptGYU(
 	astuliWork[0].HighPart >>= 11;
 	astuliWork[0].QuadPart ^= *(UINT64*)&adwTable[0];
 
-	// 第三フェーズ
+	// Third phase
 
 	for( DWORD i = 0, j = 625 ; (i < 624) && (j < 1249) ; i += 4, j += 4 )
 	{
@@ -401,7 +400,7 @@ BOOL	CRetouch::DecryptGYU(
 		*(INT64*)&adwTable[j + 2] = astuliWork[3].QuadPart;
 	}
 
-	// 復号
+	// Decoding
 
 	for( DWORD i = 0, j = 625 ; i < 10 ; i++ )
 	{
@@ -417,16 +416,16 @@ BOOL	CRetouch::DecryptGYU(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GYUの解凍
+//	GYU Decompression
 
 BOOL	CRetouch::DecompGYU(
-	void*				pvDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先のサイズ
-	const void*			pvSrc,							// 圧縮データ
-	DWORD				dwSrcSize						// 圧縮データサイズ
+	void*				pvDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const void*			pvSrc,							// Compressed data
+	DWORD				dwSrcSize						// Compressed data size
 	)
 {
-	// LZSSの解凍
+	// LZSS Decompression
 
 	CLZSS				clLZSS;
 
