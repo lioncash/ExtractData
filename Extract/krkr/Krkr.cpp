@@ -2,7 +2,7 @@
 #include "../../ExtractBase.h"
 #include "../../Arc/Zlib.h"
 #include "../../Image.h"
-#include "../../Ogg.h"
+#include "../../Sound/Ogg.h"
 #include "../../FindFile.h"
 #include "Tlg.h"
 #include "Krkr.h"

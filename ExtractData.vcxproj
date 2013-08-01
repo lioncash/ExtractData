@@ -130,18 +130,18 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="MainToolBar.cpp" />
     <ClCompile Include="MD5.cpp" />
     <ClCompile Include="Mzx.cpp" />
-    <ClCompile Include="Ogg.cpp" />
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="ProgressBar.cpp" />
     <ClCompile Include="Reg.cpp" />
     <ClCompile Include="SearchBase.cpp" />
+    <ClCompile Include="Sound\Ogg.cpp" />
+    <ClCompile Include="Sound\Wav.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Susie.cpp" />
     <ClCompile Include="SusieListView.cpp" />
-    <ClCompile Include="Wav.cpp" />
     <ClCompile Include="WindowBase.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="Extract\Ahx.cpp" />
@@ -280,16 +280,16 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="MainToolBar.h" />
     <ClInclude Include="MD5.h" />
     <ClInclude Include="Mzx.h" />
-    <ClInclude Include="Ogg.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="ProgressBar.h" />
     <ClInclude Include="Reg.h" />
     <ClInclude Include="res\ResExtractData.h" />
     <ClInclude Include="SearchBase.h" />
+    <ClInclude Include="Sound\Ogg.h" />
+    <ClInclude Include="Sound\Wav.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="Susie.h" />
     <ClInclude Include="SusieListView.h" />
-    <ClInclude Include="Wav.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WinMain.h" />
     <ClInclude Include="Extract\Ahx.h" />

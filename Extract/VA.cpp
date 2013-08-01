@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "../ExtractBase.h"
-#include "../Wav.h"
+#include "../Sound/Wav.h"
 #include "VA.h"
 
 BOOL CVA::Mount(CArcFile* pclArc)

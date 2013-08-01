@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "../ExtractBase.h"
-#include "../Wav.h"
+#include "../Sound/Wav.h"
 #include "TrH.h"
 
 BOOL CTrH::Mount(CArcFile* pclArc)

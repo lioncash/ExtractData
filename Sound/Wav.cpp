@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ArcFile.h"
+#include "../ArcFile.h"
 #include "Wav.h"
 
 void CWav::Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WORD bits)

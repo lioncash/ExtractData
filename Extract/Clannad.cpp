@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "../ExtractBase.h"
 #include "../Mzx.h"
+#include "../Sound/Wav.h"
 #include "Ahx.h"
-#include "../Wav.h"
 #include "Clannad.h"
 
 // Functions to get file information for Clannad's VOICE.MRG

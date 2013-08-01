@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "../ExtractBase.h"
 #include "../Image.h"
-#include "../Wav.h"
-#include "../Ogg.h"
+#include "../Sound/Wav.h"
+#include "../Sound/Ogg.h"
 #include "Katakoi.h"
 
 BOOL CKatakoi::Mount(CArcFile* pclArc)

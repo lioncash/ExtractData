@@ -4,7 +4,7 @@
 #include	"../Arc/Zlib.h"
 #include	"Ahx.h"
 #include	"../Image.h"
-#include	"../Ogg.h"
+#include	"../Sound/Ogg.h"
 #include	"Standard.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////

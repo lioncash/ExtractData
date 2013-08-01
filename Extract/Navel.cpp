@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "../ExtractBase.h"
-#include "../Wav.h"
+#include "../Sound/Wav.h"
 #include "Navel.h"
 
 // Function that gets file information from Navel's .pac files

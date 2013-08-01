@@ -90,7 +90,7 @@
 #include "Search/WmvSearch.h"
 
 #include "Image.h" // ƒ¿ processing (alpha processing)
-#include "Ogg.h" // CRC correction
+#include "Sound/Ogg.h" // CRC correction
 
 #include "Susie.h"
 

@@ -2,7 +2,7 @@
 #include	"stdafx.h"
 #include	"../Arc/Zlib.h"
 #include	"../Image.h"
-#include	"../Wav.h"
+#include	"../Sound/Wav.h"
 #include	"Circus.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////

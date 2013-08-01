@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ExtractBase.h"
+#include "../ExtractBase.h"
 #include "Ogg.h"
 
 COgg::COgg()

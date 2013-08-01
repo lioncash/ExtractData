@@ -397,9 +397,6 @@
     <ClCompile Include="Mzx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ogg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProgressBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -421,9 +418,6 @@
     <ClCompile Include="SusieListView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Wav.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WindowBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -438,6 +432,12 @@
     </ClCompile>
     <ClCompile Include="Image\Tga.cpp">
       <Filter>Source Files\Image</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound\Wav.cpp">
+      <Filter>Source Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="Sound\Ogg.cpp">
+      <Filter>Source Files\Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -834,9 +834,6 @@
     <ClInclude Include="Mzx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ogg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -861,9 +858,6 @@
     <ClInclude Include="SusieListView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Wav.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WindowBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -872,6 +866,12 @@
     </ClInclude>
     <ClInclude Include="Image\Tga.h">
       <Filter>Header Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound\Ogg.h">
+      <Filter>Header Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound\Wav.h">
+      <Filter>Header Files\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -957,6 +957,12 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{a8f18501-330f-4763-aaec-10ec02182531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Sound">
+      <UniqueIdentifier>{4f63b2cf-7a0c-4e56-8be2-9d3068d11d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sound">
+      <UniqueIdentifier>{919131f4-31b3-4632-a42c-1879f145d1a5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

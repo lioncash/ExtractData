@@ -1,6 +1,6 @@
 #include	"stdafx.h"
 #include	"../../Image.h"
-#include	"../../Ogg.h"
+#include	"../../Sound/Ogg.h"
 #include	"TCD3.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
