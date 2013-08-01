@@ -2,7 +2,7 @@
 #include	"../ExtractBase.h"
 #include	"../Arc/LZSS.h"
 #include	"../Image.h"
-#include	"../Tga.h"
+#include	"../Image/Tga.h"
 #include	"TH2.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////

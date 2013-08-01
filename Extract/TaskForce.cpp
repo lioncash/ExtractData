@@ -1,7 +1,7 @@
 #include	"stdafx.h"
 #include	"../Arc/LZSS.h"
 #include	"../Image.h"
-#include	"../Tga.h"
+#include	"../Image/Tga.h"
 #include	"TaskForce.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////

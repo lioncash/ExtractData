@@ -1,7 +1,7 @@
 #include	"stdafx.h"
 #include	"../ExtractBase.h"
 #include	"../Image.h"
-#include	"../Tga.h"
+#include	"../Image/Tga.h"
 #include	"Himauri.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////

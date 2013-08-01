@@ -124,6 +124,7 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FindFile.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="Image\Tga.cpp" />
     <ClCompile Include="LastDir.cpp" />
     <ClCompile Include="MainListView.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
@@ -140,7 +141,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     </ClCompile>
     <ClCompile Include="Susie.cpp" />
     <ClCompile Include="SusieListView.cpp" />
-    <ClCompile Include="Tga.cpp" />
     <ClCompile Include="Wav.cpp" />
     <ClCompile Include="WindowBase.cpp" />
     <ClCompile Include="WinMain.cpp" />
@@ -274,6 +274,7 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="File.h" />
     <ClInclude Include="FindFile.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="Image\Tga.h" />
     <ClInclude Include="LastDir.h" />
     <ClInclude Include="MainListView.h" />
     <ClInclude Include="MainToolBar.h" />
@@ -288,7 +289,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="Susie.h" />
     <ClInclude Include="SusieListView.h" />
-    <ClInclude Include="Tga.h" />
     <ClInclude Include="Wav.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WinMain.h" />
