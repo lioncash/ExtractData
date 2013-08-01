@@ -2,7 +2,7 @@
 #include	"Yotsunoha.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decrypted
+//  Check if it can be decrypted
 
 BOOL	CYotsunoha::OnCheckDecrypt(
 	CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CYotsunoha::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Key
+//  Initialize Decryption Key
 
 DWORD	CYotsunoha::OnInitDecrypt(
 	CArcFile*			pclArc							// Archive
@@ -26,7 +26,7 @@ DWORD	CYotsunoha::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption Process
+//  Decryption Process
 
 DWORD	CYotsunoha::OnDecrypt(
 	BYTE*				pbtTarget,						// Data to be decoded

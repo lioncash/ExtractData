@@ -5,24 +5,24 @@
 #include	"PB3B.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//  Decoding
 //
-//	備考	pvSrcは先頭部分が復号される
+//  Remarks: pvSrc is decoded first
 
 BOOL	CPB3B::Decode(
-	CArcFile*			pclArc,							// アーカイブ
-	void*				pvSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	PB3B_DECRYPT		pfnDecrypt						// 復号関数
+	CArcFile*			pclArc,							// Archive
+	void*				pvSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	PB3B_DECRYPT		pfnDecrypt						// Decoding function
 	)
 {
 	BYTE*				pbtSrc = (BYTE*) pvSrc;
 
-	// 復号
+	// Decryption
 
 	Decrypt( pbtSrc, dwSrcSize );
 
-	// 画像情報の取得
+	// Get image information
 
 	WORD				wType = *(WORD*) &pbtSrc[28];
 	long				lWidth = *(WORD*) &pbtSrc[30];
@@ -53,7 +53,7 @@ BOOL	CPB3B::Decode(
 			break;
 
 		default:
-			// 不明
+			// Unknown
 
 			pclArc->OpenFile();
 			pclArc->WriteFile( pbtSrc, dwSrcSize );
@@ -63,11 +63,11 @@ BOOL	CPB3B::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号
+//  Decryption
 
 void	CPB3B::Decrypt(
-	BYTE*				pbtTarget,						// 復号対象データ
-	DWORD				dwSize							// 復号サイズ
+	BYTE*				pbtTarget,						// Decoded data
+	DWORD				dwSize							// Decoded data size
 	)
 {
 	for( int i = 8 ; i < 52 ; i += 2 )
@@ -82,28 +82,28 @@ void	CPB3B::Decrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード1
+//  Decode 1
 
 BOOL	CPB3B::Decode1(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// 出力用バッファ確保
+	// Ensure output buffer
 
 	DWORD				dwDstSize = (lWidth * lHeight * (wBpp >> 3));
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// 解凍
+	// Decompress
 
 	Decomp1( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -114,28 +114,28 @@ BOOL	CPB3B::Decode1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード3
+//  Decode 3
 
 BOOL	CPB3B::Decode3(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// 出力用バッファ確保
+	// Ensure output buffer
 
 	DWORD				dwDstSize = (lWidth * lHeight * (wBpp >> 3));
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// 解凍
+	// Decompress
 
 	Decomp3( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -146,15 +146,15 @@ BOOL	CPB3B::Decode3(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード4
+//  Decode 4
 
 BOOL	CPB3B::Decode4(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
 	pclArc->OpenFile();
@@ -164,28 +164,28 @@ BOOL	CPB3B::Decode4(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード5
+//  Decode 5
 
 BOOL	CPB3B::Decode5(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// ベース画像用バッファ確保
+	// Ensure base image buffer
 
 	DWORD				dwBaseSize = (lWidth * lHeight * (wBpp >> 3));
 
 	YCMemory<BYTE>		clmbtBase( dwBaseSize );
 
-	// ベース画像の解凍
+	// Decompress base image
 
 	Decomp5( &clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
 
-	// ベース画像の出力
+	// Output base image
 
 	CImage				clImage;
 
@@ -197,31 +197,31 @@ BOOL	CPB3B::Decode5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード6
+//  Decode 6
 
 BOOL	CPB3B::Decode6(
-	CArcFile*			pclArc,							// アーカイブ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp,							// ビット数
-	PB3B_DECRYPT		pfnDecrypt						// 復号関数
+	CArcFile*			pclArc,							// Archive
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp,							// Number of bits per pixel
+	PB3B_DECRYPT		pfnDecrypt						// Decryption function
 	)
 {
-	// 出力用バッファ確保
+	// Ensure output buffer
 
 	DWORD				dwDstSize = (lWidth * lHeight * (wBpp >> 3));
 
 	YCMemory<BYTE>		clmbtDst( dwDstSize );
 
-	// ベース画像のファイル名取得
+	// Get base image file name
 
 	BYTE				abtBaseFileName[64];
 
 	memcpy( abtBaseFileName, pbtSrc + 52, 32 );
 
-	// ベース画像のファイル名復号
+	// Decrypt base image filename
 
 	const static DWORD	adwCrypt[] =
 	{
@@ -249,44 +249,44 @@ BOOL	CPB3B::Decode6(
 		clsBaseFileName = _T("st-si0a_100a.pb3");
 	}
 
-	// ベース画像の格納
+	// Store base image
 
 	const SFileInfo*		pstBaseFileInfo = pclArc->GetFileInfo( clsBaseFileName, TRUE );
 
 	if( pstBaseFileInfo != NULL )
 	{
-		// ベース画像が存在する
+		// Base image exists
 
 		DWORD				dwBaseSrcSize = pstBaseFileInfo->sizeCmp;
 
 		YCMemory<BYTE>		clmbtBaseSrc( dwBaseSrcSize );
 
-		// ベース画像の読み込み
+		// Read base image
 
 		pclArc->SeekHed( pstBaseFileInfo->start );
 		pclArc->Read( &clmbtBaseSrc[0], dwBaseSrcSize );
 
-		// ベース画像の復号
+		// Decrypt base image
 
 		pfnDecrypt( &clmbtBaseSrc[0], dwBaseSrcSize, pclArc, *pstBaseFileInfo );
 		Decrypt( &clmbtBaseSrc[0], dwBaseSrcSize );
 
-		// ベース画像の解凍
+		// Decompress base image
 
 		Decomp5( &clmbtDst[0], dwDstSize, &clmbtBaseSrc[0], dwBaseSrcSize, lWidth, lHeight, wBpp );
 	}
 	else
 	{
-		// 差分画像のみ
+		// Base image does not exist
 
 		ZeroMemory( &clmbtDst[0], dwDstSize );
 	}
 
-	// 差分画像の解凍
+	// Decompress difference image
 
 	Decomp6( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
 
-	// 出力
+	// Output
 
 	CImage				clImage;
 
@@ -297,16 +297,16 @@ BOOL	CPB3B::Decode6(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍1
+//  Decompression 1
 
 BOOL	CPB3B::Decomp1(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
 	DWORD				dwOffsetOfFlags = *(DWORD*) &pbtSrc[44];
@@ -316,13 +316,13 @@ BOOL	CPB3B::Decomp1(
 	WORD				wByteCount = (wBpp >> 3);
 	long				lLine = (lWidth * wByteCount);
 
-	// LZSS解凍用バッファの確保
+	// Ensure LZSS decompression buffer
 
 	DWORD				dwTempSize = (lWidth * lHeight);
 
 	YCMemory<BYTE>		clmbtTemp( dwTempSize );
 
-	// 解凍
+	// Decompress
 
 	for( WORD wColor = 0 ; wColor < wByteCount ; wColor++ )
 	{
@@ -341,15 +341,15 @@ BOOL	CPB3B::Decomp1(
 
 		pbtWorkOfSrc += dwWork;
 
-		// LZSS解凍後のサイズを取得
+		// Get the LZSS size after decompression
 
 		DWORD				dwLZSSDecodeSize = *(DWORD*) &pbtWorkOfSrc[8];
 
-		// フラグデータへのポインタの取得
+		// Get pointer to flag data
 
 		const BYTE*			pbtFlags = pbtWorkOfSrc + *(DWORD*) &pbtWorkOfSrc[0] + *(DWORD*) &pbtWorkOfSrc[4] + 12;
 
-		// 圧縮データへのポインタの取得
+		// Get pointer to decompressed data
 
 		const BYTE*			pbtCompData = &pbtSrc[dwOffsetOfCompData];
 
@@ -370,14 +370,14 @@ BOOL	CPB3B::Decomp1(
 			clmbtTemp.resize( dwLZSSDecodeSize );
 		}
 
-		// LZSS解凍
+		// LZSS Decompression
 
-		DWORD				dwFlagsSize = 0xFFFFFFFF;	// サイズ不明
-		DWORD				dwCompDataSize = 0xFFFFFFFF;	// サイズ不明
+		DWORD				dwFlagsSize = 0xFFFFFFFF;	// Unknown size
+		DWORD				dwCompDataSize = 0xFFFFFFFF;	// Unknown size
 
 		DecompLZSS( &clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
 
-		// ブロック圧縮の解凍
+		// Decompress compressed blocks
 
 		BYTE*				pbtWorkOfDst = &pbtDst[wColor];
 		long				lBlockCountOfWidth = ((lWidth + (lWidthOfBlock - 1)) / lWidthOfBlock);
@@ -399,20 +399,20 @@ BOOL	CPB3B::Decomp1(
 			{
 				if( btCode == 0 )
 				{
-					// 8ブロック処理した
+					// 8-block processing
 
 					dwFlagsPtr++;
 					btCode = 0x80;
 				}
 
-				// 1ブロックの処理
+				// Processing 1 block
 
 				BYTE*				pbtWorkOfDst3 = pbtWorkOfDst2;
 				long				lWidthOfBlockMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
 
 				if( pbtFlags[dwFlagsPtr] & btCode )
 				{
-					// 圧縮されている
+					// Is compressed
 
 					for( long i = 0 ; i < lHeightOfBlockMax ; i++ )
 					{
@@ -428,7 +428,7 @@ BOOL	CPB3B::Decomp1(
 				}
 				else
 				{
-					// 圧縮されていない
+					// Is not compressed
 
 					for( long i = 0 ; i < lHeightOfBlockMax ; i++ )
 					{
@@ -441,7 +441,7 @@ BOOL	CPB3B::Decomp1(
 					}
 				}
 
-				// 隣のブロックを指す
+				// Point to the next block
 
 				pbtWorkOfDst2 += (lWidthOfBlock * wByteCount);
 				btCode >>= 1;
@@ -455,24 +455,24 @@ BOOL	CPB3B::Decomp1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍3
+//  Decompression 3
 
 BOOL	CPB3B::Decomp3(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// アルファ値の取得
+	// Get alpha value
 
 	const BYTE*			pbtAlpha = pbtSrc + *(DWORD*) &pbtSrc[44];
 	DWORD				dwAlphaSize = *(DWORD*) &pbtSrc[48];
 
-	// 解凍
+	// Decompress
 
 	CJBP1				clJBP1;
 
@@ -482,65 +482,65 @@ BOOL	CPB3B::Decomp3(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍4
+//  Decompression 4
 
 BOOL	CPB3B::Decomp4(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
 	return	TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍5
+//  Decompression 5
 
 BOOL	CPB3B::Decomp5(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// LZSS解凍用バッファ
+	// LZSS decompression buffer
 
 	DWORD				dwTempSize = (lWidth * lHeight);
 
 	YCMemory<BYTE>		aclmbtTemp[4];
 
-	// ベース画像の解凍
+	// Decompress base image
 
 	for( int i = 0 ; i < 4 ; i++ )
 	{
-		// LZSS解凍用バッファの確保
+		// Ensure LZSS decompression buffer
 
 		aclmbtTemp[i].resize( dwTempSize );
 
-		// フラグデータへのポインタの取得
+		// Get pointer to flag data
 
 		const BYTE*			pbtFlags = pbtSrc + 84 + *(DWORD*) &pbtSrc[i * 8 + 52];
 
-		// 圧縮データへのポインタの取得
+		// Get pointer to compressed data
 
 		const BYTE*			pbtCompData = pbtSrc + 84 + *(DWORD*) &pbtSrc[i * 8 + 56];
 
-		// LZSS解凍
+		// LZSS Decompression
 
-		DWORD				dwFlagsSize = 0xFFFFFFFF;	// サイズ不明
-		DWORD				dwCompDataSize = 0xFFFFFFFF;	// サイズ不明
+		DWORD				dwFlagsSize = 0xFFFFFFFF;	// Unknown size
+		DWORD				dwCompDataSize = 0xFFFFFFFF;	// Unknown size
 
 		DecompLZSS( &aclmbtTemp[i][0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
 	}
 
-	// 格納
+	// Store
 
 	pbtDst[0] = aclmbtTemp[0][0];
 	pbtDst[1] = aclmbtTemp[1][0];
@@ -559,36 +559,36 @@ BOOL	CPB3B::Decomp5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	解凍6
+//  Decompress 6
 //
-//	備考	pbtDstにベース画像が格納されていることを前提にしている
+//  Remarks: Assumes that the base image is stored in pbtDst
 
 BOOL	CPB3B::Decomp6(
-	BYTE*				pbtDst,							// 格納先
-	DWORD				dwDstSize,						// 格納先サイズ
-	const BYTE*			pbtSrc,							// 圧縮データ
-	DWORD				dwSrcSize,						// 圧縮データサイズ
-	long				lWidth,							// 横幅
-	long				lHeight,						// 縦幅
-	WORD				wBpp							// ビット数
+	BYTE*				pbtDst,							// Destination
+	DWORD				dwDstSize,						// Destination size
+	const BYTE*			pbtSrc,							// Compressed data
+	DWORD				dwSrcSize,						// Compressed data size
+	long				lWidth,							// Width
+	long				lHeight,						// Height
+	WORD				wBpp							// Number of bits per pixel
 	)
 {
-	// LZSS解凍用バッファの確保
+	// Ensure LZSS decompression buffer
 
 	DWORD				dwLZSSDecodeSize = *(DWORD*) &pbtSrc[24];
 
 	YCMemory<BYTE>		clmbtTemp( dwLZSSDecodeSize );
 
-	// LZSS解凍
+	// LZSS Decompression
 
 	const BYTE*			pbtFlags = pbtSrc + 84;
 	const BYTE*			pbtCompData = pbtSrc + 84 + *(DWORD*) &pbtSrc[44];
-	DWORD				dwFlagsSize = 0xFFFFFFFF;	// 不明
-	DWORD				dwCompDataSize = 0xFFFFFFFF;	// 不明
+	DWORD				dwFlagsSize = 0xFFFFFFFF;	// Unknown size
+	DWORD				dwCompDataSize = 0xFFFFFFFF;	// Unknown size
 
 	DecompLZSS( &clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
 
-	// 解凍
+	// Decompression
 
 	WORD				wByteCount = (wBpp >> 3);
 	long				lLine = (lWidth * 4);
@@ -614,20 +614,20 @@ BOOL	CPB3B::Decomp6(
 		{
 			if( btCode == 0 )
 			{
-				// 8ブロック処理した
+				// Processing 8 blocks
 
 				btCode = 0x80;
 				dwFlagsPtr++;
 			}
 
-			// 1ブロックの処理
+			// Process 1 block
 
 			BYTE*				pbtWorkOfDst3 = pbtWorkOfDst2;
 			long				lBlockOfWidthMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
 
 			if( (pbtFlags[dwFlagsPtr] & btCode) == 0 )
 			{
-				// 差分
+				// Difference
 
 				for( long i = 0 ; i < lBlockOfHeightMax ; i++ )
 				{
@@ -641,7 +641,7 @@ BOOL	CPB3B::Decomp6(
 				}
 			}
 
-			// 隣のブロックを指す
+			// Point to the next block
 
 			pbtWorkOfDst2 += (lWidthOfBlock * 4);
 			btCode >>= 1;

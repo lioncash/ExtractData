@@ -11,7 +11,7 @@ BOOL CMeltyBlood::Mount(CArcFile* pclArc)
     if ((pclArc->GetArcName().Left(5) != _T("data0")) || (pclArc->GetArcExten() != _T(".p")))
         return FALSE;
 
-    DWORD deckey = 0xe3df59ac;
+    DWORD deckey = 0xE3DF59AC;
 
     // Get file count
     DWORD ctFile;
@@ -35,7 +35,9 @@ BOOL CMeltyBlood::Mount(CArcFile* pclArc)
         
         // Decrypt filename
         for (int j = 0; j < 59; j++)
+        {
             szFileName[j] ^= i * j * 3 + 61;
+        }
 
         // Add to listview
         SFileInfo infFile;
@@ -84,11 +86,14 @@ void CMeltyBlood::Decrypt(CArcFile* pclArc)
     YCMemory<BYTE> buf(lim);
 
     pclArc->Read(&buf[0], lim);
+
     // Decryption
-    int keylen = (int)pInfFile->name.GetLength();
+    int keylen = (int) pInfFile->name.GetLength();
     
-	for (int i = 0; i < lim; i++)
+    for (int i = 0; i < lim; i++)
+    {
         buf[i] ^= pInfFile->name[i % keylen] + i + 3;
-    
-	pclArc->WriteFile(&buf[0], lim);
+    }
+
+    pclArc->WriteFile(&buf[0], lim);
 }

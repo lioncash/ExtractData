@@ -126,6 +126,7 @@ void	CJBP1::Decomp(
             bit_remain--;
             bit_buffer >>= 1;
         }
+
         DWORD x = (code > 0) ? GetNBit(lpin, code, bit_buffer, bit_remain) : 0;
         if (x < (1 << (code - 1)))
             x = x - (1 << code) + 1;
@@ -172,7 +173,11 @@ void	CJBP1::Decomp(
                         bit_buffer >>= 1;
                     }
 
-                    if (code == 15) break;
+                    if (code == 15)
+                    {
+                        break;
+                    }
+
                     if (code == 0)
                     {
                         LPBYTE p = huff_tbl;
@@ -183,10 +188,16 @@ void	CJBP1::Decomp(
                                 bit_buffer = *(LPDWORD)lpin2; lpin2 += 4;
                                 bit_remain = 0x20;
                             }
+
                             DWORD x = bit_buffer & 1;
                             bit_remain--;
                             bit_buffer >>= 1;
-                            if (x == 0) break;
+
+                            if (x == 0)
+                            {
+                                break;
+                            }
+
                             p++;
                         }
                         i += *p;
@@ -272,7 +283,7 @@ void	CJBP1::Decomp(
         {
             if (*pbtAlpha == 0 || *pbtAlpha == 0xFF)
             {
-                for (int x = 0; x < (int)pbtAlpha[1]; x++)
+                for (BYTE x = 0; x < pbtAlpha[1]; x++)
                 {
                     *pDst = pbtAlpha[0];
                     pDst += 4;
@@ -286,17 +297,19 @@ void	CJBP1::Decomp(
             }
         }
     }
-    //else {
-    //	colorSize = width * height;
-    //	for (int i = 0; i < (int)colorSize; i++) {
-    //		*pDst = 0xFF;
-    //		pDst += 4;
-    //	}
+    //else
+    //{
+    //  colorSize = width * height;
+    //  for (int i = 0; i < (int)colorSize; i++)
+    //  {
+    //     *pDst = 0xFF;
+    //     pDst += 4;
+    //  }
     //}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
 void	CJBP1::DCT(
     BYTE*				arg1,
@@ -452,9 +465,7 @@ int		CJBP1::GetNBit(
     DWORD&				bit_remain
     )
 {
-    int					i;
-
-    i = 0;
+    int  i = 0;
 
     if( code == 0 )
     {

@@ -407,7 +407,7 @@ BOOL CCyc::DecodeFxf(CArcFile* pclArc)
     pclArc->Read(&buf[0], pInfFile->sizeCmp);
 
     // Decryption
-    for (int i = 0; i < (int)pInfFile->sizeCmp; i++)
+    for (DWORD i = 0; i < pInfFile->sizeCmp; i++)
         buf[i] ^= 0xFF;
 
     // Output
@@ -442,7 +442,7 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
                 BYTE len = *src++;
 
                 // RLE Decompression
-                for (int k = 0; k < (int)len; k++)
+                for (BYTE k = 0; k < len; k++)
                     *pdataWidth++ = data;
 
                 // Proceed with decompressed length

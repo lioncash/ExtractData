@@ -6,10 +6,10 @@
 #include	"Cpz.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	マウント
+//  Mounting
 
 BOOL	CCpz::Mount(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( pclArc->GetArcExten() != _T(".cpz") )
@@ -41,10 +41,10 @@ BOOL	CCpz::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ1のマウント
+//  CPZ1 Mounting
 
 BOOL	CCpz::MountCpz1(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ1", 4 ) != 0 )
@@ -52,7 +52,7 @@ BOOL	CCpz::MountCpz1(
         return	FALSE;
     }
 
-    // ヘッダの読み込み
+    // Read header
 
     BYTE				abtHeader[16];
 
@@ -61,14 +61,14 @@ BOOL	CCpz::MountCpz1(
     DWORD				dwFiles = *(DWORD*) &abtHeader[4];
     DWORD				dwIndexSize = *(DWORD*) &abtHeader[8];
 
-    // インデックス取得
+    // Get index
 
     YCMemory<BYTE>		clmbtIndex( dwIndexSize );
     DWORD				dwIndexPtr = 0;
 
     pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-    // インデックス復号
+    // Decrypt the index
 
     Decrypt1( &clmbtIndex[0], dwIndexSize );
 
@@ -80,7 +80,7 @@ BOOL	CCpz::MountCpz1(
 
         lstrcpy( szFileName, (LPCTSTR) &clmbtIndex[dwIndexPtr + 24] );
 
-        // リストビューに追加
+        // Add to listview
 
         SFileInfo			stFileInfo;
 
@@ -99,10 +99,10 @@ BOOL	CCpz::MountCpz1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ2のマウント
+//  CPZ2 Mounting
 
 BOOL	CCpz::MountCpz2(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ2", 4 ) != 0 )
@@ -110,7 +110,7 @@ BOOL	CCpz::MountCpz2(
         return	FALSE;
     }
 
-    // ヘッダの読み込み
+    // Read header
 
     BYTE				abtHeader[20];
 
@@ -120,14 +120,14 @@ BOOL	CCpz::MountCpz2(
     DWORD				dwIndexSize = *(DWORD*) &abtHeader[8] ^ 0x3F71DE2A;
     DWORD				dwKey = *(DWORD*) &abtHeader[16] ^ 0x77777777 ^ 0x37A9F45B;
 
-    // インデックス取得
+    // Get index
 
     YCMemory<BYTE>		clmbtIndex( dwIndexSize );
     DWORD				dwIndexPtr = 0;
 
     pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-    // インデックス復号
+    // Decrypt index
 
     Decrypt2( &clmbtIndex[0], dwIndexSize, dwKey );
 
@@ -139,7 +139,7 @@ BOOL	CCpz::MountCpz2(
 
         lstrcpy( szFileName, (LPCTSTR) &clmbtIndex[dwIndexPtr + 24] );
 
-        // リストビューに追加
+        // Add to listview
 
         SFileInfo			stFileInfo;
 
@@ -159,10 +159,10 @@ BOOL	CCpz::MountCpz2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ3のマウント
+//  CPZ3 Mounting
 
 BOOL	CCpz::MountCpz3(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ3", 4 ) != 0 )
@@ -170,7 +170,7 @@ BOOL	CCpz::MountCpz3(
         return	FALSE;
     }
 
-    // ヘッダの読み込み
+    // Read header
 
     BYTE				abtHeader[20];
 
@@ -180,14 +180,14 @@ BOOL	CCpz::MountCpz3(
     DWORD				dwIndexSize = *(DWORD*) &abtHeader[8] ^ 0xF32AED17;
     DWORD				dwKey = *(DWORD*) &abtHeader[16] ^ 0xDDDDDDDD ^ 0x7BF4A539;
 
-    // インデックス取得
+    // Get index
 
     YCMemory<BYTE>		clmbtIndex( dwIndexSize );
     DWORD				dwIndexPtr = 0;
 
     pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-    // インデックス復号
+    // Decrypt index
 
     Decrypt3( &clmbtIndex[0], dwIndexSize, dwKey );
 
@@ -211,7 +211,7 @@ BOOL	CCpz::MountCpz3(
             clsDirName += _T("\\");
         }
 
-        // リストビューに追加
+        // Add to listview
 
         SFileInfo			stFileInfo;
 
@@ -231,10 +231,10 @@ BOOL	CCpz::MountCpz3(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ5のマウント
+//  CPZ5 Mounting
 
 BOOL	CCpz::MountCpz5(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ5", 4 ) != 0 )
@@ -242,13 +242,13 @@ BOOL	CCpz::MountCpz5(
         return	FALSE;
     }
 
-    // ヘッダの取得
+    // Get header
 
     SCPZ5Header*		pstHeader = (SCPZ5Header*) pclArc->GetHed();
 
     pclArc->SeekCur( sizeof(SCPZ5Header) );
 
-    // ヘッダの復号
+    // Decrypt header
 
     pstHeader->dwDirs ^= 0xFE3A53D9;
     pstHeader->dwTotalDirIndexSize ^= 0x37F298E7;
@@ -261,7 +261,7 @@ BOOL	CCpz::MountCpz5(
     pstHeader->adwUnKnown2[0] ^= 0xFB73A955;
     pstHeader->adwUnKnown2[1] ^= 0x37ACF831;
 
-    // MD5データの準備
+    // Prepare MD5 data
 
     DWORD				adwMD5Data[16];
 
@@ -270,13 +270,13 @@ BOOL	CCpz::MountCpz5(
     adwMD5Data[2] = pstHeader->adwMD5[2];
     adwMD5Data[3] = pstHeader->adwMD5[3];
 
-    // パディングの付加
+    // Add padding
 
     CMD5				clMD5;
 
     clMD5.AppendPadding( adwMD5Data, 16, 48 );
 
-    // 初期値の設定
+    // Set initial values
 
     DWORD				adwInitMD5[4];
 
@@ -285,7 +285,7 @@ BOOL	CCpz::MountCpz5(
     adwInitMD5[2] = 0xD8BEDC4E;
     adwInitMD5[3] = 0x7302A4C5;
 
-    // MD5値の取得
+    // Calculate MD5
 
     SMD5				stMD5 = clMD5.Calculate( adwMD5Data, sizeof(adwMD5Data), adwInitMD5 );
 
@@ -294,7 +294,7 @@ BOOL	CCpz::MountCpz5(
     pstHeader->adwMD5[2] = stMD5.adwABCD[2];
     pstHeader->adwMD5[3] = stMD5.adwABCD[0];
 
-    // インデックスの読み込み
+    // Read index
 
     DWORD				dwIndexSize = (pstHeader->dwTotalDirIndexSize + pstHeader->dwTotalFileIndexSize);
 
@@ -302,7 +302,7 @@ BOOL	CCpz::MountCpz5(
 
     pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
-    // 総ディレクトリインデックスの復号
+    // Decode entire directory index
 
     const BYTE*			pbtDecryptTable;
 
@@ -312,7 +312,7 @@ BOOL	CCpz::MountCpz5(
 
     DecryptWithTable5( &clmbtIndex[0], pstHeader->dwTotalDirIndexSize, pbtDecryptTable, 0x3A );
 
-    // キーの設定
+    // Set key
 
     DWORD				adwKey[4];
 
@@ -321,7 +321,7 @@ BOOL	CCpz::MountCpz5(
     adwKey[2] = pstHeader->adwMD5[2] ^ (pstHeader->dwIndexKey + 0x10000000);
     adwKey[3] = pstHeader->adwMD5[3] ^ pstHeader->dwIndexKey;
 
-    // 総ディレクトリインデックスの復号
+    // Decrypt the total directory index
 
     DWORD				dwKeyPtr = 0;
     DWORD				dwSeed = 0x76548AEF;
@@ -345,11 +345,11 @@ BOOL	CCpz::MountCpz5(
         dwKeyPtr &= 3;
     }
 
-    // テーブルの初期化
+    // Initialize decryption table
 
     pbtDecryptTable = InitDecryptWithTable5( pstHeader->dwIndexKey, pstHeader->adwMD5[2] );
 
-    // ファイル情報の取得
+    // Get file information
 
     BYTE*				pbtCurrentDirIndex = &clmbtIndex[0];
 
@@ -363,7 +363,7 @@ BOOL	CCpz::MountCpz5(
 
         if( (i + 1) >= pstHeader->dwDirs )
         {
-            // 最後のディレクトリ
+            // The last directory
 
             dwNextFileIndexOffset = pstHeader->dwTotalFileIndexSize;
         }
@@ -372,7 +372,7 @@ BOOL	CCpz::MountCpz5(
             dwNextFileIndexOffset = *(DWORD*) &pbtNextDirIndex[8];
         }
 
-        // 現在のファイルインデックスの復号
+        // Decrypt the current file index
 
         DWORD				dwCurrentFileIndexSize = (dwNextFileIndexOffset - dwCurrentFileIndexOffset);
 
@@ -380,7 +380,7 @@ BOOL	CCpz::MountCpz5(
 
         DecryptWithTable5( pbtCurrentFileIndex, dwCurrentFileIndexSize, pbtDecryptTable, 0x7E );
 
-        // キーの設定
+        // Set key
 
         DWORD				dwEntryKey = *(DWORD*) &pbtCurrentDirIndex[12];
 
@@ -389,7 +389,7 @@ BOOL	CCpz::MountCpz5(
         adwKey[2] = pstHeader->adwMD5[2] ^ dwEntryKey;
         adwKey[3] = pstHeader->adwMD5[3] ^ (dwEntryKey + 0x34258765);
 
-        // 現在のファイルインデックスの復号
+        // Decrypt current file index
 
         dwSeed = 0x2A65CB4E;
         pbtWork = pbtCurrentFileIndex;
@@ -411,13 +411,13 @@ BOOL	CCpz::MountCpz5(
             dwKeyPtr &= 3;
         }
 
-        // ファイル情報の取得
+        // Get file information
 
         BYTE*				pbtFileEntry = pbtCurrentFileIndex;
 
         for( DWORD j = 0 ; j < *(DWORD*) &pbtCurrentDirIndex[4] ; j++ )
         {
-            // ファイル名の取得
+            // Get file name
 
             TCHAR				szFileName[_MAX_FNAME];
 
@@ -430,7 +430,7 @@ BOOL	CCpz::MountCpz5(
                 _stprintf( szFileName, _T("%s\\%s"), &pbtCurrentDirIndex[16], &pbtFileEntry[24] );
             }
 
-            // ファイル情報の追加
+            // Additional file information
 
             SFileInfo			stFileInfo;
 
@@ -443,12 +443,12 @@ BOOL	CCpz::MountCpz5(
 
             pclArc->AddFileInfo( stFileInfo );
 
-            // 次のファイルへ
+            // Go to the next file entry
 
             pbtFileEntry += *(DWORD*) &pbtFileEntry[0];
         }
 
-        // 次のディレクトリへ
+        // Go to the next directory entry
 
         pbtCurrentDirIndex = pbtNextDirIndex;
     }
@@ -457,10 +457,10 @@ BOOL	CCpz::MountCpz5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	デコード
+//  Decoding
 
 BOOL	CCpz::Decode(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( pclArc->GetArcExten() != _T(".cpz") )
@@ -492,10 +492,10 @@ BOOL	CCpz::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ1のデコード
+//  CPZ1 Decoding
 
 BOOL	CCpz::DecodeCpz1(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ1", 4 ) != 0 )
@@ -505,7 +505,7 @@ BOOL	CCpz::DecodeCpz1(
 
     SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-    // 読み込み
+    // Read CPZ1
 
     DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -513,11 +513,11 @@ BOOL	CCpz::DecodeCpz1(
 
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-    // 復号
+    // Decryption
 
     Decrypt1( &clmbtSrc[0], dwSrcSize );
 
-    // 出力
+    // Output
 
     if( pstFileInfo->format == _T("PB2") )
     {
@@ -546,10 +546,10 @@ BOOL	CCpz::DecodeCpz1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ2のデコード
+//  CPZ2 Decoding
 
 BOOL	CCpz::DecodeCpz2(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ2", 4 ) != 0 )
@@ -559,7 +559,7 @@ BOOL	CCpz::DecodeCpz2(
 
     SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-    // 読み込み
+    // Read CPZ2
 
     DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -567,11 +567,11 @@ BOOL	CCpz::DecodeCpz2(
 
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-    // 復号
+    // Decryption
 
     Decrypt2( &clmbtSrc[0], dwSrcSize, pstFileInfo->key );
 
-    // 出力
+    // Output
 
     if (pstFileInfo->format == _T("PB2"))
     {
@@ -600,10 +600,10 @@ BOOL	CCpz::DecodeCpz2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ3のデコード
+//  CPZ3 Decoding
 
 BOOL	CCpz::DecodeCpz3(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ3", 4 ) != 0 )
@@ -613,7 +613,7 @@ BOOL	CCpz::DecodeCpz3(
 
     SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
 
-    // 読み込み
+    // Read CPZ3
 
     DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -621,7 +621,7 @@ BOOL	CCpz::DecodeCpz3(
 
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-    // 復号
+    // Decryption
 
     Decrypt3( &clmbtSrc[0], dwSrcSize, pstFileInfo->key );
 
@@ -641,10 +641,10 @@ BOOL	CCpz::DecodeCpz3(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	CPZ5のデコード
+//  CPZ5 Decoding
 
 BOOL	CCpz::DecodeCpz5(
-    CArcFile*			pclArc							// アーカイブ
+    CArcFile*			pclArc							// Archive
     )
 {
     if( memcmp( pclArc->GetHed(), "CPZ5", 4 ) != 0 )
@@ -655,7 +655,7 @@ BOOL	CCpz::DecodeCpz5(
     SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
     SCPZ5Header*		pstCPZ5Header = (SCPZ5Header*) pclArc->GetHed();
 
-    // 読み込み
+    // Read CPZ5
 
     DWORD				dwSrcSize = pstFileInfo->sizeCmp;
 
@@ -663,7 +663,7 @@ BOOL	CCpz::DecodeCpz5(
 
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
-    // 復号
+    // Decryption
 
     const BYTE*			pbtTable;
 
@@ -687,11 +687,11 @@ BOOL	CCpz::DecodeCpz5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号関数1
+//  Decryption function 1
 
 void	CCpz::Decrypt1(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize							// 復号サイズ
+    BYTE*				pbtTarget,						// Decoded Data
+    DWORD				dwSize							// Decoding size
     )
 {
     static const BYTE	abtCrypt[] = "掴乱跨虎規日壅諺庫誤絞豪股誇砧後口糊己交\x8B\xFE謙倖規弭胡綿戸湖候誇騎";
@@ -703,12 +703,12 @@ void	CCpz::Decrypt1(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号関数2
+//  Decryption function 2
 
 void	CCpz::Decrypt2(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize,							// 復号サイズ
-    DWORD				dwKey							// キー
+    BYTE*				pbtTarget,						// Decoded data
+    DWORD				dwSize,							// Decoding size
+    DWORD				dwKey							// Key
     )
 {
     static const DWORD	adwCrypt[] =
@@ -749,12 +749,12 @@ void	CCpz::Decrypt2(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号関数3
+//  Decryption function 3
 
 void	CCpz::Decrypt3(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize,							// 復号サイズ
-    DWORD				dwKey							// キー
+    BYTE*				pbtTarget,						// Decoded data
+    DWORD				dwSize,							// Decoding size
+    DWORD				dwKey							// Key
     )
 {
     static const DWORD	adwCrypt[] =
@@ -802,12 +802,12 @@ void	CCpz::Decrypt3(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	復号関数5
+//  Decryption function 5
 
 void	CCpz::Decrypt5(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize,							// 復号サイズ
-    DWORD				dwKey							// キー
+    BYTE*				pbtTarget,						// Decoded data
+    DWORD				dwSize,							// Decoding size
+    DWORD				dwKey							// Key
     )
 {
     static const DWORD	adwCrypt[] =
@@ -854,11 +854,11 @@ void	CCpz::Decrypt5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	テーブルを用いた復号関数5の初期化
+//  Initialization of decryption function 5 with a table
 
 const BYTE*	CCpz::InitDecryptWithTable5(
-    DWORD				dwKey,							// キー
-    DWORD				dwSeed							// 種
+    DWORD				dwKey,							// Key
+    DWORD				dwSeed							// Seed
     )
 {
     static BYTE			abtDecryptTable[256];
@@ -880,13 +880,13 @@ const BYTE*	CCpz::InitDecryptWithTable5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	テーブルを用いた復号関数5
+//  Decoding function 5 with a table
 
 void	CCpz::DecryptWithTable5(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize,							// 復号サイズ
-    const BYTE*			pbtDecryptTable,				// テーブル
-    DWORD				dwKey							// キー
+    BYTE*				pbtTarget,						// Decoded data
+    DWORD				dwSize,							// Decoding size
+    const BYTE*			pbtDecryptTable,				// Decryption table
+    DWORD				dwKey							// Key
     )
 {
     for( DWORD i = 0 ; i < dwSize ; i++ )
@@ -896,14 +896,14 @@ void	CCpz::DecryptWithTable5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	データの復号5
+//  Decoding CPZ5 data
 
 void	CCpz::DecryptOfData5(
-    BYTE*				pbtTarget,						// 復号対象データ
-    DWORD				dwSize,							// 復号サイズ
-    const BYTE*			pbtDecryptTable,				// テーブル
-    const DWORD*		pdwKey,							// キー
-    DWORD				dwSeed							// 種
+    BYTE*				pbtTarget,						// Decoded data
+    DWORD				dwSize,							// Decoding size
+    const BYTE*			pbtDecryptTable,				// Decryption table
+    const DWORD*		pdwKey,							// Key
+    DWORD				dwSeed							// Seed
     )
 {
     static const DWORD	adwCrypt[] =
@@ -947,26 +947,26 @@ void	CCpz::DecryptOfData5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PB3Bからのコールバック関数3
+//  Callback function 3 from PB3B
 
 void	CCpz::OnDecrypt3FromPB3B(
-    BYTE*				pbtTarget,						// データ
-    DWORD				dwTargetSize,					// データサイズ
-    CArcFile*			pclArc,							// アーカイブ
-    const SFileInfo&		rfstFileInfo					// ファイル情報
+    BYTE*				pbtTarget,						// Data
+    DWORD				dwTargetSize,					// Data size
+    CArcFile*			pclArc,							// Archive
+    const SFileInfo&	rfstFileInfo					// File info
     )
 {
     Decrypt3( pbtTarget, dwTargetSize, rfstFileInfo.key );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PB3Bからのコールバック関数5
+//  Callback function 5 from PB3B
 
 void	CCpz::OnDecrypt5FromPB3B(
-    BYTE*				pbtTarget,						// データ
-    DWORD				dwTargetSize,					// データサイズ
-    CArcFile*			pclArc,							// アーカイブ
-    const SFileInfo&		rfstFileInfo				// ファイル情報
+    BYTE*				pbtTarget,						// Data
+    DWORD				dwTargetSize,					// Data size
+    CArcFile*			pclArc,							// Archive
+    const SFileInfo&	rfstFileInfo					// File info
     )
 {
     const SCPZ5Header*	pstCPZ5Header = (SCPZ5Header*) pclArc->GetHed();

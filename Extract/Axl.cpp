@@ -40,7 +40,7 @@ BOOL CAxl::Mount(CArcFile* pclArc)
         return FALSE;
     }
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (DWORD i = 0; i < ctFile; i++)
     {
         // Get filename
         TCHAR szFileName[33];
@@ -120,7 +120,7 @@ BOOL CAxl::Decode(CArcFile* pclArc)
 
             DWORD color_size = iHed->biWidth * iHed->biHeight;
 
-            for (int i = 0; i < (int)color_size; i++)
+            for (DWORD i = 0; i < color_size; i++)
             {
                 // Synthesize alpha value
                 for (int j = 0; j < 3; j++)
@@ -262,7 +262,11 @@ BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
     for (int i = 0, j = 0; i < (int)index_size; i++)
     {
         pIndex_copy[i] -= key[j++];
-        if (j == key_len) j = 0;
+
+        if (j == key_len)
+        {
+            j = 0;
+        }
     }
 
     // Check whether the index matches the beginning and end of the first file
@@ -331,6 +335,7 @@ BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
     //for (int i = 0, j = 0; i < (int)index_size; i++)
     //{
     //	pIndex[i] += deckey[j++];
-    //	if (j == deckey_len) j = 0;
+    //	if (j == deckey_len)
+    //      j = 0;
     //}
 }

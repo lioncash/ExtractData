@@ -2,7 +2,7 @@
 #include	"Hachukano.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decoded
+//  Check if it can be decoded
 
 BOOL	CHachukano::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CHachukano::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CHachukano::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -44,7 +44,7 @@ DWORD	CHachukano::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding Process
+//  Decoding Process
 
 DWORD	CHachukano::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

@@ -2,7 +2,7 @@
 #include	"TokiPaku.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decoded
+//  Check if it can be decoded
 
 BOOL	CTokiPaku::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -13,7 +13,7 @@ BOOL	CTokiPaku::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CTokiPaku::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -52,7 +52,7 @@ DWORD	CTokiPaku::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption Process
+//  Decryption Process
 
 DWORD	CTokiPaku::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

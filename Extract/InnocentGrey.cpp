@@ -22,7 +22,7 @@ BOOL CInnocentGrey::Mount(CArcFile* pclArc)
     pclArc->Seek(4, FILE_CURRENT);
     pclArc->Read(pIndex, index_size);
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (DWORD i = 0; i < ctFile; i++)
     {
         // Get file name
         TCHAR szFileName[32];
@@ -58,7 +58,7 @@ BOOL CInnocentGrey::Decode(CArcFile* pclArc)
         pclArc->Read(&buf[0], pInfFile->sizeOrg);
 
         // Decryption
-        for (int i = 0; i < (int)pInfFile->sizeOrg; i++)
+        for (DWORD i = 0; i < pInfFile->sizeOrg; i++)
         {
             buf[i] ^= 0xFF;
         }
@@ -84,7 +84,7 @@ BOOL CInnocentGrey::Decode(CArcFile* pclArc)
 
             // Decode output
             pclArc->Read(&buf[0], BufSize);
-            for (int i = 0; i < (int)BufSize; i++)
+            for (DWORD i = 0; i < BufSize; i++)
                 buf[i] ^= 0xFF;
             pclArc->WriteFile(&buf[0], BufSize);
         }

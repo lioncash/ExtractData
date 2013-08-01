@@ -59,7 +59,7 @@ BOOL CVA::MountNwk(CArcFile* pclArc)
 	lstrcpy(szBaseFileName, pclArc->GetArcName());
 	PathRemoveExtension(szBaseFileName);
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (DWORD i = 0; i < ctFile; i++)
 	{
 		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
@@ -162,6 +162,7 @@ BOOL CVA::Decode(CArcFile* pclArc)
 {
 	if (DecodeNwa(pclArc) == TRUE)
 		return TRUE;
+
 	return FALSE;
 }
 
@@ -173,7 +174,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 	if (pInfFile->format != _T("NWA"))
 		return FALSE;
 
-	// Read nwa header
+	// Read NWA header
 	NWAHed nwaHed;
 	pclArc->Read(&nwaHed, sizeof(NWAHed));
 
@@ -201,9 +202,11 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 		// Memory allocation of the offset
 		DWORD offset_size = nwaHed.blocks * 4;
 		YCMemory<DWORD> offsets(offset_size);
+
 		// Allocate memory for writing data
 		DWORD buf_len = nwaHed.BlockSize * (nwaHed.bits >> 3);
 		YCMemory<BYTE> buf(buf_len);
+
 		// Allocate memory for data loading
 		DWORD z_buf_len = buf_len * 2;
 		YCMemory<BYTE> z_buf(z_buf_len);
@@ -211,14 +214,14 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 		// Read offset
 		pclArc->Read(&offsets[0], offset_size);
 
-		for (int i = 0; i < (int)nwaHed.blocks; i++)
+		for (DWORD i = 0; i < nwaHed.blocks; i++)
 		{
 			LPBYTE z_pbuf = &z_buf[0];
 			LPBYTE pbuf = &buf[0];
 
 			// Get the size of the data to be read/decoded
 			DWORD curblocksize, curcompsize;
-			if (i < (int)nwaHed.blocks - 1)
+			if (i < nwaHed.blocks - 1)
 			{
 				curblocksize = buf_len;
 				curcompsize = offsets[i + 1] - offsets[i];

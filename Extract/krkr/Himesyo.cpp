@@ -2,7 +2,7 @@
 #include	"Himesyo.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decrypted
+//  Check if it can be decrypted
 
 BOOL	CHimesyo::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CHimesyo::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CHimesyo::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -44,7 +44,7 @@ DWORD	CHimesyo::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption Process
+//  Decryption Process
 
 DWORD	CHimesyo::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

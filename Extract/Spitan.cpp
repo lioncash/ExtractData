@@ -163,7 +163,7 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 			pclArc->Read(&file[j].size, 4);
 		}
 
-		for (unsigned int j = 0; j < 5; j++)
+		for (int j = 0; j < 5; j++)
 		{
 			// Skip it is the file has a size of 0
 			if (file[j].size == 0)
@@ -197,7 +197,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 	if (pclArc->GetArcName().Left(4) == _T("IGNR"))
 		flag = TRUE;
 	
-	for (unsigned int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("b%02d"), i);
@@ -206,7 +206,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 			flag = TRUE;
 	}
 	
-	for (unsigned int i = 0; i < 2; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("c%02d"), i);
@@ -237,7 +237,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 		FileInfoList.push_back(file);
 	}
 
-	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++)
+	for (size_t i = 0, ctFile = 1; i < FileInfoList.size(); i++)
 	{
 		// Get the number of PNG files in the NORI file
 		DWORD ctPng;
@@ -246,16 +246,18 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 
 		pclArc->Seek(0x40 - 0x1C, FILE_CURRENT);
 
-		for (int j = 0; j < (int)ctPng; j++)
+		for (DWORD j = 0; j < ctPng; j++)
 		{
 			pclArc->Seek(0x1C, FILE_CURRENT);
 
 			// Get first and second file sizes
 			DWORD filesize[2];
-			for (unsigned int k = 0; k < 2; k++)
+			for (int k = 0; k < 2; k++)
+			{
 				pclArc->Read(&filesize[k], 4);
+			}
 
-			for (unsigned int k = 0; k < 2; k++)
+			for (int k = 0; k < 2; k++)
 			{
 				// Skip file if the filesize is 0
 				if (filesize[k] == 0)
@@ -263,7 +265,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 
 				// Get filename
 				TCHAR szFileName[_MAX_FNAME];
-				_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), ctFile++);
+				_stprintf(szFileName, _T("%s_%06u.png"), pclArc->GetArcName(), ctFile++);
 
 				// Add file to listview
 				SFileInfo infFile;

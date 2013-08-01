@@ -46,7 +46,7 @@ BOOL CIzumo::Mount(CArcFile* pclArc)
         pFileNameIndex += pFileNameIndex[0] + 1;
     }
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (DWORD i = 0; i < ctFile; i++)
     {
         // Get file name
         TCHAR szFileName[256];

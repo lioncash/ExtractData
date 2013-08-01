@@ -179,7 +179,9 @@ void CAhx::dct(double* src, double* dst0, double* dst1)
     //for (int i = 0; i < 8; i++)
         //tmp[0][i * 4 + 2] += tmp[0][i * 4 + 3];
     for (int i = 0; i < 32; i += 4)
+    {
         tmp[0][i + 2] += tmp[0][i + 3];
+    }
 
     //for (int i = 0; i < 4; i++)
     //{
@@ -255,7 +257,9 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 {
     double powtable[64];
     for (int i = 0; i < 64; i++)
+    {
         powtable[i] = pow(2.0, (3 - i) / 3.0);
+    }
 
     double sbsamples[36][32];
     for (int i = 0; i < 36; i++)
@@ -386,27 +390,27 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
                     {
                         int t = getbits(src, bit_data, bit_rest, -qc_table[index].bits);
                         q = (t % qc_table[index].nlevels) * 2 -qc_table[index].nlevels + 1;
-                        sbsamples[gr * 3 + 0][sb] = (double)q / (double)qc_table[index].nlevels;
+                        sbsamples[gr * 3 + 0][sb] = (double) q / (double)qc_table[index].nlevels;
 
                         t /= qc_table[index].nlevels;
                         q = (t % qc_table[index].nlevels) * 2 -qc_table[index].nlevels + 1;
-                        sbsamples[gr * 3 + 1][sb] = (double)q / (double)qc_table[index].nlevels;
+                        sbsamples[gr * 3 + 1][sb] = (double) q / (double)qc_table[index].nlevels;
 
                         t /= qc_table[index].nlevels;
                         q = t * 2 -qc_table[index].nlevels + 1;
-                        sbsamples[gr * 3 + 2][sb] = (double)q / (double)qc_table[index].nlevels;
+                        sbsamples[gr * 3 + 2][sb] = (double) q / (double)qc_table[index].nlevels;
                     }
 
                     else
                     {
                         q = getbits(src, bit_data, bit_rest, qc_table[index].bits) * 2 - qc_table[index].nlevels + 1;
-                        sbsamples[gr * 3 + 0][sb] = (double)q / (double)qc_table[index].nlevels;
+                        sbsamples[gr * 3 + 0][sb] = (double) q / (double)qc_table[index].nlevels;
 
                         q = getbits(src, bit_data, bit_rest, qc_table[index].bits) * 2 - qc_table[index].nlevels + 1;
                         sbsamples[gr * 3 + 1][sb] = (double) q / (double) qc_table[index].nlevels;
 
                         q = getbits(src, bit_data, bit_rest, qc_table[index].bits) * 2 - qc_table[index].nlevels + 1;
-                        sbsamples[gr * 3 + 2][sb] = (double)q / (double)qc_table[index].nlevels;
+                        sbsamples[gr * 3 + 2][sb] = (double) q / (double)qc_table[index].nlevels;
                     }
                 }
 

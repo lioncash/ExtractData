@@ -79,7 +79,7 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 		return FALSE;
 	}
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (DWORD i = 0; i < ctFile; i++)
 	{
 		// Get the filename length
 		WORD FileNameLen = *(LPWORD)&pIndex[0];
@@ -735,7 +735,9 @@ void	CQLIE::EraseNotUsePathWord(
 void CQLIE::DecryptFileName(LPBYTE in, DWORD size, DWORD seed)
 {
 	for (int i = 1; i <= (int)size; i++)
+	{
 		*in++ ^= (i + (i ^ ((0xFA + size) & 0xFF))) & 0xFF;
+	}
 }
 
 void CQLIE::Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed)
@@ -746,7 +748,7 @@ void CQLIE::Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed)
 	DWORD x2 = x1;
 	DWORD size = buf_len >> 3;
 
-	for (int i = 0; i < (int)size; i++)
+	for (DWORD i = 0; i < size; i++)
 	{
 		x1 = (x1 + 0xCE24F523) ^ key1;
 		x2 = (x2 + 0xCE24F523) ^ key2;
@@ -765,7 +767,9 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 		return;
 
 	for (int i = 0; i < 256; i++)
+	{
 		buf[i] = i;
+	}
 
 	BYTE x = src[4];
 
@@ -888,7 +892,9 @@ void CQLIE::DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed)
 	DWORD key     = (mutator + len) & 0xFF;
 
 	for (int i = 1; i <= (int)len; i++)
+	{
 		buff[i - 1] ^= ((i ^ key) & 0xFF) + i;
+	}
 }
 
 void CQLIE::DecryptV3(LPBYTE buff, DWORD len, DWORD seed)

@@ -2,7 +2,7 @@
 #include	"Natsupochi.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decrypted
+//  Check if it can be decrypted
 
 BOOL	CNatsupochi::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CNatsupochi::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CNatsupochi::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -22,7 +22,7 @@ DWORD	CNatsupochi::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding Process
+//  Decoding Process
 
 DWORD	CNatsupochi::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

@@ -35,7 +35,7 @@ BOOL CNavel::MountPac(CArcFile* pclArc)
     pclArc->Seek(16, FILE_CURRENT);
     pclArc->Read(pIndex, index_size);
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (DWORD i = 0; i < ctFile; i++)
     {
         // Get file name
         TCHAR szFileName[32];

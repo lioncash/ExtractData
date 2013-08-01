@@ -2,7 +2,7 @@
 #include	"SisMiko.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decrypted
+//  Check if it can be decrypted
 
 BOOL	CSisMiko::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CSisMiko::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CSisMiko::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -43,7 +43,7 @@ DWORD	CSisMiko::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption Process
+//  Decryption Process
 
 DWORD	CSisMiko::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

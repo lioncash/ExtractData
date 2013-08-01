@@ -8,7 +8,7 @@
 #include "Krkr.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+//  Mount
 
 BOOL	CKrkr::Mount(
 	CArcFile*			pclArc							// Archive
@@ -237,7 +237,7 @@ BOOL	CKrkr::Mount(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+//  Decode
 
 BOOL	CKrkr::Decode(
 	CArcFile*			pclArc							// Archive
@@ -445,7 +445,7 @@ BOOL	CKrkr::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Extraction
+//  Extraction
 
 BOOL	CKrkr::Extract(
 	CArcFile*			pclArc							// Archive
@@ -485,7 +485,7 @@ BOOL	CKrkr::Extract(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set MD5 value for tpm in the archive folder
+//  Set MD5 value for tpm in the archive folder
 
 void	CKrkr::SetMD5ForTpm(
 	CArcFile*			pclArc							// Archive
@@ -524,7 +524,7 @@ void	CKrkr::SetMD5ForTpm(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Determine if the archive is decodable
+//  Determine if the archive is decodable
 
 BOOL	CKrkr::OnCheckDecrypt(
 	CArcFile*			pclArc							// Archive
@@ -534,7 +534,7 @@ BOOL	CKrkr::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Verifies that the MD5 value of tpm in the archive folder matches
+//  Verifies that the MD5 value of tpm in the archive folder matches
 
 BOOL	CKrkr::CheckTpm(
 	const char*			pszMD5							// MD5
@@ -556,7 +556,7 @@ BOOL	CKrkr::CheckTpm(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize decryption process
+//  Initialize decryption process
 
 void	CKrkr::InitDecrypt(
 	CArcFile*			pclArc							// Archive
@@ -578,7 +578,7 @@ void	CKrkr::InitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	By default, use simple decoding
+//  By default, use simple decoding
 
 DWORD	CKrkr::OnInitDecrypt(
 	CArcFile*			pclArc							// Archive
@@ -597,7 +597,7 @@ DWORD	CKrkr::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption Process
+//  Decryption Process
 
 DWORD	CKrkr::Decrypt(
 	BYTE*				pbtTarget,						// Data to be decoded
@@ -647,9 +647,9 @@ DWORD	CKrkr::Decrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	By default, use simple decoding
+//  By default, use simple decoding
 //
-//	Remark: The  dwDecryptKey return value from OnInitDecrypt
+//  Remark: The dwDecryptKey returns the value from OnInitDecrypt
 
 DWORD	CKrkr::OnDecrypt(
 	BYTE*				pbtTarget,						// Data to be decoded
@@ -664,7 +664,7 @@ DWORD	CKrkr::OnDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set decryption request
+//  Set decryption request
 
 void	CKrkr::SetDecryptRequirement(
 	BOOL				bDecrypt						// Decryption request
@@ -674,7 +674,7 @@ void	CKrkr::SetDecryptRequirement(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set decoding size
+//  Set decoding size
 
 void	CKrkr::SetDecryptSize(
 	DWORD				dwDecryptSize					// Decoding size
@@ -684,7 +684,7 @@ void	CKrkr::SetDecryptSize(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the offset for the location of the archive within an EXE file.
+//  Get the offset for the location of the archive within an EXE file.
 //
 //  Remark: KiriKiri allows its resources to be stored within an executable
 

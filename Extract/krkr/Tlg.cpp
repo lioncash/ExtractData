@@ -20,7 +20,7 @@ short TVPTLG6GolombCompressed[TVP_TLG6_GOLOMB_N_COUNT][9] = {
 char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT*2*128][TVP_TLG6_GOLOMB_N_COUNT];
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+//  Mount
 
 BOOL	CTlg::Mount(
     CArcFile*			pclArc							// Archive
@@ -83,9 +83,13 @@ BOOL CTlg::Decode(CArcFile* pclArc, LPBYTE src)
 
     // Check for TLG raw data
     if (!memcmp(src, "TLG5.0\x00raw\x1a", 11))
+    {
         return DecompTLG5(pclArc, &src[11]);
+    }
     else if (!memcmp(src, "TLG6.0\x00raw\x1a", 11))
+    {
         return DecompTLG6(pclArc, &src[11]);
+    }
     else
     {
         pclArc->OpenFile();
@@ -116,13 +120,17 @@ BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
     YCMemory<BYTE> dst(dstSize);
     LPBYTE pdst = &dst[0];
     memset(pdst, 0, dstSize);
+
     // Ensure buffer dictionary
     YCMemory<BYTE> dic(4096);
     memset(&dic[0], 0, 4096);
+
     // Ensure each buffer to store RGBA data
     YCMemory<BYTE> outbufs[4];
     for (BYTE i = 0; i < colors; i++)
+    {
         outbufs[i].resize(blockHeight * width + 10);
+    }
 
     LPBYTE prevline = &dst[0]; // Get a buffer filled with 0's
     for (LONG y_blk = 0; y_blk < height; y_blk += blockHeight)
@@ -133,6 +141,7 @@ BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
             BYTE comp = src[0];
             DWORD size = *(LPDWORD)&src[1];
             src += 5;
+
             // Modified LZSS compressed data
             if (comp == 0)
                 r = DecompLZSS(&outbufs[c][0], src, size, &dic[0], r);
@@ -141,21 +150,27 @@ BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
                 memcpy(&outbufs[c][0], src, size);
             src += size;
         }
+
         // Compose colors and store
         LONG y_lim = y_blk + blockHeight;
         if (y_lim > height) y_lim = height;
         LPBYTE poutbufs[4];
 
         for (DWORD c = 0; c < colors; c++)
+        {
             poutbufs[c] = &outbufs[c][0];
+        }
 
         for (LONG y = y_blk; y < y_lim; y++)
         {
             ComposeColors(pdst, prevline, poutbufs, width, colors);
             prevline = pdst;
             pdst += width * colors;
+
             for (DWORD i = 0; i < colors; i++)
+            {
                 poutbufs[i] += width;
+            }
         }
     }
 
@@ -196,7 +211,8 @@ int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
     DWORD dstSize = width * height * 4;
     YCMemory<BYTE> dst(dstSize);
     LPBYTE pdst = &dst[0];
-    // allocate memories
+
+    // Allocate memory
     YCMemory<BYTE> bit_pool(max_bit_length / 8 + 5);
     YCMemory<DWORD> pixelbuf(sizeof(DWORD) * width * TVP_TLG6_H_BLOCK_SIZE + 1);
     YCMemory<BYTE> filter_types(x_block_count * y_block_count);
@@ -208,9 +224,13 @@ int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
         LPDWORD p = (LPDWORD)&LZSS_dic[0];
         DWORD i_max = 0x01010101 << 5;
         DWORD j_max = 0x01010101 << 4;
-        for (DWORD i = 0; i < i_max; i += 0x01010101) {
+
+        for (DWORD i = 0; i < i_max; i += 0x01010101)
+        {
             for (DWORD j = 0; j < j_max; j += 0x01010101)
+            {
                 p[0] = i, p[1] = j, p += 2;
+            }
         }
     }
 
@@ -255,7 +275,7 @@ int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
             // Two most significant bits of bitlength are
             // entropy coding method;
             // 00 means Golomb method,
-            // 01 means Gamma method (not yet suppoted),
+            // 01 means Gamma method (not yet supported),
             // 10 means modified LZSS method (not yet supported),
             // 11 means raw (uncompressed) data (not yet supported).
 
@@ -344,6 +364,7 @@ DWORD CTlg::DecompLZSS(LPBYTE out, LPBYTE in, DWORD insize, LPBYTE dic, DWORD in
             r &= (4096 - 1);
         }
     }
+
     return r;
 }
 
@@ -386,7 +407,7 @@ void CTlg::TVPTLG6DecodeGolombValues(LPBYTE pixelbuf, DWORD pixel_count, LPBYTE 
 
     while (pixelbuf < limit)
     {
-        /* Get running count */
+        // Get running count
         int count;
 
         {
@@ -419,9 +440,9 @@ void CTlg::TVPTLG6DecodeGolombValues(LPBYTE pixelbuf, DWORD pixel_count, LPBYTE 
 
         if (zero)
         {
-            /* Zero values */
+            // Zero values
 
-            /* Fill distination with zero */
+            // Fill destination with zero
             do
             {
                 if (color == 0) *(LPDWORD)pixelbuf = 0;
@@ -434,9 +455,9 @@ void CTlg::TVPTLG6DecodeGolombValues(LPBYTE pixelbuf, DWORD pixel_count, LPBYTE 
         }
         else
         {
-            /* Non-zero values */
+            // Non-zero values
 
-            /* Fill distination with glomb code */
+            // Fill destination with golomb code
 
             do
             {
@@ -547,22 +568,22 @@ void CTlg::TVPTLG6DecodeLineGeneric(LPDWORD prevline, DWORD *curline, DWORD widt
     for (DWORD i = start_block; i < block_limit; i++)
     {
         int w = width - i * TVP_TLG6_W_BLOCK_SIZE;
-        
-		if (w > TVP_TLG6_W_BLOCK_SIZE) 
-			w = TVP_TLG6_W_BLOCK_SIZE;
-        
-		int ww = w;
-        
-		if (step == -1) 
-			in += ww - 1;
-        
-		if (i & 1) 
-			in += oddskip * ww;
-        
-		switch (filtertypes[i])
-		{
-#define IA	(char)((*in >> 24) & 0xff)
-#define IR	(char)((*in >> 16) & 0xff)
+
+        if (w > TVP_TLG6_W_BLOCK_SIZE) 
+            w = TVP_TLG6_W_BLOCK_SIZE;
+
+        int ww = w;
+
+        if (step == -1) 
+            in += ww - 1;
+
+        if (i & 1) 
+            in += oddskip * ww;
+
+        switch (filtertypes[i])
+        {
+#define IA  (char)((*in >> 24) & 0xff)
+#define IR  (char)((*in >> 16) & 0xff)
 #define IG  (char)((*in >>  8) & 0xff)
 #define IB  (char)((*in      ) & 0xff)
         TVP_TLG6_DO_CHROMA_DECODE( 0, IB, IG, IR); 
@@ -649,13 +670,15 @@ void CTlg::InitTLG6Table()
     {
         int cnt = 0;
         int j;
-        
-		for (j = 1; j != TVP_TLG6_LeadingZeroTable_SIZE && !(i & j);
+
+        for (j = 1; j != TVP_TLG6_LeadingZeroTable_SIZE && !(i & j);
             j <<= 1, cnt++);
-        
-		cnt++;
-        
-		if (j == TVP_TLG6_LeadingZeroTable_SIZE) cnt = 0;
+
+        cnt++;
+
+        if (j == TVP_TLG6_LeadingZeroTable_SIZE)
+            cnt = 0;
+
         TVPTLG6LeadingZeroTable[i] = cnt;
     }
 
@@ -666,7 +689,9 @@ void CTlg::InitTLG6Table()
         for (int i = 0; i < 9; i++)
         {
             for (int j = 0; j < TVPTLG6GolombCompressed[n][i]; j++)
+            {
                 TVPTLG6GolombBitLengthTable[a++][n] = (char)i;
+            }
         }
     }
 }

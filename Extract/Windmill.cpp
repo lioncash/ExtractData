@@ -21,7 +21,7 @@ BOOL CWindmill::Mount(CArcFile* pclArc)
 	LPBYTE pIndex = &index[0];
 	pclArc->Read(pIndex, index_size);
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (DWORD i = 0; i < ctFile; i++)
 	{
 		// Get file name
 		TCHAR szFileName[32];
@@ -51,11 +51,11 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 	return FALSE; // TODO: Not completed yet
 
-	// Read hg2 header
+	// Read HG2 header
 	BYTE header[48];
 	pclArc->Read(header, sizeof(header));
 
-	// ‚Í‚Ò‚Ë‚·ˆÈ~‚Ìhg2‚É‘Î‰ž
+	// Supports HG2 from Happiness! and later
 	BYTE header2[4];
 	pclArc->Read(header2, sizeof(header2));
 	if (memcmp(header2, "\x78\xDA", 2) != 0)

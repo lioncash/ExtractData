@@ -2,7 +2,7 @@
 #include	"FlyingShine.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if can be decoded
+//  Check if the file can be decoded
 
 BOOL	CFlyingShine::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CFlyingShine::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ïúçÜèàóùÇÃèâä˙âª
+//  Initialize decryption process
 
 DWORD	CFlyingShine::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -22,7 +22,7 @@ DWORD	CFlyingShine::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ïúçÜèàóù
+//  Decryption
 
 DWORD	CFlyingShine::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decoded

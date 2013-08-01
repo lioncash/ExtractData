@@ -128,7 +128,7 @@ BOOL	CYuris::MountYPF(
 				break;
 			}
 
-			for( int j = 0 ; (j < (int)btLength) && (btKey1 == 0) ; j++ )
+			for( BYTE j = 0 ; (j < btLength) && (btKey1 == 0) ; j++ )
 			{
 				szFileName[j] = pIndex[dwIndex + j] ^ 0xff;
 

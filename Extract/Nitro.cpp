@@ -61,7 +61,7 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 
 	DWORD offset = 0x10 + index_compsize;
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (DWORD i = 0; i < ctFile; i++)
 	{
 		SFileInfo infFile;
 
@@ -208,7 +208,7 @@ BOOL CNitro::MountPak3(CArcFile* pclArc)
 
 	// Generate decryption key
 	DWORD key = 0;
-	for (unsigned int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
 		if (sig[i] == 0)
 			break;
@@ -297,7 +297,7 @@ BOOL CNitro::MountPak4(CArcFile* pclArc)
 
 	// Generate decryption key
 	DWORD key = 0;
-	for (unsigned int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
 		if (sig[i] == 0)
 			break;
@@ -571,7 +571,7 @@ BOOL CNitro::MountNpp(CArcFile* pclArc)
 	LPBYTE pIndex = &index[0];
 	pclArc->Read(pIndex, index_size);
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (DWORD i = 0; i < ctFile; i++)
 	{
 		// Get folder and filename from the index
 		TCHAR szDir[64], szFileName[64];

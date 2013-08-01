@@ -578,7 +578,7 @@ BOOL	CMajiro::DecodeRC(
 
 		if( AppendMask( pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize ) )
 		{
-			// マスク画像の付加に成功
+			// Successfully appended the mask image
 
 			wBpp = 32;
 			dwDstSize = dwDstSize2;
@@ -587,9 +587,9 @@ BOOL	CMajiro::DecodeRC(
 	}
 	else if( memcmp( &clmbtSrc[4], "TC01", 4 ) == 0 )
 	{
-		// rct(差分情報)
+		// rct(Difference information)
 
-		// 基底画像ファイル名の取得
+		// Get the base image file name
 
 		TCHAR				szFileName[_MAX_FNAME];
 		WORD				wFileNameLen = *(WORD*)&clmbtSrc[dwSrcPtr];
@@ -624,7 +624,7 @@ BOOL	CMajiro::DecodeRC(
 			{
 				if( memcmp( &clmbtDstOfdiff[i], "\x00\x00\xFF", 3 ) != 0 )
 				{
-					// 差分画像で赤い部分は透過色と判定
+					// Red part is determined to be the transparent color in the difference image
 
 					memcpy( &clmbtDst[i], &clmbtDstOfdiff[i], 3 );
 				}

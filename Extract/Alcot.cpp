@@ -38,7 +38,7 @@ BOOL CAlcot::Mount(CArcFile* pclArc)
     DWORD size = index_size / ctFile;
     DWORD FileNameLen = size - 16;
 
-    for (int i = 0; i < (int)ctFile; i++)
+    for (DWORD i = 0; i < ctFile; i++)
     {
         // Get filename
         TCHAR szFileName[48];
@@ -104,10 +104,14 @@ BOOL CAlcot::DecodeASB(CArcFile* pclArc)
 
             DWORD tmp2 = *(LPDWORD)&z_buf[16] - key2;
             if ((tmp2 & 0x0000FFFF) != 0xDA78)
+            {
                 continue;
+            }
 
-            for (int j = 0; j < (int)z_buf_len / 4; j++)
+            for (DWORD j = 0; j < z_buf_len / 4; j++)
+            {
                 *(LPDWORD)&tmp[j*4] -= key2;
+            }
 
             // Decompression
             CZlib zlib;
@@ -120,7 +124,7 @@ BOOL CAlcot::DecodeASB(CArcFile* pclArc)
             {
                 TCHAR mes[256];
                 _stprintf(mes, _T("Decryption key of this game is %08X . \n We may be able to support this archive type if you report it to us"), x);
-                MessageBox(pclArc->GetProg()->GetHandle(), mes, _T("Decyption Key"), MB_OK);
+                MessageBox(pclArc->GetProg()->GetHandle(), mes, _T("Decryption Key"), MB_OK);
 
                 _stprintf(mes, _T("_%08X.txt"), x);
                 pclArc->OpenFile(mes);
@@ -198,6 +202,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
         {
             if (z_colorSize[i] == 0)
                 continue;
+
             pbuf -= colorSize;
             zlib.Decompress(pbuf, colorSize, &z_pbuf[4], z_colorSize[i]);
             z_pbuf += z_colorSize[i];
@@ -215,7 +220,9 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
         LPBYTE pbuf = &buf[0];
 
         for (int i = 0; i < colors; i++)
+        {
             z_colorSize[i] = *(LPDWORD)&z_buf[16 + i*4];
+        }
 
         switch (type)
         {
@@ -223,7 +230,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
             case 1:
                 CZlib zlib;
                 z_pbuf += 0x20;
-                for (int i = 0; i < (int)colors; i++)
+                for (BYTE i = 0; i < colors; i++)
                 {
                     zlib.Decompress(pbuf, colorSize, &z_pbuf[4], z_colorSize[i]);
                     pbuf += colorSize;
@@ -233,7 +240,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
             // Proprietary compression
             case 3:
                 z_pbuf += 0x20;
-                for (int i = 0; i < (int)colors; i++)
+                for (BYTE i = 0; i < colors; i++)
                 {
                     Decomp(pbuf, colorSize, z_pbuf);
                     pbuf += colorSize;
@@ -279,15 +286,21 @@ void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
             {
                 WORD offset = (tmp & 0x1FFF) + 1;
                 LPBYTE dst2 = dst - offset;
-                for (int i = 0; i < (int)length; i++)
+
+                for (WORD i = 0; i < length; i++)
+                {
                     *dst++ = *dst2++;
+                }
             }
         }
         else
         {
             WORD length = *psrc3++ + 1;
-            for (int i = 0; i < (int)length; i++)
+
+            for (WORD i = 0; i < length; i++)
+            {
                 *dst++ = *psrc3++;
+            }
         }
 
         code >>= 1;
@@ -308,7 +321,7 @@ void CAlcot::Decrypt(LPBYTE src, DWORD srcSize, DWORD dstSize)
         if ((tmp & 0x0000FFFF) != 0xDA78)
             continue;
 
-        for (int j = 0; j < (int)srcSize / 4; j++)
+        for (DWORD j = 0; j < (srcSize / 4); j++)
         {
             *(LPDWORD)src -= key;
             src += 4;

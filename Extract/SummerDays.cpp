@@ -31,7 +31,7 @@ BOOL CSummerDays::Mount(CArcFile* pclArc)
 
     TCHAR pcPath[MAX_PATH];
     ZeroMemory(pcPath, sizeof(pcPath));
-    for (int i = 0; i < (int)ctTotal; i++)
+    for (DWORD i = 0; i < ctTotal; i++)
     {
         if (_sub(pclArc, pcPath) == FALSE)
         {
@@ -68,10 +68,12 @@ int CSummerDays::_context_add(WORD ui16Code)
 {
     std::vector<TCONTEXT>& ptContextTable = m_tContextTable;
 
-    for (int i = 0; i < (int)ptContextTable.size(); i++)
+    for (size_t i = 0; i < ptContextTable.size(); i++)
     {
         if (ptContextTable[i].ui16Code == ui16Code)
+        {
             return (ptContextTable[i].iType);
+        }
     }
 
     return -1;
@@ -126,10 +128,12 @@ BOOL CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
         WORD ui16Count;
         pclArc->Read(&ui16Count, 2);
         
-        for (int i = 0; i < (int)ui16Count; i++)
+        for (WORD i = 0; i < ui16Count; i++)
         {
             if (_sub(pclArc, pcPath2) == FALSE)
+            {
                 return FALSE;
+            }
         }
     }
     else

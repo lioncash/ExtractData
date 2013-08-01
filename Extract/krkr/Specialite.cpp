@@ -2,7 +2,7 @@
 #include	"Specialite.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decrypted
+//  Check if it can be decrypted
 
 BOOL	CSpecialite::OnCheckDecrypt(
     CArcFile*			pclArc							// Archive
@@ -12,7 +12,7 @@ BOOL	CSpecialite::OnCheckDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Process
+//  Initialize Decryption Process
 
 DWORD	CSpecialite::OnInitDecrypt(
     CArcFile*			pclArc							// Archive
@@ -22,7 +22,7 @@ DWORD	CSpecialite::OnInitDecrypt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Decryption Process
+//  Decryption Process
 
 DWORD	CSpecialite::OnDecrypt(
     BYTE*				pbtTarget,						// Data to be decrypted
