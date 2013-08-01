@@ -292,23 +292,27 @@ BOOL CExtract::Search(CArcFile* pclArc)
     SOption* pOption = pclArc->GetOpt();
 
     // Check the database
-//	CDataBase db;
-//	if (db.Check(pclArc) == TRUE)
-//		return;
+//  CDataBase db;
+//  if (db.Check(pclArc) == TRUE)
+//      return;
     //std::vector<CSearchBase*> Class = m_SearchClass;
-//	for (int i = 0; i < (int)pOption->bSearch.size(); i++) {
-//		pOption->bSearch[i] = FALSE;
-//	}
-//	pOption->bSearch[3] = TRUE;
+//  for (int i = 0; i < (int)pOption->bSearch.size(); i++)
+//  {
+//      pOption->bSearch[i] = FALSE;
+//  }
+//  pOption->bSearch[3] = TRUE;
 
     std::vector<CSearchBase*>& SearchClass = m_SearchClass;
     std::vector<CSearchBase*> Class;
     DWORD maxHedSize = 0;
-    for (int i = 0; i < (int)pOption->bSearch.size(); i++) {
+    for (int i = 0; i < (int)pOption->bSearch.size(); i++)
+    {
         // Add class to use only
-        if (pOption->bSearch[i] == TRUE) {
+        if (pOption->bSearch[i] == TRUE)
+        {
             SearchClass[i]->Init(pOption);
             Class.push_back(SearchClass[i]);
+
             // Keep looking for the maximum length of the header in the class to use
             DWORD hedSize = SearchClass[i]->GetHedSize();
             if (hedSize > maxHedSize)
@@ -320,7 +324,8 @@ BOOL CExtract::Search(CArcFile* pclArc)
     size_t ctClass = Class.size();
 
     // End if no files were set to be searched for
-    if (ctClass == 0) {
+    if (ctClass == 0)
+    {
         pProg->UpdatePercent(pclArc->GetArcSize());
         return FALSE;
     }
@@ -332,19 +337,26 @@ BOOL CExtract::Search(CArcFile* pclArc)
 
     DWORD BufSize = 65536;
     QWORD ArcSize = pclArc->GetArcSize() - maxHedSize;
-    for (INT64 i = 0; i < (INT64)ArcSize; i += BufSize) {
-        for (int j = 0; j < (int)ctClass; j++) {
-            for (int k = 0; k < (int)BufSize; k++) {
+    for (INT64 i = 0; i < (INT64)ArcSize; i += BufSize)
+    {
+        for (int j = 0; j < (int)ctClass; j++)
+        {
+            for (int k = 0; k < (int)BufSize; k++)
+            {
                 if (Class[j]->CmpHed(&buf[k]) == TRUE)
                     break;
             }
-            //if (Class[j]->CmpMem(buf, Class[j]->GetHed(), Class[j]->GetHedSize()) == TRUE) {
+
+            //if (Class[j]->CmpMem(buf, Class[j]->GetHed(), Class[j]->GetHedSize()) == TRUE)
+            //{
                 //Class[j]->Mount(pclArc);
             //	break;
             //}
         }
+
         //if ((i & 65535) == 0)
             pProg->UpdatePercent(BufSize);
+
         //buf++;
             buf += BufSize;
         //Class[0]->CmpMem(buf, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
@@ -376,16 +388,21 @@ BOOL CExtract::Search(CArcFile* pclArc)
 //	}
 
 /*
-    for (INT64 i = 0; i < (INT64)ArcSize; i++) {
+    for (INT64 i = 0; i < (INT64)ArcSize; i++)
+    {
         BOOL ret = FALSE;
-        for (int i = 0; i < (int)ctClass; i++) {
-            if (Class[i]->Search(pclArc, buf, dwReadSize) == TRUE) {
+        for (int i = 0; i < (int)ctClass; i++)
+        {
+            if (Class[i]->Search(pclArc, buf, dwReadSize) == TRUE)
+            {
                 Class[i]->Mount(pclArc, buf);
                 ret = TRUE;
                 break;
             }
         }
-        if (ret == FALSE) {
+
+        if (ret == FALSE)
+        {
             pProg->UpdatePercent(dwReadSize);
             // Prevent interruption of data
             pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
@@ -396,55 +413,73 @@ BOOL CExtract::Search(CArcFile* pclArc)
 //	CloseHandle(hFileMap);
     std::map<int, int> offsets;
 
-    while (1) {
+    while (1)
+    {
         BOOL ret = FALSE;
 
         // Read BUFSIZE segments
         BYTE buf[BUFSIZE];
         DWORD dwReadSize = pclArc->Read(buf, BUFSIZE);
+
         // Search ends when the reading amount is smaller than the header size
-        if (dwReadSize < maxHedSize) {
+        if (dwReadSize < maxHedSize)
+        {
             pProg->UpdatePercent(dwReadSize);
             break;
         }
 
         DWORD dwSearchSize = dwReadSize - maxHedSize;
 
-        for (int i = 0; i < (int)ctClass; i++) {
-            if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize) == TRUE) {
+        for (int i = 0; i < (int)ctClass; i++)
+        {
+            if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize) == TRUE)
+            {
                 offsets.insert(std::map<int, int>::value_type(Class[i]->GetOffset(), i));
                 ret = TRUE;
             }
         }
-        if (ret == FALSE) {
+
+        if (ret == FALSE)
+        {
             pProg->UpdatePercent(dwSearchSize);
             // Prevent interruption of data
             pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
         }
-        else {
-            for (std::map<int, int>::iterator itr = offsets.begin(); itr != offsets.end(); itr++) {
+        else
+        {
+            for (std::map<int, int>::iterator itr = offsets.begin(); itr != offsets.end(); itr++)
+            {
                 // dwReadSize - offset, back to the first position found, has moved to the header file
                 pclArc->Seek(-((int)dwReadSize - itr->first), FILE_CURRENT);
                 pProg->UpdatePercent(itr->first);
+
                 // Mount if the offset is less
                 Class[itr->second]->Mount(pclArc);
+
                 // breakせずにやりたいけど、シーク量の計算式が思いつかんからパス
                 break;
             }
+
             offsets.clear();
         }
     }
 
 /*
-    while (1) {
+    while (1)
+    {
         BOOL ret = FALSE;
         BYTE buf[BUFSIZE];
         DWORD dwReadSize = pclArc->Read(buf, BUFSIZE) - maxHedSize;
+
         if (dwReadSize == -1)
             break;
-        for (int i = 0; i < (int)dwReadSize; i++) {
-            for (int j = 0; j < (int)ctClass; j++) {
-                if (Class[j]->CmpHed(&buf[i]) == TRUE) {
+
+        for (int i = 0; i < (int)dwReadSize; i++)
+        {
+            for (int j = 0; j < (int)ctClass; j++)
+            {
+                if (Class[j]->CmpHed(&buf[i]) == TRUE)
+                {
                     pclArc->Seek(-(BUFSIZE-i), FILE_CURRENT);
                     pProg->UpdatePercent(i);
                     Class[j]->Mount(pclArc);
@@ -452,12 +487,15 @@ BOOL CExtract::Search(CArcFile* pclArc)
                     break;
                 }
             }
+
             // Resume when the reading is called from Mount()
             if (ret == TRUE)
                 break;
         }
+
         if (ret == FALSE)
             pProg->UpdatePercent(dwReadSize);
+
         // Prevent interruption of data
         pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
     }
