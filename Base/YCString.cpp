@@ -3,75 +3,75 @@
 #include	"YCString.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コード変換後の長さの取得
+// Gets the length of the string after conversion.
 //
-//	return	ワイド文字に変換したときの長さ
+// Returns: Length of the wide-character string equivalent of the given multi-byte string.
 //
-//	備考	マルチバイト文字 -> ワイド文字
+// Remarks: Multi-byte character -> Wide character
 
 int		YCBaseString::GetBaseTypeLength(
-	const char*			pszSrc							// マルチバイト文字列
+	const char*			pszSrc					// Multi-byte string
 	) const
 {
-	return	(GetBaseTypeLength( pszSrc, -1 ) - 1);
+	return (GetBaseTypeLength( pszSrc, -1 ) - 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コード変換後の長さの取得
+// Gets the length of the string after conversion.
 //
-//	return	ワイド文字に変換したときの長さ
+// Returns: The length of the resulting wide-character string.
 //
-//	備考	マルチバイト文字 -> ワイド文字
+// Remarks: Multi-byte character -> Wide character
 
 int		YCBaseString::GetBaseTypeLength(
-	const char*			pszSrc,							// マルチバイト文字列
-	int					nLength							// 長さ
+	const char*			pszSrc,					// Multi-byte string
+	int					nLength					// Length
 	) const
 {
-	return	::MultiByteToWideChar( CP_ACP, 0, pszSrc, nLength, NULL, 0 );
+	return ::MultiByteToWideChar( CP_ACP, 0, pszSrc, nLength, NULL, 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コード変換後の長さの取得
+// Gets the length of the string after conversion.
 //
-//	return	マルチバイト文字に変換したときの長さ
+// Returns: Length of the multi-byte string equivalent of the given wide-character string.
 //
-//	備考	ワイド文字 -> マルチバイト文字
+// Remarks: Wide character -> Multi-byte character
 
 int		YCBaseString::GetBaseTypeLength(
-	const wchar_t*		pwszSrc							// ワイド文字列
+	const wchar_t*		pwszSrc					// Wide-character string
 	) const
 {
-	return	(GetBaseTypeLength( pwszSrc, -1 ) - 1);
+	return (GetBaseTypeLength( pwszSrc, -1 ) - 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コード変換後の長さの取得
+// Gets the length of the string after conversion.
 //
-//	return	マルチバイト文字に変換したときの長さ
+// Returns: The length of the multi-byte character.
 //
-//	備考	ワイド文字 -> マルチバイト文字
+// Remarks: Wide character -> Multi-byte character
 
 int		YCBaseString::GetBaseTypeLength(
-	const wchar_t*		pwszSrc,						// ワイド文字列
-	int					nLength							// 長さ
+	const wchar_t*		pwszSrc,				// Wide-character string
+	int					nLength					// Length
 	) const
 {
-	return	::WideCharToMultiByte( CP_ACP, 0, pwszSrc, nLength, NULL, 0, NULL, NULL );
+	return ::WideCharToMultiByte( CP_ACP, 0, pwszSrc, nLength, NULL, 0, NULL, NULL );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コードの変換
+// Character code conversion
 //
-//	return	ワイド文字に変換したときの長さ
+// Return: The length of the wide-character string.
 //
-//	備考	マルチバイト文字 -> ワイド文字
+// Remarks: Multi-byte string -> Wide-character string
 
 int		YCBaseString::ConvertToBaseType(
-	wchar_t*			pwszDst,						// ワイド文字列の格納先
-	int					nDstLength,						// 格納先サイズ
-	const char*			pszSrc,							// マルチバイト文字列
-	int					nSrcLength						// マルチバイト文字列の長さ
+	wchar_t*			pwszDst,				// Wide-character string destination
+	int					nDstLength,				// Destination size
+	const char*			pszSrc,					// Multi-byte string
+	int					nSrcLength				// Multi-byte string length
 	) const
 {
 	int					nLength;
@@ -87,21 +87,21 @@ int		YCBaseString::ConvertToBaseType(
 		pwszDst[nLength] = L'\0';
 	}
 
-	return	nLength;
+	return nLength;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字コードの変換
+// Character code conversion
 //
-//	return	マルチバイト文字に変換したときの長さ
+// Returns: The length of the multi-byte string.
 //
-//	備考	ワイド文字 -> マルチバイト文字
+// Remarks: Wide-character string -> Multi-byte string
 
 int		YCBaseString::ConvertToBaseType(
-	char*				pszDst,							// マルチバイト文字列の格納先
-	int					nDstLength,						// 格納先サイズ
-	const wchar_t*		pwszSrc,						// ワイド文字列
-	int					nSrcLength						// ワイド文字列の長さ
+	char*				pszDst,					// Multi-byte string destination.
+	int					nDstLength,				// Destination size
+	const wchar_t*		pwszSrc,				// Wide-character string
+	int					nSrcLength				// Wide-character string length
 	) const
 {
 	int					nLength;
@@ -117,5 +117,5 @@ int		YCBaseString::ConvertToBaseType(
 		pszDst[nLength] = '\0';
 	}
 
-	return	nLength;
+	return nLength;
 }

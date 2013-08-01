@@ -9,7 +9,7 @@
 //-- Basic String Class ------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class	YCBaseString
+class  YCBaseString
 {
 public:
 
@@ -30,7 +30,7 @@ public:
 // 仮想関数を作ると「__vfptr」メンバ変数の存在により可変長引数に渡せなくなる
 
 template<class TYPE>
-class	YCStringT : protected YCBaseString
+class   YCStringT : protected YCBaseString
 {
 private:
 
@@ -336,7 +336,7 @@ typedef	YCStringT<char>									YCStringA;
 typedef	YCStringT<wchar_t>								YCStringW;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT()
 {
@@ -346,7 +346,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const char*			pszSrc							// Initial value
@@ -358,7 +358,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const char*			pszSrc,							// Initial value
@@ -371,7 +371,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const char&			rfcSrc							// Initial value
@@ -383,7 +383,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const wchar_t*		pwszSrc							// Initial value
@@ -395,7 +395,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const wchar_t*		pwszSrc,						// Initial value
@@ -408,7 +408,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+//  Constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const wchar_t&		rfwcSrc							// Initial value
@@ -420,7 +420,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Copy constructor
+//  Copy constructor
 
 template<class TYPE> YCStringT<TYPE>::YCStringT(
 	const YCStringT<TYPE>&	rfclsSrc					// Source string class
@@ -432,7 +432,7 @@ template<class TYPE> YCStringT<TYPE>::YCStringT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+//  Destructor
 
 template<class TYPE> YCStringT<TYPE>::~YCStringT()
 {
@@ -440,7 +440,7 @@ template<class TYPE> YCStringT<TYPE>::~YCStringT()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Reads a string resource
+//  Reads a string resource
 
 template<class TYPE> BOOL YCStringT<TYPE>::LoadString(
 	UINT				uID								// Resource ID
@@ -450,7 +450,7 @@ template<class TYPE> BOOL YCStringT<TYPE>::LoadString(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Assignment of a string
+//  Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
 	const char*			pszSrc							// Source string
@@ -488,7 +488,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Assignment of a string
+//  Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
 	const char*			pszSrc,							// Source string
@@ -527,7 +527,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Assignment of a string
+//  Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
 	const char&			rfcSrc							// Source string
@@ -542,7 +542,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Assignment of a string
+//  Assignment of a string
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
 	const wchar_t*		pwszSrc							// Source string
@@ -580,11 +580,11 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の代入
+//  Assignment of a string.
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const wchar_t*		pwszSrc,						// コピー元文字列
-	int					nCount							// コピーする長さ
+	const wchar_t*		pwszSrc,						// Source string
+	int					nCount							// Length of the string to copy
 	)
 {
 	TYPE*				ptString;
@@ -593,7 +593,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nSrcLength = GetBaseTypeLength( pwszSrc, nCount );
 
@@ -604,7 +604,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nSrcLength = nCount;
 
@@ -619,10 +619,10 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の代入
+//  Assignment of a character
 
 template<class TYPE> void YCStringT<TYPE>::Copy(
-	const wchar_t&		rfwcSrc							// コピー元文字
+	const wchar_t&		rfwcSrc							// Source character
 	)
 {
 	wchar_t				wszSrc[2];
@@ -634,10 +634,10 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の追加
+//  Appending a string
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const char*			pszAppend						// 追加文字列
+	const char*			pszAppend						// String to append
 	)
 {
 	int					nStringLength = GetLength();
@@ -646,30 +646,30 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nNewLength += lstrlenA( pszAppend );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the string
 
 		lstrcpyA( (char*) &m_ptString[nStringLength], pszAppend );
 
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nNewLength += GetBaseTypeLength( pszAppend );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the string
 
 		ConvertToBaseType( (wchar_t*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pszAppend );
 
@@ -680,11 +680,11 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の追加
+//  Appending a string
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const char*			pszAppend,						// 追加文字列
-	int					nCount							// 追加する文字数
+	const char*			pszAppend,						// String to append
+	int					nCount							// Number of characters to append
 	)
 {
 	int					nStringLength = GetLength();
@@ -693,30 +693,30 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nNewLength += nCount;
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the character(s)
 
 		lstrcpynA( (char*) &m_ptString[nStringLength], pszAppend, (nCount + 1) );
 
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nNewLength += GetBaseTypeLength( pszAppend, nCount );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the character(s)
 
 		ConvertToBaseType( (wchar_t*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pszAppend, nCount );
 
@@ -727,10 +727,10 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の追加
+//  Appending a character
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const char&			rfcAppend						// 追加文字
+	const char&			rfcAppend						// Character to append
 	)
 {
 	char				szAppend[2];
@@ -742,10 +742,10 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の追加
+//  Appending a string
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const wchar_t*		pwszAppend						// 追加文字列
+	const wchar_t*		pwszAppend						// String to append
 	)
 {
 	int					nStringLength = GetLength();
@@ -754,30 +754,30 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nNewLength += GetBaseTypeLength( pwszAppend );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the string
 
 		ConvertToBaseType( (char*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pwszAppend );
 
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nNewLength += lstrlenW( pwszAppend );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the string
 
 		lstrcpyW( (wchar_t*) &m_ptString[nStringLength], pwszAppend );
 
@@ -788,11 +788,11 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の追加
+//  Appending a string
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const wchar_t*		pwszAppend,						// 追加文字列
-	int					nCount							// 追加する文字数
+	const wchar_t*		pwszAppend,						// String to append
+	int					nCount							// Number of characters to append
 	)
 {
 	int					nStringLength = GetLength();
@@ -801,30 +801,29 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nNewLength += GetBaseTypeLength( pwszAppend, nCount );
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
-
+		// Append the string
 		ConvertToBaseType( (char*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pwszAppend, nCount );
 
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nNewLength += nCount;
 
-		// バッファの拡張
+		// Expand the buffer
 
 		ExtendBuffer( (nNewLength + 1) );
 
-		// 文字列の追加
+		// Append the character(s)
 
 		lstrcpynW( (wchar_t*) &m_ptString[nStringLength], pwszAppend, (nCount + 1) );
 
@@ -835,10 +834,10 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の追加
+//  Appending a character
 
 template<class TYPE> void YCStringT<TYPE>::Append(
-	const wchar_t&		rfwcAppend						// 追加文字
+	const wchar_t&		rfwcAppend						// Character to append
 	)
 {
 	wchar_t				wszAppend[2];
@@ -850,11 +849,11 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	書式付きデータの設定
+//  Formatting settings
 
 template<class TYPE> void YCStringT<TYPE>::Format(
-	const TYPE*			pszFormat,						// 書式付きデータ
-	...													// 可変長引数
+	const TYPE*			pszFormat,						// Formatted data
+	...													// Variable length argument
 	)
 {
 	va_list				vaArgPtr;
@@ -883,11 +882,11 @@ template<class TYPE> void YCStringT<TYPE>::Format(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	書式付きデータの設定
+//  Formatting settings
 
 template<class TYPE> void YCStringT<TYPE>::AppendFormat(
-	const TYPE*			pszFormat,						// 書式付きデータ
-	...													// 可変長引数
+	const TYPE*			pszFormat,						// Formatted data
+	...													// Variable-length argument
 	)
 {
 	va_list				vaArgPtr;
@@ -916,31 +915,31 @@ template<class TYPE> void YCStringT<TYPE>::AppendFormat(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	挿入
+//  Insertion
 //
-//	return	挿入後の文字列の長さ
+//  return  The length of the string after insertion
 
 template<class TYPE> int YCStringT<TYPE>::Insert(
-	int					nIndex,							// 挿入位置
-	const TYPE*			pszInsert						// 挿入文字列
+	int					nIndex,							// Insertion offset
+	const TYPE*			pszInsert						// String to insert into
 	)
 {
 	if( nIndex < 0 )
 	{
-		// 先頭に挿入
+		// Insert at the beginning
 
 		nIndex = 0;
 	}
 	else if( nIndex >= GetLength() )
 	{
-		// 連結
+		// Concatenation
 
 		Append( pszInsert );
 
-		return	GetLength();
+		return GetLength();
 	}
 
-	// 挿入処理
+	// Insertion processing
 
 	int					nStringLength = GetLength();
 	int					nNewLength = nStringLength;
@@ -950,47 +949,47 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nInsertLength = lstrlenA( (const char*) pszInsert );
 		nShiftLength = lstrlenA( (const char*) &m_ptString[nIndex] );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nInsertLength = lstrlenW( (const wchar_t*) pszInsert );
 		nShiftLength = lstrlenW( (const wchar_t*) &m_ptString[nIndex] );
 		break;
 	}
 
-	// バッファの拡張
+	// Expand the buffer
 
 	nNewLength += nInsertLength;
 
 	ExtendBuffer( (nNewLength + 1) );
 
-	// 文字列を挿入する空き領域を作る
+	// Create a free spot to insert the string
 
 	memmove( &m_ptString[nIndex + nInsertLength], &m_ptString[nIndex], (sizeof(TYPE) * (nShiftLength + 1)) );
 
-	// 文字列の挿入
+	// Insert the string
 
 	memcpy( &m_ptString[nIndex], pszInsert, (sizeof(TYPE) * nInsertLength) );
 
 	SetLength( nNewLength );
 
-	return	GetLength();
+	return GetLength();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の挿入
+//  Character insertion
 //
-//	return	挿入後の文字列の長さ
+//  return  The length of the string after insertion
 
 template<class TYPE> int YCStringT<TYPE>::Insert(
-	int					nIndex,							// 挿入位置
-	const TYPE&			rfcInsert						// 挿入文字
+	int					nIndex,							// Insertion offset
+	const TYPE&			rfcInsert						// Character to insert
 	)
 {
 	TYPE				szInsert[2];
@@ -1002,20 +1001,20 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列を空にする
+//  Clears the string
 
 template<class TYPE> void YCStringT<TYPE>::Empty()
 {
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		Copy( "" );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		Copy( L"" );
 		break;
@@ -1023,13 +1022,13 @@ template<class TYPE> void YCStringT<TYPE>::Empty()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の削除
+//  Deletes the string
 //
-//	削除後の文字列の長さ
+// return  The length of the string after deletion
 
 template<class TYPE> int YCStringT<TYPE>::Delete(
-	int					nIndex,							// 削除位置
-	int					nCount							// 削除する文字数
+	int					nIndex,							// Offset to start deletion at.
+	int					nCount							// Number of characters from the offset to delete
 	)
 {
 	int					nStringLength = GetLength();
@@ -1037,41 +1036,41 @@ template<class TYPE> int YCStringT<TYPE>::Delete(
 
 	if( nIndex < 0 )
 	{
-		// 先頭から削除
+		// Delete from the beginning
 
 		nIndex = 0;
 	}
 	else if( nIndex >= nStringLength )
 	{
-		// 削除する文字列なし
+		// Don't delete anything
 
-		return	GetLength();
+		return GetLength();
 	}
 
 	if( nCount <= 0 )
 	{
-		// 削除する文字列なし
+		// Don't delete anything
 
-		return	GetLength();
+		return GetLength();
 	}
 
 	if( (nIndex + nCount) >= nStringLength )
 	{
-		// 削除位置以降の文字列を削除
+		// Offset and # of characters to delete is larger than the whole string length.
 
 		m_ptString[nIndex] = 0;
 
 		SetLength( nIndex );
 
-		return	GetLength();
+		return GetLength();
 	}
 
-	// 削除処理
+	// Deletion processing
 
 	int					nShiftLength = (GetLength() - (nIndex + nCount));
 
-	// 文字列の削除
-	// 文字列を左に詰めて上書きする
+	// Delete the string
+	// Overwriting will be packed to the left side of the string.
 
 	memmove( &m_ptString[nIndex], &m_ptString[nIndex + nCount], (sizeof(TYPE) * (nShiftLength + 1)) );
 
@@ -1079,16 +1078,16 @@ template<class TYPE> int YCStringT<TYPE>::Delete(
 
 	SetLength( nNewLength );
 
-	return	GetLength();
+	return GetLength();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の削除
+//  String deletion
 //
-//	文字列から削除した回数
+//  return  Number of times the given string was removed from the string.
 
 template<class TYPE> int YCStringT<TYPE>::Remove(
-	const TYPE*			pszRemove						// 削除対象文字列
+	const TYPE*			pszRemove						// Target string to delete
 	)
 {
 	int					nIndex = 0;
@@ -1098,13 +1097,13 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nRemoveLength = lstrlenA( pszRemove );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nRemoveLength = lstrlenW( pszRemove );
 		break;
@@ -1112,9 +1111,9 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 
 	if( nRemoveLength <= 0 )
 	{
-		// 削除文字列なし
+		// Don't delete anything
 
-		return	nCount;
+		return nCount;
 	}
 
 	while( 1 )
@@ -1123,7 +1122,7 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 
 		if( nIndex >= 0 )
 		{
-			// 削除対象文字列が存在する
+			// Lines to delete are present
 
 			Delete( nIndex, nRemoveLength );
 
@@ -1131,22 +1130,22 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 		}
 		else
 		{
-			// 削除対象文字列が存在しない
+			// Nothing present
 
 			break;
 		}
 	}
 
-	return	nCount;
+	return nCount;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字の削除
+//  String deletion
 //
-//	文字列から削除した回数
+//  return  Number of times the given character was removed from the string.
 
 template<class TYPE> int YCStringT<TYPE>::Remove(
-	const TYPE&			rfcRemove						// 削除対象文字
+	const TYPE&			rfcRemove						// Character to delete
 	)
 {
 	int					nIndex = 0;
@@ -1159,7 +1158,7 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 
 		if( nIndex >= 0 )
 		{
-			// 削除対象文字列が存在する
+			// Found characters to remove
 
 			Delete( nIndex, nRemoveLength );
 
@@ -1167,48 +1166,48 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 		}
 		else
 		{
-			// 削除対象文字列が存在しない
+			// Nothing present to remove
 
 			break;
 		}
 	}
 
-	return	nCount;
+	return nCount;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭と末尾にある空白文字の削除
+//  Deletes whitespace characters from the beginning and end of the string
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::Trim()
 {
 	TrimLeft();
 	TrimRight();
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭と末尾にある空白文字の削除
+//	Deletes whitespace characters from the beginning and end of the string
 
 template<class TYPE> YCStringT<TYPE>&  YCStringT<TYPE>::Trim(
-	const TYPE*			pszTrim							// 削除対象文字列
+	const TYPE*			pszTrim							// String to trim from the actual string
 	)
 {
 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭と末尾にある空白文字の削除
+//	Deletes whitespace characters from the beginning and end of the string
 
 template<class TYPE> YCStringT<TYPE>&  YCStringT<TYPE>::Trim(
-	const TYPE&			rfcTrim							// 削除対象文字
+	const TYPE&			rfcTrim							// Character to trim from the string
 	)
 {
 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭にある空白文字の削除
+//  Deletes whitspace characters at the beginning of the string.
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 {
@@ -1218,7 +1217,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		bResult = TRUE;
 
@@ -1226,15 +1225,15 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 		{
 			if( ::IsDBCSLeadByte( m_ptString[nCount] ) )
 			{
-				// 全角
+				// Full-width characters
 
 				if( strncmp( (char*) &m_ptString[nCount], "　", 2 ) == 0 )
 				{
-					// トリミング対象文字
+					// Trimming target character
 				}
 				else
 				{
-					// その他
+					// Other
 
 					bResult = FALSE;
 				}
@@ -1243,7 +1242,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 			}
 			else
 			{
-				// 半角
+				// Half-width characters
 
 				switch( m_ptString[nCount] )
 				{
@@ -1251,12 +1250,12 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 				case	'\t':
 				case	'\r':
 				case	'\n':
-					// トリミング対象文字
+					// Trimming target character
 
 					break;
 
 				default:
-					// その他
+					// Other
 
 					bResult = FALSE;
 				}
@@ -1268,7 +1267,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		bResult = TRUE;
 
@@ -1281,12 +1280,12 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 			case	L'\r':
 			case	L'\n':
 			case	L'　':
-				// トリミング対象文字
+				// Trimming target character
 
 				break;
 
 			default:
-				// その他
+				// Other
 
 				bResult = FALSE;
 			}
@@ -1297,11 +1296,13 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 
 	Delete( 0, nCount );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭にある空白文字の削除
+//  Deletes whitspace characters at the beginning of the string.
+//
+//  TODO: Not fully implemented
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft( const TYPE* pszTrim )
 {
@@ -1309,7 +1310,9 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft( const TYPE* psz
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	先頭にある空白文字の削除
+//  Deletes whitspace characters at the beginning of the string.
+//
+//  TODO: Not fully implemented
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft( const TYPE& rfcTrim )
 {
@@ -1317,7 +1320,9 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft( const TYPE& rfc
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	末尾にある空白文字の削除
+//  Deletes whitespace characters at the end of the string
+//
+//  TODO: Not fully implemented
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 {
@@ -1329,7 +1334,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		bResult = TRUE;
 		nIndex = 0;
@@ -1339,11 +1344,11 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 		{
 			if( ::IsDBCSLeadByte( m_ptString[nIndex] ) )
 			{
-				// 全角
+				// Full-width characters
 			}
 			else
 			{
-				// 半角
+				// Half-width characters
 
 				switch( m_ptString[nIndex] )
 				{
@@ -1356,7 +1361,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		break;
 	}
@@ -1364,7 +1369,9 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	末尾にある空白文字の削除
+//  Deletes whitespace characters at the end of the string
+//
+//  TODO: Not fully implemented
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight( const TYPE* pszTrim )
 {
@@ -1372,7 +1379,9 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight( const TYPE* ps
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	末尾にある空白文字の削除
+//  Deletes whitespace characters at the end of the string
+//
+//  TODO: Not fully implemented
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight( const TYPE& rfcTrim )
 {
@@ -1380,13 +1389,13 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight( const TYPE& rf
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	置換
+//  Replacing
 //
-//	return	置き換えられた回数
+//  return  Number of times replacements occurred
 
 template<class TYPE> int YCStringT<TYPE>::Replace(
-	const TYPE*			pszOld,							// 置換対象文字
-	const TYPE*			pszNew							// 置換後の文字
+	const TYPE*			pszOld,							// String to replace
+	const TYPE*			pszNew							// String to replace with
 	)
 {
 	int					nIndex = 0;
@@ -1399,14 +1408,14 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nOldLength = lstrlenA( (const char*) pszOld );
 		nNewLength = lstrlenA( (const char*) pszNew );
 		break;
 
 	case		2:
-		// wchar_t型
+		// wchar_t type
 
 		nOldLength = lstrlenW( (const wchar_t*) pszOld );
 		nNewLength = lstrlenW( (const wchar_t*) pszNew );
@@ -1419,17 +1428,17 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 
 		if( nIndex >= 0 )
 		{
-			// 置換対象文字列が存在する
+			// Target string to replace is present
 
 			if( nNewLength == nOldLength )
 			{
-				// 置換後も文字列の長さは変わらない
+				// Length of the string cannot change, even after replacement.
 
 				memcpy( &m_ptString[nIndex], pszNew, (sizeof(TYPE) * nNewLength) );
 			}
 			else
 			{
-				// 置換後は文字列が増加／減少する
+				// String length is increased/decreased after replacement
 
 				nNewStringLength += (nNewLength - nOldLength);
 
@@ -1447,7 +1456,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 		}
 		else
 		{
-			// 置換対象文字列が存在しない
+			// Couldn't find any target string to replace
 
 			break;
 		}
@@ -1459,13 +1468,13 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	置換
+//  Replacing
 //
-//	return	置き換えられた回数
+//  return  Number of times replacement occurred
 
 template<class TYPE> int YCStringT<TYPE>::Replace(
-	const TYPE&			rfcOld,							// 置換対象文字
-	const TYPE&			rfcNew							// 置換後の文字
+	const TYPE&			rfcOld,							// Target character to replace
+	const TYPE&			rfcNew							// Character to replace the target character
 	)
 {
 	int					nIndex = 0;
@@ -1478,7 +1487,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 
 		if( nIndex >= 0 )
 		{
-			// 置換対象文字が存在する
+			// Target character to replace exists
 
 			m_ptString[nIndex] = rfcNew;
 
@@ -1486,7 +1495,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 		}
 		else
 		{
-			// 置換対象文字が存在しない
+			// Target character to replace was not present
 
 			break;
 		}
@@ -1496,7 +1505,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	小文字変換
+//  Lowercasing
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeLower()
 {
@@ -1506,7 +1515,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeLower()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	大文字変換
+//  Uppercasing
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeUpper()
 {
@@ -1516,14 +1525,14 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeUpper()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	pszSrcより小さい
-//			正の値	pszSrcより大きい
+//  return  0               Both equal
+//          Negative value  pszSrc is smaller
+//          Positive value  pszSrc is larger
 
 template<class TYPE> int YCStringT<TYPE>::Compare(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
 	int					nReturn;
@@ -1533,13 +1542,13 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nReturn = lstrcmpA( (const char*) m_ptString, pszSrc );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nWork = GetBaseTypeLength( pszSrc );
 
@@ -1554,18 +1563,18 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 		break;
 	}
 
-	return	nReturn;
+	return nReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	rfcSrcより小さい
-//			正の値	rfcSrcより大きい
+//  return  0               Both are equal
+//          Negative value  rfcSrc is smaller
+//          Positive value  rfcSrc is larger
 
 template<class TYPE> int YCStringT<TYPE>::Compare(
-	const char&			rfcSrc							// 比較文字
+	const char&			rfcSrc							// Comparison string
 	) const
 {
 	char				szSrc[2];
@@ -1573,18 +1582,18 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	szSrc[0] = rfcSrc;
 	szSrc[1] = '\0';
 
-	return	Compare( szSrc );
+	return Compare( szSrc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	pszSrcより小さい
-//			正の値	pszSrcより大きい
+//  return  0               Both are equal
+//          Negative value  pszSrc is smaller
+//          Positive value  pszSrc is larger
 
 template<class TYPE> int YCStringT<TYPE>::Compare(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
 	int					nReturn;
@@ -1594,7 +1603,7 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nWork = GetBaseTypeLength( pwszSrc );
 
@@ -1609,24 +1618,24 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nReturn = lstrcmpW( (const wchar_t*) m_ptString, pwszSrc );
 		break;
 	}
 
-	return	nReturn;
+	return nReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	rfwcSrcより小さい
-//			正の値	rfwcSrcより大きい
+//  return  0               Both are equal
+//          Negative value  rfwcSrc is smaller
+//          Positive value  rfwcSrc is larger
 
 template<class TYPE> int YCStringT<TYPE>::Compare(
-	const wchar_t&		rfwcSrc							// 比較文字
+	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
 	wchar_t				wszSrc[2];
@@ -1634,20 +1643,20 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	wszSrc[0] = pwszSrc;
 	wszSrc[1] = L'\0';
 
-	return	Compare( wszSrc );
+	return Compare( wszSrc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	pszSrcより小さい
-//			正の値	pszSrcより大きい
+//  return  0               Both are equal
+//          Negative value  pszSrc is smaller
+//          Positive value  pszSrc is larger
 //
-//	備考	大文字・小文字の比較なし
+//  Remarks: Casing of the characters are ignored.
 
 template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
 	int					nReturn;
@@ -1657,13 +1666,13 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nReturn = lstrcmpiA( (const char*) m_ptString, pszSrc );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nWork = GetBaseTypeLength( pszSrc );
 
@@ -1678,20 +1687,20 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 		break;
 	}
 
-	return	nReturn;
+	return nReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	rfcSrcより小さい
-//			正の値	rfcSrcより大きい
+//  return  0               Both are equal
+//          Negative value  rfcSrc is smaller
+//          Positive value  rfcSrc is larger
 //
-//	備考	大文字・小文字の比較なし
+//  Remarks: Casing of the character is ignored.
 
 template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
-	const char&			rfcSrc							// 比較文字
+	const char&			rfcSrc							// Comparison character
 	) const
 {
 	char				szSrc[2];
@@ -1699,20 +1708,20 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	szSrc[0] = rfcSrc;
 	szSrc[1] = '\0';
 
-	return	CompareNoCase( szSrc );
+	return CompareNoCase( szSrc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	pszSrcより小さい
-//			正の値	pszSrcより大きい
+//  return  0               Both are equal
+//          Negative value  pszSrc is smaller
+//          Positive value  pszSrc is larger
 //
-//	備考	大文字・小文字の比較なし
+//  Remarks: Casing of the characters are ignored.
 
 template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
 	int					nReturn;
@@ -1722,7 +1731,7 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nWork = GetBaseTypeLength( pwszSrc );
 
@@ -1737,26 +1746,26 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nReturn = lstrcmpiW( (const wchar_t*) m_ptString, pwszSrc );
 		break;
 	}
 
-	return	nReturn;
+	return nReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	比較
+//  Comparison
 //
-//	return	0		一致した
-//			負の値	rfwcSrcより小さい
-//			正の値	rfwcSrcより大きい
+//  return  0               Both are equal
+//          Negative value  rfwcSrc is smaller
+//          Positive value  rfwcSrc is larger
 //
-//	備考	大文字・小文字の比較なし
+//  Remarks: Casing of the characters is ignored
 
 template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
-	const wchar_t&		rfwcSrc							// 比較文字
+	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
 	wchar_t				wszSrc[2];
@@ -1764,40 +1773,40 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	wszSrc[0] = rfwcSrc;
 	wszSrc[1] = L'\0';
 
-	return	CompareNoCase( wszSrc );
+	return CompareNoCase( wszSrc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	前方検索
+//  Forward search
 //
-//	return	一致した位置
+//  return The index at which the string was found at
 //
-//	備考	一致する文字列が存在しない場合は -1 を返す
+//  Remarks: -1 is returned if a matching string could not be found
 
 template<class TYPE> int YCStringT<TYPE>::Find(
-	const TYPE*			pszSub,							// 検索対象文字列
-	int					nStart							// 検索開始位置
+	const TYPE*			pszSub,							// Search string
+	int					nStart							// Starting index
 	) const
 {
 	INT_PTR				npResult = -1;
 
 	if( nStart < 0 )
 	{
-		// 文字列の先頭から検索
+		// Search from the beginning of the string
 
 		nStart = 0;
 	}
 	else if( nStart >= GetLength() )
 	{
-		// 文字列の最後から検索
+		// Search from the end of the string
 
-		return	(int) npResult;
+		return (int) npResult;
 	}
 
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		const BYTE*			pbtFound;
 
@@ -1805,7 +1814,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 		if( pbtFound != NULL )
 		{
-			// 対象文字列が存在する
+			// Target string is present
 
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
@@ -1813,7 +1822,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		const wchar_t*		pwszFound;
 
@@ -1821,7 +1830,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 		if( pwszFound != NULL )
 		{
-			//  対象文字列が存在する
+			//  Target string is present
 
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
@@ -1829,28 +1838,28 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 		break;
 	}
 
-	return	(int) npResult;
+	return (int) npResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	前方検索
+//  Forward search
 
 template<class TYPE> int YCStringT<TYPE>::Find(
-	const TYPE&			rfcSub,							// 検索対象文字
-	int					nStart							// 検索開始位置
+	const TYPE&			rfcSub,							// Character to search for
+	int					nStart							// Starting index
 	) const
 {
 	INT_PTR				npResult = -1;
 
 	if( nStart <  0 )
 	{
-		// 文字列の先頭から検索
+		// Search from the beginning of the string
 
 		nStart = 0;
 	}
 	else if( nStart >= GetLength() )
 	{
-		// 文字列の最後から検索
+		// Search from the end of the string
 
 		return	(int) npResult;
 	}
@@ -1858,7 +1867,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		const BYTE*			pbtFound;
 
@@ -1866,7 +1875,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 		if( pbtFound != NULL )
 		{
-			// 対象文字列が存在する
+			// Target string is present
 
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
@@ -1874,7 +1883,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		const wchar_t*		pwszFound;
 
@@ -1882,7 +1891,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 		if( pwszFound != NULL )
 		{
-			// 対象文字列が存在する
+			// Target string is present
 
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
@@ -1890,36 +1899,36 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 		break;
 	}
 
-	return	(int) npResult;
+	return (int) npResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	後方検索
+//  Backward search
 //
-//	return	見つかった位置
+//  return  The index at which the beginning of the string was found.
 //
-//	備考	マルチバイトの場合、検索速度は遅いため、出来るだけ使用しないことが望ましい
+//  Remarks: For multi-byte characters, this is pretty slow, so only use it when necessary.
 
 template<class TYPE> int YCStringT<TYPE>::ReverseFind(
-	const TYPE*			pszSub							// 検索対象文字列
+	const TYPE*			pszSub							// String to search for
 	) const
 {
 	INT_PTR				npResult = -1;
 
-	// 検索対象文字列の長さの取得
+	// Getting the length of the search string
 
 	int					nSubLength = 0;
 
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nSubLength = lstrlenA( (const char*) pszSub );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nSubLength = lstrlenW( (const wchar_t*) pszSub );
 		break;
@@ -1927,12 +1936,12 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 	if( nSubLength <= 0 )
 	{
-		// 検索対象文字列なし
+		// No search string
 
-		return	(int) npResult;
+		return (int) npResult;
 	}
 
-	// 文字列の最後から検索
+	// Search from the end of the string
 
 	int					nStart = (GetLength() - nSubLength);
 	int					nIndex;
@@ -1940,7 +1949,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		char*				pszWork;
 
@@ -1950,7 +1959,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 		{
 			if( lstrcmpA( pszWork, (const char*) pszSub ) == 0 )
 			{
-				// 一致した
+				// Strings are equal
 
 				npResult = (pszWork - (char*) m_ptString);
 				break;
@@ -1967,13 +1976,13 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		for( nIndex = nStart ; nIndex >= 0 ; nIndex-- )
 		{
 			if( lstrcmpW( (wchar_t*) &m_ptString[nIndex], (const wchar_t*) pszSub ) == 0 )
 			{
-				// 一致した
+				// Strings are equal
 
 				npResult = nIndex;
 				break;
@@ -1983,14 +1992,14 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 		break;
 	}
 
-	return	(int) npResult;
+	return (int) npResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	後方検索
+//  Backward search
 
 template<class TYPE> int YCStringT<TYPE>::ReverseFind(
-	const TYPE&			rfcSub							// 検索対象文字
+	const TYPE&			rfcSub							// Character to search for
 	) const
 {
 	INT_PTR				npResult = -1;
@@ -1998,7 +2007,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		const BYTE*			pbtFound;
 
@@ -2006,7 +2015,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 		if( pbtFound != NULL )
 		{
-			// 対象文字列が存在する
+			// Target string is present
 
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
@@ -2014,7 +2023,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		const wchar_t*		pwszFound;
 
@@ -2022,7 +2031,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 		if( pwszFound != NULL )
 		{
-			// 対象文字列が存在する
+			// Target string is present
 
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
@@ -2030,29 +2039,31 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 		break;
 	}
 
-	return	(int) npResult;
+	return (int) npResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	左の部分を抽出
+//  Extracts the left part of the string
 //
-//	return	抽出した文字列
+//  return  Extracted character string
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Left(
-	int					nCount							// 抽出する文字数
+	int					nCount							// Number of characters to extract
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Delete( nCount, clsResult.GetLength() );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	右の部分を抽出
+//  Extracts the right side of the string
 //
-//	return	抽出した文字列
+//  return  Extracted character string
+//
+//  TODO: Not implemented yet
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Right( int nCount ) const
 {
@@ -2060,9 +2071,11 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Right( int nCount ) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	中央の部分を抽出
+//  Extracts the center part of a string
 //
-//	return	抽出した文字列
+//  return  Extracted character string
+//
+//  TODO: Not implemented yet
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Mid( int nFirst ) const
 {
@@ -2070,9 +2083,11 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Mid( int nFirst ) const
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	中央の部分を抽出
+//  Extracts the center part of a string
 //
-//	return	抽出した文字列
+//  return  Extracted character string
+//
+//  TODO: Not implemented yet
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Mid( int nFirst, int nCount ) const
 {
@@ -2087,49 +2102,49 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Mid( int nFirst, int nCoun
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	バッファの取得
+//  Gets the string buffer
 
 template<class TYPE> TYPE* YCStringT<TYPE>::GetBuffer(
-	int					nBufferSize						// バッファサイズ
+	int					nBufferSize						// Buffer size
 	)
 {
 	if( nBufferSize > GetBufferSize() )
 	{
-		// 現在のバッファサイズより大きい
+		// Desired buffer size is larger than the current buffer's size
 
 		Free();
 
-		// メモリの確保
+		// Allocate memory
 
 		Alloc( nBufferSize );
 	}
 
-	return	m_ptString;
+	return m_ptString;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列長の取得
+//  Gets the string length
 
 template<class TYPE> int YCStringT<TYPE>::GetLength() const
 {
 	if( m_ptString == NULL )
 	{
-		return	0;
+		return 0;
 	}
 
-	return	*(int*) (m_ptString - (YCSTRINGT_OFFSET_LENGTH / sizeof(TYPE)));
+	return *(int*) (m_ptString - (YCSTRINGT_OFFSET_LENGTH / sizeof(TYPE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の取得
+//  Gets the string
 
 template<class TYPE> const TYPE* YCStringT<TYPE>::GetString() const
 {
-	return	m_ptString;
+	return m_ptString;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列が空かどうか調べる
+//  Whether or not the string is empty
 
 template<class TYPE> bool YCStringT<TYPE>::IsEmpty() const
 {
@@ -2138,26 +2153,26 @@ template<class TYPE> bool YCStringT<TYPE>::IsEmpty() const
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		bReturn = (*this == "");
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		bReturn = (*this == L"");
 		break;
 	}
 
-	return	bReturn;
+	return bReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子のリネーム
+//  Changes the extension of a file (for when using YCStrings to deal with files)
 
 template<class TYPE> void YCStringT<TYPE>::RenameExtension(
-	const TYPE*			ptRenameExt						// リネーム後の拡張子
+	const TYPE*			ptRenameExt						// Extension to change it to
 	)
 {
 	int					nFileNameIndex = GetFileNameIndex();
@@ -2165,14 +2180,14 @@ template<class TYPE> void YCStringT<TYPE>::RenameExtension(
 
 	if( nFileExtIndex >= nFileNameIndex )
 	{
-		// 拡張子を発見
+		// Found an extension
 
 		int					nNewStringLength = GetLength();
 
 		switch( sizeof(TYPE) )
 		{
 		case	1:
-			// char型
+			// char type
 
 			nNewStringLength += lstrlenA( (const char*) ptRenameExt ) - lstrlenA( (const char*) &m_ptString[nFileExtIndex] );
 
@@ -2182,7 +2197,7 @@ template<class TYPE> void YCStringT<TYPE>::RenameExtension(
 			break;
 
 		case	2:
-			// wchar_t型
+			// wchar_t type
 
 			nNewStringLength += lstrlenA( (const char*) ptRenameExt ) - lstrlenA( (const char*) &m_ptString[nFileExtIndex] );
 
@@ -2197,17 +2212,17 @@ template<class TYPE> void YCStringT<TYPE>::RenameExtension(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル名の取得
+//  Gets the name of a file (when using YCStrings to deal with files)
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileName() const
 {
 	int					nIndex = GetFileNameIndex();
 
-	return	&m_ptString[nIndex];
+	return &m_ptString[nIndex];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイル名へのインデックスの取得
+//  Gets the index in the string where the name of a file begins
 
 template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 {
@@ -2217,13 +2232,13 @@ template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nFound = ReverseFind( '\\' );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nFound = ReverseFind( L'\\' );
 		break;
@@ -2231,22 +2246,22 @@ template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 
 	if( nFound >= 0 )
 	{
-		// ファイル名を発見
+		// Found a file name
 
 		nIndex = (nFound + 1);
 	}
 	else
 	{
-		// 文字列全体がファイル名と断定
+		// Whole string happens to be the file name
 
 		nIndex = 0;
 	}
 
-	return	nIndex;
+	return nIndex;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ファイルタイトルの取得
+// Gets the name of a file (When using YCStrings to deal with file names)
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileTitle() const
 {
@@ -2256,13 +2271,13 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileTitle() const
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		szWork[0] = '\0';
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		szWork[0] = L'\0';
 		break;
@@ -2270,21 +2285,21 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileTitle() const
 
 	clsFileTitle.RenameExtension( szWork );
 
-	return	clsFileTitle;
+	return clsFileTitle;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子の取得
+//  Gets the file extension (When dealing with files, etc)
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileExt() const
 {
 	int					nIndex = GetFileExtIndex();
 
-	return	&m_ptString[nIndex];
+	return &m_ptString[nIndex];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	拡張子へのインデックスの取得
+//  Gets the index of a file extension (for when dealing with file names)
 
 template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 {
@@ -2294,13 +2309,13 @@ template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nFound = ReverseFind( '.' );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nFound = ReverseFind( L'.' );
 		break;
@@ -2308,22 +2323,22 @@ template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 
 	if( nFound >= 0 )
 	{
-		// 拡張子を発見
+		// Extension found
 
 		nIndex = nFound;
 	}
 	else
 	{
-		// 拡張子がない
+		// There is no extension
 
 		nIndex = GetLength();
 	}
 
-	return	nIndex;
+	return nIndex;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	フォルダパスの取得
+//  Gets a folder path
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 {
@@ -2333,7 +2348,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 
 	if( nFileNameIndex >= 1 )
 	{
-		// フォルダ名を発見
+		// Folder name found
 
 		nTargetIndex = (nFileNameIndex - 1);
 	}
@@ -2341,13 +2356,13 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		nDriveIndex = ReverseFind( ':' );
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		nDriveIndex = ReverseFind( L':' );
 		break;
@@ -2355,42 +2370,42 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 
 	if( nDriveIndex >= 0 )
 	{
-		// ドライブ名が含まれている
+		// Drive name is included
 
 		if( nTargetIndex == (nDriveIndex + 1) )
 		{
-			// ':'の直後に'\\'が存在する
+			// '\\' immediately after ':'
 
 			nTargetIndex = nFileNameIndex;
 		}
 		else
 		{
-			// ':'より前は削除しない
+			// Don't delete anything prior to ':'
 
 			nTargetIndex = (nTargetIndex < nDriveIndex) ? (nDriveIndex + 1) : nTargetIndex;
 		}
 	}
 
-	return	Left( nTargetIndex );
+	return Left( nTargetIndex );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	代入演算子
+//  Assignment operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
-	const char*			pszSrc							// 代入文字列
+	const char*			pszSrc							// String to assign
 	)
 {
 	Copy( pszSrc );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	代入演算子
+//  Assignment operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
-	const char&			rfcSrc							// 代入文字
+	const char&			rfcSrc							// Character to assign
 	)
 {
 	Copy( rfcSrc );
@@ -2399,224 +2414,224 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	代入演算子
+//  Assignment operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
-	const wchar_t*		pwszSrc							// 代入文字列
+	const wchar_t*		pwszSrc							// String to assign
 	)
 {
 	Copy( pwszSrc );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	代入演算子
+//  Assignment operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
-	const wchar_t&		rfwcSrc							// 代入文字
+	const wchar_t&		rfwcSrc							// Character to assign
 	)
 {
 	Copy( rfwcSrc );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	代入演算子
+//  Assignment operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
-	const YCStringT<TYPE>&	rfclsSrc					// 代入文字列
+	const YCStringT<TYPE>&	rfclsSrc					// String to assign
 	)
 {
 	Copy( rfclsSrc );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子
+//  + Operator
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
-	const char*			pszAppend						// 繋げる文字列
+	const char*			pszAppend						// String to concatenate
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Append( pszAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子
+//  + Operator
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
-	const char&			rfcAppend						// 繋げる文字
+	const char&			rfcAppend						// Character to concatenate
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Append( rfcAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子
+//  + Operator
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
-	const wchar_t*		pwszAppend						// 繋げる文字列
+	const wchar_t*		pwszAppend						// String to concatenate
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Append( pwszAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子
+//  + Operator
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
-	const wchar_t&		rfwcAppend						// 繋げる文字
+	const wchar_t&		rfwcAppend						// Character to concatenate
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Append( rfwcAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子
+//  + Operator
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate
 	) const
 {
 	YCStringT<TYPE>		clsResult = *this;
 
 	clsResult.Append( rfclsAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子(外部関数)
+//  + Operator (External function)
 
 template<class TYPE> YCStringT<TYPE> operator+(
-	const char*				pszSrc,						// 繋げられる文字列
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const char*				pszSrc,						// String to concatenate
+	const YCStringT<TYPE>&	rfclsAppend					// Parent string to concatenate to
 	)
 {
 	YCStringT<TYPE>		clsResult = pszSrc;
 
 	clsResult.Append( rfclsAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子(外部関数)
+//  + Operator (External function)
 
 template<class TYPE> YCStringT<TYPE> operator+(
-	const char&				rfcSrc,						// 繋げられる文字
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const char&				rfcSrc,						// Character to concatenate
+	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate it to
 	)
 {
 	YCStringT<TYPE>		clsResult = rfcSrc;
 
 	clsResult.Append( rfclsAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子(外部関数)
+//  + Operator (External function)
 
 template<class TYPE> YCStringT<TYPE> operator+(
-	const wchar_t*			pwszSrc,					// 繋げられる文字列
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const wchar_t*			pwszSrc,					// String to concatenate
+	const YCStringT<TYPE>&	rfclsAppend					// Parent string to concatenate it to
 	)
 {
 	YCStringT<TYPE>		clsResult = pwszSrc;
 
 	clsResult.Append( rfclsAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+演算子(外部関数)
+// + Operator (External function)
 
 template<class TYPE> YCStringT<TYPE> operator+(
-	const wchar_t&			rfwcSrc,					// 繋げられる文字
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const wchar_t&			rfwcSrc,					// Character to concatenate
+	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate it to
 	)
 {
 	YCStringT<TYPE>		clsResult = rfwcSrc;
 
 	clsResult.Append( rfclsAppend );
 
-	return	clsResult;
+	return clsResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+=演算子
+//  += Operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
-	const char*			pszAppend						// 繋げる文字列
+	const char*			pszAppend						// String to concatenate
 	)
 {
 	Append( pszAppend );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+=演算子
+//  += Operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
-	const char&			rfcAppend						// 繋げる文字
+	const char&			rfcAppend						// Character to concatenate
 	)
 {
 	Append( rfcAppend );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+=演算子
+//  += Operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
-	const wchar_t*		pwszAppend						// 繋げる文字列
+	const wchar_t*		pwszAppend						// String to concatenate
 	)
 {
 	Append( pwszAppend );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+=演算子
+//  += Operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
-	const wchar_t&		rfwcAppend						// 繋げる文字
+	const wchar_t&		rfwcAppend						// Character to concatenate
 	)
 {
 	Append( rfwcAppend );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	+=演算子
+//  += Operator
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
-	const YCStringT<TYPE>&	rfclsAppend					// 繋げる文字列
+	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate
 	)
 {
 	Append( rfclsAppend );
@@ -2625,413 +2640,415 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator+=(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	==演算子
+//  == Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator==(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) == 0);
+	return (Compare( pszSrc ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	==演算子
+//  == Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator==(
-	const char&			rfcSrc							// 比較文字
+	const char&			rfcSrc							// Comparison character
 	) const
 {
-	return	(Compare( rfcSrc ) == 0);
+	return (Compare( rfcSrc ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	==演算子
+//  == Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator==(
-	const wchar_t*			pwszSrc						// 比較文字列
+	const wchar_t*			pwszSrc						// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) == 0);
+	return (Compare( pwszSrc ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	==演算子
+// == Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator==(
-	const wchar_t&		rfwcSrc							// 比較文字
+	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
-	return	(Compare( rfwcSrc ) == 0);
+	return (Compare( rfwcSrc ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	==演算子
+//  == Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator==(
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) == 0);
+	return (Compare( rfclsSrc ) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	!=演算子
+//  != Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator!=(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) != 0);
+	return (Compare( pszSrc ) != 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	!=演算子
+//  != Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator!=(
-	const char&			rfcSrc							// 比較文字
+	const char&			rfcSrc							// Comparison character
 	) const
 {
-	return	(Compare( rfcSrc ) != 0);
+	return (Compare( rfcSrc ) != 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	!=演算子
+//  != Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator!=(
-	const wchar_t*			pwszSrc						// 比較文字列
+	const wchar_t*			pwszSrc						// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) != 0);
+	return (Compare( pwszSrc ) != 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	!=演算子
+// != Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator!=(
-	const wchar_t&		rfwcSrc							// 比較文字
+	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
-	return	(Compare( rfwcSrc ) != 0);
+	return (Compare( rfwcSrc ) != 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	!=演算子
+//  != Operator
 
 template<class TYPE> bool YCStringT<TYPE>::operator!=(
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) != 0);
+	return (Compare( rfclsSrc ) != 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<演算子
+//  < Operator
 //
-//	return	TRUE	pszSrc未満
-//			FALSE	pszSrc以上
+//  return  TRUE    pszSrc is smaller
+//          FALSE   pszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) < 0);
+	return (Compare( pszSrc ) < 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<演算子
+//  < Operator
 //
-//	return	TRUE	pwszSrc未満
-//			FALSE	pwszSrc以上
+//  return  TRUE    pwszSrc is smaller
+//          FALSE   pwszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) < 0);
+	return (Compare( pwszSrc ) < 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<演算子
+//  < Operator
 //
-//	return	TRUE	rfclsSrc未満
-//			FALSE	rfclsSrc以上
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<(
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) < 0);
+	return (Compare( rfclsSrc ) < 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<演算子(外部関数)
+//  < Operator (External function)
 //
-//	return	TRUE	rfclsSrc未満
-//			FALSE	rfclsSrc以上
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator<(
-	const char*				pszSrc,						// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const char*				pszSrc,						// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pszSrc ) >= 0);
+	return (rfclsSrc.Compare( pszSrc ) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<演算子(外部関数)
+//  < Operator (External function)
 //
-//	return	TRUE	rfclsSrc未満
-//			FALSE	rfclsSrc以上
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator<(
-	const wchar_t*			pwszSrc,					// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const wchar_t*			pwszSrc,					// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pwszSrc ) >= 0);
+	return (rfclsSrc.Compare( pwszSrc ) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<=演算子
+//  <= Operator
 //
-//	return	TRUE	pszSrc以下
-//			FALSE	pszSrc超
+//  return  TRUE    pszSrc is smaller or equal
+//          FALSE   pszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<=(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) <= 0);
+	return (Compare( pszSrc ) <= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<=演算子
+//  <= Operator
 //
-//	return	TRUE	pwszSrc以下
-//			FALSE	pwszSrc超
+//  return  TRUE    pwszSrc is smaller or equal
+//          FALSE   pwszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<=(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) <= 0);
+	return (Compare( pwszSrc ) <= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<=演算子
+//  <= Operator
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller or equal
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator<=(
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) <= 0);
+	return (Compare( rfclsSrc ) <= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<=演算子(外部関数)
+//  <= Operator (External function)
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller or equal
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator<=(
-	const char*				pszSrc,						// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const char*				pszSrc,						// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pszSrc ) > 0);
+	return (rfclsSrc.Compare( pszSrc ) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	<=演算子(外部関数)
+//  <= Operator (External function)
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller or equal
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator<=(
-	const wchar_t*			pwszSrc,					// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const wchar_t*			pwszSrc,					// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pwszSrc ) > 0);
+	return (rfclsSrc.Compare( pwszSrc ) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>演算子
+//  > Operator
 //
-//	return	TRUE	pszSrc超
-//			FALSE	pszSrc以下
+//  return  TRUE    pszSrc is larger
+//          FALSE   pszSrc is smaller
 
 template<class TYPE> bool YCStringT<TYPE>::operator>(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) > 0);
+	return (Compare( pszSrc ) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>演算子
+//  > Operator
 //
-//	return	TRUE	pwszSrc超
-//			FALSE	pwszSrc以下
+//  return  TRUE    pwszSrc is larger
+//          FALSE   pwszSrc is smaller
 
 template<class TYPE> bool YCStringT<TYPE>::operator>(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) > 0);
+	return (Compare( pwszSrc ) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>演算子
+//  > Operator
 //
-//	return	TRUE	rfclsSrc超
-//			FALSE	rfclsSrc以下
+//  return  TRUE    rfclsSrc is larger
+//          FALSE   rfclsSrc is smaller
 
 template<class TYPE> bool YCStringT<TYPE>::operator>(
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) > 0);
+	return (Compare( rfclsSrc ) > 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>演算子(外部関数)
+//  > Operator (External function)
 //
-//	return	TRUE	rfclsSrc超
-//			FALSE	rfclsSrc以下
+//  return  TRUE    rfclsSrc is larger
+//          FALSE   rfclsSrc is smaller
 
 template<class TYPE> bool operator>(
-	const char*				pszSrc,						// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const char*				pszSrc,						// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pszSrc ) <= 0);
+	return (rfclsSrc.Compare( pszSrc ) <= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>演算子(外部関数)
+//  > Operator (External function)
 //
-//	return	TRUE	rfclsSrc超
-//			FALSE	rfclsSrc以下
+//  return  TRUE    rfclsSrc is larger
+//          FALSE   rfclsSrc is smaller
 
 template<class TYPE> bool operator>(
-	const wchar_t*			pwszSrc,					// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const wchar_t*			pwszSrc,					// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pszSrc ) <= 0);
+	return (rfclsSrc.Compare( pszSrc ) <= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>=演算子
+//  >= Operator
 //
-//	return	TRUE	pszSrc以下
-//			FALSE	pszSrc超
+//  return  TRUE    pszSrc is smaller
+//          FALSE   pszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator>=(
-	const char*			pszSrc							// 比較文字列
+	const char*			pszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pszSrc ) >= 0);
+	return (Compare( pszSrc ) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>=演算子
+//  >= Operator
 //
-//	return	TRUE	pwszSrc以下
-//			FALSE	pwszSrc超
+//  return  TRUE    pwszSrc is smaller
+//          FALSE   pwszSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator>=(
-	const wchar_t*		pwszSrc							// 比較文字列
+	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	return	(Compare( pwszSrc ) >= 0);
+	return (Compare( pwszSrc ) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>=演算子
+//  >= Operator
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool YCStringT<TYPE>::operator>=( 
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	) const
 {
-	return	(Compare( rfclsSrc ) >= 0);
+	return (Compare( rfclsSrc ) >= 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>=演算子(外部関数)
+//  >= Operator (External function)
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator>=(
-	const char*				pszSrc,						// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const char*				pszSrc,						// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pszSrc ) < 0);
+	return (rfclsSrc.Compare( pszSrc ) < 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	>=演算子(外部関数)
+//  >= Operator (External function)
 //
-//	return	TRUE	rfclsSrc以下
-//			FALSE	rfclsSrc超
+//  return  TRUE    rfclsSrc is smaller
+//          FALSE   rfclsSrc is larger
 
 template<class TYPE> bool operator>=(
-	const wchar_t*			pwszSrc,					// 比較文字列
-	const YCStringT<TYPE>&	rfclsSrc					// 比較文字列
+	const wchar_t*			pwszSrc,					// Comparison string
+	const YCStringT<TYPE>&	rfclsSrc					// Comparison string
 	)
 {
-	return	(rfclsSrc.Compare( pwszSrc ) < 0);
+	return (rfclsSrc.Compare( pwszSrc ) < 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素にアクセス
+//  Element accessing
 //
-//	備考	範囲外の参照に対して何もしないため高速だが、落ちる危険性があるので注意
+//  Remarks: Faster if you don't want to do anything in regards to bounds checking.
+//           Though it still has a chance of failing.
 
 template<class TYPE> TYPE& YCStringT<TYPE>::operator[](
-	int					nPos							// 参照位置
+	int					nPos							// Position offset
 	)
 {
-	return	m_ptString[nPos];
+	return m_ptString[nPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	要素の参照
+//  Element referencing
 //
-//	備考	範囲外の参照に対して何もしないため高速だが、落ちる危険性があるので注意
+//  Remarks: Faster if you don't want to do anything in regards to bounds checking.
+//           Though it still has a chance of failing.
 
 template<class TYPE> const TYPE& YCStringT<TYPE>::operator[](
-	int					nPos							// 参照位置
+	int					nPos							// Position offset.
 	) const
 {
-	return	m_ptString[nPos];
+	return m_ptString[nPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列を返す
+//  Gets the string
 
 template<class TYPE> YCStringT<TYPE>::operator const TYPE*() const
 {
-	return	GetString();
+	return GetString();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリの確保
+//  Memory allocation
 
 template<class TYPE> void YCStringT<TYPE>::Alloc(
-	int					nBufferSize						// バッファサイズ
+	int					nBufferSize						// Buffer size
 	)
 {
-	// アライメント
+	// Alignment
 
 	int					nPaddingSize = (YCSTRINGT_BUFFERSIZE_ALIGNMENT - (nBufferSize % YCSTRINGT_BUFFERSIZE_ALIGNMENT));
 
@@ -3040,7 +3057,7 @@ template<class TYPE> void YCStringT<TYPE>::Alloc(
 		nBufferSize += nPaddingSize;
 	}
 
-	// バッファの確保
+	// Ensure the string buffer has a sufficient size
 
 	int					nDataSize = (16 / sizeof(TYPE));
 
@@ -3048,13 +3065,13 @@ template<class TYPE> void YCStringT<TYPE>::Alloc(
 
 	m_ptString += nDataSize;
 
-	// バッファサイズの格納
+	// Store the buffer size
 
 	SetBufferSize( nBufferSize );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	メモリの解放
+//  Freeing memory
 
 template<class TYPE> void YCStringT<TYPE>::Free()
 {
@@ -3069,15 +3086,15 @@ template<class TYPE> void YCStringT<TYPE>::Free()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	バッファの拡張
+//  Buffer extending
 
 template<class TYPE> void YCStringT<TYPE>::ExtendBuffer(
-	int					nBufferSize						// バッファサイズ
+	int					nBufferSize						// Buffer size
 	)
 {
 	if( nBufferSize < GetBufferSize() )
 	{
-		// バッファを拡張する必要なし
+		// No need to extend the buffer
 
 		return;
 	}
@@ -3087,7 +3104,7 @@ template<class TYPE> void YCStringT<TYPE>::ExtendBuffer(
 	switch( sizeof(TYPE) )
 	{
 	case	1:
-		// char型
+		// char type
 
 		Alloc( nBufferSize );
 
@@ -3096,7 +3113,7 @@ template<class TYPE> void YCStringT<TYPE>::ExtendBuffer(
 		break;
 
 	case	2:
-		// wchar_t型
+		// wchar_t type
 
 		Alloc( nBufferSize );
 
@@ -3105,41 +3122,41 @@ template<class TYPE> void YCStringT<TYPE>::ExtendBuffer(
 		break;
 	}
 
-	// 前のバッファの解放
+	// Release the previous buffer
 
 	delete[]	(ptString - (16 / sizeof(TYPE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	バッファサイズの設定
+//  Sets the buffer size for a string
 
 template<class TYPE> void YCStringT<TYPE>::SetBufferSize(
-	int					nBufferSize						// バッファサイズ
+	int					nBufferSize						// Buffer size
 	)
 {
 	*(int*) (m_ptString - (YCSTRINGT_OFFSET_BUFFERSIZE / sizeof(TYPE))) = nBufferSize;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	バッファサイズの取得	
+//  Gets the buffer size of the string
 //
-//	return	バッファサイズ
+//  Returns: String buffer size
 
 template<class TYPE> int YCStringT<TYPE>::GetBufferSize()
 {
 	if( m_ptString == NULL )
 	{
-		return	0;
+		return 0;
 	}
 
-	return	*(int*) (m_ptString - (YCSTRINGT_OFFSET_BUFFERSIZE / sizeof(TYPE)));
+	return  *(int*) (m_ptString - (YCSTRINGT_OFFSET_BUFFERSIZE / sizeof(TYPE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	文字列の長さの設定
+//  Sets the length of a string
 
 template<class TYPE> void YCStringT<TYPE>::SetLength(
-	int					nLength							// 文字列の長さ
+	int					nLength							// String length
 	)
 {
 	*(int*) (m_ptString - (YCSTRINGT_OFFSET_LENGTH / sizeof(TYPE))) = nLength;
