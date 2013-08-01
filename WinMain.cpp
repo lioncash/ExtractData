@@ -24,7 +24,7 @@
 #pragma	comment( lib, "libpngd.lib" )
 #else
 #pragma comment( lib, "zlib.lib" )
-#pragma comment( lib, "libpng.lib" )
+#pragma comment( lib, "libpng16.lib" )
 #endif
 
 //#pragma comment (lib, "libjpeg.lib")
