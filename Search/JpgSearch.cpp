@@ -19,11 +19,13 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 	pclArc->Seek(2, FILE_CURRENT);
 
 	// JPEG Image Search
-	while (1) {
+	while (1)
+	{
 		// Get marker
 		BYTE marker[2];
 		if (pclArc->Read(marker, 2) == 0)
 			return;
+
 		// Exit the loop when we reach the JPEG image data
 		if (memcmp(marker, "\xFF\xDA", 2) == 0)
 			break;

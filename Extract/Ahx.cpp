@@ -32,6 +32,7 @@ BOOL CAhx::Mount(CArcFile* pclArc)
 {
     if (lstrcmpi(pclArc->GetArcExten(), _T(".ahx")) != 0)
         return FALSE;
+
     return pclArc->Mount();
 }
 
@@ -67,8 +68,8 @@ void CAhx::Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len)
 
 int bit_alloc_table[32] = { 4,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 };
 int offset_table[5][16] = {
-    { 0},
-    { 0},
+    { 0 },
+    { 0 },
     { 0, 1,  3, 4,                                         },
     { 0, 1,  3, 4, 5, 6,  7, 8,                            },
     { 0, 1,  2, 3, 4, 5,  6, 7,  8,  9, 10, 11, 12, 13, 14 }
@@ -159,7 +160,7 @@ void CAhx::dct(double* src, double* dst0, double* dst1)
             tmp[0][i] = ( + tmp[1][i] + tmp[1][7 ^ i]);
     }
 
-    for (int i = 0;i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
         if (i & 2)
             tmp[1][i] = ( - tmp[0][i] + tmp[0][3 ^ i]) * costable[3][~i & 1] * ((i & 4) ? -1.0 : 1.0);

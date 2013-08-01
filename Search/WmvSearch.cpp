@@ -19,6 +19,7 @@ void CWmvSearch::Mount(CArcFile* pclArc)
 	// Search the auxiliary header
 	if (SearchFot(pclArc) == FALSE)
 		return;
+
 	// Amount of progress advanced by the search bar
 	QWORD search_offset = pclArc->GetArcPointer() - infFile.start - GetHedSize();
 

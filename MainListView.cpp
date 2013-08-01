@@ -210,7 +210,7 @@ void CMainListView::Clear()
     if (!pEnt.empty())
     {
         // Delete files
-        for (int i = 0; i < (int)pEnt.size(); i++)
+        for (size_t i = 0; i < pEnt.size(); i++)
         {
             if (!pEnt[i].sizesOrg.empty())
             {

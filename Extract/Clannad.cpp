@@ -33,7 +33,7 @@ BOOL CClannad::Mount(CArcFile* pclArc)
     // If its VOICE.MRG, start from 20000
     DWORD count = (pclArc->GetArcName() == _T("VOICE.MRG")) ? 0 : 20000;
 
-    for (unsigned int i = 0; i < (int)ctFile; i++)
+    for (unsigned int i = 0; i < ctFile; i++)
     {
         WORD pos = *(LPWORD)&pIndex[0];
         WORD argSize = *(LPWORD)&pIndex[2];

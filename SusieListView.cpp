@@ -208,7 +208,8 @@ BOOL CSusieListView::SetCheck()
 	rc.right = 18;
 
 	// Check processing is performed if the X coordinate of the mouse is within the checkbox region
-	if (htInfo.pt.x >= rc.left && htInfo.pt.x <= rc.right) {
+	if (htInfo.pt.x >= rc.left && htInfo.pt.x <= rc.right)
+	{
 		CSusie susie;
 		susie.GetSusieTmp()[htInfo.iItem].bValidity ^= 1;
 		InvalidateRect(m_hList, &rc, FALSE);
@@ -222,8 +223,11 @@ void CSusieListView::SetCheckAll(BOOL flag)
 {
 	CSusie susie;
 	std::vector<SSusieInfo>& SusieInfos = susie.GetSusieTmp();
-	for (int i = 0; i < (int)SusieInfos.size(); i++)
+
+	for (size_t i = 0; i < SusieInfos.size(); i++)
+	{
 		SusieInfos[i].bValidity = flag;
+	}
 
 	RECT rc;
 	GetClientRect(m_hList, &rc);

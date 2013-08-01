@@ -32,7 +32,8 @@ void CZlib::DecompressFile(CArcFile* pclArc)
 		image.Init(pclArc, &buf[0]);
 		image.Write(pInfFile->sizeOrg);
 	}
-	else {
+	else
+	{
 		// Output
 		pclArc->OpenFile();
 		pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
@@ -54,7 +55,8 @@ int CZlib::Decompress(BYTE* dst, DWORD* dstSize, const BYTE* src, DWORD srcSize)
 	// Initialization
 	z.next_in = Z_NULL;
 	z.avail_in = 0;
-	if (inflateInit(&z) != Z_OK) {
+	if (inflateInit(&z) != Z_OK)
+	{
 		CError error;
 		error.Message(NULL, _T("inflateInit: %s"), z.msg);
 		return -1;
@@ -70,7 +72,8 @@ int CZlib::Decompress(BYTE* dst, DWORD* dstSize, const BYTE* src, DWORD srcSize)
 	inflate(&z, Z_NO_FLUSH);
 
 	// Clean up
-	if (inflateEnd(&z) != Z_OK) {
+	if (inflateEnd(&z) != Z_OK)
+	{
 		CError error;
 		error.Message(NULL, _T("inflateEnd: %s"), z.msg);
 		return -1;

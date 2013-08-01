@@ -49,11 +49,12 @@ void CSearchBase::InitFot(const LPVOID pattern, DWORD size)
 
 inline BOOL CSearchBase::CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size)
 {
-    for (int i = 0; i < (int)size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         if ((data[i] != pattern[i]) && (pattern[i] != '*'))
             return FALSE;
     }
+
     return TRUE;
 }
 /*
@@ -65,7 +66,8 @@ inline DWORD CSearchBase::CreateDecKey(LPBYTE buf)
 */
 BOOL CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize, DWORD dwSearchSize)
 {/*
-    if (pclArc->GetOpt()->bEasyDecrypt == TRUE) {
+    if (pclArc->GetOpt()->bEasyDecrypt == TRUE)
+    {
         DWORD deckey = CreateDecKey(&buf[0]);
         for (int offset = 0; offset <= (int)dwSearchSize; offset++)
         {
@@ -79,7 +81,8 @@ BOOL CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize, DWORD d
             }
         }
     }
-    else {*/
+    else
+    {*/
         for (int offset = 0; offset <= (int)dwSearchSize; offset++)
         {
             if (CmpHed(&buf[offset]) == TRUE)

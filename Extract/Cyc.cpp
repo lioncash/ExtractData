@@ -434,14 +434,17 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
         {
             // Get sequential input 
             BYTE data = *src++;
+
             // RLE Compression if data is zero
             if (data == 0)
             {
                 // Following input data is written sequentially
                 BYTE len = *src++;
+
                 // RLE Decompression
                 for (int k = 0; k < (int)len; k++)
                     *pdataWidth++ = data;
+
                 // Proceed with decompressed length
                 j += len;
             }
@@ -487,8 +490,8 @@ void CCyc::RGBtoBGR(LPBYTE buf, LONG width, LONG height)
             buf[2] = tmp;
             buf += 3;
         }
-        
-		// Skip padding
+
+        // Skip padding
         for (int x = lwidth; x < lwidth_rev; x++)
         {
             buf++;

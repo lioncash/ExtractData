@@ -164,7 +164,8 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
     static TCHAR ReadmeFileName[MAX_PATH], HistoryFileName[MAX_PATH], StateFileName[MAX_PATH];
     INITCOMMONCONTROLSEX ic;
 
-    switch (msg) {
+    switch (msg)
+    {
     case WM_CREATE:
         {
             // Allow D&D (Drag & Drop)
@@ -176,11 +177,14 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
             ic.dwSize = sizeof(INITCOMMONCONTROLSEX);
             ic.dwICC = ICC_WIN95_CLASSES;
             InitCommonControlsEx(&ic);
+
             // Create main toolbar
             MainToolBar.Create(hWnd);
             SearchToolBar.Create(hWnd);
+
             // Create list view
             listview.Create(hWnd, option.GetOpt());
+
             // Create status bar
             statusbar.Create(hWnd, option.GetOpt(), listview);
 
@@ -188,12 +192,15 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
             TCHAR ModulePath[MAX_PATH];
             GetModuleFileName(NULL, ModulePath, MAX_PATH);
             PathRemoveFileSpec(ModulePath);
+
             // Retrieves full path of the location of Readme.txt
             lstrcpy(ReadmeFileName, ModulePath);
             PathAppend(ReadmeFileName, _T("Readme.txt"));
+
             // Retrieves full path of the location of History.txt
             lstrcpy(HistoryFileName, ModulePath);
             PathAppend(HistoryFileName, _T("History.txt"));
+
             // Retrieves full path of the location of State.txt
             lstrcpy(StateFileName, ModulePath);
             PathAppend(StateFileName, _T("State.txt"));
@@ -209,7 +216,8 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
         break;
 
     case WM_COMMAND:
-        switch (LOWORD(wp)) {
+        switch (LOWORD(wp))
+        {
         case IDM_OPEN: // Open a file to load
             extract.Open(lastdir.GetOpen());
             MainToolBar.AddOpenHistory(extract.GetArcList());

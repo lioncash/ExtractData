@@ -188,8 +188,11 @@ void CSearchToolBar::SetCheckSearch()
 {
     HWND hToolBar = GetCtrlHandle();
     COption option;
-    for (int i = 0, ID = m_nBeginID; i < (int)option.GetOpt().bSearch.size(); i++, ID++)
+
+    for (size_t i = 0, ID = m_nBeginID; i < option.GetOpt().bSearch.size(); i++, ID++)
+    {
         SendMessage(hToolBar, TB_CHECKBUTTON, ID, option.GetOpt().bSearch[i]);
+    }
 }
 
 void CSearchToolBar::SetSearch(int nID)

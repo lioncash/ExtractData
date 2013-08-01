@@ -15,7 +15,9 @@ void CError::LastError(HWND hWnd)
 		lpMsgBuf,
 		0,
 		NULL);
-	if (lpMsgBuf) {
+
+	if (lpMsgBuf)
+	{
 		MessageBox(hWnd, lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION);
 		LocalFree(lpMsgBuf);
 	}

@@ -74,20 +74,23 @@ BOOL	CArcFile::Open(
     )
 {
     HANDLE hArc = CreateFile(pszPathToArc, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hArc == INVALID_HANDLE_VALUE) {
+    if (hArc == INVALID_HANDLE_VALUE)
+    {
         CError error;
         if (PathFileExists(pszPathToArc))
             error.Message(GetForegroundWindow(), _T("%s could not be opened."), PathFindFileName(pszPathToArc));
         else
             error.Message(GetForegroundWindow(), _T("%s does not exist."), PathFindFileName(pszPathToArc));
     }
-    else {
+    else
+    {
         m_dwArcsID++;
         m_hArcs.push_back(hArc);
         m_pclArcPaths.push_back(pszPathToArc);
         m_pclArcNames.push_back(PathFindFileName(pszPathToArc));
         m_pclArcExtens.push_back(PathFindExtension(pszPathToArc));
     }
+
     return	(hArc != INVALID_HANDLE_VALUE);
 }
 
@@ -496,9 +499,11 @@ void CArcFile::ReadWrite(DWORD FileSize)
     DWORD BufSize = GetBufSize();
     YCMemory<BYTE> buf(BufSize);
 
-    for (DWORD WriteSize = 0; WriteSize != FileSize; WriteSize += BufSize) {
+    for (DWORD WriteSize = 0; WriteSize != FileSize; WriteSize += BufSize)
+    {
         // Adjust buffer size
         SetBufSize(&BufSize, WriteSize, FileSize);
+
         // Output
         Read(&buf[0], BufSize);
         Decrypt(&buf[0], BufSize);
@@ -621,13 +626,18 @@ void CArcFile::MakeDirectory(LPCTSTR pFilePath)
 {
     std::vector<YCString> sDirPathList;
     LPCTSTR pFilePathBase = pFilePath;
-    while ((pFilePath = PathFindNextComponent(pFilePath)) != NULL) {
+
+    while ((pFilePath = PathFindNextComponent(pFilePath)) != NULL)
+    {
         YCString sDirPath(pFilePathBase, pFilePath - pFilePathBase - 1); // You do not put a '\' at the end just to be sure to -1
         sDirPathList.push_back(sDirPath);
     }
+
     // Create a directory in the order from the root
-    for (int i = 0; i < (int)sDirPathList.size() - 1; i++) // -1 so as not to create a directory of the file name
+    for (size_t i = 0; i < sDirPathList.size() - 1; i++) // -1 so as not to create a directory of the file name
+    {
         CreateDirectory(sDirPathList[i], NULL);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -733,6 +743,7 @@ DWORD CArcFile::ConvEndian(DWORD value)
         bswap	eax
         mov		value, eax
     }
+
     return (value);
 }
 
@@ -741,6 +752,7 @@ WORD CArcFile::ConvEndian(WORD value)
     _asm {
         ror		value, 8
     }
+
     return (value);
 }
 
@@ -774,6 +786,7 @@ BOOL CArcFile::CheckDir(LPCTSTR pDirName)
 
     if (lstrcmp(PathFindFileName(szDirPath), pDirName) == 0)
         return TRUE;
+
     return FALSE;
 }
 
@@ -794,7 +807,7 @@ SFileInfo*	CArcFile::GetFileInfo(
         pszFileName = PathFindFileName( pszFileName );
     }
 
-    for( DWORD i = 0 ; i < m_pEnt->size() ; i++ )
+    for( size_t i = 0 ; i < m_pEnt->size() ; i++ )
     {
         LPCTSTR				pszWork = (*m_pEnt)[i].name;
 

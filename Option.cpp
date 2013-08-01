@@ -408,7 +408,8 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
     static CGroupBox HighSearchGroup;
     static CCheckBox HighSearchCheckOgg;
 
-    switch (msg) {
+    switch (msg)
+    {
         case WM_INITDIALOG:
         {
             CWindowBase::Init(::GetParent(hWnd));

@@ -17,17 +17,22 @@ void CBmpSearch::Mount(CArcFile* pclArc)
 	// Get file size
 	pclArc->Seek(2, FILE_CURRENT);
 	pclArc->Read(&infFile.sizeOrg, 4);
+
 	// Corresponds to the case filesize
-	if (infFile.sizeOrg == 0) {
+	if (infFile.sizeOrg == 0)
+	{
 		// Get the full size
 		pclArc->Seek(16, FILE_CURRENT);
 		pclArc->Read(&infFile.sizeOrg, 4);
+
 		// If it is not written, also search the end of the BMP (avoids an infinite loop)
 		if (infFile.sizeOrg == 0)
 			return;
+
 		// +54(BMP header size)
 		infFile.sizeOrg += 54;
 	}
+
 	infFile.sizeCmp = infFile.sizeOrg;
 
 	// Get exit address

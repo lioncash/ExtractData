@@ -194,7 +194,8 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
 
         CZlib zlib;
         z_pbuf += 0x20;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++)
+        {
             if (z_colorSize[i] == 0)
                 continue;
             pbuf -= colorSize;
@@ -203,7 +204,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
         }
     }
     else
-	{
+    {
         width = *(LPWORD)&z_buf[8];
         height = *(LPWORD)&z_buf[10];
 

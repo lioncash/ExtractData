@@ -36,7 +36,8 @@ void COggSearch::Mount(CArcFile* pclArc)
 	DWORD ReadCount = 0;
 	infFile.sizeOrg = 0;
 
-	while (1) {
+	while (1)
+    {
 		ReadCount++;
 
 		// Read the OGG header
@@ -44,20 +45,26 @@ void COggSearch::Mount(CArcFile* pclArc)
 		VH vheader = ogg.GetHed();
 
 		//If the serial number is different than what we have
-		if (vheader.serialno != SerialNo) {
+		if (vheader.serialno != SerialNo)
+		{
 			ogg.BackHed();
 			break;
 		}
+
 		// If it is no longer OggS
-		if (memcmp(vheader.pattern, GetHed(), 4) != 0) {
+		if (memcmp(vheader.pattern, GetHed(), 4) != 0)
+		{
 			ogg.BackHed();
 			break;
 		}
+
 		// Exit after the beginning of the OGG until we hit the next header
-		if ((ReadCount > 1) && (memcmp(vheader.pattern, GetHed(), 4) == 0) && (vheader.type == 2)) {
+		if ((ReadCount > 1) && (memcmp(vheader.pattern, GetHed(), 4) == 0) && (vheader.type == 2))
+		{
 			ogg.BackHed();
 			break;
 		}
+
 		// Exit after we hit the end of the file
 		if (PageSize == 0)
 			break;

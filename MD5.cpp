@@ -123,7 +123,7 @@ SMD5 CMD5::Calculate(
 SMD5	CMD5::Calculate(
 	const void*			pvSrc,							// Input data
 	DWORD				dwSrcSize,						// Input data size
-	const DWORD*		pdwInitialize,					// Initializatiom
+	const DWORD*		pdwInitialize,					// Initialization
 	BOOL				bAlignment						// Alignment request
 	)
 {

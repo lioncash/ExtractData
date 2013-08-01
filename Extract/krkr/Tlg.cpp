@@ -350,15 +350,16 @@ DWORD CTlg::DecompLZSS(LPBYTE out, LPBYTE in, DWORD insize, LPBYTE dic, DWORD in
 // RGBA Composition
 void CTlg::ComposeColors(LPBYTE outp, LPBYTE upper, LPBYTE const* buf, DWORD width, DWORD colors)
 {
-    BYTE c[4];
-    BYTE pc[4];
-    memset(pc, 0, 4);
+    BYTE c[4]  = {0, 0, 0, 0};
+    BYTE pc[4] = {0, 0, 0, 0};
+
     for (DWORD x = 0; x < width; x++)
     {
         for (DWORD i = 0; i < colors; i++)
             c[i] = buf[i][x];
 
-        c[0] += c[1]; c[2] += c[1];
+        c[0] += c[1];
+        c[2] += c[1];
 
         for (DWORD i = 0; i < colors; i++)
             outp[i] = (pc[i] += c[i]) + upper[i];
