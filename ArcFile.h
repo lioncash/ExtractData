@@ -6,7 +6,6 @@
 class CArcFile
 {
 public:
-
                                             CArcFile();
     virtual                                 ~CArcFile();
 
@@ -66,7 +65,7 @@ public:
     void SetOpt(SOption* pOption)               { m_pOption = pOption; }
     void SetSaveDir(LPCTSTR pSaveDir)           { m_pSaveDir = pSaveDir; }
 
-    // TRUE if file is supported(Closed immerdiately if the file is not supported)
+    // TRUE if file is supported(Closed immediately if the file is not supported)
 
     void SetState(BOOL bState) { m_bState = bState; }
 
@@ -76,7 +75,7 @@ public:
     void        SetNextArc()                { m_dwArcsID++; }
     HANDLE      GetArcHandle()              { return (m_hArcs[m_dwArcsID]); }
     void        SetArcsID( DWORD dwArcsID ) { m_dwArcsID = dwArcsID; }
-    DWORD       GetArcsID()	                { return (m_dwArcsID); }
+    DWORD       GetArcsID()                 { return (m_dwArcsID); }
     size_t      GetArcCount()               { return (m_hArcs.size()); }
     YCString&   GetArcPath()                { return (m_pclArcPaths[m_dwArcsID]); }
     YCString&   GetArcName()                { return (m_pclArcNames[m_dwArcsID]); }
@@ -89,12 +88,12 @@ public:
     SFileInfo*                  GetFileInfo( DWORD num )    { return (&(*m_pEnt)[num]); }
     SFileInfo*                  GetFileInfo( PCTSTR pszFileName, BOOL bCmpFileNameOnly = FALSE );
     const SFileInfo*            GetFileInfoForBinarySearch( LPCTSTR pszFileName );
-    std::vector<SFileInfo>&	    GetFileInfo()               { return (*m_pEnt); }
+    std::vector<SFileInfo>&     GetFileInfo()               { return (*m_pEnt); }
     SFileInfo*                  GetOpenFileInfo()           { return (m_pInfFile); }
     DWORD                       GetOpenFileInfoNum()        { return (m_dwInfFileNum); }
 
     DWORD                       GetArcID()                  { return (m_dwArcID); }
-    size_t                      GetStartEnt()	            { return (m_nStartEnt); }
+    size_t                      GetStartEnt()               { return (m_nStartEnt); }
     size_t                      GetCtEnt()                  { return (m_ctEnt); }
     CProgBar*                   GetProg()                   { return (m_pProg); }
     SOption*                    GetOpt()                    { return (m_pOption); }
@@ -120,36 +119,36 @@ public:
 
     // Susie plugin mounting
 
-    void				        SetMountSusie() { m_bMountWasSusie = TRUE; }
-    BOOL				        GetMountSusie() { return m_bMountWasSusie; }
+    void                        SetMountSusie() { m_bMountWasSusie = TRUE; }
+    BOOL                        GetMountSusie() { return m_bMountWasSusie; }
 
     // MD5 value setting
 
-    void				        SetMD5(SMD5 stmd5File);
+    void                        SetMD5(SMD5 stmd5File);
 
     // Set flag of MD5 value
 
-    void				        SetMD5OfFlag(BOOL bSetMD5) { m_bSetMD5 = bSetMD5; }
+    void                        SetMD5OfFlag(BOOL bSetMD5) { m_bSetMD5 = bSetMD5; }
 
     // Get MD5 value
 
-    std::vector<SMD5>	        GetMD5() { return m_vtstmd5File; }
+    std::vector<SMD5>           GetMD5() { return m_vtstmd5File; }
 
     // Check if MD5 value is set
 
-    BOOL				        CheckMD5OfSet() { return m_bSetMD5; }
+    BOOL                        CheckMD5OfSet() { return m_bSetMD5; }
 
     // Clear MD5 value
 
-    void				        ClearMD5();
+    void                        ClearMD5();
 
     // Work flag setting
 
-    void				        SetFlag(BOOL bFlag) { m_bWork = bFlag; }
+    void                        SetFlag(BOOL bFlag) { m_bWork = bFlag; }
 
     // Workload capture flag
 
-    BOOL				        GetFlag() { return m_bWork; }
+    BOOL                        GetFlag() { return m_bWork; }
 
     // Comparison function for sorting
 
@@ -179,16 +178,16 @@ private:
     // Archive file split support
 
     DWORD                   m_dwArcsID;
-    std::vector<HANDLE>	    m_hArcs;
+    std::vector<HANDLE>     m_hArcs;
     std::vector<YCString>   m_pclArcPaths;
     std::vector<YCString>   m_pclArcNames;
     std::vector<YCString>   m_pclArcExtens;
 
-    BYTE	                m_pHeader[2048];
-    DWORD	                m_dwArcID;
-    size_t	                m_nStartEnt;    // Starting index of the archive file information
-    size_t	                m_ctEnt;        // Number of archive file information
-    DWORD	                m_dwInfFileNum;
+    BYTE                    m_pHeader[2048];
+    DWORD                   m_dwArcID;
+    size_t                  m_nStartEnt;    // Starting index of the archive file information
+    size_t                  m_ctEnt;        // Number of archive file information
+    DWORD                   m_dwInfFileNum;
 
     BOOL                    m_bState;
 
@@ -201,7 +200,7 @@ private:
 
     DWORD                   m_deckey;
 
-    BOOL                    m_bMountWasSusie;   // Check if Susie was used to mount plugin
+    BOOL                    m_bMountWasSusie;   // Check if Susie was used to mount a plugin
 
     // MD5 value
 
