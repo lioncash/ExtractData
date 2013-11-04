@@ -806,7 +806,7 @@ template<class TYPE> void YCStringT<TYPE>::Format(
 
 template<class TYPE> void YCStringT<TYPE>::AppendFormat(
 	const TYPE*			pszFormat,						// Formatted data
-														// Variable-length argument
+	...													// Variable-length argument
 	)
 {
 	va_list vaArgPtr;
@@ -863,7 +863,7 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 
 	int nStringLength = GetLength();
 	int nNewLength = nStringLength;
-	int	 nInsertLength;
+	int nInsertLength;
 	int nShiftLength;
 
 	switch( sizeof(TYPE) )
@@ -1686,28 +1686,32 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 	switch( sizeof(TYPE) )
 	{
-	case 1:
-		// char type
-		const BYTE* pbtFound = _mbsstr( (const BYTE*) &m_ptString[nStart], (const BYTE*) pszSub );
-
-		if( pbtFound != NULL )
+		case 1:
 		{
-			// Target string is present
+			// char type
+			const BYTE* pbtFound = _mbsstr( (const BYTE*) &m_ptString[nStart], (const BYTE*) pszSub );
 
-			npResult = (pbtFound - (BYTE*) m_ptString);
+			if( pbtFound != NULL )
+			{
+				// Target string is present
+
+				npResult = (pbtFound - (BYTE*) m_ptString);
+			}
 		}
 		break;
 
-	case 2:
-		// wchar_t type
-
-		const wchar_t* pwszFound = wcsstr( (const wchar_t*) &m_ptString[nStart], (const wchar_t*) pszSub );
-
-		if( pwszFound != NULL )
+		case 2:
 		{
-			//  Target string is present
+			// wchar_t type
 
-			npResult = (pwszFound - (wchar_t*) m_ptString);
+			const wchar_t* pwszFound = wcsstr( (const wchar_t*) &m_ptString[nStart], (const wchar_t*) pszSub );
+
+			if( pwszFound != NULL )
+			{
+				//  Target string is present
+
+				npResult = (pwszFound - (wchar_t*) m_ptString);
+			}
 		}
 		break;
 	}
@@ -1740,29 +1744,33 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 	switch( sizeof(TYPE) )
 	{
-	case 1:
-		// char type
-
-		const BYTE* pbtFound = _mbschr( (const BYTE*) &m_ptString[nStart], rfcSub );
-
-		if( pbtFound != NULL )
+		case 1:
 		{
-			// Target string is present
+			// char type
 
-			npResult = (pbtFound - (BYTE*) m_ptString);
+			const BYTE* pbtFound = _mbschr( (const BYTE*) &m_ptString[nStart], rfcSub );
+
+			if( pbtFound != NULL )
+			{
+				// Target string is present
+
+				npResult = (pbtFound - (BYTE*) m_ptString);
+			}
 		}
 		break;
 
-	case 2:
-		// wchar_t type
-
-		const wchar_t* pwszFound = wcschr( (const wchar_t*) &m_ptString[nStart], rfcSub );
-
-		if( pwszFound != NULL )
+		case 2:
 		{
-			// Target string is present
+			// wchar_t type
 
-			npResult = (pwszFound - (wchar_t*) m_ptString);
+			const wchar_t* pwszFound = wcschr( (const wchar_t*) &m_ptString[nStart], rfcSub );
+
+			if( pwszFound != NULL )
+			{
+				// Target string is present
+
+				npResult = (pwszFound - (wchar_t*) m_ptString);
+			}
 		}
 		break;
 	}
@@ -1870,30 +1878,32 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 	switch( sizeof(TYPE) )
 	{
-	case 1:
-		// char type
-
-		const BYTE* pbtFound = _mbsrchr( (const BYTE*) m_ptString, rfcSub );
-
-		if( pbtFound != NULL )
+		case 1:
 		{
-			// Target string is present
-			npResult = (pbtFound - (BYTE*) m_ptString);
-		}
+			// char type
 
+			const BYTE* pbtFound = _mbsrchr( (const BYTE*) m_ptString, rfcSub );
+
+			if( pbtFound != NULL )
+			{
+				// Target string is present
+				npResult = (pbtFound - (BYTE*) m_ptString);
+			}
+		}
 		break;
 
-	case	2:
-		// wchar_t type
-
-		const wchar_t* pwszFound = wcsrchr( (wchar_t*) m_ptString, rfcSub );
-
-		if( pwszFound != NULL )
+		case 2:
 		{
-			// Target string is present
-			npResult = (pwszFound - (wchar_t*) m_ptString);
-		}
+			// wchar_t type
 
+			const wchar_t* pwszFound = wcsrchr( (wchar_t*) m_ptString, rfcSub );
+
+			if( pwszFound != NULL )
+			{
+				// Target string is present
+				npResult = (pwszFound - (wchar_t*) m_ptString);
+			}
+		}
 		break;
 	}
 
