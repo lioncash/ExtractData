@@ -1,31 +1,30 @@
-
-#pragma	once
+#pragma once
 
 //----------------------------------------------------------------------------------------
 //-- Local Memory Class ------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class	YCLocalMemory
+class YCLocalMemory
 {
 public:
 
-											YCLocalMemory();
-	virtual									~YCLocalMemory();
+						YCLocalMemory();
+	virtual				~YCLocalMemory();
 
-	BOOL									Alloc( UINT uFlags, UINT uBytes );
-	BOOL									Free();
+	BOOL				Alloc( UINT uFlags, UINT uBytes );
+	BOOL				Free();
 
-	void*									Lock();
-	BOOL									Unlock();
+	void*				Lock();
+	BOOL				Unlock();
 
-	UINT									GetSize();
+	UINT				GetSize();
 
-	HLOCAL&									GetHandle();
-	void*									GetPtr();
+	HLOCAL&				GetHandle();
+	void*				GetPtr();
 
 
 protected:
 
-	HLOCAL									m_hMemory;
-	void*									m_pvMemory;
+	HLOCAL				m_hMemory;
+	void*				m_pvMemory;
 };

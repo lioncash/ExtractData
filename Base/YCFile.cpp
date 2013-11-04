@@ -1,9 +1,9 @@
 
-#include	"stdafx.h"
-#include	"YCFile.h"
+#include "stdafx.h"
+#include "YCFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 YCFile::YCFile()
 {
@@ -11,7 +11,7 @@ YCFile::YCFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 YCFile::~YCFile()
 {
@@ -19,9 +19,9 @@ YCFile::~YCFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Specifies mode to open file with
+// Specifies the mode to open the file with
 
-BOOL	YCFile::Open(
+BOOL YCFile::Open(
 	LPCTSTR				pszPathToFile,					// File path
 	UINT				uOpenFlags						// Mode
 	)
@@ -35,10 +35,10 @@ BOOL	YCFile::Open(
 		return	FALSE;
 	}
 
-	//  How to access
+	// Access method
 
-	DWORD				dwAccess;
-	DWORD				dwCreateDisposition;
+	DWORD dwAccess;
+	DWORD dwCreateDisposition;
 
 	if( uOpenFlags & modeRead )
 	{
@@ -63,7 +63,7 @@ BOOL	YCFile::Open(
 
 	// Shared mode
 
-	DWORD				dwShare;
+	DWORD dwShare;
 
 	if( uOpenFlags & shareDenyNone )
 	{
@@ -84,7 +84,7 @@ BOOL	YCFile::Open(
 
 	// File attributes and flags
 
-	DWORD				dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+	DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
 
 	if( uOpenFlags & osNoBuffer )
 	{
@@ -127,13 +127,13 @@ BOOL	YCFile::Open(
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
 
-	return	(m_hFile != INVALID_HANDLE_VALUE);
+	return (m_hFile != INVALID_HANDLE_VALUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Close File
+// Close File
 
-void	YCFile::Close()
+void YCFile::Close()
 {
 	if( m_hFile != INVALID_HANDLE_VALUE )
 	{
@@ -143,60 +143,60 @@ void	YCFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Read File
+// Read File
 
-DWORD	YCFile::Read(
+DWORD YCFile::Read(
 	void*				pvBuffer,						// Buffer
 	DWORD				dwReadSize						// Read size
 	)
 {
-	DWORD				dwResult;
+	DWORD dwResult;
 
 	if( !::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, NULL ) )
 	{
 		dwResult = 0;
 	}
 
-	return	dwResult;
+	return dwResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write File
+// Write File
 
-DWORD	YCFile::Write(
+DWORD YCFile::Write(
 	const void*			pvBuffer,						// Buffer
 	DWORD				dwWriteSize						// Write Size
 	)
 {
-	DWORD				dwResult;
+	DWORD dwResult;
 
 	if( !::WriteFile( m_hFile, pvBuffer, dwWriteSize, &dwResult, NULL ) )
 	{
 		dwResult = 0;
 	}
 
-	return	dwResult;
+	return dwResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move the file pointer
+// Move the file pointer
 
-UINT64	YCFile::Seek(
+UINT64 YCFile::Seek(
 	INT64				n64Offset,						// Number of bytes to move
 	DWORD				dwSeekMode						// Seek Mode
 	)
 {
 	switch( dwSeekMode )
 	{
-	case	begin:
+	case begin:
 		dwSeekMode = FILE_BEGIN;
 		break;
 
-	case	current:
+	case current:
 		dwSeekMode = FILE_CURRENT;
 		break;
 
-	case	end:
+	case end:
 		dwSeekMode = FILE_END;
 		break;
 
@@ -204,7 +204,7 @@ UINT64	YCFile::Seek(
 		dwSeekMode = FILE_BEGIN;
 	}
 
-	LARGE_INTEGER		stliWork;
+	LARGE_INTEGER stliWork;
 
 	stliWork.QuadPart = n64Offset;
 	stliWork.LowPart = ::SetFilePointer( m_hFile, stliWork.LowPart, &stliWork.HighPart, dwSeekMode );
@@ -216,84 +216,80 @@ UINT64	YCFile::Seek(
 		stliWork.QuadPart = -1;
 	}
 
-	return	(UINT64) (stliWork.QuadPart);
+	return (UINT64) (stliWork.QuadPart);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move file pointer from the head
+// Move file pointer from the head
 
-UINT64	YCFile::SeekHed(
+UINT64 YCFile::SeekHed(
 	INT64				n64Offset						// Number of bytes to move
 	)
 {
-	return	Seek( n64Offset, begin );
+	return Seek( n64Offset, begin );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move the file pointer from the end of the file
+// Move the file pointer from the end of the file
 
-UINT64	YCFile::SeekEnd(
+UINT64 YCFile::SeekEnd(
 	INT64				n64Offset						// Number of bytes to move
 	)
 {
-	return	Seek( -n64Offset, end );
+	return Seek( -n64Offset, end );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move the file pointer from its current position
+// Move the file pointer from its current position
 
-UINT64	YCFile::SeekCur(
+UINT64 YCFile::SeekCur(
 	INT64				n64Offset						// Number of bytes to move
 	)
 {
-	return	Seek( n64Offset, current );
+	return Seek( n64Offset, current );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the current file pointer position
+// Get the current file pointer position
 
-UINT64	YCFile::GetPosition()
+UINT64 YCFile::GetPosition()
 {
-	return	SeekCur( 0 );
+	return SeekCur( 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the length of the file
+// Gets the length of the file
 
-UINT64	YCFile::GetLength()
+UINT64 YCFile::GetLength()
 {
-	UINT64				u64CurrentOffset;
-	UINT64				u64EndOffset;
-
-	u64CurrentOffset = GetPosition();
-
-	u64EndOffset = SeekEnd();
+	UINT64 u64CurrentOffset = GetPosition();
+	UINT64 u64EndOffset     = SeekEnd();
 
 	SeekHed( u64CurrentOffset );
 
-	return	u64EndOffset;
+	return u64EndOffset;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the file path
+// Gets the file path
 
-YCString	YCFile::GetFilePath()
+YCString YCFile::GetFilePath()
 {
-	return	m_clsPathToFile;
+	return m_clsPathToFile;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the file name
+// Gets the file name
 
-YCString	YCFile::GetFileName()
+YCString YCFile::GetFileName()
 {
-	return	m_clsFileName;
+	return m_clsFileName;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Retrieves the file's extension
+// Retrieves the file's extension
 
-YCString	YCFile::GetFileExt()
+YCString YCFile::GetFileExt()
 {
-	return	m_clsFileExt;
+	return m_clsFileExt;
 }

@@ -1,6 +1,6 @@
-#pragma	once
+#pragma once
 
-//#define	YCMemory	std::valarray
+//#define YCMemory std::valarray
 
 //----------------------------------------------------------------------------------------
 //-- Memory Management Class -------------------------------------------------------------
@@ -9,41 +9,41 @@
 // Replace the part that is used as the buffer std :: vector and std :: valarray
 
 template<class TYPE>
-class	YCMemory
+class YCMemory
 {
 public:
 
-											YCMemory();
-											YCMemory( DWORD dwCount );
-											YCMemory( DWORD dwCount, const TYPE& rftInitValue );
-											YCMemory( const YCMemory<TYPE>& rfclmSrc );
-											~YCMemory();
+										YCMemory();
+										YCMemory( DWORD dwCount );
+										YCMemory( DWORD dwCount, const TYPE& rftInitValue );
+										YCMemory( const YCMemory<TYPE>& rfclmSrc );
+										~YCMemory();
 
-	void									resize( DWORD dwCount );
-	void									resize( DWORD dwCount, const TYPE& rftInitValue );
-	void									clear();
+	void								resize( DWORD dwCount );
+	void								resize( DWORD dwCount, const TYPE& rftInitValue );
+	void								clear();
 
-	inline	DWORD							size() const;
-	TYPE									at( DWORD dwPos ) const;
+	inline DWORD						size() const;
+	TYPE								at( DWORD dwPos ) const;
 
-	inline	TYPE&							operator[]( DWORD dwPos );
-	inline	const TYPE&						operator[]( DWORD dwPos ) const;
-	inline	YCMemory<TYPE>&					operator=( const YCMemory<TYPE>& rfclmSrc );
+	inline TYPE&						operator[]( DWORD dwPos );
+	inline const TYPE&					operator[]( DWORD dwPos ) const;
+	inline YCMemory<TYPE>&				operator=( const YCMemory<TYPE>& rfclmSrc );
 
 
 protected:
 
-	void									alloc( DWORD dwCount );
-	inline	void							fill( const TYPE& rftValue );
+	void								alloc( DWORD dwCount );
+	inline void							fill( const TYPE& rftValue );
 
 private:
 
-	TYPE*									m_ptMemory;
-	DWORD									m_dwMemoryCount;
+	TYPE*								m_ptMemory;
+	DWORD								m_dwMemoryCount;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory()
 {
@@ -52,7 +52,7 @@ template<class TYPE> YCMemory<TYPE>::YCMemory()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
 	DWORD				dwCount							// Element count
@@ -62,7 +62,7 @@ template<class TYPE> YCMemory<TYPE>::YCMemory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
 	DWORD				dwCount,						// Element count
@@ -75,7 +75,7 @@ template<class TYPE> YCMemory<TYPE>::YCMemory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Copy Constructor
+// Copy Constructor
 
 template<class TYPE> YCMemory<TYPE>::YCMemory(
 	const YCMemory<TYPE>&	rfclmSrc					// Copy source memory class
@@ -87,7 +87,7 @@ template<class TYPE> YCMemory<TYPE>::YCMemory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 template<class TYPE> YCMemory<TYPE>::~YCMemory()
 {
@@ -95,7 +95,7 @@ template<class TYPE> YCMemory<TYPE>::~YCMemory()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Change Memory Size
+// Change Memory Size
 
 template<class TYPE> void YCMemory<TYPE>::resize(
 	DWORD				dwCount							// Element Count
@@ -107,7 +107,7 @@ template<class TYPE> void YCMemory<TYPE>::resize(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Change Memory Size
+// Change Memory Size
 
 template<class TYPE> void YCMemory<TYPE>::resize(
 	DWORD				dwCount,						// Element Count
@@ -122,30 +122,30 @@ template<class TYPE> void YCMemory<TYPE>::resize(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Release Memory
+// Release Memory
 
 template<class TYPE> void YCMemory<TYPE>::clear()
 {
 	if( m_ptMemory != NULL )
 	{
-		delete[]	m_ptMemory;
+		delete[] m_ptMemory;
 		m_ptMemory = NULL;
 		m_dwMemoryCount = 0;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Acquisition of the number of elements
+// Acquisition of the number of elements
 
 template<class TYPE> DWORD YCMemory<TYPE>::size() const
 {
-	return	m_dwMemoryCount;
+	return m_dwMemoryCount;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Element Reference
+// Element Reference
 //
-//	Remark: Throw an exception "std :: out_of_range" out of range for the reference
+// Remark: Throw an exception "std :: out_of_range" out of range for the reference
 
 template<class TYPE> TYPE YCMemory<TYPE>::at(
 	DWORD				dwPos							// Reference Position
@@ -154,39 +154,39 @@ template<class TYPE> TYPE YCMemory<TYPE>::at(
 	if( dwPos >= m_dwMemorySize )
 	{
 		// Outside the reference range.
-        
-		throw	std::out_of_range;
+
+		throw std::out_of_range;
 	}
 
-	return	m_ptMemory[dwPos];
+	return m_ptMemory[dwPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Access Element
+// Access Element
 //
-//	Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
+// Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE> TYPE& YCMemory<TYPE>::operator[](
 	DWORD				dwPos							// Reference Position
 	)
 {
-	return	m_ptMemory[dwPos];
+	return m_ptMemory[dwPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Element Reference
+// Element Reference
 //
-//	Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
+// Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE> const TYPE& YCMemory<TYPE>::operator[](
 	DWORD				dwPos							// Reference Position
 	) const
 {
-	return	m_ptMemory[dwPos];
+	return m_ptMemory[dwPos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Copy
+// Copy
 
 template<class TYPE> YCMemory<TYPE>& YCMemory<TYPE>::operator=(
 	const YCMemory<TYPE>&	rfclmSrc					// Copy source memory class
@@ -196,11 +196,11 @@ template<class TYPE> YCMemory<TYPE>& YCMemory<TYPE>::operator=(
 
 	memcpy( m_ptMemory, &rfclmSrc[0], rfclmSrc.size() );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Memory Allocation
+// Memory Allocation
 
 template<class TYPE> void YCMemory<TYPE>::alloc(
 	DWORD				dwCount							// Element Count
@@ -218,7 +218,7 @@ template<class TYPE> void YCMemory<TYPE>::alloc(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Fill Memory
+// Fill Memory
 
 template<class TYPE> void YCMemory<TYPE>::fill(
 	const TYPE&			rftValue						// value

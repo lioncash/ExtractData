@@ -1,25 +1,24 @@
+#pragma once
 
-#pragma		once
-
-#define		YCSTRINGT_BUFFERSIZE_ALIGNMENT				64	// Buffer alignment
-#define		YCSTRINGT_OFFSET_BUFFERSIZE					16
-#define		YCSTRINGT_OFFSET_LENGTH						12
+#define YCSTRINGT_BUFFERSIZE_ALIGNMENT				64 // Buffer alignment
+#define YCSTRINGT_OFFSET_BUFFERSIZE					16
+#define YCSTRINGT_OFFSET_LENGTH						12
 
 //----------------------------------------------------------------------------------------
 //-- Basic String Class ------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class  YCBaseString
+class YCBaseString
 {
 public:
 
-	int										GetBaseTypeLength( const char* pszSrc ) const;
-	int										GetBaseTypeLength( const char* pszSrc, int nLength ) const;
-	int										GetBaseTypeLength( const wchar_t* pwszSrc ) const;
-	int										GetBaseTypeLength( const wchar_t* pwszSrc, int nLength ) const;
+	int						GetBaseTypeLength( const char* pszSrc ) const;
+	int						GetBaseTypeLength( const char* pszSrc, int nLength ) const;
+	int						GetBaseTypeLength( const wchar_t* pwszSrc ) const;
+	int						GetBaseTypeLength( const wchar_t* pwszSrc, int nLength ) const;
 
-	int										ConvertToBaseType( wchar_t* pwszDst, int nDstLength, const char* pszSrc, int nSrcLength = -1 ) const;
-	int										ConvertToBaseType( char* pszDst, int nDstLength, const wchar_t* pwszSrc, int nSrcLength = -1 ) const;
+	int						ConvertToBaseType( wchar_t* pwszDst, int nDstLength, const char* pszSrc, int nSrcLength = -1 ) const;
+	int						ConvertToBaseType( char* pszDst, int nDstLength, const wchar_t* pwszSrc, int nSrcLength = -1 ) const;
 };
 
 //----------------------------------------------------------------------------------------
@@ -30,310 +29,310 @@ public:
 // 仮想関数を作ると「__vfptr」メンバ変数の存在により可変長引数に渡せなくなる
 
 template<class TYPE>
-class   YCStringT : protected YCBaseString
+class YCStringT : protected YCBaseString
 {
 private:
 
-	TYPE*									m_ptString;
+	TYPE*						m_ptString;
 
 
 public:
 
 	// Constructor
 
-											YCStringT();
-											YCStringT( const char* pszSrc );
-											YCStringT( const char* pszSrc, int nCount );
-											YCStringT( const char& rfcSrc );
-											YCStringT( const wchar_t* pwszSrc );
-											YCStringT( const wchar_t* pwszSrc, int nCount );
-											YCStringT( const wchar_t& rfwcSrc );
-											YCStringT( const YCStringT<TYPE>& rfclsSrc );
-											YCStringT( const YCStringT<TYPE>& rfclsSrc, int nCount );
+								YCStringT();
+								YCStringT( const char* pszSrc );
+								YCStringT( const char* pszSrc, int nCount );
+								YCStringT( const char& rfcSrc );
+								YCStringT( const wchar_t* pwszSrc );
+								YCStringT( const wchar_t* pwszSrc, int nCount );
+								YCStringT( const wchar_t& rfwcSrc );
+								YCStringT( const YCStringT<TYPE>& rfclsSrc );
+								YCStringT( const YCStringT<TYPE>& rfclsSrc, int nCount );
 
 	// Destructor
 
-											~YCStringT();	// 仮想関数にすると__vfptrの存在により可変長引数に渡せなくなる
+								~YCStringT();	// No longer a virtual function.
 
 	// Assignment
 
-	BOOL									LoadString( UINT uID );
+	BOOL						LoadString( UINT uID );
 
-	void									Copy( const char* pszSrc );
-	void									Copy( const char* pszSrc, int nLength );
-	void									Copy( const char& rfcSrc );
-	void									Copy( const wchar_t* pwszSrc );
-	void									Copy( const wchar_t* pwszSrc, int nLength );
-	void									Copy( const wchar_t& rfwcSrc );
+	void						Copy( const char* pszSrc );
+	void						Copy( const char* pszSrc, int nLength );
+	void						Copy( const char& rfcSrc );
+	void						Copy( const wchar_t* pwszSrc );
+	void						Copy( const wchar_t* pwszSrc, int nLength );
+	void						Copy( const wchar_t& rfwcSrc );
 
 	// Adding
 
-	void									Append( const char* pszAppend );
-	void									Append( const char* pszAppend, int nLength );
-	void									Append( const char& rfcAppend );
-	void									Append( const wchar_t* pwszAppend );
-	void									Append( const wchar_t* pwszAppend, int nLength );
-	void									Append( const wchar_t& rfwcAppend );
+	void						Append( const char* pszAppend );
+	void						Append( const char* pszAppend, int nLength );
+	void						Append( const char& rfcAppend );
+	void						Append( const wchar_t* pwszAppend );
+	void						Append( const wchar_t* pwszAppend, int nLength );
+	void						Append( const wchar_t& rfwcAppend );
 
 	// Format data
 
-	void									Format( const TYPE* pszFormat, ... );
-	void									AppendFormat( const TYPE* pszFormat, ... );
+	void						Format( const TYPE* pszFormat, ... );
+	void						AppendFormat( const TYPE* pszFormat, ... );
 
 	// Insert
 
-	int										Insert( int nIndex, const TYPE* pszInsert );
-	int										Insert( int nIndex, const TYPE& rfcInsert );
+	int							Insert( int nIndex, const TYPE* pszInsert );
+	int							Insert( int nIndex, const TYPE& rfcInsert );
 
 	// Deleting
 
-	void									Empty();
+	void						Empty();
 
-	int										Delete( int nIndex, int nCount = 1 );
+	int							Delete( int nIndex, int nCount = 1 );
 
-	int										Remove( const TYPE* pszRemove );
-	int										Remove( const TYPE& rfcRemove );
+	int							Remove( const TYPE* pszRemove );
+	int							Remove( const TYPE& rfcRemove );
 
-	YCStringT<TYPE>&						Trim();
-	YCStringT<TYPE>&						Trim( const TYPE* pszTrim );
-	YCStringT<TYPE>&						Trim( const TYPE& rfcTrim );
+	YCStringT<TYPE>&			Trim();
+	YCStringT<TYPE>&			Trim( const TYPE* pszTrim );
+	YCStringT<TYPE>&			Trim( const TYPE& rfcTrim );
 
-	YCStringT<TYPE>&						TrimLeft();
-	YCStringT<TYPE>&						TrimLeft( const TYPE* pszTrim );
-	YCStringT<TYPE>&						TrimLeft( const TYPE& rfcTrim );
+	YCStringT<TYPE>&			TrimLeft();
+	YCStringT<TYPE>&			TrimLeft( const TYPE* pszTrim );
+	YCStringT<TYPE>&			TrimLeft( const TYPE& rfcTrim );
 
-	YCStringT<TYPE>&						TrimRight();
-	YCStringT<TYPE>&						TrimRight( const TYPE* pszTrim );
-	YCStringT<TYPE>&						TrimRight( const TYPE& rfcTrim );
+	YCStringT<TYPE>&			TrimRight();
+	YCStringT<TYPE>&			TrimRight( const TYPE* pszTrim );
+	YCStringT<TYPE>&			TrimRight( const TYPE& rfcTrim );
 
 	// Replacing
 
-	int										Replace( const TYPE* pszOld, const TYPE* pszNew );
-	int										Replace( const TYPE& rfcOld, const TYPE& rfcNew );
+	int							Replace( const TYPE* pszOld, const TYPE* pszNew );
+	int							Replace( const TYPE& rfcOld, const TYPE& rfcNew );
 
 	// Uppercase - Lowercase
 
-	YCStringT<TYPE>&						MakeLower();
-	YCStringT<TYPE>&						MakeUpper();
+	YCStringT<TYPE>&			MakeLower();
+	YCStringT<TYPE>&			MakeUpper();
 
 	// Comparison
 
-	int										Compare( const char* pszSrc ) const;
-	int										Compare( const char& rfcSrc ) const;
-	int										Compare( const wchar_t* pwszSrc ) const;
-	int										Compare( const wchar_t& pwwcSrc ) const;
+	int							Compare( const char* pszSrc ) const;
+	int							Compare( const char& rfcSrc ) const;
+	int							Compare( const wchar_t* pwszSrc ) const;
+	int							Compare( const wchar_t& pwwcSrc ) const;
 
-	int										CompareNoCase( const char* pszSrc ) const;
-	int										CompareNoCase( const char& rfcSrc ) const;
-	int										CompareNoCase( const wchar_t* pwszSrc ) const;
-	int										CompareNoCase( const wchar_t& rfwcSrc ) const;
+	int							CompareNoCase( const char* pszSrc ) const;
+	int							CompareNoCase( const char& rfcSrc ) const;
+	int							CompareNoCase( const wchar_t* pwszSrc ) const;
+	int							CompareNoCase( const wchar_t& rfwcSrc ) const;
 
 	// Searching
 
-	int										Find( const TYPE* pszSub, int nStart = 0 ) const;
-	int										Find( const TYPE& rfcSub, int nStart = 0 ) const;
+	int							Find( const TYPE* pszSub, int nStart = 0 ) const;
+	int							Find( const TYPE& rfcSub, int nStart = 0 ) const;
 
-	int										ReverseFind( const TYPE* pszSub ) const;
-	int										ReverseFind( const TYPE& rfcSub ) const;
+	int							ReverseFind( const TYPE* pszSub ) const;
+	int							ReverseFind( const TYPE& rfcSub ) const;
 
 	// Extraction
 
-	YCStringT<TYPE>							Left( int nCount ) const;
-	YCStringT<TYPE>							Right( int nCount ) const;
-	YCStringT<TYPE>							Mid( int nFirst ) const;
-	YCStringT<TYPE>							Mid( int nFirst, int nCount ) const;
+	YCStringT<TYPE>				Left( int nCount ) const;
+	YCStringT<TYPE>				Right( int nCount ) const;
+	YCStringT<TYPE>				Mid( int nFirst ) const;
+	YCStringT<TYPE>				Mid( int nFirst, int nCount ) const;
 
 	// Gets a string buffer
 
-	TYPE*									GetBuffer( int nBufferSize );
+	TYPE*						GetBuffer( int nBufferSize );
 
 	// Gets a string buffer pointer
 
-	inline	const TYPE*						GetString() const;
+	inline	const TYPE*			GetString() const;
 
 	// Gets the length of the string
 
-	inline	int								GetLength() const;
+	inline	int					GetLength() const;
 
 	// Determine if a string is empty
 
-	bool									IsEmpty() const;
+	bool						IsEmpty() const;
 
 	// Path-related
 
-	void									RenameExtension( const TYPE* ptSrc );
+	void						RenameExtension( const TYPE* ptSrc );
 
-	YCStringT<TYPE>							GetFileName() const;
-	int										GetFileNameIndex() const;
-	YCStringT<TYPE>							GetFileTitle() const;
-	YCStringT<TYPE>							GetFileExt() const;
-	int										GetFileExtIndex() const;
-	YCStringT<TYPE>							GetDirPath() const;
+	YCStringT<TYPE>				GetFileName() const;
+	int							GetFileNameIndex() const;
+	YCStringT<TYPE>				GetFileTitle() const;
+	YCStringT<TYPE>				GetFileExt() const;
+	int							GetFileExtIndex() const;
+	YCStringT<TYPE>				GetDirPath() const;
 
 	// Assignment operator
 
-	YCStringT<TYPE>&						operator=( const char* pszSrc );
-	YCStringT<TYPE>&						operator=( const char& rfcSrc );
-	YCStringT<TYPE>&						operator=( const wchar_t* pwszSrc );
-	YCStringT<TYPE>&						operator=( const wchar_t& rfwcSrc );
-	YCStringT<TYPE>&						operator=( const YCStringT<TYPE>& rfclsSrc );
+	YCStringT<TYPE>&			operator=( const char* pszSrc );
+	YCStringT<TYPE>&			operator=( const char& rfcSrc );
+	YCStringT<TYPE>&			operator=( const wchar_t* pwszSrc );
+	YCStringT<TYPE>&			operator=( const wchar_t& rfwcSrc );
+	YCStringT<TYPE>&			operator=( const YCStringT<TYPE>& rfclsSrc );
 
 	// + Operator
 
-	YCStringT<TYPE>							operator+( const char* pszAppend ) const;
-	YCStringT<TYPE>							operator+( const char& rfcAppend ) const;
-	YCStringT<TYPE>							operator+( const wchar_t* pwszAppend ) const;
-	YCStringT<TYPE>							operator+( const wchar_t& rfwcAppend ) const;
-	YCStringT<TYPE>							operator+( const YCStringT<TYPE>& rfclsAppend ) const;
+	YCStringT<TYPE>				operator+( const char* pszAppend ) const;
+	YCStringT<TYPE>				operator+( const char& rfcAppend ) const;
+	YCStringT<TYPE>				operator+( const wchar_t* pwszAppend ) const;
+	YCStringT<TYPE>				operator+( const wchar_t& rfwcAppend ) const;
+	YCStringT<TYPE>				operator+( const YCStringT<TYPE>& rfclsAppend ) const;
 
 	// + Operator (External functions)
 
 	template<class TYPE>
-	friend	YCStringT<TYPE>					operator+( const char* pszSrc, const YCStringT<TYPE>& rfclsAppend );
+	friend	YCStringT<TYPE>		operator+( const char* pszSrc, const YCStringT<TYPE>& rfclsAppend );
 
 	template<class TYPE>
-	friend	YCStringT<TYPE>					operator+( const char& rfcSrc, const YCStringT<TYPE>& rfclsAppend );
+	friend	YCStringT<TYPE>		operator+( const char& rfcSrc, const YCStringT<TYPE>& rfclsAppend );
 
 	template<class TYPE>
-	friend	YCStringT<TYPE>					operator+( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsAppend );
+	friend	YCStringT<TYPE>		operator+( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsAppend );
 
 	template<class TYPE>
-	friend	YCStringT<TYPE>					operator+( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsAppend );
+	friend	YCStringT<TYPE>		operator+( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsAppend );
 
 	// += Operator
 
-	YCStringT<TYPE>&						operator+=( const char* pszAppend );
-	YCStringT<TYPE>&						operator+=( const char& rfcAppend );
-	YCStringT<TYPE>&						operator+=( const wchar_t* pwszAppend );
-	YCStringT<TYPE>&						operator+=( const wchar_t& rfwcAppend );
+	YCStringT<TYPE>&			operator+=( const char* pszAppend );
+	YCStringT<TYPE>&			operator+=( const char& rfcAppend );
+	YCStringT<TYPE>&			operator+=( const wchar_t* pwszAppend );
+	YCStringT<TYPE>&			operator+=( const wchar_t& rfwcAppend );
 	YCStringT<TYPE>&						operator+=( const YCStringT<TYPE>& rfclsAppend );
 
 	// == Operator
 
-	bool									operator==( const char* pszSrc ) const;
-	bool									operator==( const char& rfcSrc ) const;
-	bool									operator==( const wchar_t* pwszSrc ) const;
-	bool									operator==( const wchar_t& rfwcSrc ) const;
-	bool									operator==( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator==( const char* pszSrc ) const;
+	bool						operator==( const char& rfcSrc ) const;
+	bool						operator==( const wchar_t* pwszSrc ) const;
+	bool						operator==( const wchar_t& rfwcSrc ) const;
+	bool						operator==( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// == Operator(External functions)
 
 	template<class TYPE>
-	friend	bool							operator==( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator==( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator==( const char& rfcSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator==( const char& rfcSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator==( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator==( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator==( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator==( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// != Operator
 
-	bool									operator!=( const char* pszSrc ) const;
-	bool									operator!=( const char& rfcSrc ) const;
-	bool									operator!=( const wchar_t* pwszSrc ) const;
-	bool									operator!=( const wchar_t& rfwcSrc ) const;
-	bool									operator!=( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator!=( const char* pszSrc ) const;
+	bool						operator!=( const char& rfcSrc ) const;
+	bool						operator!=( const wchar_t* pwszSrc ) const;
+	bool						operator!=( const wchar_t& rfwcSrc ) const;
+	bool						operator!=( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// != Operator (External functions)
 
 	template<class TYPE>
-	friend	bool							operator!=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator!=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator!=( const char& rfcSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator!=( const char& rfcSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator!=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator!=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator!=( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator!=( const wchar_t& rfwcSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// < Operator
 
-	bool									operator<( const char* pszSrc ) const;
-	bool									operator<( const wchar_t* pwszSrc ) const;
-	bool									operator<( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator<( const char* pszSrc ) const;
+	bool						operator<( const wchar_t* pwszSrc ) const;
+	bool						operator<( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// < Operator(External functions)
 
 	template<class TYPE>
-	friend	bool							operator<( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator<( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator<( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator<( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// <= Operator
 
-	bool									operator<=( const char* pszSrc ) const;
-	bool									operator<=( const wchar_t* pwszSrc ) const;
-	bool									operator<=( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator<=( const char* pszSrc ) const;
+	bool						operator<=( const wchar_t* pwszSrc ) const;
+	bool						operator<=( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// <= Operator (External functions)
 
 	template<class TYPE>
-	friend	bool							operator<=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator<=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator<=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator<=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// > Operator
 
-	bool									operator>( const char* pszSrc ) const;
-	bool									operator>( const wchar_t* pwszSrc ) const;
-	bool									operator>( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator>( const char* pszSrc ) const;
+	bool						operator>( const wchar_t* pwszSrc ) const;
+	bool						operator>( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// > Operator(External functions)
 
 	template<class TYPE>
-	friend	bool							operator>( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator>( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator>( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator>( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// >= Operator
 
-	bool									operator>=( const char* pszSrc ) const;
-	bool									operator>=( const wchar_t* pwszSrc ) const;
-	bool									operator>=( const YCStringT<TYPE>& rfclsSrc ) const;
+	bool						operator>=( const char* pszSrc ) const;
+	bool						operator>=( const wchar_t* pwszSrc ) const;
+	bool						operator>=( const YCStringT<TYPE>& rfclsSrc ) const;
 
 	// >= Operator(External functions)
 
 	template<class TYPE>
-	friend	bool							operator>=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator>=( const char* pszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	template<class TYPE>
-	friend	bool							operator>=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
+	friend	bool				operator>=( const wchar_t* pwszSrc, const YCStringT<TYPE>& rfclsSrc );
 
 	// [] Operator
 
-	inline	TYPE&							operator[]( int nPos );
-	inline	const TYPE&						operator[]( int nPos ) const;
+	inline	TYPE&				operator[]( int nPos );
+	inline	const TYPE&			operator[]( int nPos ) const;
 
 	// const TYPE* Operator
 
-	inline									operator const TYPE*() const;
+	inline						operator const TYPE*() const;
 
 
 protected:
 
-	void									Alloc( int nBufferSize );
-	void									Free();
+	void						Alloc( int nBufferSize );
+	void						Free();
 
-	void									ExtendBuffer( int nBufferSize );
+	void						ExtendBuffer( int nBufferSize );
 
-	void									SetBufferSize( int nBufferSize );
-	int										GetBufferSize();
+	void						SetBufferSize( int nBufferSize );
+	int							GetBufferSize();
 
-	void									SetLength( int nLength );
+	void						SetLength( int nLength );
 };
 
-typedef	YCStringT<TCHAR>								YCString;
-typedef	YCStringT<char>									YCStringA;
-typedef	YCStringT<wchar_t>								YCStringW;
+typedef	YCStringT<TCHAR>		YCString;
+typedef	YCStringT<char>			YCStringA;
+typedef	YCStringT<wchar_t>		YCStringW;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //  Constructor
@@ -446,7 +445,7 @@ template<class TYPE> BOOL YCStringT<TYPE>::LoadString(
 	UINT				uID								// Resource ID
 	)
 {
-	return	::LoadString( ::GetModuleHandle( NULL ), uID, GetBuffer( 1024 ), 1024 );
+	return ::LoadString( ::GetModuleHandle( NULL ), uID, GetBuffer( 1024 ), 1024 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -456,31 +455,23 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	const char*			pszSrc							// Source string
 	)
 {
-	TYPE*				ptString;
-	int					nSrcLength;
+	TYPE* ptString;
+	int   nSrcLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nSrcLength = lstrlenA( pszSrc );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		lstrcpyA( (char*) ptString, pszSrc );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nSrcLength = GetBaseTypeLength( pszSrc );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		ConvertToBaseType( (wchar_t*) ptString, GetBufferSize(), pszSrc );
-
 		break;
 	}
 
@@ -495,31 +486,23 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	int					nCount							// Length to copy
 	)
 {
-	TYPE*				ptString;
-	int					nSrcLength;
+	TYPE* ptString;
+	int	  nSrcLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nSrcLength = nCount;
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		lstrcpynA( (char*) ptString, pszSrc, (nCount + 1) );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nSrcLength = GetBaseTypeLength( pszSrc, nCount );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		ConvertToBaseType( (wchar_t*) ptString, GetBufferSize(), pszSrc, nCount );
-
 		break;
 	}
 
@@ -533,7 +516,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	const char&			rfcSrc							// Source string
 	)
 {
-	char				szSrc[2];
+	char szSrc[2];
 
 	szSrc[0] = rfcSrc;
 	szSrc[1] = '\0';
@@ -548,31 +531,23 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	const wchar_t*		pwszSrc							// Source string
 	)
 {
-	TYPE*				ptString;
-	int					nSrcLength;
+	TYPE* ptString;
+	int	  nSrcLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nSrcLength = GetBaseTypeLength( pwszSrc );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		ConvertToBaseType( (char*) ptString, GetBufferSize(), pwszSrc );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nSrcLength = lstrlenW( pwszSrc );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		lstrcpyW( (wchar_t*) ptString, pwszSrc );
-
 		break;
 	}
 
@@ -587,31 +562,23 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	int					nCount							// Length of the string to copy
 	)
 {
-	TYPE*				ptString;
-	int					nSrcLength;
+	TYPE* ptString;
+	int	  nSrcLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nSrcLength = GetBaseTypeLength( pwszSrc, nCount );
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		ConvertToBaseType( (char*) ptString, GetBufferSize(), pwszSrc, nCount );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nSrcLength = nCount;
-
 		ptString = GetBuffer( (nSrcLength + 1) );
-
 		lstrcpynW( (wchar_t*) ptString, (wchar_t*) pwszSrc, (nCount + 1) );
-
 		break;
 	}
 
@@ -625,7 +592,7 @@ template<class TYPE> void YCStringT<TYPE>::Copy(
 	const wchar_t&		rfwcSrc							// Source character
 	)
 {
-	wchar_t				wszSrc[2];
+	wchar_t wszSrc[2];
 
 	wszSrc[0] = rfwcSrc;
 	wszSrc[1] = L'\0';
@@ -640,39 +607,27 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	const char*			pszAppend						// String to append
 	)
 {
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nNewLength += lstrlenA( pszAppend );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the string
-
 		lstrcpyA( (char*) &m_ptString[nStringLength], pszAppend );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nNewLength += GetBaseTypeLength( pszAppend );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the string
-
 		ConvertToBaseType( (wchar_t*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pszAppend );
-
 		break;
 	}
 
@@ -687,39 +642,27 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	int					nCount							// Number of characters to append
 	)
 {
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nNewLength += nCount;
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the character(s)
-
 		lstrcpynA( (char*) &m_ptString[nStringLength], pszAppend, (nCount + 1) );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nNewLength += GetBaseTypeLength( pszAppend, nCount );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the character(s)
-
 		ConvertToBaseType( (wchar_t*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pszAppend, nCount );
-
 		break;
 	}
 
@@ -733,7 +676,7 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	const char&			rfcAppend						// Character to append
 	)
 {
-	char				szAppend[2];
+	char szAppend[2];
 
 	szAppend[0] = rfcAppend;
 	szAppend[1] = '\0';
@@ -748,39 +691,27 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	const wchar_t*		pwszAppend						// String to append
 	)
 {
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nNewLength += GetBaseTypeLength( pwszAppend );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the string
-
 		ConvertToBaseType( (char*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pwszAppend );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nNewLength += lstrlenW( pwszAppend );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the string
-
 		lstrcpyW( (wchar_t*) &m_ptString[nStringLength], pwszAppend );
-
 		break;
 	}
 
@@ -795,38 +726,27 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	int					nCount							// Number of characters to append
 	)
 {
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nNewLength += GetBaseTypeLength( pwszAppend, nCount );
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the string
 		ConvertToBaseType( (char*) &m_ptString[nStringLength], (GetBufferSize() - nStringLength), pwszAppend, nCount );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nNewLength += nCount;
-
 		// Expand the buffer
-
 		ExtendBuffer( (nNewLength + 1) );
-
 		// Append the character(s)
-
 		lstrcpynW( (wchar_t*) &m_ptString[nStringLength], pwszAppend, (nCount + 1) );
-
 		break;
 	}
 
@@ -840,7 +760,7 @@ template<class TYPE> void YCStringT<TYPE>::Append(
 	const wchar_t&		rfwcAppend						// Character to append
 	)
 {
-	wchar_t				wszAppend[2];
+	wchar_t wszAppend[2];
 
 	wszAppend[0] = rfwcAppend;
 	wszAppend[1] = L'\0';
@@ -856,15 +776,15 @@ template<class TYPE> void YCStringT<TYPE>::Format(
 	...													// Variable length argument
 	)
 {
-	va_list				vaArgPtr;
+	va_list vaArgPtr;
 
 	va_start( vaArgPtr, pszFormat );
 
-	YCMemory<TYPE>		clmBuffer( 1024 );
+	YCMemory<TYPE> clmBuffer( 1024 );
 
 	while( 1 )
 	{
-		va_list				vaWork = vaArgPtr;
+		va_list vaWork = vaArgPtr;
 
 		if( _vsntprintf( &clmBuffer[0], (clmBuffer.size() - 1), pszFormat, vaWork ) == - 1 )
 		{
@@ -886,18 +806,18 @@ template<class TYPE> void YCStringT<TYPE>::Format(
 
 template<class TYPE> void YCStringT<TYPE>::AppendFormat(
 	const TYPE*			pszFormat,						// Formatted data
-	...													// Variable-length argument
+														// Variable-length argument
 	)
 {
-	va_list				vaArgPtr;
+	va_list vaArgPtr;
 
 	va_start( vaArgPtr, pszFormat );
 
-	YCMemory<TYPE>		clmBuffer( 1024 );
+	YCMemory<TYPE> clmBuffer( 1024 );
 
 	while( 1 )
 	{
-		va_list				vaWork = vaArgPtr;
+		va_list vaWork = vaArgPtr;
 
 		if( _vsntprintf( &clmBuffer[0], (clmBuffer.size() - 1), pszFormat, vaWork ) == - 1 )
 		{
@@ -941,21 +861,21 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 
 	// Insertion processing
 
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
-	int					nInsertLength;
-	int					nShiftLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
+	int	 nInsertLength;
+	int nShiftLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		nInsertLength = lstrlenA( (const char*) pszInsert );
 		nShiftLength = lstrlenA( (const char*) &m_ptString[nIndex] );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		nInsertLength = lstrlenW( (const wchar_t*) pszInsert );
@@ -964,17 +884,13 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 	}
 
 	// Expand the buffer
-
 	nNewLength += nInsertLength;
-
 	ExtendBuffer( (nNewLength + 1) );
 
 	// Create a free spot to insert the string
-
 	memmove( &m_ptString[nIndex + nInsertLength], &m_ptString[nIndex], (sizeof(TYPE) * (nShiftLength + 1)) );
 
 	// Insert the string
-
 	memcpy( &m_ptString[nIndex], pszInsert, (sizeof(TYPE) * nInsertLength) );
 
 	SetLength( nNewLength );
@@ -992,7 +908,7 @@ template<class TYPE> int YCStringT<TYPE>::Insert(
 	const TYPE&			rfcInsert						// Character to insert
 	)
 {
-	TYPE				szInsert[2];
+	TYPE szInsert[2];
 
 	szInsert[0] = rfcInsert;
 	szInsert[1] = 0;
@@ -1007,13 +923,13 @@ template<class TYPE> void YCStringT<TYPE>::Empty()
 {
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		Copy( "" );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		Copy( L"" );
@@ -1031,26 +947,23 @@ template<class TYPE> int YCStringT<TYPE>::Delete(
 	int					nCount							// Number of characters from the offset to delete
 	)
 {
-	int					nStringLength = GetLength();
-	int					nNewLength = nStringLength;
+	int nStringLength = GetLength();
+	int nNewLength = nStringLength;
 
 	if( nIndex < 0 )
 	{
 		// Delete from the beginning
-
 		nIndex = 0;
 	}
 	else if( nIndex >= nStringLength )
 	{
 		// Don't delete anything
-
 		return GetLength();
 	}
 
 	if( nCount <= 0 )
 	{
 		// Don't delete anything
-
 		return GetLength();
 	}
 
@@ -1067,7 +980,7 @@ template<class TYPE> int YCStringT<TYPE>::Delete(
 
 	// Deletion processing
 
-	int					nShiftLength = (GetLength() - (nIndex + nCount));
+	int nShiftLength = (GetLength() - (nIndex + nCount));
 
 	// Delete the string
 	// Overwriting will be packed to the left side of the string.
@@ -1090,19 +1003,19 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 	const TYPE*			pszRemove						// Target string to delete
 	)
 {
-	int					nIndex = 0;
-	int					nCount = 0;
-	int					nRemoveLength = 0;
+	int nIndex = 0;
+	int nCount = 0;
+	int nRemoveLength = 0;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		nRemoveLength = lstrlenA( pszRemove );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		nRemoveLength = lstrlenW( pszRemove );
@@ -1112,7 +1025,6 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 	if( nRemoveLength <= 0 )
 	{
 		// Don't delete anything
-
 		return nCount;
 	}
 
@@ -1120,18 +1032,15 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 	{
 		nIndex = Find( pszRemove, nIndex );
 
+		// Lines to delete are present
 		if( nIndex >= 0 )
 		{
-			// Lines to delete are present
-
 			Delete( nIndex, nRemoveLength );
 
 			nCount++;
 		}
-		else
+		else // Nothing present
 		{
-			// Nothing present
-
 			break;
 		}
 	}
@@ -1148,26 +1057,23 @@ template<class TYPE> int YCStringT<TYPE>::Remove(
 	const TYPE&			rfcRemove						// Character to delete
 	)
 {
-	int					nIndex = 0;
-	int					nCount = 0;
-	int					nRemoveLength = 1;
+	int nIndex = 0;
+	int nCount = 0;
+	int nRemoveLength = 1;
 
 	while( 1 )
 	{
 		nIndex = Find( rfcRemove, nIndex );
 
+		// Found characters to remove
 		if( nIndex >= 0 )
 		{
-			// Found characters to remove
-
 			Delete( nIndex, nRemoveLength );
 
 			nCount++;
 		}
-		else
+		else // Nothing present to remove
 		{
-			// Nothing present to remove
-
 			break;
 		}
 	}
@@ -1211,12 +1117,12 @@ template<class TYPE> YCStringT<TYPE>&  YCStringT<TYPE>::Trim(
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 {
-	BOOL				bResult;
-	int					nCount;
+	BOOL bResult;
+	int  nCount;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		bResult = TRUE;
@@ -1266,7 +1172,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft()
 
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		bResult = TRUE;
@@ -1326,10 +1232,10 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimLeft( const TYPE& rfc
 
 template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 {
-	BOOL				bResult;
-	int					nIndex;
-	int					nTrimIndex;
-	int					nCount;
+	BOOL bResult;
+	int  nIndex;
+	int  nTrimIndex;
+	int  nCount;
 
 	switch( sizeof(TYPE) )
 	{
@@ -1352,17 +1258,14 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::TrimRight()
 
 				switch( m_ptString[nIndex] )
 				{
-
+					// TODO: implement
 				}
 			}
 		}
-
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		break;
 	}
 
@@ -1398,23 +1301,23 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 	const TYPE*			pszNew							// String to replace with
 	)
 {
-	int					nIndex = 0;
-	int					nCount = 0;
-	int					nStringLength = GetLength();
-	int					nNewStringLength = nStringLength;
-	int					nOldLength;
-	int					nNewLength;
+	int nIndex = 0;
+	int nCount = 0;
+	int nStringLength = GetLength();
+	int nNewStringLength = nStringLength;
+	int nOldLength;
+	int nNewLength;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		nOldLength = lstrlenA( (const char*) pszOld );
 		nNewLength = lstrlenA( (const char*) pszNew );
 		break;
 
-	case		2:
+	case 2:
 		// wchar_t type
 
 		nOldLength = lstrlenW( (const wchar_t*) pszOld );
@@ -1433,7 +1336,6 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 			if( nNewLength == nOldLength )
 			{
 				// Length of the string cannot change, even after replacement.
-
 				memcpy( &m_ptString[nIndex], pszNew, (sizeof(TYPE) * nNewLength) );
 			}
 			else
@@ -1464,7 +1366,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 
 	SetLength( nStringLength );
 
-	return	nCount;
+	return nCount;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1477,9 +1379,9 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 	const TYPE&			rfcNew							// Character to replace the target character
 	)
 {
-	int					nIndex = 0;
-	int					nCount = 0;
-	int					nNewIndex = GetLength();
+	int nIndex = 0;
+	int nCount = 0;
+	int nNewIndex = GetLength();
 
 	while( 1 )
 	{
@@ -1501,7 +1403,7 @@ template<class TYPE> int YCStringT<TYPE>::Replace(
 		}
 	}
 
-	return	nCount;
+	return nCount;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1511,7 +1413,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeLower()
 {
 	::CharLower( m_ptString );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1521,7 +1423,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::MakeUpper()
 {
 	::CharUpper( m_ptString );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1535,19 +1437,19 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	const char*			pszSrc							// Comparison string
 	) const
 {
-	int					nReturn;
-	TYPE*				ptWork;
-	int					nWork;
+	int   nReturn;
+	TYPE* ptWork;
+	int   nWork;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
 		nReturn = lstrcmpA( (const char*) m_ptString, pszSrc );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		nWork = GetBaseTypeLength( pszSrc );
@@ -1558,7 +1460,7 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 
 		nReturn = lstrcmpW( (const wchar_t*) m_ptString, (const wchar_t*) ptWork );
 
-		delete[]	ptWork;
+		delete[] ptWork;
 
 		break;
 	}
@@ -1577,7 +1479,7 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	const char&			rfcSrc							// Comparison string
 	) const
 {
-	char				szSrc[2];
+	char szSrc[2];
 
 	szSrc[0] = rfcSrc;
 	szSrc[1] = '\0';
@@ -1596,30 +1498,23 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	int					nReturn;
-	TYPE*				ptWork;
-	int					nWork;
+	int   nReturn;
+	TYPE* ptWork;
+	int   nWork;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nWork = GetBaseTypeLength( pwszSrc );
-
 		ptWork = new TYPE[nWork];
-
 		ConvertToBaseType( (char*) ptWork, nWork, pwszSrc );
-
 		nReturn = lstrcmpA( (const char*) m_ptString, (const char*) ptWork );
-
-		delete[]	ptWork;
-
+		delete[] ptWork;
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nReturn = lstrcmpW( (const wchar_t*) m_ptString, pwszSrc );
 		break;
 	}
@@ -1638,7 +1533,7 @@ template<class TYPE> int YCStringT<TYPE>::Compare(
 	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
-	wchar_t				wszSrc[2];
+	wchar_t wszSrc[2];
 
 	wszSrc[0] = pwszSrc;
 	wszSrc[1] = L'\0';
@@ -1659,31 +1554,24 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	const char*			pszSrc							// Comparison string
 	) const
 {
-	int					nReturn;
-	TYPE*				ptWork;
-	int					nWork;
+	int   nReturn;
+	TYPE* ptWork;
+	int   nWork;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nReturn = lstrcmpiA( (const char*) m_ptString, pszSrc );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nWork = GetBaseTypeLength( pszSrc );
-
 		ptWork = new TYPE[nWork];
-
 		ConvertToBaseType( (wchar_t*) ptWork, nWork, pszSrc );
-
 		nReturn = lstrcmpiW( (const wchar_t*) m_ptString, (const wchar_t*) ptWork );
-
-		delete[]	ptWork;
-
+		delete[] ptWork;
 		break;
 	}
 
@@ -1703,7 +1591,7 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	const char&			rfcSrc							// Comparison character
 	) const
 {
-	char				szSrc[2];
+	char szSrc[2];
 
 	szSrc[0] = rfcSrc;
 	szSrc[1] = '\0';
@@ -1724,30 +1612,23 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	const wchar_t*		pwszSrc							// Comparison string
 	) const
 {
-	int					nReturn;
-	TYPE*				ptWork;
-	int					nWork;
+	int   nReturn;
+	TYPE* ptWork;
+	int   nWork;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nWork = GetBaseTypeLength( pwszSrc );
-
 		ptWork = new TYPE[nWork];
-
 		ConvertToBaseType( (char*) ptWork, nWork, pwszSrc );
-
 		nReturn = lstrcmpiA( (const char*) m_ptString, (const char*) ptWork );
-
-		delete[]	ptWork;
-
+		delete[] ptWork;
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nReturn = lstrcmpiW( (const wchar_t*) m_ptString, pwszSrc );
 		break;
 	}
@@ -1768,7 +1649,7 @@ template<class TYPE> int YCStringT<TYPE>::CompareNoCase(
 	const wchar_t&		rfwcSrc							// Comparison character
 	) const
 {
-	wchar_t				wszSrc[2];
+	wchar_t wszSrc[2];
 
 	wszSrc[0] = rfwcSrc;
 	wszSrc[1] = L'\0';
@@ -1788,7 +1669,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 	int					nStart							// Starting index
 	) const
 {
-	INT_PTR				npResult = -1;
+	INT_PTR npResult = -1;
 
 	if( nStart < 0 )
 	{
@@ -1805,12 +1686,9 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
-		const BYTE*			pbtFound;
-
-		pbtFound = _mbsstr( (const BYTE*) &m_ptString[nStart], (const BYTE*) pszSub );
+		const BYTE* pbtFound = _mbsstr( (const BYTE*) &m_ptString[nStart], (const BYTE*) pszSub );
 
 		if( pbtFound != NULL )
 		{
@@ -1818,15 +1696,12 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
-		const wchar_t*		pwszFound;
-
-		pwszFound = wcsstr( (const wchar_t*) &m_ptString[nStart], (const wchar_t*) pszSub );
+		const wchar_t* pwszFound = wcsstr( (const wchar_t*) &m_ptString[nStart], (const wchar_t*) pszSub );
 
 		if( pwszFound != NULL )
 		{
@@ -1834,7 +1709,6 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
-
 		break;
 	}
 
@@ -1849,7 +1723,7 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 	int					nStart							// Starting index
 	) const
 {
-	INT_PTR				npResult = -1;
+	INT_PTR npResult = -1;
 
 	if( nStart <  0 )
 	{
@@ -1861,17 +1735,15 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 	{
 		// Search from the end of the string
 
-		return	(int) npResult;
+		return (int) npResult;
 	}
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
-		const BYTE*			pbtFound;
-
-		pbtFound = _mbschr( (const BYTE*) &m_ptString[nStart], rfcSub );
+		const BYTE* pbtFound = _mbschr( (const BYTE*) &m_ptString[nStart], rfcSub );
 
 		if( pbtFound != NULL )
 		{
@@ -1879,15 +1751,12 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
-		const wchar_t*		pwszFound;
-
-		pwszFound = wcschr( (const wchar_t*) &m_ptString[nStart], rfcSub );
+		const wchar_t* pwszFound = wcschr( (const wchar_t*) &m_ptString[nStart], rfcSub );
 
 		if( pwszFound != NULL )
 		{
@@ -1895,7 +1764,6 @@ template<class TYPE> int YCStringT<TYPE>::Find(
 
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
-
 		break;
 	}
 
@@ -1913,23 +1781,21 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 	const TYPE*			pszSub							// String to search for
 	) const
 {
-	INT_PTR				npResult = -1;
+	INT_PTR npResult = -1;
 
 	// Getting the length of the search string
 
-	int					nSubLength = 0;
+	int nSubLength = 0;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nSubLength = lstrlenA( (const char*) pszSub );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nSubLength = lstrlenW( (const wchar_t*) pszSub );
 		break;
 	}
@@ -1943,17 +1809,15 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 	// Search from the end of the string
 
-	int					nStart = (GetLength() - nSubLength);
-	int					nIndex;
+	int nStart = (GetLength() - nSubLength);
+	int nIndex;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
-		char*				pszWork;
-
-		pszWork = (char*) &m_ptString[nStart];
+		char* pszWork = (char*) &m_ptString[nStart];
 
 		while( 1 )
 		{
@@ -1975,7 +1839,7 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
 
 		for( nIndex = nStart ; nIndex >= 0 ; nIndex-- )
@@ -2002,21 +1866,18 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 	const TYPE&			rfcSub							// Character to search for
 	) const
 {
-	INT_PTR				npResult = -1;
+	INT_PTR npResult = -1;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
 
-		const BYTE*			pbtFound;
-
-		pbtFound = _mbsrchr( (const BYTE*) m_ptString, rfcSub );
+		const BYTE* pbtFound = _mbsrchr( (const BYTE*) m_ptString, rfcSub );
 
 		if( pbtFound != NULL )
 		{
 			// Target string is present
-
 			npResult = (pbtFound - (BYTE*) m_ptString);
 		}
 
@@ -2025,14 +1886,11 @@ template<class TYPE> int YCStringT<TYPE>::ReverseFind(
 	case	2:
 		// wchar_t type
 
-		const wchar_t*		pwszFound;
-
-		pwszFound = wcsrchr( (wchar_t*) m_ptString, rfcSub );
+		const wchar_t* pwszFound = wcsrchr( (wchar_t*) m_ptString, rfcSub );
 
 		if( pwszFound != NULL )
 		{
 			// Target string is present
-
 			npResult = (pwszFound - (wchar_t*) m_ptString);
 		}
 
@@ -2051,7 +1909,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Left(
 	int					nCount							// Number of characters to extract
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Delete( nCount, clsResult.GetLength() );
 
@@ -2095,12 +1953,6 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::Mid( int nFirst, int nCoun
 }
 
 
-
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////
 //  Gets the string buffer
 
@@ -2111,11 +1963,9 @@ template<class TYPE> TYPE* YCStringT<TYPE>::GetBuffer(
 	if( nBufferSize > GetBufferSize() )
 	{
 		// Desired buffer size is larger than the current buffer's size
-
 		Free();
 
 		// Allocate memory
-
 		Alloc( nBufferSize );
 	}
 
@@ -2152,15 +2002,13 @@ template<class TYPE> bool YCStringT<TYPE>::IsEmpty() const
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		bReturn = (*this == "");
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		bReturn = (*this == L"");
 		break;
 	}
@@ -2175,34 +2023,27 @@ template<class TYPE> void YCStringT<TYPE>::RenameExtension(
 	const TYPE*			ptRenameExt						// Extension to change it to
 	)
 {
-	int					nFileNameIndex = GetFileNameIndex();
-	int					nFileExtIndex = GetFileExtIndex();
+	int nFileNameIndex = GetFileNameIndex();
+	int nFileExtIndex = GetFileExtIndex();
 
+	// Found an extension
 	if( nFileExtIndex >= nFileNameIndex )
 	{
-		// Found an extension
-
-		int					nNewStringLength = GetLength();
+		int nNewStringLength = GetLength();
 
 		switch( sizeof(TYPE) )
 		{
-		case	1:
+		case 1:
 			// char type
-
 			nNewStringLength += lstrlenA( (const char*) ptRenameExt ) - lstrlenA( (const char*) &m_ptString[nFileExtIndex] );
-
 			ExtendBuffer( (nNewStringLength + 1) );
-
 			lstrcpyA( (char*) &m_ptString[nFileExtIndex], (const char*) ptRenameExt );
 			break;
 
-		case	2:
+		case 2:
 			// wchar_t type
-
 			nNewStringLength += lstrlenA( (const char*) ptRenameExt ) - lstrlenA( (const char*) &m_ptString[nFileExtIndex] );
-
 			ExtendBuffer( (nNewStringLength + 1) );
-
 			lstrcpyW( (wchar_t*) &m_ptString[nFileExtIndex], (const wchar_t*) ptRenameExt );
 			break;
 		}
@@ -2216,7 +2057,7 @@ template<class TYPE> void YCStringT<TYPE>::RenameExtension(
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileName() const
 {
-	int					nIndex = GetFileNameIndex();
+	int nIndex = GetFileNameIndex();
 
 	return &m_ptString[nIndex];
 }
@@ -2226,20 +2067,18 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileName() const
 
 template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 {
-	int					nFound = -1;
-	int					nIndex = 0;
+	int nFound = -1;
+	int nIndex = 0;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nFound = ReverseFind( '\\' );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nFound = ReverseFind( L'\\' );
 		break;
 	}
@@ -2247,13 +2086,11 @@ template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 	if( nFound >= 0 )
 	{
 		// Found a file name
-
 		nIndex = (nFound + 1);
 	}
 	else
 	{
 		// Whole string happens to be the file name
-
 		nIndex = 0;
 	}
 
@@ -2265,20 +2102,18 @@ template<class TYPE> int YCStringT<TYPE>::GetFileNameIndex() const
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileTitle() const
 {
-	YCStringT<TYPE>		clsFileTitle = GetFileName();
-	TYPE				szWork[1];
+	YCStringT<TYPE> clsFileTitle = GetFileName();
+	TYPE            szWork[1];
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		szWork[0] = '\0';
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		szWork[0] = L'\0';
 		break;
 	}
@@ -2293,7 +2128,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileTitle() const
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileExt() const
 {
-	int					nIndex = GetFileExtIndex();
+	int nIndex = GetFileExtIndex();
 
 	return &m_ptString[nIndex];
 }
@@ -2303,20 +2138,18 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetFileExt() const
 
 template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 {
-	int					nFound = -1;
-	int					nIndex = 0;
+	int nFound = -1;
+	int nIndex = 0;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nFound = ReverseFind( '.' );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nFound = ReverseFind( L'.' );
 		break;
 	}
@@ -2324,13 +2157,11 @@ template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 	if( nFound >= 0 )
 	{
 		// Extension found
-
 		nIndex = nFound;
 	}
 	else
 	{
 		// There is no extension
-
 		nIndex = GetLength();
 	}
 
@@ -2342,28 +2173,25 @@ template<class TYPE> int YCStringT<TYPE>::GetFileExtIndex() const
 
 template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 {
-	int					nTargetIndex = 0;
-	int					nFileNameIndex = GetFileNameIndex();
-	int					nDriveIndex = -1;
+	int nTargetIndex = 0;
+	int nFileNameIndex = GetFileNameIndex();
+	int nDriveIndex = -1;
 
 	if( nFileNameIndex >= 1 )
 	{
 		// Folder name found
-
 		nTargetIndex = (nFileNameIndex - 1);
 	}
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		nDriveIndex = ReverseFind( ':' );
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		nDriveIndex = ReverseFind( L':' );
 		break;
 	}
@@ -2375,13 +2203,11 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::GetDirPath() const
 		if( nTargetIndex == (nDriveIndex + 1) )
 		{
 			// '\\' immediately after ':'
-
 			nTargetIndex = nFileNameIndex;
 		}
 		else
 		{
 			// Don't delete anything prior to ':'
-
 			nTargetIndex = (nTargetIndex < nDriveIndex) ? (nDriveIndex + 1) : nTargetIndex;
 		}
 	}
@@ -2410,7 +2236,7 @@ template<class TYPE> YCStringT<TYPE>& YCStringT<TYPE>::operator=(
 {
 	Copy( rfcSrc );
 
-	return	*this;
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2456,7 +2282,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
 	const char*			pszAppend						// String to concatenate
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Append( pszAppend );
 
@@ -2470,7 +2296,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
 	const char&			rfcAppend						// Character to concatenate
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Append( rfcAppend );
 
@@ -2484,7 +2310,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
 	const wchar_t*		pwszAppend						// String to concatenate
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Append( pwszAppend );
 
@@ -2498,7 +2324,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
 	const wchar_t&		rfwcAppend						// Character to concatenate
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Append( rfwcAppend );
 
@@ -2512,7 +2338,7 @@ template<class TYPE> YCStringT<TYPE> YCStringT<TYPE>::operator+(
 	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate
 	) const
 {
-	YCStringT<TYPE>		clsResult = *this;
+	YCStringT<TYPE> clsResult = *this;
 
 	clsResult.Append( rfclsAppend );
 
@@ -2527,7 +2353,7 @@ template<class TYPE> YCStringT<TYPE> operator+(
 	const YCStringT<TYPE>&	rfclsAppend					// Parent string to concatenate to
 	)
 {
-	YCStringT<TYPE>		clsResult = pszSrc;
+	YCStringT<TYPE> clsResult = pszSrc;
 
 	clsResult.Append( rfclsAppend );
 
@@ -2542,7 +2368,7 @@ template<class TYPE> YCStringT<TYPE> operator+(
 	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate it to
 	)
 {
-	YCStringT<TYPE>		clsResult = rfcSrc;
+	YCStringT<TYPE> clsResult = rfcSrc;
 
 	clsResult.Append( rfclsAppend );
 
@@ -2557,7 +2383,7 @@ template<class TYPE> YCStringT<TYPE> operator+(
 	const YCStringT<TYPE>&	rfclsAppend					// Parent string to concatenate it to
 	)
 {
-	YCStringT<TYPE>		clsResult = pwszSrc;
+	YCStringT<TYPE> clsResult = pwszSrc;
 
 	clsResult.Append( rfclsAppend );
 
@@ -2572,7 +2398,7 @@ template<class TYPE> YCStringT<TYPE> operator+(
 	const YCStringT<TYPE>&	rfclsAppend					// String to concatenate it to
 	)
 {
-	YCStringT<TYPE>		clsResult = rfwcSrc;
+	YCStringT<TYPE> clsResult = rfwcSrc;
 
 	clsResult.Append( rfclsAppend );
 
@@ -3050,7 +2876,7 @@ template<class TYPE> void YCStringT<TYPE>::Alloc(
 {
 	// Alignment
 
-	int					nPaddingSize = (YCSTRINGT_BUFFERSIZE_ALIGNMENT - (nBufferSize % YCSTRINGT_BUFFERSIZE_ALIGNMENT));
+	int nPaddingSize = (YCSTRINGT_BUFFERSIZE_ALIGNMENT - (nBufferSize % YCSTRINGT_BUFFERSIZE_ALIGNMENT));
 
 	if( nPaddingSize < YCSTRINGT_BUFFERSIZE_ALIGNMENT )
 	{
@@ -3058,15 +2884,12 @@ template<class TYPE> void YCStringT<TYPE>::Alloc(
 	}
 
 	// Ensure the string buffer has a sufficient size
-
-	int					nDataSize = (16 / sizeof(TYPE));
+	int nDataSize = (16 / sizeof(TYPE));
 
 	m_ptString = new TYPE[nDataSize + nBufferSize];
-
 	m_ptString += nDataSize;
 
 	// Store the buffer size
-
 	SetBufferSize( nBufferSize );
 }
 
@@ -3078,9 +2901,7 @@ template<class TYPE> void YCStringT<TYPE>::Free()
 	if( m_ptString != NULL )
 	{
 		m_ptString -= (16 / sizeof(TYPE));
-
-		delete[]	m_ptString;
-
+		delete[] m_ptString;
 		m_ptString = NULL;
 	}
 }
@@ -3095,36 +2916,29 @@ template<class TYPE> void YCStringT<TYPE>::ExtendBuffer(
 	if( nBufferSize < GetBufferSize() )
 	{
 		// No need to extend the buffer
-
 		return;
 	}
 
-	TYPE*				ptString = m_ptString;
+	TYPE* ptString = m_ptString;
 
 	switch( sizeof(TYPE) )
 	{
-	case	1:
+	case 1:
 		// char type
-
 		Alloc( nBufferSize );
-
 		lstrcpyA( (char*) m_ptString, (const char*) ptString );
-
 		break;
 
-	case	2:
+	case 2:
 		// wchar_t type
-
 		Alloc( nBufferSize );
-
 		lstrcpyW( (wchar_t*) m_ptString, (const wchar_t*) ptString );
-
 		break;
 	}
 
 	// Release the previous buffer
 
-	delete[]	(ptString - (16 / sizeof(TYPE)));
+	delete[] (ptString - (16 / sizeof(TYPE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3149,7 +2963,7 @@ template<class TYPE> int YCStringT<TYPE>::GetBufferSize()
 		return 0;
 	}
 
-	return  *(int*) (m_ptString - (YCSTRINGT_OFFSET_BUFFERSIZE / sizeof(TYPE)));
+	return *(int*) (m_ptString - (YCSTRINGT_OFFSET_BUFFERSIZE / sizeof(TYPE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

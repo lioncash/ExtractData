@@ -1,11 +1,10 @@
-
-#pragma	once
+#pragma once
 
 //----------------------------------------------------------------------------------------
 //-- INI Class ---------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class	YCIni
+class YCIni
 {
 public:
 
@@ -43,9 +42,9 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get a numeric value
+// Get a numeric value
 
-template<typename TYPE> TYPE	YCIni::ReadDec(
+template<typename TYPE> TYPE YCIni::ReadDec(
 	const TYPE&			rftDefault						// Default value
 	)
 {
@@ -53,9 +52,9 @@ template<typename TYPE> TYPE	YCIni::ReadDec(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get a numeric value
+// Get a numeric value
 
-template<typename TYPE> void	YCIni::ReadDec(
+template<typename TYPE> void YCIni::ReadDec(
 	TYPE*				ptDst,							// Storage location of a number
 	const TYPE&			rftDefault						// Default value
 	)
@@ -64,9 +63,9 @@ template<typename TYPE> void	YCIni::ReadDec(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get a numeric value
+// Get a numeric value
 
-template<typename TYPE> void	YCIni::ReadDec(
+template<typename TYPE> void YCIni::ReadDec(
 	TYPE*				ptDst							// Storage location of a numeric value (default values are stored in the destination)
 	)
 {
@@ -74,13 +73,13 @@ template<typename TYPE> void	YCIni::ReadDec(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets a hexadecimal (16) number
+// Gets a hexadecimal (16) number
 
-template<typename TYPE> TYPE	YCIni::ReadHex(
+template<typename TYPE> TYPE YCIni::ReadHex(
 	LPCTSTR				pszDefault						// Default values
 	)
 {
-	TCHAR				szWork[256];
+	TCHAR szWork[256];
 
 	::GetPrivateProfileString( m_clsSection, m_clsKey, pszDefault, szWork, sizeof( szWork ), m_clsPathToIni );
 
@@ -88,9 +87,9 @@ template<typename TYPE> TYPE	YCIni::ReadHex(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets a hexadecimal (16) number
+// Gets a hexadecimal (16) number
 
-template<typename TYPE> void	YCIni::ReadHex(
+template<typename TYPE> void YCIni::ReadHex(
 	TYPE*				ptDst,							// Location of the hexadecimal
 	LPCTSTR				pszDefault						// Default value
 	)
@@ -99,13 +98,13 @@ template<typename TYPE> void	YCIni::ReadHex(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set the values
+// Set the values
 
-template<typename TYPE> void	YCIni::WriteDec(
+template<typename TYPE> void YCIni::WriteDec(
 	const TYPE&			rftDec							// Setting
 	)
 {
-	TCHAR				szWork[256];
+	TCHAR szWork[256];
 
 	_stprintf( szWork, _T("%d"), rftDec );
 
@@ -113,14 +112,14 @@ template<typename TYPE> void	YCIni::WriteDec(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Writes a hexadecimal (16) number
+// Writes a hexadecimal (16) number
 
-template<typename TYPE> void	YCIni::WriteHex(
+template<typename TYPE> void YCIni::WriteHex(
 	const TYPE&			rftHex,							// Setting
 	DWORD				dwNumber						// Number of digits
 	)
 {
-	TCHAR				szWork[256];
+	TCHAR szWork[256];
 
 	_stprintf( szWork, _T("%0*X"), dwNumber, rftHex );
 

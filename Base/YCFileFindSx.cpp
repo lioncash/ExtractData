@@ -1,22 +1,22 @@
 
-#include	"stdafx.h"
-#include	"YCFileFindSx.h"
+#include "stdafx.h"
+#include "YCFileFindSx.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	File Search
+// File Search
 
-BOOL	YCFileFindSx::FindFile(
+BOOL YCFileFindSx::FindFile(
 	std::vector<YCString>&	rfvcPathToDstFile,			// Storage location
 	LPCTSTR					pszPathToTargetFolder,		// Directory to search for
 	LPCTSTR					pszTargetFileName,			// Target filename(Can be a wildcard)
 	BOOL					bSearchSubDirectory			// Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
 	)
 {
-	BOOL				bReturn = FALSE;
+	BOOL bReturn = FALSE;
 
 	// Searching for file
 
-	YCFileFind			clffTarget;
+	YCFileFind clffTarget;
 
 	if( clffTarget.FindFirstFile( pszPathToTargetFolder, pszTargetFileName ) )
 	{
@@ -52,7 +52,7 @@ BOOL	YCFileFindSx::FindFile(
 	{
 		// Do not search the subdirectories
 
-		return	bReturn;
+		return bReturn;
 	}
 
 	// Search directory
@@ -86,5 +86,5 @@ BOOL	YCFileFindSx::FindFile(
 
 	clffTarget.Close();
 
-	return	bReturn;
+	return bReturn;
 }

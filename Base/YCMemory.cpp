@@ -1,2 +1,2 @@
-#include	"stdafx.h"
-#include	"YCMemory.h"
+#include "stdafx.h"
+#include "YCMemory.h"

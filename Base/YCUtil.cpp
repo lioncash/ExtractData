@@ -1,57 +1,57 @@
-#include	"stdafx.h"
-#include	"YCUtil.h"
+#include "stdafx.h"
+#include "YCUtil.h"
 /*
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set File Format
+// Set File Format
 
-YCString	YCUtil::SetFileFormat(
+YCString YCUtil::SetFileFormat(
 	const YCString&		rfcstFileName					// Filename
 	)
 {
 	// Retrieves the extension
 
-	LPCTSTR				pszFileExt = PathFindExtension( rfcstFileName );
+	LPCTSTR pszFileExt = PathFindExtension( rfcstFileName );
 
 	if( pszFileExt == NULL )
 	{
 		// Extension does not exist
 
-		return	_T("");
+		return _T("");
 	}
 
 	if( lstrlen( pszFileExt ) < 2 )
 	{
 		// Extension is not only "."
 
-		return	_T("");
+		return _T("");
 	}
 
 	// Converted to uppercase extension
 
-	TCHAR				szFileFormat[256];
+	TCHAR szFileFormat[256];
 
 	lstrcpy( szFileFormat, &pszFileExt[1] );
 	CharUpper( szFileFormat );
 
-	return	szFileFormat;
+	return szFileFormat;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Separates digits by a comma 
+// Separates digits by a comma 
 
-YCString	YCUtil::SetCommaFormat(
+YCString YCUtil::SetCommaFormat(
 	DWORD				dwSize,							// Number
 	DWORD				dwDigit							// Separate digit
 	)
 {
-	YCString			cstSize;
+	YCString cstSize;
 
 	cstSize.Format( _T("%d"), dwSize );
 
-	int					nLength = cstSize.length();
+	int nLength = cstSize.length();
 
-	int					comma_num = (nLength - 1) / dwDigit;
-	int					comma_pos = nLength % dwDigit;
+	int comma_num = (nLength - 1) / dwDigit;
+	int comma_pos = nLength % dwDigit;
 
 	if( comma_pos == 0 )
 	{
@@ -67,30 +67,30 @@ YCString	YCUtil::SetCommaFormat(
 		cstSize.insert( comma_pos + dwDigit * i + i, _T(",") );
 	}
 
-	return	cstSize;
+	return cstSize;
 }
 */
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Creates the lowest level directory you want to create
+// Creates the lowest level directory you want to create
 
-void	YCUtil::CreateDirectory(
+void YCUtil::CreateDirectory(
 	LPCTSTR				pszPathToFile,					// File path
 	BOOL				bFileName						// Contains a file name or file path(TRUEF Included, FALSEF Not included)
 	)
 {
-	std::vector<YCString>	vcDirPathList;
-	LPCTSTR					pszFilePathBase = pszPathToFile;
+	std::vector<YCString> vcDirPathList;
+	LPCTSTR               pszFilePathBase = pszPathToFile;
 
 	while( (pszPathToFile = PathFindNextComponent( pszPathToFile )) != NULL )
 	{
-		YCString				clsDirPath( pszFilePathBase, pszPathToFile - pszFilePathBase - 1 ); // Do not put a '\' at the end just to be sure to -1
+		YCString clsDirPath( pszFilePathBase, pszPathToFile - pszFilePathBase - 1 ); // Do not put a '\' at the end just to be sure to -1
 
 		vcDirPathList.push_back( clsDirPath );
 	}
 
 	// Create a directory in the order from the root
 
-	size_t					uMax = vcDirPathList.size();
+	size_t uMax = vcDirPathList.size();
 
 	if( bFileName )
 	{
@@ -106,9 +106,9 @@ void	YCUtil::CreateDirectory(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Replace forward slashes with backward slashes
+// Replace forward slashes with backward slashes
 
-void	YCUtil::ReplaceSlashToBackslash(
+void YCUtil::ReplaceSlashToBackslash(
 	LPSTR				pszFileName						// Filename
 	)
 {
@@ -133,9 +133,9 @@ void	YCUtil::ReplaceSlashToBackslash(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Replace forward slashes with backward slashes
+// Replace forward slashes with backward slashes
 
-void	YCUtil::ReplaceSlashToBackslash(
+void YCUtil::ReplaceSlashToBackslash(
 	LPWSTR				pwszFileName					// Filename
 	)
 {
@@ -151,9 +151,9 @@ void	YCUtil::ReplaceSlashToBackslash(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert Endian (4byte)
+// Convert Endian (4byte)
 
-DWORD	YCUtil::ConvEndian(
+DWORD YCUtil::ConvEndian(
 	DWORD				dwSrc
 	)
 {
@@ -168,9 +168,9 @@ DWORD	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert Endian (4byte)
+// Convert Endian (4byte)
 
-void	YCUtil::ConvEndian(
+void YCUtil::ConvEndian(
 	LPDWORD				pdwDst
 	)
 {
@@ -178,9 +178,9 @@ void	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert Endian (2byte)
+// Convert Endian (2byte)
 
-WORD	YCUtil::ConvEndian(
+WORD YCUtil::ConvEndian(
 	WORD				wSrc
 	)
 {
@@ -195,9 +195,9 @@ WORD	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert Endian (2byte)
+// Convert Endian (2byte)
 
-void	YCUtil::ConvEndian(
+void YCUtil::ConvEndian(
 	LPWORD				pwDst
 	)
 {
@@ -205,18 +205,18 @@ void	YCUtil::ConvEndian(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Compares the contents of memory
+// Compares the contents of memory
 //
-//	Remark: Wildcard compatible version of the standard memcmp() function
+// Remark: Wildcard compatible version of the standard memcmp() function
 
-BOOL	YCUtil::CompareMemory(
+BOOL YCUtil::CompareMemory(
 	const void*			pvData1,						// Comparison Data 1
 	const void*			pvData2,						// Comparison Data 2
 	DWORD				dwSize							// Size Comparison
 	)
 {
-	BYTE*				pbtData1 = (BYTE*)pvData1;
-	BYTE*				pbtData2 = (BYTE*)pvData2;
+	BYTE* pbtData1 = (BYTE*)pvData1;
+	BYTE* pbtData2 = (BYTE*)pvData2;
 
 	for( DWORD i = 0 ; i < dwSize ; i++ )
 	{
@@ -224,11 +224,11 @@ BOOL	YCUtil::CompareMemory(
 		{
 			// Mismatch
 
-			return	FALSE;
+			return FALSE;
 		}
 	}
 
 	// Match
 
-	return	TRUE;
+	return TRUE;
 }

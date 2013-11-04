@@ -1,8 +1,8 @@
-#include	"stdafx.h"
-#include	"YCStdioFile.h"
+#include "stdafx.h"
+#include "YCStdioFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 YCStdioFile::YCStdioFile()
 {
@@ -10,7 +10,7 @@ YCStdioFile::YCStdioFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 YCStdioFile::~YCStdioFile()
 {
@@ -18,9 +18,9 @@ YCStdioFile::~YCStdioFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mode to open the file in
+// Mode to open the file in
 
-BOOL	YCStdioFile::Open(
+BOOL YCStdioFile::Open(
 	LPCTSTR				pszPathToFile,					// File path
 	UINT				uOpenFlags						// Mode
 	)
@@ -139,13 +139,13 @@ BOOL	YCStdioFile::Open(
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
 
-	return	(m_pStream != NULL);
+	return (m_pStream != NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//  Close File
+// Close File
 
-void	YCStdioFile::Close()
+void YCStdioFile::Close()
 {
 	if( m_pStream != NULL )
 	{
@@ -155,57 +155,49 @@ void	YCStdioFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Read File
+// Read File
 
-DWORD	YCStdioFile::Read(
+DWORD YCStdioFile::Read(
 	void*				pvBuffer,						// Buffer
 	DWORD				dwReadSize						// Read Size
 	)
 {
-	DWORD				dwResult;
-
-	dwResult = fread( pvBuffer, 1, dwReadSize, m_pStream );
-
-	return	dwResult;
+	return fread( pvBuffer, 1, dwReadSize, m_pStream );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write File
+// Write File
 
-DWORD	YCStdioFile::Write(
+DWORD YCStdioFile::Write(
 	const void*			pvBuffer,						// Buffer
 	DWORD				dwWriteSize						// Write Size
 	)
 {
-	DWORD				dwResult;
-
-	dwResult = fwrite( pvBuffer, 1, dwWriteSize, m_pStream );
-
-	return	dwResult;
+	return fwrite( pvBuffer, 1, dwWriteSize, m_pStream );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Read a file line
+// Read a file line
 
-LPTSTR	YCStdioFile::ReadString(
+LPTSTR YCStdioFile::ReadString(
 	LPTSTR				pszBuffer,						// Buffer
 	DWORD				dwBufferSize					// Buffer Size
 	)
 {
-	return	_fgetts( pszBuffer, dwBufferSize, m_pStream );
+	return _fgetts( pszBuffer, dwBufferSize, m_pStream );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Read a file line
+// Read a file line
 //
-//	Remark: Gets rid of the newline at the end
+// Remark: Gets rid of the newline at the end
 
-BOOL	YCStdioFile::ReadString(
+BOOL YCStdioFile::ReadString(
 	YCString&			rfclsBuffer						// Buffer
 	)
 {
-	BOOL				bReturn = FALSE;
-	TCHAR				szBuffer[1024];
+	BOOL  bReturn = FALSE;
+	TCHAR szBuffer[1024];
 
 	rfclsBuffer = _T("");
 
@@ -230,13 +222,13 @@ BOOL	YCStdioFile::ReadString(
 		}
 	}
 
-	return	bReturn;
+	return bReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Writes a line into the file
+// Writes a line into the file
 
-void	YCStdioFile::WriteString(
+void YCStdioFile::WriteString(
 	LPCTSTR				pszBuffer						// Buffer
 	)
 {
@@ -244,24 +236,24 @@ void	YCStdioFile::WriteString(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move the file pointer (Seek)
+// Move the file pointer (Seek)
 
-UINT64	YCStdioFile::Seek(
+UINT64 YCStdioFile::Seek(
 	INT64				n64Offset,						// Number of bytes to seek
 	DWORD				dwSeekMode						// Seek Mode
 	)
 {
 	switch( dwSeekMode )
 	{
-	case	begin:
+	case begin:
 		dwSeekMode = SEEK_SET;
 		break;
 
-	case	current:
+	case current:
 		dwSeekMode = SEEK_CUR;
 		break;
 
-	case	end:
+	case end:
 		dwSeekMode = SEEK_END;
 		break;
 
@@ -271,8 +263,8 @@ UINT64	YCStdioFile::Seek(
 
 	if( _fseeki64( m_pStream, n64Offset, dwSeekMode ) )
 	{
-		return	(UINT64) _ftelli64( m_pStream );
+		return (UINT64) _ftelli64( m_pStream );
 	}
 
-	return	0;
+	return 0;
 }

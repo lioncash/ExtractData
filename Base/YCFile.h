@@ -33,7 +33,7 @@ public:
     {
         begin               = 0,
         current             = 1,
-        end	                = 2,
+        end                 = 2,
     };
 
                                             YCFile();

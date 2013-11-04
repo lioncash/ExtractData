@@ -1,9 +1,9 @@
 
-#include	"stdafx.h"
-#include	"YCIni.h"
+#include "stdafx.h"
+#include "YCIni.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 YCIni::YCIni(
 	LPCTSTR				pszPathToIni					// INI File path
@@ -11,7 +11,7 @@ YCIni::YCIni(
 {
 	// Gets the execution path of the file
 
-	TCHAR				szPathToExecuteFolder[MAX_PATH];
+	TCHAR szPathToExecuteFolder[MAX_PATH];
 
 	::GetModuleFileName( NULL, szPathToExecuteFolder, _countof( szPathToExecuteFolder ) );
 	::PathRemoveFileSpec( szPathToExecuteFolder );
@@ -20,13 +20,13 @@ YCIni::YCIni(
 
 	m_clsPathToIni.Format( _T("%s\\%s"), szPathToExecuteFolder, pszPathToIni );
 
-//	m_clsPathToIni = pszPathToIni;
+// m_clsPathToIni = pszPathToIni;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set a section name
+// Set a section name
 
-void	YCIni::SetSection(
+void YCIni::SetSection(
 	LPCTSTR				pszSection						// Section name
 	)
 {
@@ -34,13 +34,13 @@ void	YCIni::SetSection(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set a section name
+// Set a section name
 
-void	YCIni::SetSection(
+void YCIni::SetSection(
 	UINT				uID								// String ID
 	)
 {
-	TCHAR				szSection[256];
+	TCHAR szSection[256];
 
 	::LoadString( ::GetModuleHandle( NULL ), uID, szSection, _countof( szSection ) );
 
@@ -48,9 +48,9 @@ void	YCIni::SetSection(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set key name
+// Set key name
 
-void	YCIni::SetKey(
+void YCIni::SetKey(
 	LPCTSTR				pszKey							// Key name
 	)
 {
@@ -58,9 +58,9 @@ void	YCIni::SetKey(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets a string
+// Gets a string
 
-void	YCIni::ReadStr(
+void YCIni::ReadStr(
 	LPTSTR				pszDst,							// Storage location of string
 	DWORD				dwDstSize,						// Store buffer size
 	LPCTSTR				pszDefault						// Default value
@@ -72,12 +72,12 @@ void	YCIni::ReadStr(
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Gets a string
 
-void	YCIni::ReadStr(
+void YCIni::ReadStr(
 	YCString&			rfclsDst,						// Storage location of the string
 	const YCString&		rfclsDefault					// Default value
 	)
 {
-	TCHAR				szDst[1024];
+	TCHAR szDst[1024];
 
 	ReadStr( szDst, _countof( szDst ), rfclsDefault );
 
@@ -85,9 +85,9 @@ void	YCIni::ReadStr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Sets the string
+// Sets the string
 
-void	YCIni::WriteStr(
+void YCIni::WriteStr(
 	LPCTSTR				pszStr							// Setting
 	)
 {
@@ -95,9 +95,9 @@ void	YCIni::WriteStr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Delete section
+// Delete section
 
-BOOL	YCIni::DeleteSection(
+BOOL YCIni::DeleteSection(
 	LPCTSTR				pszSection						// Section name
 	)
 {
@@ -106,5 +106,5 @@ BOOL	YCIni::DeleteSection(
 		pszSection = m_clsSection;
 	}
 
-	return	::WritePrivateProfileString( pszSection, NULL, NULL, m_clsPathToIni );
+	return ::WritePrivateProfileString( pszSection, NULL, NULL, m_clsPathToIni );
 }

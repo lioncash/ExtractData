@@ -1,9 +1,8 @@
-
-#include	"stdafx.h"
-#include	"YCLibrary.h"
+#include "stdafx.h"
+#include "YCLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 YCLibrary::YCLibrary()
 {
@@ -11,7 +10,7 @@ YCLibrary::YCLibrary()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 YCLibrary::~YCLibrary()
 {
@@ -19,9 +18,9 @@ YCLibrary::~YCLibrary()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Load the specified module
+// Load the specified module
 
-BOOL	YCLibrary::Load(
+BOOL YCLibrary::Load(
 	LPCTSTR				pszPathToFile					// Load module name
 	)
 {
@@ -51,10 +50,10 @@ FARPROC	YCLibrary::GetProcAddress(
 {
 	if( m_hModule == NULL )
 	{
-		return	NULL;
+		return NULL;
 	}
 
-	YCStringA			clsProcName = pszProcName;	// Done as a last resort because there is no GetProcAddressW
+	YCStringA clsProcName = pszProcName;	// Done as a last resort because there is no GetProcAddressW
 
-	return	::GetProcAddress( m_hModule, clsProcName );
+	return ::GetProcAddress( m_hModule, clsProcName );
 }

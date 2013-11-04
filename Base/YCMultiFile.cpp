@@ -1,8 +1,8 @@
-#include	"stdafx.h"
-#include	"YCMultiFile.h"
+#include "stdafx.h"
+#include "YCMultiFile.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 YCMultiFile::YCMultiFile()
 {
@@ -18,28 +18,28 @@ YCMultiFile::~YCMultiFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Specifies the mode to open the file in
+// Specifies the mode to open the file in
 
-BOOL	YCMultiFile::Open(
+BOOL YCMultiFile::Open(
 	LPCTSTR				pszPathToFile,					// File path
 	UINT				uOpenFlags						// Mode
 	)
 {
 	Close();
 
-	return	Add( pszPathToFile, uOpenFlags );
+	return Add( pszPathToFile, uOpenFlags );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Specifies the mode to open the file in
+// Specifies the mode to open the file in
 
-BOOL	YCMultiFile::Add(
+BOOL YCMultiFile::Add(
 	LPCTSTR				pszPathToFile,					// File path
 	UINT				uOpenFlags						// Mode
 	)
 {
-	BOOL				bReturn = FALSE;
-	YCFile*				pclFile = new YCFile();
+	BOOL    bReturn = FALSE;
+	YCFile* pclFile = new YCFile();
 
 	if( pclFile->Open( pszPathToFile, uOpenFlags ) )
 	{
@@ -53,22 +53,22 @@ BOOL	YCMultiFile::Add(
 	{
 		// Failed to open
 
-		delete	pclFile;
+		delete pclFile;
 	}
 
-	return	bReturn;
+	return bReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Close File
+// Close File
 
-void	YCMultiFile::Close()
+void YCMultiFile::Close()
 {
 	for( size_t siCnt = 0 ; siCnt < m_vtpclFile.size() ; siCnt++ )
 	{
 		m_vtpclFile[siCnt]->Close();
 
-		delete	m_vtpclFile[siCnt];
+		delete m_vtpclFile[siCnt];
 	}
 
 	m_vtpclFile.clear();
@@ -77,16 +77,16 @@ void	YCMultiFile::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Read File
+// Read File
 
-DWORD	YCMultiFile::Read(
+DWORD YCMultiFile::Read(
 	void*				pvBuffer,						// Buffer
 	DWORD				dwReadSize						// Read Size
 	)
 {
-	DWORD				dwResult;
-	BYTE*				pbtBuffer = (BYTE*) pvBuffer;
-	DWORD				dwBufferPtr = 0;
+	DWORD dwResult;
+	BYTE* pbtBuffer = (BYTE*) pvBuffer;
+	DWORD dwBufferPtr = 0;
 
 	while( 1 )
 	{
@@ -106,35 +106,35 @@ DWORD	YCMultiFile::Read(
 		SetNextFile();
 	}
 
-	return	dwBufferPtr;
+	return dwBufferPtr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write File
+// Write File
 
-DWORD	YCMultiFile::Write(
+DWORD YCMultiFile::Write(
 	const void*			pvBuffer,						// Buffer
 	DWORD				dwWriteSize						// Write Size
 	)
 {
-	return	m_vtpclFile[m_dwCurrentFileID]->Write( pvBuffer, dwWriteSize );
+	return m_vtpclFile[m_dwCurrentFileID]->Write( pvBuffer, dwWriteSize );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Move the file pointer (Seek)
+// Move the file pointer (Seek)
 
-UINT64	YCMultiFile::Seek(
+UINT64 YCMultiFile::Seek(
 	INT64				n64Offset,						// Number of bytes to seek
 	DWORD				dwSeekMode						// Seek Mode
 	)
 {
-	UINT64				u64Position = 0;
-	UINT64				u64CurrentPosition;
-	UINT64				u64FileSize;
+	UINT64 u64Position = 0;
+	UINT64 u64CurrentPosition;
+	UINT64 u64FileSize;
 
 	switch( dwSeekMode )
 	{
-	case	YCFile::begin:
+	case YCFile::begin:
 		// From the beginning
 
 		for( size_t siCnt = 0 ; siCnt < m_vtpclFile.size() ; siCnt++ )
@@ -157,7 +157,7 @@ UINT64	YCMultiFile::Seek(
 
 		break;
 
-	case	YCFile::current:
+	case YCFile::current:
 		// From the current position
 
 		if( n64Offset > 0 )
@@ -232,98 +232,94 @@ UINT64	YCMultiFile::Seek(
 
 		break;
 
-	case	YCFile::end:
+	case YCFile::end:
 		// From the end
 
 		break;
 	}
 
-	return	u64Position;
+	return u64Position;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Seek from the head of the file
+// Seek from the head of the file
 
-UINT64	YCMultiFile::SeekHed(
+UINT64 YCMultiFile::SeekHed(
 	INT64				n64Offset						// Number of bytes to seek
 	)
 {
-	return	Seek( n64Offset, YCFile::begin );
+	return Seek( n64Offset, YCFile::begin );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Seek from the end of the file
+// Seek from the end of the file
 
-UINT64	YCMultiFile::SeekEnd(
+UINT64 YCMultiFile::SeekEnd(
 	INT64				n64Offset						// Number of bytes to seek
 	)
 {
-	return	Seek( -n64Offset, YCFile::end );
+	return Seek( -n64Offset, YCFile::end );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Seek from the current position in the file
+// Seek from the current position in the file
 
-UINT64	YCMultiFile::SeekCur(
+UINT64 YCMultiFile::SeekCur(
 	INT64				n64Offset						// Number of bytes to seek
 	)
 {
-	return	Seek( n64Offset, YCFile::current );
+	return Seek( n64Offset, YCFile::current );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the current file pointer
+// Gets the current file pointer
 
-UINT64	YCMultiFile::GetPosition()
+UINT64 YCMultiFile::GetPosition()
 {
-	return	SeekCur( 0 );
+	return SeekCur( 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the file length
+// Gets the file length
 
-UINT64	YCMultiFile::GetLength()
+UINT64 YCMultiFile::GetLength()
 {
-	UINT64				u64CurrentOffset;
-	UINT64				u64EndOffset;
-
-	u64CurrentOffset = GetPosition();
-
-	u64EndOffset = SeekEnd();
+	UINT64 u64CurrentOffset = GetPosition();
+	UINT64 u64EndOffset     = SeekEnd();
 
 	SeekHed( u64CurrentOffset );
 
-	return	u64EndOffset;
+	return u64EndOffset;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets th file path
+// Gets the file path
 
-YCString	YCMultiFile::GetFilePath()
+YCString YCMultiFile::GetFilePath()
 {
-	return	m_vtpclFile[m_dwCurrentFileID]->GetFilePath();
+	return m_vtpclFile[m_dwCurrentFileID]->GetFilePath();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the file name
+// Gets the file name
 
-YCString	YCMultiFile::GetFileName()
+YCString YCMultiFile::GetFileName()
 {
-	return	m_vtpclFile[m_dwCurrentFileID]->GetFileName();
+	return m_vtpclFile[m_dwCurrentFileID]->GetFileName();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets the file's extension
+// Gets the file's extension
 
-YCString	YCMultiFile::GetFileExt()
+YCString YCMultiFile::GetFileExt()
 {
-	return	m_vtpclFile[m_dwCurrentFileID]->GetFileExt();
+	return m_vtpclFile[m_dwCurrentFileID]->GetFileExt();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-void	YCMultiFile::SetFile(
+void YCMultiFile::SetFile(
 	DWORD				dwFileID						// File ID
 	)
 {
@@ -331,17 +327,17 @@ void	YCMultiFile::SetFile(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-void	YCMultiFile::SetFirstFile()
+void YCMultiFile::SetFirstFile()
 {
 	SetFile( 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-void	YCMultiFile::SetNextFile()
+void YCMultiFile::SetNextFile()
 {
 	if( m_dwCurrentFileID >= GetFileCount() )
 	{
@@ -356,17 +352,17 @@ void	YCMultiFile::SetNextFile()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-DWORD	YCMultiFile::GetCurrentFileID()
+DWORD YCMultiFile::GetCurrentFileID()
 {
-	return	m_dwCurrentFileID;
+	return m_dwCurrentFileID;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-size_t	YCMultiFile::GetFileCount()
+size_t YCMultiFile::GetFileCount()
 {
-	return	m_vtpclFile.size();
+	return m_vtpclFile.size();
 }
