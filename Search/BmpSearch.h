@@ -1,6 +1,7 @@
 #pragma once
 
-class CBmpSearch : public CSearchBase {
+class CBmpSearch : public CSearchBase
+{
 public:
 	CBmpSearch();
 	void Mount(CArcFile* pclArc);

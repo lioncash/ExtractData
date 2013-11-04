@@ -1,6 +1,7 @@
 #pragma once
 
-class CFont {
+class CFont
+{
 private:
 	HFONT m_hFont;
 

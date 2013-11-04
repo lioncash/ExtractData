@@ -3,7 +3,8 @@
 #include <windows.h>
 #include <tchar.h>
 
-class CError {
+class CError
+{
 public:
 	void LastError(HWND hWnd);
 	void Message(HWND hWnd, LPCTSTR mes, ...);

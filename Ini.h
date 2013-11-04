@@ -2,7 +2,8 @@
 
 #include "Common.h"
 
-class CIni {
+class CIni
+{
 private:
 	YCString m_sIniPath;
 	YCString m_sSection;
@@ -16,10 +17,15 @@ public:
 	void SetSection(LPCTSTR section) { m_sSection = section; }
 	void SetKey(LPCTSTR key) { m_sKey = key; }
 
-	template <typename _Ty> void GetDec(_Ty* dec, CONST _Ty def) {
+	template <typename _Ty>
+	void GetDec(_Ty* dec, CONST _Ty def)
+	{
 		*dec = GetPrivateProfileInt(m_sSection, m_sKey, def, m_sIniPath);
 	}
-	template <typename _Ty> void GetDec(_Ty* dec) {
+
+	template <typename _Ty>
+	void GetDec(_Ty* dec)
+	{
 		*dec = GetPrivateProfileInt(m_sSection, m_sKey, *dec, m_sIniPath);
 	}
 

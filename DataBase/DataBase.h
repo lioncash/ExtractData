@@ -7,9 +7,11 @@
 #include "../ArcFile.h"
 #include "DBListView.h"
 
-class CDataBase : public CWindowBase {
+class CDataBase : public CWindowBase
+{
 private:
-	struct UndoRedo {
+	struct UndoRedo
+	{
 		std::vector<FILEINFODB> entDB;
 		std::vector<int> selects;
 		int focus;

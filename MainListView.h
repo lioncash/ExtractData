@@ -2,7 +2,8 @@
 
 #include "Ctrl/ListView.h"
 
-class CMainListView : public CListView {
+class CMainListView : public CListView
+{
 private:
 	std::vector<SFileInfo> m_ent;
 	static BOOL CompareFunc(const SFileInfo& a, const SFileInfo& b);

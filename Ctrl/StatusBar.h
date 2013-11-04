@@ -2,7 +2,8 @@
 
 #include "../MainListView.h"
 
-class CStatusBar {
+class CStatusBar
+{
 protected:
 	HWND m_hWnd;
 	HWND m_hSBWnd;

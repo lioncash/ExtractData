@@ -2,12 +2,13 @@
 #include "Jpg.h"
 
 //////////////////////////////////////////////////
-//	Class to read from the memory source to JPEG
+// Class to read from the memory source to JPEG //
 //////////////////////////////////////////////////
 
 // JPEG expansion manager from the memory source
-struct memory_source_mgr {
-	jpeg_source_mgr pub;	// public fields
+struct memory_source_mgr
+{
+	jpeg_source_mgr pub; // public fields
 
 	JOCTET* buffer;
 	unsigned long buffer_length;
@@ -33,7 +34,8 @@ void CJpglib::memory_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 {
 	memory_src_ptr src = (memory_src_ptr) cinfo->src;
 
-	if (num_bytes > 0) {
+	if (num_bytes > 0)
+	{
 		src->pub.next_input_byte += (size_t) num_bytes;
 		src->pub.bytes_in_buffer -= (size_t) num_bytes;
 	}
@@ -47,7 +49,9 @@ void CJpglib::jpeg_memory_src(j_decompress_ptr cinfo, void* data, unsigned long 
 {
 	memory_src_ptr src;
 
-	if (cinfo->src == NULL) {	/* first time for this JPEG object? */
+	// First time for this JPEG object?
+	if (cinfo->src == NULL)
+	{
 		cinfo->src = (struct jpeg_source_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, sizeof(memory_source_mgr));
 		src = (memory_src_ptr)cinfo->src;
 		src->buffer = (JOCTET*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, len * sizeof(JOCTET));
@@ -67,7 +71,7 @@ void CJpglib::jpeg_memory_src(j_decompress_ptr cinfo, void* data, unsigned long 
 
 
 //////////////////////////////////////////////////
-//	Class for dealing with JPEG
+//        Class for dealing with JPEG           //
 //////////////////////////////////////////////////
 
 CJpg::CJpg()
@@ -82,9 +86,11 @@ CJpg::~CJpg()
 
 void CJpg::Close()
 {
-	if (m_dst != NULL) {
+	if (m_dst != NULL)
+	{
 		for (int i = 0; i < m_cinfo.output_height; i++)
 			delete[] m_dst[i];
+
 		delete[] m_dst;
 		m_dst = NULL;
 	}
@@ -106,7 +112,8 @@ LPBYTE CJpg::Decomp(LPBYTE src, DWORD len, LPDWORD dstSize)
 		m_dst[i] = new JSAMPLE[m_cinfo.output_width * 3];
 
 	// Decompression
-	while (m_cinfo.output_scanline < m_cinfo.output_height) {
+	while (m_cinfo.output_scanline < m_cinfo.output_height)
+	{
 		jpeg_read_scanlines(&m_cinfo, m_dst + m_cinfo.output_scanline, m_cinfo.output_height - m_cinfo.output_scanline);
 	}
 
@@ -129,17 +136,22 @@ void CJpg::AlphaBlend(LPBYTE dst, LPBYTE mask, DWORD bg)
 	for (int i = 0; i < 3; i++)
 		byBg[i] = BYTE((bg >> (i << 3)) & 0xff);
 
-	for (LONG y = 0; y < m_cinfo.output_height; y++) {
-		for (LONG x = 0; x < m_cinfo.output_width; x++) {
-			//if (*mask == 0) {
+	for (LONG y = 0; y < m_cinfo.output_height; y++)
+	{
+		for (LONG x = 0; x < m_cinfo.output_width; x++)
+		{
+			//if (*mask == 0)
+			//{
 			//	for (int i = 0; i < 3; i++)
 			//		*dst++ = byBg[i];
 			//}
-			//else if (*mask == 0xFF) {
+			//else if (*mask == 0xFF)
+			//{
 			//	for (int i = 0; i < 3; i++)
 			//		*dst++ = *mask;
 			//}
-			//else {
+			//else
+			//{
 				for (int i = 0; i < 3; i++)
 					*dst++ = (*dst - byBg[i]) * *mask / 255 + byBg[i];//((255 - buf32[3]) * pBgRGB[i] + buf32[3] * buf32[i]) / 255;
 			//}
@@ -173,10 +185,10 @@ void CJpg::SetQuality(int quality)
 
 void CJpg::Write(CArcFile* pArc, LPBYTE dst, DWORD dstSize)
 {
-    // TODO ?
+	// TODO ?
 }
 
 void CJpg::WriteReverse(CArcFile* pArc, LPBYTE dst, DWORD dstSize)
 {
-    // TODO ?
+	// TODO ?
 }

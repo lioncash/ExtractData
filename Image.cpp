@@ -1,9 +1,9 @@
-#include	"stdafx.h"
-#include	"ExtractBase.h"
-#include	"Image.h"
+#include "stdafx.h"
+#include "ExtractBase.h"
+#include "Image.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CImage::CImage()
 {
@@ -14,59 +14,56 @@ CImage::CImage()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CImage::Mount(
+BOOL CImage::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( m_clBMP.Mount( pclArc) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CImage::Decode(
+BOOL CImage::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->format != _T("BMP") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Read BMP
-
-	YCMemory<BYTE>		clmbtSrc( pstFileInfo->sizeOrg );
-
+	YCMemory<BYTE> clmbtSrc( pstFileInfo->sizeOrg );
 	pclArc->Read( &clmbtSrc[0], pstFileInfo->sizeOrg );
 
 	// Output
-
 	Init( pclArc, &clmbtSrc[0] );
 	Write( pstFileInfo->sizeOrg );
 
-	return	TRUE;
+	return TRUE;
 }
 
 ////////////////////////////////////////////////////////////
-//	Initialization (When BMP is passed)
+// Initialization (When BMP is passed)
 
-BOOL	CImage::Init(
+BOOL CImage::Init(
 	CArcFile*			pclArc,							// Archive
 	void*				pvBMP,							// BMP
 	const YCString&		rfclsFileName					// Filename
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-	BYTE*				pbtSrc = (BYTE*) pvBMP;
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	BYTE*      pbtSrc = (BYTE*) pvBMP;
 
 	if( (pstFileInfo->format == _T("BMP")) && (pstFileInfo->title == _T("")) && (pstFileInfo->key == 0) )
 	{
@@ -90,18 +87,17 @@ BOOL	CImage::Init(
 
 		m_bBMPHeader = FALSE;
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Normal BMP
-
-	return	Init( pclArc, m_pstBMPInfoHeader->biWidth, m_pstBMPInfoHeader->biHeight, m_pstBMPInfoHeader->biBitCount, &pbtSrc[54], (m_pstBMPFileHeader->bfOffBits - 54), rfclsFileName );
+	return Init( pclArc, m_pstBMPInfoHeader->biWidth, m_pstBMPInfoHeader->biHeight, m_pstBMPInfoHeader->biBitCount, &pbtSrc[54], (m_pstBMPFileHeader->bfOffBits - 54), rfclsFileName );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialization
+// Initialization
 
-BOOL	CImage::Init(
+BOOL CImage::Init(
 	CArcFile*			pclArc,							// Archive
 	long				lWidth,							// Width
 	long				lHeight,						// Height
@@ -111,7 +107,7 @@ BOOL	CImage::Init(
 	const YCString&		rfclsFileName					// Filename
 	)
 {
-	BOOL				bReturn = TRUE;
+	BOOL bReturn = TRUE;
 
 	m_pclArc = pclArc;
 	m_pstOption = pclArc->GetOpt();
@@ -122,11 +118,11 @@ BOOL	CImage::Init(
 	{
 		// BMP Output
 
-		TCHAR				szFileName[MAX_PATH];
+		TCHAR szFileName[MAX_PATH];
 
 		lstrcpy( szFileName, rfclsFileName );
 		PathRenameExtension( szFileName, _T(".bmp") );
-//		sFileName.append(_T(".bmp"));
+		//sFileName.append(_T(".bmp"));
 
 		bReturn = m_clBMP.Init( pclArc, lWidth, lHeight, wBpp, pvPallet, dwPalletSize, szFileName );
 	}
@@ -134,22 +130,22 @@ BOOL	CImage::Init(
 	{
 		// PNG Output
 
-		TCHAR				szFileName[MAX_PATH];
+		TCHAR szFileName[MAX_PATH];
 
 		lstrcpy( szFileName, rfclsFileName );
 		PathRenameExtension( szFileName, _T(".png") );
-//		sFileName.append(_T(".png"));
+		//sFileName.append(_T(".png"));
 
 		bReturn = m_clPNG.Init( pclArc, lWidth, lHeight, wBpp, pvPallet, dwPalletSize, szFileName );
 	}
 
-	return	bReturn;
+	return bReturn;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Close
+// Close
 
-void	CImage::Close()
+void CImage::Close()
 {
 	m_pclArc->CloseFile();
 }
@@ -157,18 +153,18 @@ void	CImage::Close()
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Output
 
-BOOL	CImage::Write(
+BOOL CImage::Write(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
-	return	Write( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return Write( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Output
+// Output
 
-BOOL	CImage::Write(
+BOOL CImage::Write(
 	const void*			pvBMPData,						// BMP Data(Header not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progressbar progress
@@ -178,7 +174,7 @@ BOOL	CImage::Write(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -196,24 +192,24 @@ BOOL	CImage::Write(
 		m_clPNG.WriteReverse( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Inverted Output
+// Inverted Output
 
-BOOL	CImage::WriteReverse(
+BOOL CImage::WriteReverse(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progresss
 	)
 {
-	return	WriteReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return WriteReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Inverted Output
+// Inverted Output
 
-BOOL	CImage::WriteReverse(
+BOOL CImage::WriteReverse(
 	const void*			pvBMPData,						// BMP Data(Header not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progressbar progress
@@ -223,7 +219,7 @@ BOOL	CImage::WriteReverse(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -241,24 +237,24 @@ BOOL	CImage::WriteReverse(
 		m_clPNG.Write( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize BGRA Output
+// Synthesize BGRA Output
 
-BOOL	CImage::WriteCompoBGRA(
+BOOL CImage::WriteCompoBGRA(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
-	return	WriteCompoBGRA( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return WriteCompoBGRA( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize BGRA Output
+// Synthesize BGRA Output
 
-BOOL	CImage::WriteCompoBGRA(
+BOOL CImage::WriteCompoBGRA(
 	const void*			pvBMPData,						// BMP Data (Header not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progressbar progress
@@ -268,7 +264,7 @@ BOOL	CImage::WriteCompoBGRA(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -286,24 +282,24 @@ BOOL	CImage::WriteCompoBGRA(
 		m_clPNG.WriteCompoBGRAReverse( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize upside-down BGRA Output 
+// Synthesize upside-down BGRA Output 
 
-BOOL	CImage::WriteCompoBGRAReverse(
+BOOL CImage::WriteCompoBGRAReverse(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
-	return	WriteCompoBGRAReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return WriteCompoBGRAReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize upside-down BGRA Output
+// Synthesize upside-down BGRA Output
 
-BOOL	CImage::WriteCompoBGRAReverse(
+BOOL CImage::WriteCompoBGRAReverse(
 	const void*			pvBMPData,						// BMP Data (Header is not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progressbar progress
@@ -313,7 +309,7 @@ BOOL	CImage::WriteCompoBGRAReverse(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -331,24 +327,24 @@ BOOL	CImage::WriteCompoBGRAReverse(
 		m_clPNG.WriteCompoBGRA( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize RGBA Output
+// Synthesize RGBA Output
 
-BOOL	CImage::WriteCompoRGBA(
+BOOL CImage::WriteCompoRGBA(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
-	return	WriteCompoRGBA( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return WriteCompoRGBA( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize RGBA Output
+// Synthesize RGBA Output
 
-BOOL	CImage::WriteCompoRGBA(
+BOOL CImage::WriteCompoRGBA(
 	const void*			pvBMPData,						// BMP Data (Header not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progressbar progress
@@ -358,7 +354,7 @@ BOOL	CImage::WriteCompoRGBA(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -376,24 +372,24 @@ BOOL	CImage::WriteCompoRGBA(
 		m_clPNG.WriteCompoRGBAReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize upside-down RGBA Output
+// Synthesize upside-down RGBA Output
 
-BOOL	CImage::WriteCompoRGBAReverse(
+BOOL CImage::WriteCompoRGBAReverse(
 	DWORD				dwBMPSize,						// BMP Size
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
-	return	WriteCompoRGBAReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
+	return WriteCompoRGBAReverse( &m_pbtBMP[m_pstBMPFileHeader->bfOffBits], (dwBMPSize - m_pstBMPFileHeader->bfOffBits), bProgress );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize upside-down RGBA Output
+// Synthesize upside-down RGBA Output
 
-BOOL	CImage::WriteCompoRGBAReverse(
+BOOL CImage::WriteCompoRGBAReverse(
 	const void*			pvBMPData,						// BMP Data (Header is not included)
 	DWORD				dwBMPDataSize,					// BMP Data Size
 	BOOL				bProgress						// Request progresbar progress
@@ -403,7 +399,7 @@ BOOL	CImage::WriteCompoRGBAReverse(
 	{
 		// Illegal BMP
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Output
@@ -421,21 +417,21 @@ BOOL	CImage::WriteCompoRGBAReverse(
 		m_clPNG.WriteCompoRGBA( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get bitmap file header
+// Get bitmap file header
 
-BITMAPFILEHEADER*	CImage::GetBmpFileHeader()
+BITMAPFILEHEADER* CImage::GetBmpFileHeader()
 {
-	return	m_pstBMPFileHeader;
+	return m_pstBMPFileHeader;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Get bitmap info header
 
-BITMAPINFOHEADER*	CImage::GetBmpInfoHeader()
+BITMAPINFOHEADER* CImage::GetBmpInfoHeader()
 {
-	return	m_pstBMPInfoHeader;
+	return m_pstBMPInfoHeader;
 }

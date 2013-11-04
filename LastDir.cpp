@@ -3,7 +3,7 @@
 #include "LastDir.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CLastDir::CLastDir()
 {
@@ -11,11 +11,11 @@ CLastDir::CLastDir()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Load ini file
+// Load ini file
 
-void    CLastDir::LoadIni()
+void CLastDir::LoadIni()
 {
-	YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
 
 	clIni.SetSection( _T("LastDir") );
 
@@ -26,11 +26,11 @@ void    CLastDir::LoadIni()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Save ini file
+// Save ini file
 
-void    CLastDir::SaveIni()
+void CLastDir::SaveIni()
 {
-	YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
 
 	clIni.SetSection( _T("LastDir") );
 
@@ -41,17 +41,17 @@ void    CLastDir::SaveIni()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the last opened folder
+// Get the last opened folder
 
 LPTSTR  CLastDir::GetOpen()
 {
-	return	m_szOpen;
+	return m_szOpen;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the last folder where something was saved to it
+// Get the last folder where something was saved to it
 
 LPTSTR  CLastDir::GetSave()
 {
-	return	m_szSave;
+	return m_szSave;
 }

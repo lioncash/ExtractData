@@ -1,6 +1,7 @@
 #pragma once
 
-class CColor {
+class CColor
+{
 private:
 	CHOOSECOLOR m_cc;
 	static COLORREF m_CustColors[16];

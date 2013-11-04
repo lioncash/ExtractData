@@ -37,7 +37,7 @@ void COggSearch::Mount(CArcFile* pclArc)
 	infFile.sizeOrg = 0;
 
 	while (1)
-    {
+	{
 		ReadCount++;
 
 		// Read the OGG header
@@ -82,6 +82,7 @@ void COggSearch::Mount(CArcFile* pclArc)
 		return;
 
 	infFile.sizeCmp = infFile.sizeOrg;
+
 	// Get exit address
 	infFile.end = infFile.start + infFile.sizeOrg;
 

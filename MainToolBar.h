@@ -5,7 +5,8 @@
 #define ID_TOOLBAR_OPEN_HISTORY 20000
 
 // Main toolbar
-class CMainToolBar : public CToolBar {
+class CMainToolBar : public CToolBar
+{
 private:
 	std::vector<YCString> m_vcOpenHistoryList;
 
@@ -22,7 +23,8 @@ public:
 };
 
 // Search file toolbar
-class CSearchToolBar : public CToolBar {
+class CSearchToolBar : public CToolBar
+{
 private:
 	int m_nBeginID;
 

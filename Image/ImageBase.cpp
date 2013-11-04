@@ -1,8 +1,8 @@
-#include	"stdafx.h"
-#include	"ImageBase.h"
+#include "stdafx.h"
+#include "ImageBase.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CImageBase::CImageBase()
 {
@@ -11,16 +11,16 @@ CImageBase::CImageBase()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 CImageBase::~CImageBase()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//  Initialization
+// Initialization
 /*
-BOOL	CImageBase::OnInit(
+BOOL CImageBase::OnInit(
 	long				lWidth,							// Width
 	long				lHeight,						// Height
 	WORD				wBpp,							// Number of bits
@@ -30,30 +30,27 @@ BOOL	CImageBase::OnInit(
 	)
 {
 	// Initialize member variables
-
 	m_bAlphaBlendRequirement = FALSE;
 	m_wBppWithAlpha = 0;
 	m_lLineWithAlpha = 0;
 	m_lPitchWithAlpha = 0;
 
 	// Fix top-down, bottom-up
-
 	if( lHeight < 0 )
 	{
 		lHeight = -lHeight;
 	}
 
 	// Number of bits processed
-
 	switch( wBpp )
 	{
-	case	8:
+	case 8:
 		// 8bit
 
 		OnCreatePallet( pvPallet, dwPalletSize );
 		break;
 
-	case	32:
+	case 32:
 		// 32bit
 
 		if( GetValidityOfAlphaBlend() )
@@ -72,26 +69,25 @@ BOOL	CImageBase::OnInit(
 	}
 
 	// Set parameters
-
 	m_wBpp = wBpp;
 	m_lWidth = lWidth;
 	m_lHeight = lHeight;
 	m_lLine = lWidth * (wBpp >> 3);
 	m_lPitch = CalculatePitch( lWidth, wBpp );
 
-	DWORD				dwOriginSize = pclArc->GetOpenFileInfo()->sizeOrg;
+	DWORD dwOriginSize = pclArc->GetOpenFileInfo()->sizeOrg;
 
 	m_dwRowSize = dwOriginSize / lHeight;
 	m_dwRowSizeOfRemainder = dwOriginSize % lHeight;
 
-	return	TRUE;
+	return TRUE;
 }
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialization
+// Initialization
 
-BOOL	CImageBase::Init(
+BOOL CImageBase::Init(
 	CArcFile*			pclArc,							// Archive
 	long				lWidth,							// Width
 	long				lHeight,						// Height
@@ -102,21 +98,21 @@ BOOL	CImageBase::Init(
 	)
 {
 	// Fix top-down, bottom-up images
-
 	if( lHeight < 0 )
 	{
 		lHeight = -lHeight;
 	}
 
+	// Number of bits
 	switch( wBpp )
 	{
-	case	8:
+	case 8:
 		// 8bit
 
 		OnCreatePallet( pvPallet, dwPalletSize );
 		break;
 
-	case	32:
+	case 32:
 		// 32bit
 
 		if( pclArc->GetOpt()->bAlphaBlend )
@@ -141,18 +137,18 @@ BOOL	CImageBase::Init(
 	m_lPitch = CalculatePitch( lWidth, wBpp );
 	m_lPitchWithAlpha = lWidth * 4;
 
-	DWORD				dwOriginSize = pclArc->GetOpenFileInfo()->sizeOrg;
+	DWORD dwOriginSize = pclArc->GetOpenFileInfo()->sizeOrg;
 
 	m_dwRowSize = dwOriginSize / lHeight;
 	m_dwRowSizeOfRemainder = dwOriginSize % lHeight;
 
-	return		OnInit( rfclsFileName );
+	return OnInit( rfclsFileName );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set the validity of alpha blending
+// Set the validity of alpha blending
 
-void	CImageBase::SetValidityOfAlphaBlend(
+void CImageBase::SetValidityOfAlphaBlend(
 	BOOL				bValidityOfAlphaBlend			// Check validity of alpha-blending
 	)
 {
@@ -160,19 +156,19 @@ void	CImageBase::SetValidityOfAlphaBlend(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the validity of alpha blending
+// Get the validity of alpha blending
 //
-//	return	Check validity of alpha blending
+// return Check validity of alpha blending
 
-BOOL	CImageBase::GetValidityOfAlphaBlend()
+BOOL CImageBase::GetValidityOfAlphaBlend()
 {
-	return	m_bValidityOfAlphaBlend;
+	return m_bValidityOfAlphaBlend;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set background color when alpha blending
+// Set background color when alpha blending
 
-void	CImageBase::SetBackColorWhenAlphaBlend(
+void CImageBase::SetBackColorWhenAlphaBlend(
 	COLORREF			crBackColor						// Background color
 	)
 {
@@ -180,70 +176,70 @@ void	CImageBase::SetBackColorWhenAlphaBlend(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get width
+// Get width
 
-long	CImageBase::GetWidth()
+long CImageBase::GetWidth()
 {
-	return	m_lWidth;
+	return m_lWidth;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get height
+// Get height
 
-long	CImageBase::GetHeight()
+long CImageBase::GetHeight()
 {
-	return	m_lHeight;
+	return m_lHeight;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get number of bits
+// Get number of bits
 
-WORD	CImageBase::GetBitCount()
+WORD CImageBase::GetBitCount()
 {
-	return	m_wBpp;
+	return m_wBpp;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the number of alpha bits
+// Get the number of alpha bits
 
-WORD	CImageBase::GetBitCountWithAlpha()
+WORD CImageBase::GetBitCountWithAlpha()
 {
-	return	m_wBppWithAlpha;
+	return m_wBppWithAlpha;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get Pitch
+// Get Pitch
 
-long	CImageBase::GetPitch()
+long CImageBase::GetPitch()
 {
-	return	m_lPitch;
+	return m_lPitch;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get the pitch with alpha
+// Get the pitch with alpha
 
-long	CImageBase::GetPitchWithAlpha()
+long CImageBase::GetPitchWithAlpha()
 {
-	return	m_lPitchWithAlpha;
+	return m_lPitchWithAlpha;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Compression
+// Compression
 
-BOOL	CImageBase::Compress(
+BOOL CImageBase::Compress(
 	LPCTSTR				pszPathToDst,					// Destination file path
 	const void*			pvBMP,							// Bitmap Data
 	DWORD				dwBMPSize						// Bitmap Data Size
 	)
 {
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Compression
+// Compression
 
-BOOL	CImageBase::Compress(
+BOOL CImageBase::Compress(
 	LPCTSTR				pszPathToDst,					// Destination file path
 	const void*			pvDIB,							// DIB Data
 	DWORD				dwDIBSize,						// DIB Data Size
@@ -255,26 +251,23 @@ BOOL	CImageBase::Compress(
 	WORD				wBpp							// Number of bits
 	)
 {
-/*	const BYTE*			pbtDIB = (const BYTE*) pvDIB;
-	const BYTE*			pbtPallet = (const BYTE*) pvPallet;
+/*	const BYTE* pbtDIB = (const BYTE*) pvDIB;
+	const BYTE* pbtPallet = (const BYTE*) pvPallet;
 
 	// Initialization
-
 	OnInit( lWidth, lHeight, wBpp, pvPallet, dwPalletSize, wPalletBpp );
 
 	// Output header
-
 	OnWriteHeader();
 
 	// Output data
-
 	if( IsRequireAlphaBlend() )
 	{
 		// Alpha blending is enabled
 
-		long				lDstSizeAfterAlphaBlend = (GetPitch() + 2);	// Ensure high-speed processing for alpha
+		long           lDstSizeAfterAlphaBlend = (GetPitch() + 2); // Ensure high-speed processing for alpha
 
-		YCMemory<BYTE>		clmDstAfterAlphaBlend( lDstSizeAfterAlphaBlend );
+		YCMemory<BYTE> clmDstAfterAlphaBlend( lDstSizeAfterAlphaBlend );
 
 		ZeroMemory( &clmDstOfAfterAlphaBlend[0], lDstSizeAfterAlphaBlend );
 
@@ -291,7 +284,7 @@ BOOL	CImageBase::Compress(
 	{
 		// Request without alpha blending
 
-		long				lLine = m_lLine;
+		long lLine = m_lLine;
 
 		if( dwBufferSize >= m_lPitch * m_lHeight )
 		{
@@ -310,13 +303,13 @@ BOOL	CImageBase::Compress(
 
 	OnWriteFinish();
 */
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Compression
+// Compression
 
-BOOL	CImageBase::Compress(
+BOOL CImageBase::Compress(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvBMP,							// Bitmap Data
@@ -324,14 +317,13 @@ BOOL	CImageBase::Compress(
 	)
 {
 
-
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Compression
+// Compression
 
-BOOL	CImageBase::Compress(
+BOOL CImageBase::Compress(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvDIB,							// DIB Data
@@ -344,27 +336,24 @@ BOOL	CImageBase::Compress(
 	WORD				wBpp							// Number of bits
 	)
 {
-/*	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtDIB = (const BYTE*) pvDIB;
-	const BYTE*			pbtPallet = (const BYTE*) pvPallet;
+/*	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtDIB = (const BYTE*) pvDIB;
+	const BYTE* pbtPallet = (const BYTE*) pvPallet;
 
 	// Initialization
-
 	OnInit( lWidth, lHeight, wBpp, pvPallet, dwPalletSize, wPalletBpp );
 
 	// Output header
-
 	OnWriteHeader();
 
 	// Output data
-
 	if( IsRequireAlphaBlend() )
 	{
 		// Request alpha-blending
 
-		long				lDstSizeAfterAlphaBlend = (GetPitch() + 2);	// Ensure high-speed alpha blending
+		long           lDstSizeAfterAlphaBlend = (GetPitch() + 2);	// Ensure high-speed alpha blending
 
-		YCMemory<BYTE>		clmDstAfterAlphaBlend( lDstSizeAfterAlphaBlend );
+		YCMemory<BYTE> clmDstAfterAlphaBlend( lDstSizeAfterAlphaBlend );
 
 		ZeroMemory( &clmDstOfAfterAlphaBlend[0], lDstSizeAfterAlphaBlend );
 
@@ -382,7 +371,7 @@ BOOL	CImageBase::Compress(
 	{
 		// No Alpha blending
 
-		long				lLine = m_lLine;
+		long lLine = m_lLine;
 
 		if( dwBufferSize >= m_lPitch * m_lHeight )
 		{
@@ -401,7 +390,7 @@ BOOL	CImageBase::Compress(
 
 	OnWriteFinish();*/
 
-	return	TRUE;
+	return TRUE;
 }
 
 
@@ -409,274 +398,241 @@ BOOL	CImageBase::Compress(
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Receive alpha-blending requests
+// Receive alpha-blending requests
 //
-//	return	Alpha-blend request
+// return Alpha-blend request
 //
-//	Remark: If TRUE, then alpha-blending is enabled
+// Remark: If TRUE, then alpha-blending is enabled
 
-BOOL	CImageBase::IsRequireAlphaBlend()
+BOOL CImageBase::IsRequireAlphaBlend()
 {
-	return	m_bAlphaBlendRequirement;
+	return m_bAlphaBlendRequirement;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Alpha Blending
+// Alpha Blending
 
-void	CImageBase::AlphaBlend(
+void CImageBase::AlphaBlend(
 	void*				pvBuffer24,						// Storage location
 	const void*			pvBuffer32						// 32bit Data
 	)
 {
-	BYTE*				pbtBuffer24 = (BYTE*) pvBuffer24;
-	const BYTE*			pbtBuffer32 = (const BYTE*) pvBuffer32;
-	const BYTE*			pbtBG = m_abtBG;
-	long				lWidth = m_lWidth;
+	BYTE*       pbtBuffer24 = (BYTE*) pvBuffer24;
+	const BYTE* pbtBuffer32 = (const BYTE*) pvBuffer32;
+	const BYTE* pbtBG = m_abtBG;
+	long        lWidth = m_lWidth;
 
 	if( m_pclArc->GetOpt()->bFastAlphaBlend )
 	{
 		// High-speed alpha blending processing requests
 
-		// eax	Counter
-		// edi	Destination
-		// esi	Input Source
+		// eax  Counter
+		// edi  Destination
+		// esi  Input Source
 		//
-		// mm0	Input Data 1
-		// mm1	Input Data 2
-		// mm2	Alpha value of input data 1
-		// mm3	Alpha value of input data 2
-		// mm4	Work
-		// mm5	00FF00FF 00FF00FF
-		// mm6	Background color
-		// mm7	Do unpacking (00000000 00000000)
+		// mm0  Input Data 1
+		// mm1  Input Data 2
+		// mm2  Alpha value of input data 1
+		// mm3  Alpha value of input data 2
+		// mm4  Work
+		// mm5  00FF00FF 00FF00FF
+		// mm6  Background color
+		// mm7  Do unpacking (00000000 00000000)
 
 		_asm
 		{
-			mov			edi, pvBuffer24
-			mov			esi, pvBuffer32
+			mov         edi, pvBuffer24
+			mov         esi, pvBuffer32
 
 			// Initializing for unpacking
-
-			pxor		mm7, mm7
+			pxor        mm7, mm7
 
 			// Get background color
-
-			mov			eax, pbtBG
-			movd		mm6, [eax]
-			punpcklbw	mm6, mm7
+			mov         eax, pbtBG
+			movd        mm6, [eax]
+			punpcklbw   mm6, mm7
 
 			// 
 
-			mov			eax, 0x01000100
-			movd		mm5, eax
-			punpckldq	mm5, mm5
+			mov         eax, 0x01000100
+			movd        mm5, eax
+			punpckldq   mm5, mm5
 
 			// Main loop
-
-			mov			eax, lWidth
-			shr			eax, 1								// 2 pixels to be processed
+			mov         eax, lWidth
+			shr         eax, 1         // 2 pixels to be processed
 
 		loop2000:
 
 			// Get 8 bytes (2 pixels)
 
-			movq		mm0, [esi]
-			movq		mm1, mm0
+			movq        mm0, [esi]
+			movq        mm1, mm0
 
-			add			esi, 8
+			add         esi, 8
 
 			// Get alpha value
 /*
-			movq		mm2, mm0
-			psrld		mm2, 24
+			movq        mm2, mm0
+			psrld       mm2, 24
 
-			movq		mm3, mm2
+			movq        mm3, mm2
 
-			punpcklwd	mm2, mm2
-			punpckldq	mm2, mm2
+			punpcklwd   mm2, mm2
+			punpckldq   mm2, mm2
 
-			punpckhwd	mm3, mm3
-			punpckldq	mm3, mm3
+			punpckhwd   mm3, mm3
+			punpckldq   mm3, mm3
 */
 //-- Input Data 1 -------------------------------------------------------------------------
 
 			// Unpack
-
-			punpcklbw	mm0, mm7
+			punpcklbw   mm0, mm7
 
 			// Get alpha value
+			movq        mm2, mm0
+			psrlq       mm2, 48
 
-			movq		mm2, mm0
-			psrlq		mm2, 48
-
-			movd		edx, mm2
-			test		edx, edx
-			jnz			pass3200							// Alpha value is not 0
+			movd        edx, mm2
+			test        edx, edx
+			jnz         pass3200        // Alpha value is not 0
 
 			// Alpha value is 0
 
-			movq		mm0, mm6
-			jmp			pass3800
+			movq        mm0, mm6
+			jmp         pass3800
 
 			// Alpha value is 1~255
 
 		pass3200:
 
-			cmp			edx, 0xFF
-			jne			pass3400							// Alpha value is not 255
+			cmp         edx, 0xFF
+			jne         pass3400        // Alpha value is not 255
 
 			// Alpha value is 255
-
-			jmp			pass3800
+			jmp         pass3800
 
 			// Alpha value is 1~254
-
 		pass3400:
 
-			punpcklwd	mm2, mm2
-			punpckldq	mm2, mm2
+			punpcklwd   mm2, mm2
+			punpckldq   mm2, mm2
 
 			// RGBÅ~A
+			pmullw      mm0, mm2
 
-			pmullw		mm0, mm2
-
-			// Backgroun x (0xFF - A)
-
-			movq		mm4, mm5
-			psubw		mm4, mm2
-			pmullw		mm4, mm6
+			// Background x (0xFF - A)
+			movq        mm4, mm5
+			psubw       mm4, mm2
+			pmullw      mm4, mm6
 
 			// 256 divided by sum
-
-			paddw		mm0, mm4
-			psrlw		mm0, 8
+			paddw       mm0, mm4
+			psrlw       mm0, 8
 
 		pass3800:
 
 			// Summarized in lower 32bit
-
-			packuswb	mm0, mm7
+			packuswb    mm0, mm7
 
 			// Store
-
-			movd		[edi], mm0
+			movd        [edi], mm0
 
 //-- Input data 2 -------------------------------------------------------------------------
 
 			// Unpack 
-
-			punpckhbw	mm1, mm7
+			punpckhbw   mm1, mm7
 
 			// Get alpha value
+			movq        mm3, mm1
+			psrlq       mm3, 48
 
-			movq		mm3, mm1
-			psrlq		mm3, 48
-
-			movd		edx, mm3
-			test		edx, edx
-			jnz			pass4200							// Alpha value is not 0
+			movd        edx, mm3
+			test        edx, edx
+			jnz         pass4200        // Alpha value is not 0
 
 			// Alpha value is 0
-
-			movq		mm1, mm6
-			jmp			pass4800
+			movq        mm1, mm6
+			jmp         pass4800
 
 			// Alpha value is 1~255
-
 		pass4200:
 
-			cmp			edx, 0xFF
-			jne			pass4400							// Alpha value is not 255
+			cmp         edx, 0xFF
+			jne         pass4400        // Alpha value is not 255
 
 			// Alpha value is 255
-
-			jmp			pass4800
+			jmp         pass4800
 
 		pass4400:
 
-			punpcklwd	mm3, mm3
-			punpckldq	mm3, mm3
+			punpcklwd   mm3, mm3
+			punpckldq   mm3, mm3
 
 			// RGB x A
-
-			pmullw		mm1, mm3
+			pmullw      mm1, mm3
 
 			// Background x (0xFF - A)
-
-			movq		mm4, mm5
-			psubw		mm4, mm3
-			pmullw		mm4, mm6
+			movq        mm4, mm5
+			psubw       mm4, mm3
+			pmullw      mm4, mm6
 
 			// 256 divided by the sum
-
-			paddw		mm1, mm4
-			psrlw		mm1, 8
+			paddw       mm1, mm4
+			psrlw       mm1, 8
 
 		pass4800:
 
 			// Summarized in the lower 32bit
-
-			packuswb	mm1, mm7
+			packuswb    mm1, mm7
 
 			// Store
-
-			movd		[edi + 3], mm1
-//			movntq		[edi], mm1
-			add			edi, 6
+			movd        [edi + 3], mm1
+//			movntq      [edi], mm1
+			add         edi, 6
 
 //----------------------------------------------------------------------------------------
 
 			// Advance to next pixel
-
-			dec			eax
-			jnz			loop2000							// Continuity
+			dec         eax
+			jnz         loop2000        // Continuity
 
 			// One pixel remaining in processing
-
-			mov			eax, lWidth
-			and			eax, 1
-			jz			pass9900							// No outstanding pixels
+			mov         eax, lWidth
+			and         eax, 1
+			jz          pass9900        // No outstanding pixels
 
 			// Get 4 bytes (1 Pixel)
-
-			movd		mm0, [esi]
+			movd        mm0, [esi]
 
 			// Unpack
-
-			punpcklbw	mm0, mm7
+			punpcklbw   mm0, mm7
 
 			// Get alpha value
-
-			movq		mm2, mm0
-			psrlq		mm2, 48
-			punpcklwd	mm2, mm2
-			punpckldq	mm2, mm2
+			movq        mm2, mm0
+			psrlq       mm2, 48
+			punpcklwd   mm2, mm2
+			punpckldq   mm2, mm2
 
 			// RGB x A
-
-			pmullw		mm0, mm2
+			pmullw      mm0, mm2
 
 			// Background x (0xFF - A)
-
-			movq		mm4, mm5
-			psubw		mm4, mm2
-			pmullw		mm4, mm6
+			movq        mm4, mm5
+			psubw       mm4, mm2
+			pmullw      mm4, mm6
 
 			// 256 divided by the sum
-
-			paddw		mm0, mm4
-			psrlw		mm0, 8
+			paddw       mm0, mm4
+			psrlw       mm0, 8
 
 			// Summarized in the lower 32 bits
-
-			packuswb	mm0, mm7
+			packuswb    mm0, mm7
 
 			// Store
-
-			movd		[edi], mm0
+			movd        [edi], mm0
 
 			// Exit
-
 		pass9900:
 
 			emms
@@ -688,7 +644,7 @@ void	CImageBase::AlphaBlend(
 		{
 			switch( pbtBuffer32[3] )
 			{
-			case	0x00:
+			case 0x00:
 				// Alpha value is 0
 
 				for( int i = 0 ; i < 3 ; i++ )
@@ -698,7 +654,7 @@ void	CImageBase::AlphaBlend(
 
 				break;
 
-			case	0xFF:
+			case 0xFF:
 				// Alpha value is 255
 
 				for( int i = 0 ; i < 3 ; i++ )
@@ -724,15 +680,15 @@ void	CImageBase::AlphaBlend(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Output
+// Output
 
-void	CImageBase::Write(
+void CImageBase::Write(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Request progressbar update
 	)
 {
-	const BYTE*			pbtBuffer = (const BYTE*) pvBuffer;
+	const BYTE* pbtBuffer = (const BYTE*) pvBuffer;
 
 	if( !bProgress )
 	{
@@ -748,7 +704,7 @@ void	CImageBase::Write(
 	{
 		// Alpha-blending enabled
 
-		YCMemory<BYTE>		clmbtBuffer24( m_lPitch + 2 );
+		YCMemory<BYTE> clmbtBuffer24( m_lPitch + 2 );
 
 		for( long lY = 0 ; lY < m_lHeight ; lY++ )
 		{
@@ -758,7 +714,7 @@ void	CImageBase::Write(
 	}
 	else
 	{
-		long				lLine = m_lLine;
+		long lLine = m_lLine;
 
 		if( dwBufferSize >= m_lPitch * m_lHeight )
 		{
@@ -779,15 +735,15 @@ void	CImageBase::Write(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Upside-Down Output
+// Upside-Down Output
 
-void	CImageBase::WriteReverse(
+void CImageBase::WriteReverse(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Request progressbar update
 	)
 {
-	const BYTE*			pbtBuffer = (const BYTE*) pvBuffer;
+	const BYTE* pbtBuffer = (const BYTE*) pvBuffer;
 
 	if( !bProgress )
 	{
@@ -815,7 +771,7 @@ void	CImageBase::WriteReverse(
 	}
 	else
 	{
-		long				lLine = m_lLine;
+		long lLine = m_lLine;
 
 		if( dwBufferSize >= m_lPitch * m_lHeight )
 		{
@@ -835,30 +791,29 @@ void	CImageBase::WriteReverse(
 	}
 
 	WriteFinish();
-}	
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize BGRA
+// Synthesize BGRA
 
-BOOL	CImageBase::ComposeBGRA(
+BOOL CImageBase::ComposeBGRA(
 	void*				pvDst,							// Destination
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize					// Data Size
 	)
 {
-	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtBuffer = (const BYTE*) pvBuffer;
-	WORD				wBpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
+	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtBuffer = (const BYTE*) pvBuffer;
+	WORD        wBpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
 
 	if( (wBpp == 24) || (wBpp == 32) )
 	{
 		// Only supports 24-bit and 32-bit
-		WORD				wByteCount = (wBpp >> 3);
-		DWORD				dwColorSize = dwBufferSize / wByteCount;
+		WORD  wByteCount = (wBpp >> 3);
+		DWORD dwColorSize = dwBufferSize / wByteCount;
 
 		// Get pointers to B, G, R and A
-
-		const BYTE*			apbtBGRA[4];
+		const BYTE* apbtBGRA[4];
 
 		for( WORD i = 0 ; i < wByteCount ; i++ )
 		{
@@ -866,7 +821,6 @@ BOOL	CImageBase::ComposeBGRA(
 		}
 
 		// Synthesize BGRA
-
 		for( DWORD i = 0 ; i < dwColorSize ; i++ )
 		{
 			for( WORD j = 0 ; j < wByteCount ; j++ )
@@ -875,27 +829,25 @@ BOOL	CImageBase::ComposeBGRA(
 			}
 		}
 
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize BGRA Output
+// Synthesize BGRA Output
 
-void	CImageBase::WriteCompoBGRA(
+void CImageBase::WriteCompoBGRA(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Request progressbar update
 	)
 {
 	// Allocation of memory for storing data during synthesis
-
-	YCMemory<BYTE>		clmbtDst( dwBufferSize );
+	YCMemory<BYTE> clmbtDst( dwBufferSize );
 
 	// Synthesize
-
 	if( ComposeBGRA( &clmbtDst[0], pvBuffer, dwBufferSize ) )
 	{
 		// Synthesis succeeds
@@ -911,20 +863,18 @@ void	CImageBase::WriteCompoBGRA(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize BGRA Upside-Down
+// Synthesize BGRA Upside-Down
 
-void	CImageBase::WriteCompoBGRAReverse(
+void CImageBase::WriteCompoBGRAReverse(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Request progressbar update
 	)
 {
 	// Allocate memory for storage during synthesis
-
-	YCMemory<BYTE>		clmbtDst( dwBufferSize );
+	YCMemory<BYTE> clmbtDst( dwBufferSize );
 
 	// Synthesize
-
 	if( ComposeBGRA( &clmbtDst[0], pvBuffer, dwBufferSize ) )
 	{
 		// Synthesis Successful
@@ -940,28 +890,27 @@ void	CImageBase::WriteCompoBGRAReverse(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize RGBA
+// Synthesize RGBA
 
-BOOL	CImageBase::ComposeRGBA(
+BOOL CImageBase::ComposeRGBA(
 	void*				pvDst,							// Destination
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize					// Data Size
 	)
 {
-	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtBuffer = (const BYTE*) pvBuffer;
-	WORD				wBpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
+	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtBuffer = (const BYTE*) pvBuffer;
+	WORD        wBpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
 
 	if( (wBpp == 24) || (wBpp == 32) )
 	{
 		// Only 24-bit and 32-bit are supported
 
-		WORD				wByteCount = (wBpp >> 3);
-		DWORD				dwColorSize = dwBufferSize / wByteCount;
+		WORD  wByteCount = (wBpp >> 3);
+		DWORD dwColorSize = dwBufferSize / wByteCount;
 
 		// Get pointers to R, G, B and A
-
-		const BYTE*			apbtBGRA[4];
+		const BYTE*	 apbtBGRA[4];
 
 		for( int i = 0, j = 2 ; i < 3 ; i++, j-- )
 		{
@@ -973,7 +922,6 @@ BOOL	CImageBase::ComposeRGBA(
 		}
 
 		// Synthesize BGRA
-
 		for( DWORD i = 0 ; i < dwColorSize ; i++ )
 		{
 			for( WORD j = 0 ; j < wByteCount ; j++ )
@@ -982,27 +930,25 @@ BOOL	CImageBase::ComposeRGBA(
 			}
 		}
 
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize RGBA Output
+// Synthesize RGBA Output
 
-void	CImageBase::WriteCompoRGBA(
+void CImageBase::WriteCompoRGBA(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Synthesize BGRA Output
 	)
 {
 	// Allocation of memory for storage during RGBA synthesis
-
-	YCMemory<BYTE>		clmbtDst( dwBufferSize );
+	YCMemory<BYTE> clmbtDst( dwBufferSize );
 
 	// Synthesize
-
 	if( ComposeRGBA( &clmbtDst[0], pvBuffer, dwBufferSize ) )
 	{
 		// Synthesis successful
@@ -1018,20 +964,18 @@ void	CImageBase::WriteCompoRGBA(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Synthesize RGBA Upside-Down Output
+// Synthesize RGBA Upside-Down Output
 
-void	CImageBase::WriteCompoRGBAReverse(
+void CImageBase::WriteCompoRGBAReverse(
 	const void*			pvBuffer,						// Data
 	DWORD				dwBufferSize,					// Data Size
 	BOOL				bProgress						// Request progressbar update
 	)
 {
 	// Allocate memory for storage during RGBA synthesis
-
-	YCMemory<BYTE>		clmbtDst( dwBufferSize );
+	YCMemory<BYTE> clmbtDst( dwBufferSize );
 
 	// Synthesize
-
 	if( ComposeRGBA( &clmbtDst[0], pvBuffer, dwBufferSize ) )
 	{
 		// Synthesis successful
@@ -1047,18 +991,18 @@ void	CImageBase::WriteCompoRGBAReverse(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Exit Output
+// Exit Output
 
-void	CImageBase::WriteFinish()
+void CImageBase::WriteFinish()
 {
 	m_pclArc->GetProg()->UpdatePercent( m_dwRowSizeOfRemainder );
 	OnWriteFinish();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculate Pitch
+// Calculate Pitch
 
-long	CImageBase::CalculatePitch(
+long CImageBase::CalculatePitch(
 	long				lWidth,							// Width
 	WORD				wBpp							// Number of bits
 	)

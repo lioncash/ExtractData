@@ -2,7 +2,8 @@
 
 #include "../WindowBase.h"
 
-class CExistsDialog : public CWindowBase {
+class CExistsDialog : public CWindowBase
+{
 private:
 	static DWORD m_fOverWrite;
 	LPCTSTR m_pFilePath;

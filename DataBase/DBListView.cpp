@@ -32,13 +32,16 @@ void CDBListView::Create(HWND hWnd, OPTION& option)
 
 void CDBListView::Show(NMLVDISPINFO* pDispInfo)
 {
-	switch (pDispInfo->item.iSubItem) {
+	switch (pDispInfo->item.iSubItem)
+	{
 		case 0: // No. View
 			wsprintf(pDispInfo->item.pszText, _T("%6d."), pDispInfo->item.iItem + 1);
 			break;
+
 		case 1: // Show path
 			_tcscpy_s(pDispInfo->item.pszText, pDispInfo->item.cchTextMax, m_entDB[pDispInfo->item.iItem].path.c_str());
 			break;
+
 		case 2: // Show file info
 			_tcscpy_s(pDispInfo->item.pszText, pDispInfo->item.cchTextMax, m_entDB[pDispInfo->item.iItem].sCtFile.c_str());
 			break;
@@ -49,12 +52,16 @@ void CDBListView::Show(NMLVDISPINFO* pDispInfo)
 BOOL CDBListView::CompareFunc(const FILEINFODB& a, const FILEINFODB& b)
 {
 	static SORTPARAM* pSort = m_s_pSort;
-	switch (pSort->column) {
+
+	switch (pSort->column)
+	{
 		case 1:
 			return (retCompare(a.path, b.path));
+
 		case 2:
 			return (retCompare(a.ctFile, b.ctFile));
 	}
+
 	return FALSE;
 }
 
@@ -62,6 +69,7 @@ void CDBListView::Sort()
 {
 	// Copy the static member variable
 	m_s_pSort = &m_sort;
+
 	// Sort
 	std::sort(m_entDB.begin(), m_entDB.end(), CompareFunc);
 	InvalidateRect(m_hList, NULL, FALSE);
@@ -72,15 +80,19 @@ void CDBListView::Sort(int column)
 {
 	// Copy the static member variable
 	m_s_pSort = &m_sort;
+
 	// Reverse the column if is clicked upon twice
-	if ((column == 0) || (m_sort.column == column)) {
+	if ((column == 0) || (m_sort.column == column))
+	{
 		m_sort.direct ^= 1;
 		std::reverse(m_entDB.begin(), m_entDB.end());
 	}
-	else {
+	else
+	{
 		m_sort.direct = 0;
 		std::sort(m_entDB.begin(), m_entDB.end(), CompareFunc);
 	}
+	
 	InvalidateRect(m_hList, NULL, FALSE);
 }
 
@@ -92,15 +104,18 @@ void CDBListView::Update(int StartItem)
 
 	// Will not be drawn with the selected state and will become zero. Redraw properly
 	if (m_entDB.empty())
+	{
 		ListView_Update(m_hList, 0);
-
-	else {
+	}
+	else
+	{
 		int nCountPerPage = ListView_GetCountPerPage(m_hList);
 		int nVisibleLast = StartItem + nCountPerPage;
 
 		// Redraw the listview (which is to redraw the selected state. This is a fairly aggressive technique)
 		for (int i = StartItem; i <= nVisibleLast; i++)
 			ListView_SetItemState(m_hList, i, LVIS_SELECTED, LVIS_SELECTED);
+
 		ListView_SetItemState(m_hList, -1, 0, LVIS_SELECTED);
 	}
 }

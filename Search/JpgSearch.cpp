@@ -55,5 +55,4 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 	infFile.sizeCmp = infFile.sizeOrg;
 
 	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".jpg"));
-
 }

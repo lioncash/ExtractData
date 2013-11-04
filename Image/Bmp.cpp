@@ -1,33 +1,32 @@
-
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"Bmp.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "Bmp.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CBmp::Mount(
+BOOL CBmp::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( lstrcmpi( pclArc->GetArcExten(), _T(".bmp") ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	return	pclArc->Mount();
+	return pclArc->Mount();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialization
+// Initialization
 
-BOOL	CBmp::OnInit(
+BOOL CBmp::OnInit(
 	const YCString&		rfclsFileName					// Filename
 	)
 {
 	// Set file header
 
-	BITMAPFILEHEADER*	pstBMPFileHeader = &m_stBMPFileHeader;
+	BITMAPFILEHEADER* pstBMPFileHeader = &m_stBMPFileHeader;
 
 	ZeroMemory( pstBMPFileHeader, sizeof(BITMAPFILEHEADER) );
 
@@ -47,7 +46,7 @@ BOOL	CBmp::OnInit(
 
 	// Set info header
 
-	BITMAPINFOHEADER*	pstBMPInfoHeader = &m_stBMPInfoHeader;
+	BITMAPINFOHEADER* pstBMPInfoHeader = &m_stBMPInfoHeader;
 
 	ZeroMemory( pstBMPInfoHeader, sizeof(BITMAPINFOHEADER) );
 
@@ -67,27 +66,24 @@ BOOL	CBmp::OnInit(
 
 	WriteHed( rfclsFileName );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Output BMP Header
+// Output BMP Header
 
-void	CBmp::WriteHed(
+void CBmp::WriteHed(
 	const YCString&		rfclsFileName					// Filename
 	)
 {
-	CArcFile*			pclArc = m_pclArc;
-
+	CArcFile* pclArc = m_pclArc;
 	pclArc->OpenFile( rfclsFileName );
 
 	// Output BMP header
-
 	pclArc->WriteFile( &m_stBMPFileHeader, sizeof(m_stBMPFileHeader), 0 );
 	pclArc->WriteFile( &m_stBMPInfoHeader, sizeof(m_stBMPInfoHeader), 0 );
 
 	// Output palette
-
 	if( m_stBMPInfoHeader.biBitCount == 8 )
 	{
 		// 8bit
@@ -97,15 +93,15 @@ void	CBmp::WriteHed(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Create Palette
+// Create Palette
 
-BOOL	CBmp::OnCreatePallet(
+BOOL CBmp::OnCreatePallet(
 	const void*			pvSrcPallet,					// Source (referenced) palette
 	DWORD				dwSrcPalletSize					// Source (referenced) palette size
 	)
 {
-	RGBQUAD*			pstPallet = m_astPallet;
-	const BYTE*			pbtSrcPallet = (const BYTE*) pvSrcPallet;
+	RGBQUAD*    pstPallet = m_astPallet;
+	const BYTE* pbtSrcPallet = (const BYTE*) pvSrcPallet;
 
 	ZeroMemory( m_astPallet, sizeof(m_astPallet) );
 
@@ -163,27 +159,25 @@ BOOL	CBmp::OnCreatePallet(
 		}
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write 1 Line
+// Write 1 Line
 
-void	CBmp::WriteLine(
+void CBmp::WriteLine(
 	const void*			pvBuffer						// Buffer
 	)
 {
 	// Output
-
 	m_pclArc->WriteFile( pvBuffer, m_lLine, m_dwRowSize );
 
 	// Output dummy data
-
 	if( m_bOutputDummyFromBuffer )
 	{
 		// Output from buffer
 
-		const BYTE*			pbtBuffer = (const BYTE*) pvBuffer;
+		const BYTE* pbtBuffer = (const BYTE*) pvBuffer;
 
 		m_pclArc->WriteFile( &pbtBuffer[m_lLine], (m_lPitch - m_lLine), 0 );
 	}
@@ -197,22 +191,19 @@ void	CBmp::WriteLine(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write a line with alpha blending
+// Write a line with alpha blending
 
-void	CBmp::WriteLineWithAlphaBlend(
+void CBmp::WriteLineWithAlphaBlend(
 	void*				pvBuffer24,						// Data storage destination alpha blending
 	const void*			pvBuffer32						// 32bit Data
 	)
 {
 	// Fill with 0's (So that the dummy data can be outputted)
-
 	ZeroMemory( pvBuffer24, m_lPitch );
 
 	// Alpha blending
-
 	AlphaBlend( pvBuffer24, pvBuffer32 );
 
 	// Output
-
 	m_pclArc->WriteFile( pvBuffer24, m_lPitch, m_dwRowSize );
 }

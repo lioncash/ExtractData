@@ -1,80 +1,70 @@
-#include	"stdafx.h"
-#include	"../Image.h"
-#include	"LZSS.h"
+#include "stdafx.h"
+#include "../Image.h"
+#include "LZSS.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CLZSS::Decode(
+BOOL CLZSS::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->format != _T("LZ") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	return	Decomp( pclArc, 4096, 4078, 3 );
+	return Decomp( pclArc, 4096, 4078, 3 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Extract the file
+// Extract the file
 
-BOOL	CLZSS::Decomp(
+BOOL CLZSS::Decomp(
 	CArcFile*			pclArc,							// Archive
 	DWORD				dwDicSize,						// Dictionary Size
 	DWORD				dwDicPtr,						// Initial dictionary position reference (Dictionary pointer)
 	DWORD				dwLengthOffset					// Length offset
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	// Read
-
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-	YCMemory<BYTE>		clmSrc( dwSrcSize );
-
+	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	YCMemory<BYTE> clmSrc( dwSrcSize );
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
 	// Buffer allocation for extraction
-
-	DWORD				dwDstSize = pstFileInfo->sizeOrg;
-
-	YCMemory<BYTE>		clmDst( dwDstSize );
+	DWORD          dwDstSize = pstFileInfo->sizeOrg;
+	YCMemory<BYTE> clmDst( dwDstSize );
 
 	// Decompression
-
 	Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, dwDicSize, dwDicPtr, dwLengthOffset );
 
+	// Bitmap
 	if( lstrcmp( PathFindExtension( pstFileInfo->name ), _T(".bmp") ) == 0 )
 	{
-		// Bitmap
-
-		CImage				clImage;
-
+		CImage clImage;
 		clImage.Init( pclArc, &clmDst[0] );
 		clImage.Write( dwDstSize );
 		clImage.Close();
 	}
-	else
+	else // Other
 	{
-		// Other
-
 		pclArc->OpenFile();
 		pclArc->WriteFile( &clmDst[0], dwDstSize );
 		pclArc->CloseFile();
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Extract from memory
+// Extract from memory
 
-BOOL	CLZSS::Decomp(
+BOOL CLZSS::Decomp(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvSrc,							// Compressed Data
@@ -84,21 +74,18 @@ BOOL	CLZSS::Decomp(
 	DWORD				dwLengthOffset					// Length offset
 	)
 {
-	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
+	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtSrc = (const BYTE*) pvSrc;
 
 	// Allocate dictionary buffer
-
-	YCMemory<BYTE>		clmbtDic( dwDicSize );
-
+	YCMemory<BYTE> clmbtDic( dwDicSize );
 	ZeroMemory( &clmbtDic[0], dwDicSize );
 
 	// Decompression
-
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
-	BYTE				btFlags;
-	DWORD				dwBitCount = 0;
+	DWORD dwSrcPtr = 0;
+	DWORD dwDstPtr = 0;
+	BYTE  btFlags;
+	DWORD dwBitCount = 0;
 
 	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
 	{
@@ -126,11 +113,11 @@ BOOL	CLZSS::Decomp(
 		{
 			// Compressed data
 
-			BYTE				btLow = pbtSrc[dwSrcPtr++];
-			BYTE				btHigh = pbtSrc[dwSrcPtr++];
+			BYTE  btLow = pbtSrc[dwSrcPtr++];
+			BYTE  btHigh = pbtSrc[dwSrcPtr++];
 
-			DWORD				dwBack = (((btHigh & 0xF0) << 4) | btLow);
-			DWORD				dwLength = ((btHigh & 0x0F) + dwLengthOffset);
+			DWORD dwBack = (((btHigh & 0xF0) << 4) | btLow);
+			DWORD dwLength = ((btHigh & 0x0F) + dwLengthOffset);
 
 			if( (dwDstPtr + dwLength) > dwDstSize )
 			{
@@ -175,11 +162,11 @@ BOOL	CLZSS::Decomp(
 			{
 				// Compressed data
 
-				BYTE				btLow = pbtSrc[dwSrcPtr++];
-				BYTE				btHigh = pbtSrc[dwSrcPtr++];
+				BYTE  btLow = pbtSrc[dwSrcPtr++];
+				BYTE  btHigh = pbtSrc[dwSrcPtr++];
 
-				DWORD				dwBack = (((btHigh & 0xF0) << 4) | btLow);
-				DWORD				dwLength = ((btHigh & 0x0F) + dwOffset);
+				DWORD dwBack = (((btHigh & 0xF0) << 4) | btLow);
+				DWORD dwLength = ((btHigh & 0x0F) + dwOffset);
 
 				if( (dwDstPtr + dwLength) > dwDstSize )
 				{
@@ -205,5 +192,5 @@ BOOL	CLZSS::Decomp(
 		}*/
 	}
 
-	return	TRUE;
+	return TRUE;
 }

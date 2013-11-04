@@ -1,7 +1,8 @@
 #pragma	once
 
-#include	"Error.h"
+#include "Error.h"
 
+//----------------------------------------------------------------------------------------
 //-- Symbol Declaration  -----------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
@@ -16,18 +17,19 @@
 #define ID_DB_BUTTON3 10103
 #define ID_DB_BUTTON4 10104
 
-#define	SBL_STR_INI_EXTRACTDATA         _T("ExtractData.ini")
-#define	SBL_STR_INI_SUSIE               _T("Susie.ini")
+#define SBL_STR_INI_EXTRACTDATA     _T("ExtractData.ini")
+#define SBL_STR_INI_SUSIE           _T("Susie.ini")
 
 typedef unsigned __int64 QWORD;
 typedef QWORD* LPQWORD;
 
+//----------------------------------------------------------------------------------------
 //-- Structure Declaration ---------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
 // Optional Items
 
-struct	SOption
+struct SOption
 {
     // Related listview
     COLORREF            ListBkColor;                    // Background color of list
@@ -44,8 +46,8 @@ struct	SOption
 
     BOOL                bCreateFolder;                  // Each folder to extract
     BOOL                bFixOgg;                        // Fix an OGG file's CRC on extraction
-    BOOL				bEasyDecrypt;                   // Enable/Disable simple decoding
-    BOOL                bRenameScriptExt;               // Change the extention of a script
+    BOOL                bEasyDecrypt;                   // Enable/Disable simple decoding
+    BOOL                bRenameScriptExt;               // Change the extension of a script
     DWORD               BufSize;                        // Buffer size
 
     // Image related
@@ -79,7 +81,7 @@ struct	SOption
 
 // File Info
 
-struct	SFileInfo
+struct SFileInfo
 {
     YCString            name;                           // Filename
     DWORD               sizeOrg;                        // File Size
@@ -98,7 +100,7 @@ struct	SFileInfo
     std::vector<DWORD>  starts;                         // Start Address(Used when data is scattered)
     std::vector<DWORD>  bCmps;                          // Check if it is compressed or not (Used when data is scattered)
     YCString            title;                          // Game title
-    DWORD               key;                            // File Key (ファイル固有値)
+    DWORD               key;                            // File Key (File value)
     DWORD               type;                           // Filetype
     std::set<YCString>  sTmpFilePath;                   // Path to extracted files
 
@@ -110,10 +112,10 @@ struct	SFileInfo
 
 // Database Info
 
-struct	FILEINFODB
+struct FILEINFODB
 {
-    DWORD               start;
-    YCString            path;
-    DWORD               ctFile;
-    YCString            sCtFile;
+    DWORD    start;
+    YCString path;
+    DWORD    ctFile;
+    YCString sCtFile;
 };

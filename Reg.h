@@ -1,6 +1,7 @@
 #pragma once
 
-class CReg {
+class CReg
+{
 public:
-    BOOL GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName);
+	BOOL GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName);
 };

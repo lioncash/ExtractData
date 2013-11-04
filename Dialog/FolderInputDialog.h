@@ -2,7 +2,8 @@
 
 #include "../WindowBase.h"
 
-class CFolderInputDialog : public CWindowBase {
+class CFolderInputDialog : public CWindowBase
+{
 private:
 	LPTSTR m_pSaveDir;
 

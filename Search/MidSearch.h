@@ -1,17 +1,16 @@
+#pragma once
 
-#pragma		once
-
-#include	"../SearchBase.h"
+#include "../SearchBase.h"
 
 //----------------------------------------------------------------------------------------
-//-- MIDIåüçıÉNÉâÉX ----------------------------------------------------------------------
+//-- MIDI Search Class -------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class	CMidSearch : public CSearchBase
+class CMidSearch : public CSearchBase
 {
 public:
 
-											CMidSearch();
+		 CMidSearch();
 
-	void									Mount( CArcFile* pclArc );
+	void Mount( CArcFile* pclArc );
 };

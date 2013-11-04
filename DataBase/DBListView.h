@@ -3,7 +3,8 @@
 #include "../Common.h"
 #include "../Ctrl/ListView.h"
 
-class CDBListView : public CListView {
+class CDBListView : public CListView
+{
 private:
 	std::vector<FILEINFODB> m_entDB;
 

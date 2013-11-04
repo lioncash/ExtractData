@@ -3,7 +3,7 @@
 #include "MD5.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CMD5::CMD5()
 {
@@ -74,7 +74,7 @@ CMD5::CMD5()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+// Calculate MD5 Value
 
 SMD5 CMD5::Calculate(
 	LPCTSTR				pszPathToFile					// File path
@@ -82,7 +82,7 @@ SMD5 CMD5::Calculate(
 {
 	// Open file
 
-	CFile				clfWork;
+	CFile clfWork;
 
 	if( !clfWork.OpenForRead( pszPathToFile ) )
 	{
@@ -90,68 +90,57 @@ SMD5 CMD5::Calculate(
 	}
 
 	// Get file size
-
-	DWORD				dwSrcSize = clfWork.GetFileSize();
+	DWORD dwSrcSize = clfWork.GetFileSize();
 
 	// Get padding
-
-	DWORD				dwPadding = CalculatePadding( dwSrcSize );
+	DWORD dwPadding = CalculatePadding( dwSrcSize );
 
 	// Read buffer allocation
-
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize + dwPadding );
+	YCMemory<BYTE> clmbtSrc( dwSrcSize + dwPadding );
 
 	// Read file
-
 	clfWork.Read( &clmbtSrc[0], dwSrcSize );
 
 	// Append padding
-
 	AppendPadding( &clmbtSrc[0], dwSrcSize, dwPadding );
 
 	// Calculate MD5
-
-	return	Calculate( &clmbtSrc[0], (dwSrcSize + dwPadding) );
+	return Calculate( &clmbtSrc[0], (dwSrcSize + dwPadding) );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculate MD5 Value
+// Calculate MD5 Value
 //
 // Remark: If bAlignment assumes that the input data is aligned on 64 bytes
-//			then the efficiency is not good
+//         then the efficiency is not good
 
-SMD5	CMD5::Calculate(
+SMD5 CMD5::Calculate(
 	const void*			pvSrc,							// Input data
 	DWORD				dwSrcSize,						// Input data size
 	const DWORD*		pdwInitialize,					// Initialization
 	BOOL				bAlignment						// Alignment request
 	)
 {
-	const DWORD*		pdwSrc = (const DWORD*) pvSrc;
+	const DWORD* pdwSrc = (const DWORD*) pvSrc;
 
 	// Alignment
 
-	YCMemory<BYTE>		clmbtSrc;
+	YCMemory<BYTE> clmbtSrc;
 
 	if( bAlignment )
 	{
 		// Alignment request
-
-		DWORD				dwPadding = CalculatePadding( dwSrcSize );
-
+		DWORD dwPadding = CalculatePadding( dwSrcSize );
 		clmbtSrc.resize( dwSrcSize + dwPadding );
-
 		memcpy( &clmbtSrc[0], pvSrc, dwSrcSize );
 
 		// Append padding
-
 		AppendPadding( &clmbtSrc[0], dwSrcSize, dwPadding );
 
 		pdwSrc = (const DWORD*) &clmbtSrc[0];
 	}
 
 	// Set initial value
-
 	if( pdwInitialize == NULL )
 	{
 		// Using the default initialization values
@@ -179,11 +168,10 @@ SMD5	CMD5::Calculate(
 		}
 
 		// Save
-
-		DWORD				dwA = m_stmd5Value.adwABCD[0];
-		DWORD				dwB = m_stmd5Value.adwABCD[1];
-		DWORD				dwC = m_stmd5Value.adwABCD[2];
-		DWORD				dwD = m_stmd5Value.adwABCD[3];
+		DWORD dwA = m_stmd5Value.adwABCD[0];
+		DWORD dwB = m_stmd5Value.adwABCD[1];
+		DWORD dwC = m_stmd5Value.adwABCD[2];
+		DWORD dwD = m_stmd5Value.adwABCD[3];
 
 		CalculateSub5( dwA, dwB, dwC, dwD,  0,  7,  1 );
 		CalculateSub5( dwD, dwA, dwB, dwC,  1, 12,  2 );
@@ -260,21 +248,20 @@ SMD5	CMD5::Calculate(
 	}
 
 	// Convert to a string
-
 	MD5ToStrings( m_stmd5Value.szABCD, m_stmd5Value.adwABCD );
 
-//	ValueToStr( &m_stmd5Value.szABCD[ 0], m_stmd5Value.adwABCD[0] );
-//	ValueToStr( &m_stmd5Value.szABCD[ 8], m_stmd5Value.adwABCD[1] );
-//	ValueToStr( &m_stmd5Value.szABCD[16], m_stmd5Value.adwABCD[2] );
-//	ValueToStr( &m_stmd5Value.szABCD[24], m_stmd5Value.adwABCD[3] );
+// ValueToStr( &m_stmd5Value.szABCD[ 0], m_stmd5Value.adwABCD[0] );
+// ValueToStr( &m_stmd5Value.szABCD[ 8], m_stmd5Value.adwABCD[1] );
+// ValueToStr( &m_stmd5Value.szABCD[16], m_stmd5Value.adwABCD[2] );
+// ValueToStr( &m_stmd5Value.szABCD[24], m_stmd5Value.adwABCD[3] );
 
-	return	m_stmd5Value;
+	return m_stmd5Value;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
-DWORD	CMD5::CalculateSub1(
+DWORD CMD5::CalculateSub1(
 	DWORD				dwX,
 	DWORD				dwY,
 	DWORD				dwZ
@@ -304,11 +291,11 @@ DWORD	CMD5::CalculateSub3(
 	DWORD				dwZ
 	)
 {
-	return	(dwX ^ dwY ^ dwZ);
+	return (dwX ^ dwY ^ dwZ);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
 DWORD	CMD5::CalculateSub4(
 	DWORD				dwX,
@@ -316,13 +303,13 @@ DWORD	CMD5::CalculateSub4(
 	DWORD				dwZ
 	)
 {
-	return	(dwY ^ (dwX | ~dwZ));
+	return (dwY ^ (dwX | ~dwZ));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
-void	CMD5::CalculateSub5(
+void CMD5::CalculateSub5(
 	DWORD&				dwA,
 	DWORD				dwB,
 	DWORD				dwC,
@@ -336,9 +323,9 @@ void	CMD5::CalculateSub5(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
-void	CMD5::CalculateSub6(
+void CMD5::CalculateSub6(
 	DWORD&				dwA,
 	DWORD				dwB,
 	DWORD				dwC,
@@ -352,9 +339,9 @@ void	CMD5::CalculateSub6(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
-void	CMD5::CalculateSub7(
+void CMD5::CalculateSub7(
 	DWORD&				dwA,
 	DWORD				dwB,
 	DWORD				dwC,
@@ -368,9 +355,9 @@ void	CMD5::CalculateSub7(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
+// Calculation Processing
 
-void	CMD5::CalculateSub8(
+void CMD5::CalculateSub8(
 	DWORD&				dwA,
 	DWORD				dwB,
 	DWORD				dwC,
@@ -384,69 +371,65 @@ void	CMD5::CalculateSub8(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Calculate Padding
+// Calculate Padding
 
-DWORD	CMD5::CalculatePadding(
+DWORD CMD5::CalculatePadding(
 	DWORD				dwSize							// Size
 	)
 {
 	// Get padding
-
-	DWORD				dwWork = (dwSize % 64);
-	DWORD				dwPadding = (64 - dwWork);
+	DWORD dwWork = (dwSize % 64);
+	DWORD dwPadding = (64 - dwWork);
 
 	if( dwPadding < 9 )
 	{
-		// 1バイト以上のパディングと8バイトのデータサイズが入らない
+		// Increase padding if 8 bytes or less.
 
 		dwPadding += 64;
 	}
 
-	return	dwPadding;
+	return dwPadding;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Append Padding
+// Append Padding
 
-void	CMD5::AppendPadding(
+void CMD5::AppendPadding(
 	void*				pvSrc,							// Input data
 	DWORD				dwSrcSize,						// Input data size
 	DWORD				dwPadding						// Padding
 	)
 {
-	BYTE*				pbtSrc = (BYTE*) pvSrc;
+	BYTE* pbtSrc = (BYTE*) pvSrc;
 
 	// Append padding
-
 	pbtSrc[dwSrcSize] = 0x80;
-
 	ZeroMemory( &pbtSrc[dwSrcSize + 1], (dwPadding - 9) );
 
 	// Additional data size (in bits)
-
 	*(UINT64*) &pbtSrc[dwSrcSize + dwPadding - 8] = (UINT64) dwSrcSize * 8;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Circular Rotate Left
+// Circular Rotate Left
 
-DWORD	CMD5::RotateLeft(
+DWORD CMD5::RotateLeft(
 	DWORD				dwA,
 	DWORD				dwS
 	)
 {
-	return	((dwA << dwS) | (dwA >> (32 - dwS)));
+	return ((dwA << dwS) | (dwA >> (32 - dwS)));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	MD5 value converted to a string of decimal digits
+// MD5 value converted to a string of decimal digits
 
-void	CMD5::ValueToStr(
+void CMD5::ValueToStr(
 	LPSTR				pszDstOfMD5,					// Storage location of the string
 	DWORD				dwMD5							// MD5 value
 	)
 {
-	static const char	acHex[] =
+	static const char acHex[] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
@@ -461,21 +444,21 @@ void	CMD5::ValueToStr(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	MD5 value converted to a string of decimal digits
+// MD5 value converted to a string of decimal digits
 
-void	CMD5::MD5ToStrings(
+void CMD5::MD5ToStrings(
 	LPSTR				pszDstOfMD5,					// Storage location of the string
 	const DWORD*		pdwMD5							// MD5 value
 	)
 {
-	static const char	acHex[] =
+	static const char acHex[] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
 
 	for( int i = 0 ; i < 4 ; i++ )
 	{
-		DWORD				dwMD5 = pdwMD5[i];
+		DWORD dwMD5 = pdwMD5[i];
 
 		for( int j = 0 ; j < 4 ; j++ )
 		{

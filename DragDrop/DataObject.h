@@ -3,7 +3,8 @@
 #include "EnumFORMATETC.h"
 #include "STGMEDIUM.h"
 
-class CDataObject : public IDataObject {
+class CDataObject : public IDataObject
+{
 public:
 	CDataObject();
 
@@ -25,21 +26,21 @@ public:
 
 protected:
 	class CObject
-    {
-    
+	{
+
 	public:
 		FORMATETC m_fmt;
 		STGMEDIUM m_medium;
-        
+
 	public:
 		CObject() { m_medium.tymed = TYMED_NULL; }
-        ~CObject() { if (m_medium.tymed != TYMED_NULL) ReleaseStgMedium(&m_medium); }
-		
-        BOOL Set(FORMATETC* pf, STGMEDIUM* pm, BOOL bRelease)
-        {
+		~CObject() { if (m_medium.tymed != TYMED_NULL) ReleaseStgMedium(&m_medium); }
+
+		BOOL Set(FORMATETC* pf, STGMEDIUM* pm, BOOL bRelease)
+		{
 			m_fmt = *pf;
 			if (bRelease)
-            {
+			{
 				m_medium = *pm;
 				return TRUE;
 			}

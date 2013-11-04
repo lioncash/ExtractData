@@ -1,6 +1,7 @@
 #pragma once
 
-class CMzx {
+class CMzx
+{
 public:
 	void Decompress(LPBYTE dst, DWORD len, LPBYTE src);
 };

@@ -1,6 +1,7 @@
 #pragma once
 
-class CUpDown {
+class CUpDown
+{
 private:
 	HWND		m_hWnd;
 	HINSTANCE	m_hInst;

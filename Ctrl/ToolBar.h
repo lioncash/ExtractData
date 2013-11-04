@@ -2,7 +2,8 @@
 
 #include "../ArcFile.h"
 
-class CToolBar {
+class CToolBar
+{
 private:
 	HWND m_hWnd;
 	HINSTANCE m_hInst;

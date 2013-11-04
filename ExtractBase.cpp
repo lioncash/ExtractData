@@ -1,22 +1,22 @@
-#include	"stdafx.h"
-#include	"ExtractBase.h"
+#include "stdafx.h"
+#include "ExtractBase.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CExtractBase::Decode(
+BOOL CExtractBase::Decode(
 	CArcFile*			pclArc				// Archive
 	)
 {
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Extraction
+// Extraction
 
-BOOL	CExtractBase::Extract(
+BOOL CExtractBase::Extract(
 	CArcFile*			pclArc				// Archive
 	)
 {
-	return	FALSE;
+	return FALSE;
 }

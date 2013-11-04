@@ -2,7 +2,8 @@
 
 #include "../WindowBase.h"
 
-class CSearchDialog : public CWindowBase {
+class CSearchDialog : public CWindowBase
+{
 private:
 	LPCTSTR m_pclArcPath;
 

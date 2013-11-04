@@ -1,10 +1,9 @@
-
-#include	"stdafx.h"
-#include	"../SearchBase.h"
-#include	"PngSearch.h"
+#include "stdafx.h"
+#include "../SearchBase.h"
+#include "PngSearch.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CPngSearch::CPngSearch()
 {
@@ -13,29 +12,26 @@ CPngSearch::CPngSearch()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-void	CPngSearch::Mount(
+void CPngSearch::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo			stFileInfo;
+	SFileInfo stFileInfo;
 
 	// Get start address
-
 	stFileInfo.start = pclArc->GetArcPointer();
-
 	pclArc->SeekCur( GetHedSize() );
 
 	// Search the file end
-
-	BYTE				abtChunkName[4];
+	BYTE abtChunkName[4];
 
 	do
 	{
 		// Get chunk length
 
-		DWORD				dwLength;
+		DWORD dwLength;
 
 		if( pclArc->Read( &dwLength, 4 ) == 0 )
 		{
@@ -45,7 +41,6 @@ void	CPngSearch::Mount(
 		pclArc->ConvEndian( &dwLength );
 
 		// Get chunk name
-
 		if( pclArc->Read( abtChunkName, 4 ) == 0 )
 		{
 			return;
@@ -60,19 +55,16 @@ void	CPngSearch::Mount(
 
 		pclArc->SeekCur( dwLength + 4 );
 	}
-	while( memcmp( abtChunkName, "IEND", 4 ) != 0 );	// Keep looping until IEND is reached
+	while( memcmp( abtChunkName, "IEND", 4 ) != 0 ); // Keep looping until IEND is reached
 
 	// Get exit address
-
 	stFileInfo.end = pclArc->GetArcPointer();
 
 	// Get file size
-
 	stFileInfo.sizeOrg = stFileInfo.end - stFileInfo.start;
 	stFileInfo.sizeCmp = stFileInfo.sizeOrg;
 
 	// Update progress bar
-
 	pclArc->GetProg()->UpdatePercent( stFileInfo.sizeOrg );
 
 	pclArc->AddFileInfo( stFileInfo, GetCtFile(), _T(".png") );

@@ -14,7 +14,8 @@ CFont::~CFont()
 // Function to set the font
 HFONT CFont::Create()
 {
-	if (m_hFont == NULL) {
+	if (m_hFont == NULL)
+	{
 		m_hFont = CreateFont(
 			13, // 0 if default font height (in logical units)
 			0, // Width, 0 if height is 0
@@ -31,8 +32,9 @@ HFONT CFont::Create()
 			0, // Character spacing
 			// _T("MS UI Gothic") // The name of the typeface -- NOTE: This is the original typeface before I began translating the app 
 			_T("Segoe UI") // The name of the typeface  -- NOTE: Changed to Segoe UI to make it better for English locale
-            // TODO: Possibly make the font able to be set from within the application itself
+			// TODO: Possibly make the font able to be set from within the application itself
 		);
 	}
+
 	return (m_hFont);
 }

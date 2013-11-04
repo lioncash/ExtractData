@@ -4,247 +4,245 @@
 
 CWindowBase::CWindowBase()
 {
-    m_hWnd = NULL;
-    m_hInst = NULL;
-    m_oldWndProc = NULL;
-    m_bDialog = FALSE;
+	m_hWnd = NULL;
+	m_hInst = NULL;
+	m_oldWndProc = NULL;
+	m_bDialog = FALSE;
 }
 
 CWindowBase::~CWindowBase()
 {
-    RemoveProp(m_hWnd, _T("CWindowBase"));
+	RemoveProp(m_hWnd, _T("CWindowBase"));
 }
 
 void CWindowBase::Init()
 {
-    MoveWindowCenter();
+	MoveWindowCenter();
 }
 
 void CWindowBase::Init(LONG cx, LONG cy)
 {
-    MoveWindowCenter(cx, cy);
+	MoveWindowCenter(cx, cy);
 }
 
 void CWindowBase::Init(UINT uID, LONG cx, LONG cy)
 {
-    m_uID = uID;
+	m_uID = uID;
 
-    YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	clIni.SetSection( m_uID );
 
-    clIni.SetSection( m_uID );
+	RECT rc;
+	SetRect(&rc, 0, 0, cx, cy);
+	POINT pt = GetCenterPt(rc);
 
-    RECT rc;
-    SetRect(&rc, 0, 0, cx, cy);
-    POINT pt = GetCenterPt(rc);
+	clIni.SetKey( _T("Left") );
+	clIni.ReadDec( &pt.x );
+	clIni.SetKey( _T("Top") );
+	clIni.ReadDec( &pt.y );
+	clIni.SetKey( _T("Width") );
+	clIni.ReadDec( &cx );
+	clIni.SetKey( _T("Height") );
+	clIni.ReadDec( &cy );
 
-    clIni.SetKey( _T("Left") );
-    clIni.ReadDec( &pt.x );
-    clIni.SetKey( _T("Top") );
-    clIni.ReadDec( &pt.y );
-    clIni.SetKey( _T("Width") );
-    clIni.ReadDec( &cx );
-    clIni.SetKey( _T("Height") );
-    clIni.ReadDec( &cy );
+	WINDOWPLACEMENT wndpl;
 
-    WINDOWPLACEMENT wndpl;
+	memset(&wndpl, 0, sizeof(WINDOWPLACEMENT));
 
-    memset(&wndpl, 0, sizeof(WINDOWPLACEMENT));
+	wndpl.length = sizeof(WINDOWPLACEMENT);
+	wndpl.showCmd = SW_HIDE;
 
-    wndpl.length = sizeof(WINDOWPLACEMENT);
-    wndpl.showCmd = SW_HIDE;
+	SetRect(&wndpl.rcNormalPosition, pt.x, pt.y, pt.x + cx, pt.y + cy);
+	SetWindowPlacement(m_hWnd, &wndpl);
 
-    SetRect(&wndpl.rcNormalPosition, pt.x, pt.y, pt.x + cx, pt.y + cy);
-    SetWindowPlacement(m_hWnd, &wndpl);
+	clIni.SetKey( _T("showCmd") );
+	clIni.ReadDec<UINT>( &wndpl.showCmd, SW_SHOWNORMAL );
 
-    clIni.SetKey( _T("showCmd") );
-    clIni.ReadDec<UINT>( &wndpl.showCmd, SW_SHOWNORMAL );
-
-    ShowWindow( m_hWnd, wndpl.showCmd );
+	ShowWindow( m_hWnd, wndpl.showCmd );
 }
 
 void CWindowBase::Init(HWND hWnd)
 {
-    MoveWindowCenter(hWnd);
+	MoveWindowCenter(hWnd);
 }
 
 void CWindowBase::Init(HWND hWnd, LONG cx, LONG cy)
 {
-    MoveWindowCenter(hWnd, cx, cy);
+	MoveWindowCenter(hWnd, cx, cy);
 }
 
 void CWindowBase::SaveIni()
 {
-    YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	clIni.SetSection( m_uID );
 
-    clIni.SetSection( m_uID );
+	WINDOWPLACEMENT wndpl;
 
-    WINDOWPLACEMENT wndpl;
+	wndpl.length = sizeof(WINDOWPLACEMENT);
+	GetWindowPlacement(m_hWnd, &wndpl);
 
-    wndpl.length = sizeof(WINDOWPLACEMENT);
-    GetWindowPlacement(m_hWnd, &wndpl);
+	// Save Position
+	clIni.SetKey( _T("Left") );
+	clIni.WriteDec( wndpl.rcNormalPosition.left );
+	clIni.SetKey( _T("Top") );
+	clIni.WriteDec( wndpl.rcNormalPosition.top );
 
-    // Save Position
+	// Save Size
+	clIni.SetKey( _T("Width") );
+	clIni.WriteDec( wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left );
+	clIni.SetKey( _T("Height") );
+	clIni.WriteDec( wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top );
 
-    clIni.SetKey( _T("Left") );
-    clIni.WriteDec( wndpl.rcNormalPosition.left );
-    clIni.SetKey( _T("Top") );
-    clIni.WriteDec( wndpl.rcNormalPosition.top );
-
-    // Save Size
-
-    clIni.SetKey( _T("Width") );
-    clIni.WriteDec( wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left );
-    clIni.SetKey( _T("Height") );
-    clIni.WriteDec( wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top );
-
-    if( wndpl.showCmd != SW_SHOWMINIMIZED )
-    {
-        clIni.SetKey( _T("showCmd") );
-        clIni.WriteDec( wndpl.showCmd );
-    }
+	if( wndpl.showCmd != SW_SHOWMINIMIZED )
+	{
+		clIni.SetKey( _T("showCmd") );
+		clIni.WriteDec( wndpl.showCmd );
+	}
 }
 
 BOOL CWindowBase::Attach(HWND hWnd)
 {
-    if (!hWnd)
-        return FALSE;
-    m_hWnd = hWnd;
-    m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-    // Determine window or dialog
-    m_bDialog = GetWindowLong(hWnd, DWL_DLGPROC);
-    int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
+	if (!hWnd)
+		return FALSE;
 
-    SetProp(m_hWnd, _T("CWindowBase"), (HANDLE)this);
+	m_hWnd = hWnd;
+	m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
 
-    // Subclass an existing window
-    if (GetWindowLong(m_hWnd, tproc) != (LONG)WndStaticProc)
-        m_oldWndProc = (WNDPROC)SetWindowLong(m_hWnd, tproc, (LONG)WndStaticProc);
+	// Determine window or dialog
+	m_bDialog = GetWindowLong(hWnd, DWL_DLGPROC);
+	int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
 
-    return TRUE;
+	SetProp(m_hWnd, _T("CWindowBase"), (HANDLE)this);
+
+	// Subclass an existing window
+	if (GetWindowLong(m_hWnd, tproc) != (LONG)WndStaticProc)
+		m_oldWndProc = (WNDPROC)SetWindowLong(m_hWnd, tproc, (LONG)WndStaticProc);
+
+	return TRUE;
 }
 
 BOOL CWindowBase::Detach()
 {
-    if (!m_hWnd)
-        return FALSE;
+	if (!m_hWnd)
+		return FALSE;
 
-    // Remove the subclass
-    if (m_oldWndProc)
-    {
-        int tproc = (m_bDialog == TRUE) ? DWL_DLGPROC : GWL_WNDPROC;
-        SetWindowLong(m_hWnd, tproc, (DWORD)m_oldWndProc);
-    }
+	// Remove the subclass
+	if (m_oldWndProc)
+	{
+		int tproc = (m_bDialog == TRUE) ? DWL_DLGPROC : GWL_WNDPROC;
+		SetWindowLong(m_hWnd, tproc, (DWORD)m_oldWndProc);
+	}
 
-    RemoveProp(m_hWnd, _T("CWindowBase"));
-    return TRUE;
+	RemoveProp(m_hWnd, _T("CWindowBase"));
+	return TRUE;
 }
 
 LRESULT CALLBACK CWindowBase::WndStaticProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    // Retrieve data from the property list
-    CWindowBase* tWnd = (CWindowBase*)GetProp(hWnd, _T("CWindowBase"));
+	// Retrieve data from the property list
+	CWindowBase* tWnd = (CWindowBase*)GetProp(hWnd, _T("CWindowBase"));
 
-    // Could not be obtained during processing
-    if (tWnd == NULL)
-    {
-        if ((msg == WM_CREATE) || (msg == WM_NCCREATE))
-            tWnd = (CWindowBase*)((LPCREATESTRUCT)lp)->lpCreateParams;
-        else if (msg == WM_INITDIALOG)
-            tWnd = (CWindowBase*)lp;
-        if (tWnd)
-            tWnd->Attach(hWnd);
-    }
+	// Could not be obtained during processing
+	if (tWnd == NULL)
+	{
+		if ((msg == WM_CREATE) || (msg == WM_NCCREATE))
+			tWnd = (CWindowBase*)((LPCREATESTRUCT)lp)->lpCreateParams;
+		else if (msg == WM_INITDIALOG)
+			tWnd = (CWindowBase*)lp;
+		if (tWnd)
+			tWnd->Attach(hWnd);
+	}
 
-    // Success getting the tWnd
-    if (tWnd)
-    {
-        LRESULT lResult = tWnd->WndProc(hWnd, msg, wp, lp);
-        if (msg == WM_DESTROY)
-            tWnd->Detach();
-        return lResult;
-    }
+	// Success getting the tWnd
+	if (tWnd)
+	{
+		LRESULT lResult = tWnd->WndProc(hWnd, msg, wp, lp);
+		if (msg == WM_DESTROY)
+			tWnd->Detach();
+		return lResult;
+	}
 
-    // If dialog, returns FALSE
-    if (GetWindowLong(hWnd, DWL_DLGPROC))
-        return FALSE;
+	// If dialog, returns FALSE
+	if (GetWindowLong(hWnd, DWL_DLGPROC))
+		return FALSE;
 
-    return DefWindowProc(hWnd, msg, wp, lp);
+	return DefWindowProc(hWnd, msg, wp, lp);
 }
 
 LRESULT CWindowBase::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    // If any subclasses of old window processing are left.
-    if (m_oldWndProc)
-        return CallWindowProc(m_oldWndProc, hWnd, msg, wp, lp);
-    // If there is a dialog, return FALSE
-    if (m_bDialog)
-        return FALSE;
-    // If it is not subclassed, call the default window procedure
-    return DefWindowProc(hWnd, msg, wp, lp);
+	// If any subclasses of old window processing are left.
+	if (m_oldWndProc)
+		return CallWindowProc(m_oldWndProc, hWnd, msg, wp, lp);
+	// If there is a dialog, return FALSE
+	if (m_bDialog)
+		return FALSE;
+	// If it is not subclassed, call the default window procedure
+	return DefWindowProc(hWnd, msg, wp, lp);
 }
 
 void CWindowBase::MoveWindowCenter()
 {
-    RECT rc;
-    GetWindowRect(m_hWnd, &rc);
-    POINT pt = GetCenterPt(rc);
-    MoveWindow(m_hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+	RECT rc;
+	GetWindowRect(m_hWnd, &rc);
+	POINT pt = GetCenterPt(rc);
+	MoveWindow(m_hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
 
 void CWindowBase::MoveWindowCenter(LONG cx, LONG cy)
 {
-    RECT rc;
-    SetRect(&rc, 0, 0, cx, cy);
-    POINT pt = GetCenterPt(rc);
-    MoveWindow(m_hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+	RECT rc;
+	SetRect(&rc, 0, 0, cx, cy);
+	POINT pt = GetCenterPt(rc);
+	MoveWindow(m_hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
 
 void CWindowBase::MoveWindowCenter(HWND hWnd)
 {
-    RECT rc;
-    GetWindowRect(hWnd, &rc);
-    POINT pt = GetCenterPt(hWnd, rc);
-    MoveWindow(hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+	RECT rc;
+	GetWindowRect(hWnd, &rc);
+	POINT pt = GetCenterPt(hWnd, rc);
+	MoveWindow(hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
 
 void CWindowBase::MoveWindowCenter(HWND hWnd, LONG cx, LONG cy)
 {
-    RECT rc;
-    SetRect(&rc, 0, 0, cx, cy);
-    POINT pt = GetCenterPt(hWnd, rc);
-    MoveWindow(hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+	RECT rc;
+	SetRect(&rc, 0, 0, cx, cy);
+	POINT pt = GetCenterPt(hWnd, rc);
+	MoveWindow(hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
 
 POINT CWindowBase::GetCenterPt(RECT& dlgrc)
 {
-    RECT ParentRect;
-    HWND hParentWnd = GetParent(m_hWnd);
-    if (hParentWnd == NULL)
-        hParentWnd = GetDesktopWindow();
-    GetWindowRect(hParentWnd, &ParentRect);
-    //CError error;
-    //error.Message(m_hWnd, _T("%d %d %d %d"), ParentRect.left, ParentRect.top, ParentRect.right, ParentRect.bottom);
+	RECT ParentRect;
+	HWND hParentWnd = GetParent(m_hWnd);
+	if (hParentWnd == NULL)
+		hParentWnd = GetDesktopWindow();
+	GetWindowRect(hParentWnd, &ParentRect);
+	//CError error;
+	//error.Message(m_hWnd, _T("%d %d %d %d"), ParentRect.left, ParentRect.top, ParentRect.right, ParentRect.bottom);
 
-    POINT pt;
-    pt.x = ParentRect.left + ((ParentRect.right - ParentRect.left) - (dlgrc.right - dlgrc.left)) / 2;
-    pt.y = ParentRect.top + ((ParentRect.bottom - ParentRect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
-    //error.Message(m_hWnd, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
-    return (pt);
+	POINT pt;
+	pt.x = ParentRect.left + ((ParentRect.right - ParentRect.left) - (dlgrc.right - dlgrc.left)) / 2;
+	pt.y = ParentRect.top + ((ParentRect.bottom - ParentRect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
+	//error.Message(m_hWnd, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
+	return (pt);
 }
 
 POINT CWindowBase::GetCenterPt(HWND hWnd, RECT& dlgrc)
 {
-    RECT ParentRect;
-    HWND hParentWnd = GetParent(hWnd);
-    if (hParentWnd == NULL)
-        hParentWnd = GetDesktopWindow();
-    GetWindowRect(hParentWnd, &ParentRect);
-    //CError error;
-    //error.Message(m_hWnd, _T("%d %d %d %d"), ParentRect.left, ParentRect.top, ParentRect.right, ParentRect.bottom);
+	RECT ParentRect;
+	HWND hParentWnd = GetParent(hWnd);
+	if (hParentWnd == NULL)
+		hParentWnd = GetDesktopWindow();
+	GetWindowRect(hParentWnd, &ParentRect);
+	//CError error;
+	//error.Message(m_hWnd, _T("%d %d %d %d"), ParentRect.left, ParentRect.top, ParentRect.right, ParentRect.bottom);
 
-    POINT pt;
-    pt.x = ParentRect.left + ((ParentRect.right - ParentRect.left) - (dlgrc.right - dlgrc.left)) / 2;
-    pt.y = ParentRect.top + ((ParentRect.bottom - ParentRect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
-    //error.Message(m_hWnd, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
-    return (pt);
+	POINT pt;
+	pt.x = ParentRect.left + ((ParentRect.right - ParentRect.left) - (dlgrc.right - dlgrc.left)) / 2;
+	pt.y = ParentRect.top + ((ParentRect.bottom - ParentRect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
+	//error.Message(m_hWnd, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
+	return (pt);
 }

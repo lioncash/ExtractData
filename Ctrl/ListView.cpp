@@ -50,15 +50,14 @@ HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, in
 	m_hImage = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
 	ListView_SetImageList(hList, m_hImage, LVSIL_STATE);
 
-	YCIni				clIni( SBL_STR_INI_EXTRACTDATA) ;
-
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA) ;
 	clIni.SetSection( uID );
 
 	// Add a column header
 
 	for( size_t i = 0 ; i < lvcols.size() ; i++ )
 	{
-		TCHAR				szColumn[256];
+		TCHAR szColumn[256];
 
 		_stprintf( szColumn, _T("column%u"), i );
 
@@ -70,7 +69,7 @@ HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, in
 		ListView_InsertColumn( hList, i, &lvcols[i] );
 	}
 
-	return	m_hList;
+	return m_hList;
 }
 
 void CListView::SetBkColor()
@@ -103,17 +102,15 @@ void CListView::Enable(BOOL flag)
 
 void CListView::SaveIni()
 {
-	YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
-
+	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
 	clIni.SetSection( m_uID );
 
 	// Save column width
-
-	int					nColumns = Header_GetItemCount( ListView_GetHeader( m_hList ) );
+	int nColumns = Header_GetItemCount( ListView_GetHeader( m_hList ) );
 
 	for( int i = 0 ; i < nColumns ; i++ )
 	{
-		TCHAR				szColumn[256];
+		TCHAR szColumn[256];
 
 		_stprintf( szColumn, _T("Column%d"), i );
 
@@ -124,7 +121,8 @@ void CListView::SaveIni()
 
 void CListView::Close()
 {
-	if (m_hImage) {
+	if (m_hImage)
+	{
 		ImageList_Destroy(m_hImage);
 		m_hImage = NULL;
 	}

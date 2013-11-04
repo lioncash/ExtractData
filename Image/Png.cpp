@@ -1,9 +1,9 @@
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"Png.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "Png.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Constructor
+// Constructor
 
 CPng::CPng()
 {
@@ -14,7 +14,7 @@ CPng::CPng()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Destructor
+// Destructor
 
 CPng::~CPng()
 {
@@ -22,9 +22,9 @@ CPng::~CPng()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set compression rate
+// Set compression rate
 
-void	CPng::SetCompressLevel(
+void CPng::SetCompressLevel(
 	int					nCompressLevel					// Compression Level
 	)
 {
@@ -32,27 +32,27 @@ void	CPng::SetCompressLevel(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get compression rate
+// Get compression rate
 //
-//	return	Compression Level
+// return Compression Level
 
-int		CPng::GetCompressLevel()
+int CPng::GetCompressLevel()
 {
-	return	m_nCompressLevel;
+	return m_nCompressLevel;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set callback function
+// Set callback function
 
-void	CPng::SetCallback()
+void CPng::SetCallback()
 {
 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Set mode
+// Set mode
 
-void	CPng::SetMode(
+void CPng::SetMode(
 	DWORD				dwMode							// Mode
 	)
 {
@@ -60,25 +60,25 @@ void	CPng::SetMode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get mode
+// Get mode
 //
-//	return Mode
+// return Mode
 
-DWORD	CPng::GetMode()
+DWORD CPng::GetMode()
 {
-	return	m_dwMode;
+	return m_dwMode;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Release PNG structure
+// Release PNG structure
 
-void	CPng::Close()
+void CPng::Close()
 {
 	if( m_pstPNG != NULL )
 	{
 		switch( GetMode() )
 		{
-		case	modeRead:
+		case modeRead:
 			// Read mode
 /*
 			if( m_pstPNGInfo != NULL )
@@ -93,7 +93,7 @@ void	CPng::Close()
 */
 			break;
 
-		case	modeWrite:
+		case modeWrite:
 			// Write mode
 
 			if( m_pstPNGInfo != NULL )
@@ -115,22 +115,22 @@ void	CPng::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert from BMP to PNG
+// Convert from BMP to PNG
 
-BOOL	CPng::Compress(
+BOOL CPng::Compress(
 	LPCTSTR				pszPathToDst,					// Destination file path
 	const void*			pvBMP,							// Bitmap Data
 	DWORD				dwBMPSize						// Bitmap Data Size
 	)
 {
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert from DIB to PNG
+// Convert from DIB to PNG
 
-BOOL	CPng::Compress(
+BOOL CPng::Compress(
 	LPCTSTR				pszPathToDst,					// Destination file path
 	const void*			pvDIB,							// DIB Data
 	DWORD				dwDIBSize,						// DIB Data Size
@@ -142,13 +142,13 @@ BOOL	CPng::Compress(
 	WORD				wBpp							// Number of bits
 	)
 {
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert from BMP to PNG
+// Convert from BMP to PNG
 
-BOOL	CPng::Compress(
+BOOL CPng::Compress(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvBMP,							// Bitmap Data
@@ -157,13 +157,13 @@ BOOL	CPng::Compress(
 {
 
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Converted from DIB to PNG
+// Converted from DIB to PNG
 
-BOOL	CPng::Compress(
+BOOL CPng::Compress(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvDIB,							// DIB Data
@@ -176,33 +176,31 @@ BOOL	CPng::Compress(
 	WORD				wBpp							// Number of bits
 	)
 {
-/*	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtDIB = (const BYTE*) pvDIB;
-	const BYTE*			pbtPallet = (const BYTE*) pvPallet;
+/*	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtDIB = (const BYTE*) pvDIB;
+	const BYTE* pbtPallet = (const BYTE*) pvPallet;
 
 	// Set Mode
-
 	SetMode( modeWrite );
 
 	// Get the color type
-
-	int					nColorType;
+	int nColorType;
 
 	switch( wBpp )
 	{
-		case	8:
+		case 8:
 			// 8bit
 
 			nColorType = PNG_COLOR_TYPE_PALETTE;
 			break;
 
-		case	24:
+		case 24:
 			// 24bit
 
 			nColorType = PNG_COLOR_TYPE_RGB;
 			break;
 
-		case	32:
+		case 32:
 			// 32bit
 
 			nColorType = PNG_COLOR_TYPE_RGB_ALPHA;
@@ -211,7 +209,7 @@ BOOL	CPng::Compress(
 		default:
 			// Other
 
-			return	FALSE;
+			return FALSE;
 	}
 
 	// Create PNG structure
@@ -220,7 +218,7 @@ BOOL	CPng::Compress(
 
 	if( m_pstPNG == NULL )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Create PNG structure information
@@ -229,12 +227,11 @@ BOOL	CPng::Compress(
 
 	if( m_pstPNGInfo == NULL )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Set parameters
-
-	SMemory				stmDst;
+	SMemory stmDst;
 
 	stmDst.pbtData = pbtDst;
 	stmDst.dwDataPtr = 0;
@@ -261,8 +258,8 @@ BOOL	CPng::Compress(
 	{
 		// Alpha-blend on request
 
-		long				lPitch = CalculatePitch( lWidth, wBpp );
-		YCMemory<BYTE>		clmAlphaBlendBuffer( lPitch );
+		long           lPitch = CalculatePitch( lWidth, wBpp );
+		YCMemory<BYTE> clmAlphaBlendBuffer( lPitch );
 
 		for( long lY = 0 ; lY < lHeight ; lY++ )
 		{
@@ -275,7 +272,7 @@ BOOL	CPng::Compress(
 	{
 		// No alpha-blending
 
-		long				lPitch = CalculatePitch( lWidth, wBpp );
+		long lPitch = CalculatePitch( lWidth, wBpp );
 
 		for( long lY = 0 ; lY < lHeight ; lY++ )
 		{
@@ -283,46 +280,42 @@ BOOL	CPng::Compress(
 		}
 	}
 */
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Convert to DIB
+// Convert to DIB
 
-BOOL	CPng::Decompress()
+BOOL CPng::Decompress()
 {
-	return	TRUE;
+	return TRUE;
 }
 
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialization
+// Initialization
 
-BOOL	CPng::OnInit(
+BOOL CPng::OnInit(
 	const YCString&		rfclsFileName					// Filename
 	)
 {
-	int					nColorType;
+	int nColorType;
 
 	switch( m_wBpp )
 	{
-		case	8:
+		case 8:
 			// 8bit
 
 			nColorType = PNG_COLOR_TYPE_PALETTE;
 			break;
 
-		case	24:
+		case 24:
 			// 24bit
 
 			nColorType = PNG_COLOR_TYPE_RGB;
 			break;
 
-		case	32:
+		case 32:
 			// 32bit
 
 			nColorType = PNG_COLOR_TYPE_RGB_ALPHA;
@@ -331,14 +324,14 @@ BOOL	CPng::OnInit(
 		default:
 			// Other
 
-			return	FALSE;
+			return FALSE;
 	}
 
 	m_png_ptr = png_create_write_struct( PNG_LIBPNG_VER_STRING, NULL, NULL, NULL );
 
 	if( m_png_ptr == NULL )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	m_info_ptr = png_create_info_struct( m_png_ptr );
@@ -346,7 +339,7 @@ BOOL	CPng::OnInit(
 	if( m_info_ptr == NULL )
 	{
 		png_destroy_write_struct( &m_png_ptr, NULL );
-		return	FALSE;
+		return FALSE;
 	}
 
 	png_set_write_fn( m_png_ptr, m_pclArc, WritePNG, NULL );
@@ -362,26 +355,24 @@ BOOL	CPng::OnInit(
 	png_set_IHDR( m_png_ptr, m_info_ptr, m_lWidth, m_lHeight, 8, nColorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT );
 
 	// Open the output file
-
 	m_pclArc->OpenFile( rfclsFileName );
 
 	// Output header
-
 	png_write_info( m_png_ptr, m_info_ptr );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Create Palette
+// Create Palette
 
-BOOL	CPng::OnCreatePallet(
+BOOL CPng::OnCreatePallet(
 	const void*			pvSrcPallet,					// Referenced palette
 	DWORD				dwSrcPalletSize					// Referenced palette size
 	)
 {
-	png_colorp			pstPallet = m_astPallet;
-	const BYTE*			pbtSrcPallet = (const BYTE*) pvSrcPallet;
+	png_colorp  pstPallet = m_astPallet;
+	const BYTE* pbtSrcPallet = (const BYTE*) pvSrcPallet;
 
 	ZeroMemory( m_astPallet, sizeof(m_astPallet) );
 
@@ -437,13 +428,13 @@ BOOL	CPng::OnCreatePallet(
 		}
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write 1 Line
+// Write 1 Line
 
-void	CPng::WriteLine(
+void CPng::WriteLine(
 	const void*			pvBuffer						// Data
 	)
 {
@@ -452,15 +443,14 @@ void	CPng::WriteLine(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Write a line with alpha blending
+// Write a line with alpha blending
 
-void	CPng::WriteLineWithAlphaBlend(
+void CPng::WriteLineWithAlphaBlend(
 	void*				pvBuffer24,						// Storage Location
 	const void*			pvBuffer32						// 32bit Data
 	)
 {
 	// Alpha blending
-
 	AlphaBlend( pvBuffer24, pvBuffer32 );
 
 	png_write_row( m_png_ptr, (png_bytep) pvBuffer24 );
@@ -468,52 +458,52 @@ void	CPng::WriteLineWithAlphaBlend(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Finish output
+// Finish output
 
-void	CPng::OnWriteFinish()
+void CPng::OnWriteFinish()
 {
 	png_write_end( m_png_ptr, m_info_ptr );
 	png_destroy_write_struct( &m_png_ptr, &m_info_ptr );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	PNG Output
+// PNG Output
 
-void	CPng::WritePNG(
+void CPng::WritePNG(
 	png_structp			png_ptr,
 	png_bytep			data,
 	png_size_t			length
 	)
 {
-	CArcFile*			pclArc = (CArcFile*) png_get_io_ptr( png_ptr );
+	CArcFile* pclArc = (CArcFile*) png_get_io_ptr( png_ptr );
 
 	pclArc->WriteFile( data, length, 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	File Output
+// File Output
 
-void	CPng::WritePNGToFile(
+void CPng::WritePNGToFile(
 	png_struct*			pstPNG,
 	png_byte*			pbtData,
 	png_size_t			siLength
 	)
 {
-	YCFile*				pclfDst = (YCFile*) png_get_io_ptr( pstPNG );
+	YCFile* pclfDst = (YCFile*) png_get_io_ptr( pstPNG );
 
 	pclfDst->Write( pbtData, siLength );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Memory Output
+// Memory Output
 
-void	CPng::WritePNGToMemory(
+void CPng::WritePNGToMemory(
 	png_struct*			pstPNG,
 	png_byte*			pbtData,
 	png_size_t			siLength
 	)
 {
-	SMemory*			pstmDst = (SMemory*) png_get_io_ptr( pstPNG );
+	SMemory* pstmDst = (SMemory*) png_get_io_ptr( pstPNG );
 
 	memcpy( &pstmDst->pbtData[pstmDst->dwDataPtr], pbtData, siLength );
 

@@ -6,7 +6,8 @@
 #include "Ctrl/CheckBox.h"
 #include "WindowBase.h"
 
-class COption : public CWindowBase {
+class COption : public CWindowBase
+{
 private:
     static SOption m_option;
     static SOption m_option_tmp;

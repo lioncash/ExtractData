@@ -2,7 +2,8 @@
 
 #include "File.h"
 
-class CFileMap {
+class CFileMap
+{
 protected:
 	HANDLE m_hFile;
 	HANDLE m_hFileMap;

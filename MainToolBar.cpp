@@ -1,14 +1,13 @@
-
-#include	"stdafx.h"
-#include	"res/ResExtractData.h"
-#include	"Common.h"
-#include	"Option.h"
-#include	"MainToolBar.h"
+#include "stdafx.h"
+#include "res/ResExtractData.h"
+#include "Common.h"
+#include "Option.h"
+#include "MainToolBar.h"
 
 ///////////////////////////////////////////////////////////////////////////
-//
-// Main toolbar
-//
+//                                                                       //
+//                            Main toolbar                               //
+//                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 HWND CMainToolBar::Create(HWND hWnd)
 {
@@ -24,7 +23,7 @@ HWND CMainToolBar::Create(HWND hWnd)
     SendMessage(hToolBar, TB_INSERTBUTTON, 0, (LPARAM)&tbSpace);
     SendMessage(hToolBar, TB_INSERTBUTTON, 4, (LPARAM)&tbSpace);
 
-    return (hToolBar);
+    return hToolBar;
 }
 
 void CMainToolBar::CreateMenuHistory(int iItem)
@@ -115,20 +114,16 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 
 void CMainToolBar::LoadIni()
 {
-    YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
-
+    YCIni clIni( SBL_STR_INI_EXTRACTDATA );
     clIni.SetSection( _T("OpenHistory") );
 
     for( unsigned int i = 0 ; i < 10 ; i++ )
     {
-        TCHAR				szKey[256];
-
+        TCHAR szKey[256];
         _stprintf( szKey, _T("File%u"), i );
-
         clIni.SetKey( szKey );
 
-        YCString			clsPathToArc;
-
+        YCString clsPathToArc;
         clIni.ReadStr( clsPathToArc, _T("") );
 
         if( clsPathToArc == _T("") )
@@ -142,25 +137,22 @@ void CMainToolBar::LoadIni()
 
 void CMainToolBar::SaveIni()
 {
-    YCIni				clIni( SBL_STR_INI_EXTRACTDATA );
-
+    YCIni clIni( SBL_STR_INI_EXTRACTDATA );
     clIni.SetSection( _T("OpenHistory") );
 
     for( size_t i = 0; i < m_vcOpenHistoryList.size() ; i++ )
     {
-        TCHAR				szKey[256];
-
+        TCHAR szKey[256];
         _stprintf( szKey, _T("File%u"), i );
-
         clIni.SetKey( szKey );
         clIni.WriteStr( m_vcOpenHistoryList[i] );
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////
-//
-// Search file toolbar
-//
+//                                                                       //
+//                         Search file toolbar                           //
+//                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 HWND CSearchToolBar::Create(HWND hWnd)
 {
@@ -181,7 +173,7 @@ HWND CSearchToolBar::Create(HWND hWnd)
     HWND hToolBar = CToolBar::Create(hWnd, tbButton, IDI_SEARCH_TOOLBAR, 25, ARRAYSIZE(tbButton));
     SetCheckSearch();
 
-    return (hToolBar);
+    return hToolBar;
 }
 
 void CSearchToolBar::SetCheckSearch()

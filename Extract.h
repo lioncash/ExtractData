@@ -3,7 +3,8 @@
 #include "ExtractBase.h"
 #include "SearchBase.h"
 
-class CExtract {
+class CExtract
+{
 private:
 	static std::vector<CExtractBase*> m_Class;
 	static std::vector<CSearchBase*> m_SearchClass;
