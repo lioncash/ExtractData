@@ -1,11 +1,11 @@
-#include	"stdafx.h"
-#include	"../../ExtractBase.h"
-#include	"JBP1.h"
+#include "stdafx.h"
+#include "../../ExtractBase.h"
+#include "JBP1.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decompression
+// Decompression
 
-void	CJBP1::Decomp(
+void CJBP1::Decomp(
     BYTE*				pbtDst,							// Destination
     const BYTE*			pbtSrc,
     WORD				wBpp,
@@ -25,9 +25,9 @@ void	CJBP1::Decomp(
         60, 61, 54, 47, 55, 62, 63,  0
     };
 
-    const BYTE*			lpin = pbtSrc;
-    long				width = *(WORD*) &lpin[0x10];
-    long				height = *(WORD*) &lpin[0x12];
+    const BYTE* lpin = pbtSrc;
+    long        width = *(WORD*) &lpin[0x10];
+    long        height = *(WORD*) &lpin[0x12];
 
     if( wBpp == 0 )
     {
@@ -41,17 +41,17 @@ void	CJBP1::Decomp(
 
     switch( type )
     {
-        case	0:
+        case 0:
             ww = (width  + 0x07) & 0xFFFFFFF8;
             hh = (height + 0x07) & 0xFFFFFFF8;
             break;
 
-        case	1:
+        case 1:
             ww = (width  + 0x0F) & 0xFFFFFFF0;
             hh = (height + 0x0F) & 0xFFFFFFF0;
             break;
 
-        case	2:
+        case 2:
             ww = (width  + 0x1F) & 0xFFFFFFE0;
             hh = (height + 0x0F) & 0xFFFFFFF0;
             break;
@@ -311,21 +311,18 @@ void	CJBP1::Decomp(
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 
-void	CJBP1::DCT(
+void CJBP1::DCT(
     BYTE*				arg1,
     BYTE*				arg2
     )
 {
-    long				a, b, c, d;
-    long				w, x, y, z;
-    long				s, t, u, v, n;
-    BYTE*				lp1;
-    BYTE*				lp2;
-    int					i;
+    long a, b, c, d;
+    long w, x, y, z;
+    long s, t, u, v, n;
 
-    lp1 = arg1;
-    lp2 = arg2;
-    i = 8;
+    BYTE* lp1 = arg1;
+    BYTE* lp2 = arg2;
+    int   i = 8;
 
     do
     {
@@ -456,9 +453,9 @@ void	CJBP1::DCT(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-int		CJBP1::GetNBit(
+int CJBP1::GetNBit(
     const BYTE*&		lpin,
     DWORD				code,
     DWORD&				bit_buffer,
@@ -505,16 +502,16 @@ int		CJBP1::GetNBit(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 
-int		CJBP1::MakeTree(
+int CJBP1::MakeTree(
     BYTE*				lp1,
     int					size,
     DWORD*				lp2
     )
 {
-    int					i, n, x, c, d;
-    BYTE*				lp3;
+    int   i, n, x, c, d;
+    BYTE* lp3;
 
     lp3 = lp1 + 0x900;
 
@@ -588,10 +585,10 @@ void	CJBP1::YCC2RGB(
     int					line
     )
 {
-    int					n;
-    BYTE*				tbl;
-    static BOOL			is_tbl = FALSE;
-    static BYTE			fixed_byte_tbl[0x300]; //462C48
+    int         n;
+    BYTE*       tbl;
+    static bool is_tbl = false;
+    static BYTE fixed_byte_tbl[0x300]; //462C48
 
     // Faster table truncation, saturation
     // -0x80 is less than 0, 0x80 is less than 0xFF 
@@ -602,14 +599,14 @@ void	CJBP1::YCC2RGB(
         for(n=0; n<0x100; n++) fixed_byte_tbl[n+0x100]=n;
         for(n=0; n<0x100; n++) fixed_byte_tbl[n+0x200]=0xFF;
 
-        is_tbl = TRUE;
+        is_tbl = true;
     }
 
     tbl = fixed_byte_tbl;
 
     for( n = 4 ; n > 0 ; n-- )
     {
-        long	r, g, b, c, d, w, x, y, z;
+        long r, g, b, c, d, w, x, y, z;
 
         c = CbCr[0]; //cr
         d = CbCr[-64]; //cb

@@ -9,7 +9,7 @@ public:
     struct SCPZ5Header
     {
         char            szIdentifier[4];            // Identifier
-        DWORD           dwDirs;	                    // Number of directories
+        DWORD           dwDirs;                     // Number of directories
         DWORD           dwTotalDirIndexSize;        // Total size of the directory index
         DWORD           dwTotalFileIndexSize;       // Total size of the file index
         DWORD           adwUnknown1[4];             // Unknown

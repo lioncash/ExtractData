@@ -9,7 +9,6 @@ public:
 
     BOOL    Decode( CArcFile* pclArc, void* pbtSrc, DWORD dwSrcSize );
 
-	
 protected:
 
     void    Decrypt( BYTE* pbtTarget, DWORD dwSize );

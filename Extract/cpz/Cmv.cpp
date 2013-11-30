@@ -1,102 +1,82 @@
-#include	"stdafx.h"
-#include	"../../ExtractBase.h"
-#include	"../../Image.h"
-#include	"JBP1.h"
-#include	"Cmv.h"
+#include "stdafx.h"
+#include "../../ExtractBase.h"
+#include "../../Image.h"
+#include "JBP1.h"
+#include "Cmv.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CCmv::Mount(
-	CArcFile*			pclArc							// Archive
+BOOL CCmv::Mount(
+	CArcFile*        pclArc // Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".cmv") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "CMV", 3 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Read Header
-
-	BYTE				abtHeader[44];
-
+	BYTE abtHeader[44];
 	pclArc->Read( abtHeader, sizeof(abtHeader) );
 
 	// Get offset
-
-	DWORD				dwOffset = *(DWORD*) &abtHeader[4];
+	DWORD dwOffset = *(DWORD*) &abtHeader[4];
 
 	// Get index size
-
-	DWORD				dwIndexSize = *(DWORD*) &abtHeader[4] - 44;
+	DWORD dwIndexSize = *(DWORD*) &abtHeader[4] - 44;
 
 	// Get file count
-
-	DWORD				dwFiles = *(DWORD*) &abtHeader[16] + 1;
+	DWORD dwFiles = *(DWORD*) &abtHeader[16] + 1;
 
 	// Get index
-
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
-
+	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	DWORD          dwIndexPtr = 0;
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
 	// Get archive name
-
-	TCHAR				szArcName[_MAX_FNAME];
-
+	TCHAR szArcName[_MAX_FNAME];
 	lstrcpy( szArcName, pclArc->GetArcName() );
 	PathRenameExtension( szArcName, _T("_") );
 
 	// Get file info
-
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		TCHAR				szFileExt[_MAX_EXT];
-		DWORD				dwType = *(DWORD*) &clmbtIndex[12];
+		TCHAR szFileExt[_MAX_EXT];
+		DWORD dwType = *(DWORD*) &clmbtIndex[12];
 
 		switch( dwType )
 		{
-			case	0:
-				// Ogg Vorbis
-
+			case 0: // Ogg Vorbis
 				lstrcpy( szFileExt, _T(".ogg") );
 				break;
 
-			case	2:
-				// JBP
-
+			case 2: // JBP
 				lstrcpy( szFileExt, _T(".jbp") );
 				break;
 		}
 
 		// Create the file name serial number
-
-		TCHAR				szFileName[_MAX_FNAME];
-
+		TCHAR szFileName[_MAX_FNAME];
 		_stprintf( szFileName, _T("%s%06u%s"), szArcName, i, szFileExt );
 
 		// Add to list view
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.sizeCmp = *(DWORD*) &clmbtIndex[dwIndexPtr + 4];
 		stFileInfo.sizeOrg = *(DWORD*) &clmbtIndex[dwIndexPtr + 8];
 		stFileInfo.start = *(DWORD*) &clmbtIndex[dwIndexPtr + 16] + dwOffset;
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-
 		pclArc->AddFileInfo( stFileInfo );
-
 		dwIndexPtr += 20;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 BOOL CCmv::Decode(CArcFile* pclArc)
