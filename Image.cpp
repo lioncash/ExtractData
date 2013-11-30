@@ -151,7 +151,7 @@ void CImage::Close()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Output
+// Output
 
 BOOL CImage::Write(
 	DWORD				dwBMPSize,						// BMP Size
@@ -170,26 +170,22 @@ BOOL CImage::Write(
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP Output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.Write( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
-		m_clPNG.WriteReverse( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
+		// BMP format for top-down to Reverse
+		m_clPNG.WriteReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
 	return TRUE;
@@ -215,26 +211,22 @@ BOOL CImage::WriteReverse(
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.WriteReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
-		m_clPNG.Write( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
+		// BMP format for top-down to Reverse
+		m_clPNG.Write( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
 	return TRUE;
@@ -260,26 +252,22 @@ BOOL CImage::WriteCompoBGRA(
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.WriteCompoBGRA( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
-		m_clPNG.WriteCompoBGRAReverse( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
+		// BMP format for top-down to Reverse
+		m_clPNG.WriteCompoBGRAReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
 	return TRUE;
@@ -305,26 +293,22 @@ BOOL CImage::WriteCompoBGRAReverse(
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.WriteCompoBGRAReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
-		m_clPNG.WriteCompoBGRA( pvBMPData, dwBMPDataSize, bProgress ); // BMP format for top-down to Reverse
+		// BMP format for top-down to Reverse
+		m_clPNG.WriteCompoBGRA( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
 	return TRUE;
@@ -350,25 +334,20 @@ BOOL CImage::WriteCompoRGBA(
 	BOOL				bProgress						// Request progressbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.WriteCompoRGBA( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
 		m_clPNG.WriteCompoRGBAReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
@@ -395,25 +374,20 @@ BOOL CImage::WriteCompoRGBAReverse(
 	BOOL				bProgress						// Request progresbar progress
 	)
 {
+	// Invalid BMP
 	if( !m_bBMPHeader )
 	{
-		// Illegal BMP
-
 		return FALSE;
 	}
 
-	// Output
-
+	// BMP output
 	if( m_pstOption->bDstBMP )
 	{
-		// BMP Output
-
 		m_clBMP.WriteCompoRGBAReverse( pvBMPData, dwBMPDataSize, bProgress );
 	}
+	// PNG output
 	else if( m_pstOption->bDstPNG )
 	{
-		// PNG Output
-
 		m_clPNG.WriteCompoRGBA( pvBMPData, dwBMPDataSize, bProgress );
 	}
 
@@ -429,7 +403,7 @@ BITMAPFILEHEADER* CImage::GetBmpFileHeader()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get bitmap info header
+// Get bitmap info header
 
 BITMAPINFOHEADER* CImage::GetBmpInfoHeader()
 {

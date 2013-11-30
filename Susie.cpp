@@ -57,7 +57,7 @@ BOOL CSusie::Mount(
 	// Mount
 	for( size_t i = 0 ; i < m_stsiMain.size() ; i++ )
 	{
-		SSusieInfo*	 pstsiTarget = &m_stsiMain[i];
+		SSusieInfo* pstsiTarget = &m_stsiMain[i];
 
 		if( pstsiTarget->bValidity == 0 )
 		{
@@ -71,7 +71,6 @@ BOOL CSusie::Mount(
 		if( IsSupported == NULL )
 		{
 			// IsSupported function is not implemented
-
 			continue;
 		}
 
@@ -86,7 +85,6 @@ BOOL CSusie::Mount(
 		if( IsSupported( szPathToArc, (DWORD) abtHeader ) == 0 )
 		{
 			// Archive file not supported
-
 			continue;
 		}
 
@@ -95,7 +93,6 @@ BOOL CSusie::Mount(
 		if( GetArchiveInfo == NULL )
 		{
 			// We trust IsSupported() and attempt to mount
-
 			return pclArc->Mount();
 		}
 
@@ -105,19 +102,17 @@ BOOL CSusie::Mount(
 		// Call GetArchiveInfo()
 		YCLocalMemory cllmFileInfo;
 		if( GetArchiveInfo( szPathToArc, 0, 0, &cllmFileInfo.GetHandle() ) != 0 )
-		{
-			// Error in function GetArchiveInfo()
-
+		{ // Error in function GetArchiveInfo()
+			
 			cllmFileInfo.Free();
 
 			// We will trust IsSupported() and attempt to mount
 			return pclArc->Mount();
 		}
 
+		// Error in the function GetArchiveInfo()
 		if( cllmFileInfo.GetHandle() == NULL )
 		{
-			// Error in the function GetArchiveInfo()
-
 			// We will trust IsSupported() and attempt to mount
 			return pclArc->Mount();
 		}

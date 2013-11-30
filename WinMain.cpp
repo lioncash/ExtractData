@@ -225,9 +225,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			lastdir.SaveIni();
 			break;
 
-		case    IDM_CLOSE:
-			// Close the opened file
-
+		case IDM_CLOSE: // Close the opened file
 			extract.Close();
 			statusbar.SetCount();
 			break;
@@ -277,47 +275,35 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			SendMessage(hWnd, WM_CLOSE, 0, 0);
 			break;
 
-		case IDM_EXTRACT:
-			// Extract the selected range
-
+		case IDM_EXTRACT: // Extract the selected range
 			if( listview.GetCountSel() > 0 )
 			{
 				extract.SaveSel( lastdir.GetSave(), TRUE );
 			}
-
 			lastdir.SaveIni();
 			break;
 
-		case IDM_EXTRACTALL:
-			// Extract all
-
+		case IDM_EXTRACTALL: // Extract all
 			if( listview.GetCount() > 0 )
 			{
 				extract.SaveAll( lastdir.GetSave(), TRUE );
 			}
-
 			lastdir.SaveIni();
 			break;
 
-		case    IDM_EXTRACT_NOTCONVERT:
-			// Extracts the selection without converting it
-
+		case IDM_EXTRACT_NOTCONVERT: // Extracts the selection without converting it
 			if( listview.GetCountSel() > 0 )
 			{
 				extract.SaveSel( lastdir.GetSave(), FALSE );
 			}
-
 			lastdir.SaveIni();
 			break;
 
-		case    IDM_EXTRACTALL_NOTCONVERT:
-			// Extracts all without conversion
-
+		case IDM_EXTRACTALL_NOTCONVERT: // Extracts all without conversion
 			if( listview.GetCount() > 0 )
 			{
 				extract.SaveAll( lastdir.GetSave(), FALSE );
 			}
-
 			lastdir.SaveIni();
 			break;
 

@@ -55,7 +55,7 @@ void CProgBar::UpdatePercent(QWORD BufSize)
 		SendMessage(m_hDlgItem_bar, PBM_SETPOS, percent, 0);
 	}
 
-	if (OnCancel() == TRUE)
+	if (OnCancel())
 		throw -1;
 }
 

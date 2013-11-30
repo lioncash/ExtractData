@@ -110,7 +110,7 @@ void CExtract::SetClass()
 	static CAhx ahx;                    Class.push_back(&ahx);
 	static CAxl axl;                    Class.push_back(&axl);
 	static CAlcot alcot;                Class.push_back(&alcot);
-	static CAOS	clAOS;                  Class.push_back(&clAOS);
+	static CAOS clAOS;                  Class.push_back(&clAOS);
 	static CAselia aselia;              Class.push_back(&aselia);
 	static CBaldr baldr;                Class.push_back(&baldr);
 	static CCircus clCircus;            Class.push_back(&clCircus);
@@ -126,7 +126,7 @@ void CExtract::SetClass()
 	static CInnocentGrey innocent;      Class.push_back(&innocent);
 	static CIzumo izumo;                Class.push_back(&izumo);
 	static CKatakoi katakoi;            Class.push_back(&katakoi);
-	static CMajiro majiro;	            Class.push_back(&majiro);
+	static CMajiro majiro;              Class.push_back(&majiro);
 	static CMeltyBlood melblo;          Class.push_back(&melblo);
 	static CNavel navel;                Class.push_back(&navel);
 	static CNitro nitro;                Class.push_back(&nitro);
@@ -134,7 +134,7 @@ void CExtract::SetClass()
 	static COyatu clOyatu;              Class.push_back(&clOyatu);
 	static CPajamas pajamas;            Class.push_back(&pajamas);
 	static CQLIE clQLIE;                Class.push_back(&clQLIE);
-	static CRetouch	clRetouch;          Class.push_back(&clRetouch);
+	static CRetouch clRetouch;          Class.push_back(&clRetouch);
 	static CSpitan spitan;              Class.push_back(&spitan);
 	static CSummerDays summerdays;      Class.push_back(&summerdays);
 	static CTaskForce clTaskForce;      Class.push_back(&clTaskForce);
@@ -183,15 +183,15 @@ void CExtract::SetClass()
 void CExtract::SetSearchClass()
 {
 	std::vector<CSearchBase*>& Class = m_SearchClass;
-	static CAhxSearch ahx;	Class.push_back(&ahx);
-	static CBmpSearch bmp;	Class.push_back(&bmp);
-	static CJpgSearch jpg;	Class.push_back(&jpg);
-	static CMidSearch mid;	Class.push_back(&mid);
-	static CMpgSearch mpg;	Class.push_back(&mpg);
-	static COggSearch ogg;	Class.push_back(&ogg);
-	static CPngSearch png;	Class.push_back(&png);
-	static CWavSearch wav;	Class.push_back(&wav);
-	static CWmvSearch wmv;	Class.push_back(&wmv);
+	static CAhxSearch ahx; Class.push_back(&ahx);
+	static CBmpSearch bmp; Class.push_back(&bmp);
+	static CJpgSearch jpg; Class.push_back(&jpg);
+	static CMidSearch mid; Class.push_back(&mid);
+	static CMpgSearch mpg; Class.push_back(&mpg);
+	static COggSearch ogg; Class.push_back(&ogg);
+	static CPngSearch png; Class.push_back(&png);
+	static CWavSearch wav; Class.push_back(&wav);
+	static CWmvSearch wmv; Class.push_back(&wmv);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ BOOL CExtract::Mount(
 			if( clSusie.Mount( pclArc ) )
 			{
 				pclArc->SetMountSusie();
-				return	TRUE;
+				return TRUE;
 			}
 		}
 
@@ -233,7 +233,7 @@ BOOL CExtract::Mount(
 			if( Class[i]->Mount( pclArc ) )
 			{
 				DecodeClass.insert( Class[i] );
-				return	TRUE;
+				return TRUE;
 			}
 		}
 	}
@@ -277,7 +277,7 @@ BOOL CExtract::Mount(
 
 	if( nReturn == IDYES )
 	{
-		return	Search( pclArc );
+		return Search( pclArc );
 	}
 	else
 	{
@@ -352,7 +352,7 @@ BOOL CExtract::Search(CArcFile* pclArc)
 			//if (Class[j]->CmpMem(buf, Class[j]->GetHed(), Class[j]->GetHedSize()) == TRUE)
 			//{
 				//Class[j]->Mount(pclArc);
-			//  break;
+				//break;
 			//}
 		}
 

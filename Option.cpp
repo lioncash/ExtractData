@@ -72,7 +72,7 @@ void COption::LoadIni()
 	clIni.SetKey( _T("HighSearchOgg") );
 	clIni.ReadDec( &pOption->bHighSearchOgg, TRUE );
 
-	// Set whether or not to extract each folder 
+	// Set whether or not to extract each folder
 	clIni.SetKey( _T("ExtFolder") );
 	clIni.ReadDec( &pOption->bCreateFolder, TRUE );
 
@@ -418,7 +418,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
-			
+
 			// Select all
 			if (LOWORD(wp) == SearchBtn[0].GetID())
 			{
@@ -430,7 +430,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
-			
+
 			// Deselect
 			if (LOWORD(wp) == SearchBtn[1].GetID())
 			{
@@ -442,13 +442,13 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
-		   
+
 			if (LOWORD(wp) == HighSearchCheckOgg.GetID())
 			{
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
-			
+
 			// The contents of the editbox have been changed
 			if (HIWORD(wp) == EN_CHANGE)
 			{
@@ -495,8 +495,8 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	static YCString ExtractCheckText[] =
 	{
-		_T("Extract each folder"), 
-		_T("Fix the CRC of OGG files upon extraction"), 
+		_T("Extract each folder"),
+		_T("Fix the CRC of OGG files upon extraction"),
 		_T("Enable simple decoding")
 	};
 
@@ -534,7 +534,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			int y_Image = y;
 			ExtractGroupImage.Create(hWnd, _T("Output image format"), ID++, x, y_Image += 34, 240, 130);
-			ExtractRadioImage.Close(); 
+			ExtractRadioImage.Close();
 			ExtractRadioImage.Create(hWnd, _T("BMP"), ID++, x + xx, y_Image += 18, 50, 20);
 			ExtractRadioImage.Create(hWnd, _T("PNG"), ID++, x + xx, y_Image += 20, 50, 20);
 			ExtractRadioImage.SetCheck(0, pOption->bDstBMP);

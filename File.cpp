@@ -23,7 +23,7 @@ HANDLE CFile::Open(LPCTSTR pFileName, DWORD Mode)
 		m_hFile = CreateFile(pFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	}
 
-	return (m_hFile);
+	return m_hFile;
 }
 
 BOOL CFile::OpenForRead(LPCTSTR pszFileName)
@@ -49,7 +49,7 @@ DWORD CFile::Read(LPVOID buf, DWORD size)
 {
 	DWORD dwReadSize;
 	ReadFile(m_hFile, buf, size, &dwReadSize, NULL);
-	return (dwReadSize);
+	return dwReadSize;
 }
 
 DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
@@ -68,7 +68,7 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 		{
 			// Reached newline character
 
-			if (bDeleteLineCode == TRUE)
+			if (bDeleteLineCode)
 			{
 				// Remove newline character
 				if (*(pbyBuf - 1) == '\r')
@@ -94,14 +94,14 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 		}
 	}
 
-	return (dwTotalReadSize);
+	return dwTotalReadSize;
 }
 
 DWORD CFile::Write(LPCVOID buf, DWORD size)
 {
 	DWORD dwWriteSize;
 	WriteFile(m_hFile, buf, size, &dwWriteSize, NULL);
-	return (dwWriteSize);
+	return dwWriteSize;
 }
 
 void CFile::WriteLine(LPCVOID buf)
