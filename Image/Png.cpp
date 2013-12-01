@@ -78,8 +78,7 @@ void CPng::Close()
 	{
 		switch( GetMode() )
 		{
-		case modeRead:
-			// Read mode
+		case modeRead: // Read mode
 /*
 			if( m_pstPNGInfo != NULL )
 			{
@@ -93,9 +92,7 @@ void CPng::Close()
 */
 			break;
 
-		case modeWrite:
-			// Write mode
-
+		case modeWrite: // Write mode
 			if( m_pstPNGInfo != NULL )
 			{
 				png_write_end( m_pstPNG, m_pstPNGInfo );
@@ -303,27 +300,19 @@ BOOL CPng::OnInit(
 
 	switch( m_wBpp )
 	{
-		case 8:
-			// 8bit
-
+		case 8: // 8bit
 			nColorType = PNG_COLOR_TYPE_PALETTE;
 			break;
 
-		case 24:
-			// 24bit
-
+		case 24: // 24bit
 			nColorType = PNG_COLOR_TYPE_RGB;
 			break;
 
-		case 32:
-			// 32bit
-
+		case 32: // 32bit
 			nColorType = PNG_COLOR_TYPE_RGB_ALPHA;
 			break;
 
-		default:
-			// Other
-
+		default: // Other
 			return FALSE;
 	}
 
@@ -376,9 +365,9 @@ BOOL CPng::OnCreatePallet(
 
 	ZeroMemory( m_astPallet, sizeof(m_astPallet) );
 
+	// Use the default palette (Grayscale)
 	if( pbtSrcPallet == NULL )
 	{
-		// Use the default palette (Grayscale)
 
 		for( int i = 0 ; i < 256 ; i++ )
 		{
@@ -387,14 +376,11 @@ BOOL CPng::OnCreatePallet(
 			pstPallet[i].red = i;
 		}
 	}
-	else
+	else // Refer to the palette
 	{
-		// Refer to the palette
-
+		// 1024 byte palette
 		if( dwSrcPalletSize == 1024 )
 		{
-			// 1024 byte palette
-
 			for( int i = 0 ; i < 256 ; i++ )
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
@@ -403,10 +389,9 @@ BOOL CPng::OnCreatePallet(
 				pbtSrcPallet++;
 			}
 		}
+		// 768 byte palette (No alpha)
 		else if( dwSrcPalletSize == 768 )
 		{
-			// 768 byte palette (No alpha)
-
 			for( int i = 0 ; i < 256 ; i++ )
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
@@ -414,10 +399,9 @@ BOOL CPng::OnCreatePallet(
 				pstPallet[i].red = *pbtSrcPallet++;
 			}
 		}
+		// Other palette sizes
 		else
 		{
-			// Other palette sizes
-
 			for( int i = 0 ; i < dwSrcPalletSize / 4 ; i++ )
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;

@@ -27,7 +27,7 @@ BOOL CClannad::Mount(CArcFile* pclArc)
     LPBYTE pIndex = &index[0];
     HedFile.Read(pIndex, index_size);
     
-	// Number of files retrieved from index size
+    // Number of files retrieved from index size
     DWORD ctFile = index_size >> 2;
 
     // If its VOICE.MRG, start from 20000

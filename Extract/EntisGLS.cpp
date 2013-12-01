@@ -1,22 +1,22 @@
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"EntisGLS.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "EntisGLS.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CEntisGLS::Mount(
+BOOL CEntisGLS::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".noa") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "Entis\x1A\0\0", 8 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 //	if( memcmp( pclArc->GetHed(), ""
@@ -44,15 +44,15 @@ BOOL	CEntisGLS::Mount(
 //  Read 4 bytes - Gets file name
 //  Gets the file name by reading its segment
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CEntisGLS::Decode(
+BOOL CEntisGLS::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	return	FALSE;
+	return FALSE;
 }

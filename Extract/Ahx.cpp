@@ -26,7 +26,7 @@
 #include "../Sound/Wav.h"
 #include "Ahx.h"
 
-#define M_PI	3.14159265358979323846
+#define M_PI    3.14159265358979323846
 
 BOOL CAhx::Mount(CArcFile* pclArc)
 {
@@ -185,9 +185,9 @@ void CAhx::dct(double* src, double* dst0, double* dst1)
 
     //for (int i = 0; i < 4; i++)
     //{
-    //	tmp[0][i * 8 + 4] += tmp[0][i * 8 + 6];
-    //	tmp[0][i * 8 + 6] += tmp[0][i * 8 + 5];
-    //	tmp[0][i * 8 + 5] += tmp[0][i * 8 + 7];
+    //    tmp[0][i * 8 + 4] += tmp[0][i * 8 + 6];
+    //    tmp[0][i * 8 + 6] += tmp[0][i * 8 + 5];
+    //    tmp[0][i * 8 + 5] += tmp[0][i * 8 + 7];
     //}
     for (int i = 0; i < 32; i += 8)
     {
@@ -198,13 +198,13 @@ void CAhx::dct(double* src, double* dst0, double* dst1)
 
     //for (int i = 0; i < 2; i++)
     //{
-    //	tmp[0][i * 16 +  8] += tmp[0][i * 16 + 12];
-    //	tmp[0][i * 16 + 12] += tmp[0][i * 16 + 10];
-    //	tmp[0][i * 16 + 10] += tmp[0][i * 16 + 14];
-    //	tmp[0][i * 16 + 14] += tmp[0][i * 16 +  9];
-    //	tmp[0][i * 16 +  9] += tmp[0][i * 16 + 13];
-    //	tmp[0][i * 16 + 13] += tmp[0][i * 16 + 11];
-    //	tmp[0][i * 16 + 11] += tmp[0][i * 16 + 15];
+    //    tmp[0][i * 16 +  8] += tmp[0][i * 16 + 12];
+    //    tmp[0][i * 16 + 12] += tmp[0][i * 16 + 10];
+    //    tmp[0][i * 16 + 10] += tmp[0][i * 16 + 14];
+    //    tmp[0][i * 16 + 14] += tmp[0][i * 16 +  9];
+    //    tmp[0][i * 16 +  9] += tmp[0][i * 16 + 13];
+    //    tmp[0][i * 16 + 13] += tmp[0][i * 16 + 11];
+    //    tmp[0][i * 16 + 11] += tmp[0][i * 16 + 15];
     //}
     for (int i = 0; i < 32; i += 16)
     {

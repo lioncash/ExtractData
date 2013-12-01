@@ -4,9 +4,9 @@ class CLostChild : public CExtractBase
 {
 public:
 
-    virtual	BOOL Mount( CArcFile* pclArc );
-    virtual	BOOL Decode( CArcFile* pclArc );
-    virtual	BOOL Extract( CArcFile* pclArc );
+    virtual BOOL Mount( CArcFile* pclArc );
+    virtual BOOL Decode( CArcFile* pclArc );
+    virtual BOOL Extract( CArcFile* pclArc );
 
 
 protected:

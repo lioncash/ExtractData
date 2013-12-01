@@ -6,7 +6,7 @@
 BOOL CFateFD::Mount(CArcFile* pclArc)
 {
 	return FALSE; // TODO: Unfinished?
-	
+
 	if ((pclArc->GetArcExten() != _T(".xp3")) || (memcmp(pclArc->GetHed(), "XP3", 3) != 0) || (pclArc->GetHed()[0x0C] != 0x93))
 		return FALSE;
 

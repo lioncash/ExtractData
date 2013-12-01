@@ -1,6 +1,7 @@
 #pragma once
 
-class CKatakoi : public CExtractBase {
+class CKatakoi : public CExtractBase
+{
 private:
 	BOOL MountIar(CArcFile* pclArc);
 	BOOL MountWar(CArcFile* pclArc);

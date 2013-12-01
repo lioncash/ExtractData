@@ -1,10 +1,10 @@
-#pragma	once
+#pragma once
 
-class	CMajiro : public CExtractBase
+class CMajiro : public CExtractBase
 {
 public:
 
-	struct	SRCHeader
+	struct SRCHeader
 	{
 		char				szIdentifier[8];
 		long				lWidth;
@@ -12,22 +12,22 @@ public:
 		DWORD				dwDataSize;
 	};
 
-	BOOL									Mount( CArcFile* pclArc );
-	BOOL									Decode( CArcFile* pclArc );
+	BOOL					Mount( CArcFile* pclArc );
+	BOOL					Decode( CArcFile* pclArc );
 
 
 protected:
 
-	BOOL									MountArc1( CArcFile* pclArc );
-	BOOL									MountArc2( CArcFile* pclArc );
-	BOOL									MountMJO( CArcFile* pclArc );
-	BOOL									MountRC( CArcFile* pclArc );
+	BOOL					MountArc1( CArcFile* pclArc );
+	BOOL					MountArc2( CArcFile* pclArc );
+	BOOL					MountMJO( CArcFile* pclArc );
+	BOOL					MountRC( CArcFile* pclArc );
 
-	BOOL									DecodeMJO( CArcFile* pclArc );
-	BOOL									DecodeRC( CArcFile* pclArc );
+	BOOL					DecodeMJO( CArcFile* pclArc );
+	BOOL					DecodeRC( CArcFile* pclArc );
 
-	void									read_bits_24( BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth );
-	void									read_bits_8( BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth );
+	void					read_bits_24( BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth );
+	void					read_bits_8( BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth );
 
-	BOOL									AppendMask( CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize );
+	BOOL					AppendMask( CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize );
 };

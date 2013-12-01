@@ -1,6 +1,7 @@
 #pragma once
 
-class CAxl : public CExtractBase {
+class CAxl : public CExtractBase
+{
 private:
 	BYTE m_deckey[32];
 	DWORD m_len;

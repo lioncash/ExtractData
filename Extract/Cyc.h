@@ -1,6 +1,7 @@
 #pragma once
 
-class CCyc : public CExtractBase {
+class CCyc : public CExtractBase
+{
 public:
 	// Mount
 	BOOL Mount(CArcFile* pclArc);

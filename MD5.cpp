@@ -267,7 +267,7 @@ DWORD CMD5::CalculateSub1(
 	DWORD				dwZ
 	)
 {
-	return	((dwX & dwY) | (~dwX & dwZ));
+	return ((dwX & dwY) | (~dwX & dwZ));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -279,7 +279,7 @@ DWORD	CMD5::CalculateSub2(
 	DWORD				dwZ
 	)
 {
-	return	((dwX & dwZ) | (dwY & ~dwZ));
+	return ((dwX & dwZ) | (dwY & ~dwZ));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

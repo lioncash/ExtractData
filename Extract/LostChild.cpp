@@ -1,67 +1,52 @@
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Arc/LZSS.h"
-#include	"../Image.h"
-#include	"LostChild.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Arc/LZSS.h"
+#include "../Image.h"
+#include "LostChild.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CLostChild::Mount(
+BOOL CLostChild::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( memcmp( pclArc->GetHed(), "EPK ", 4 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	pclArc->SeekHed( 4 );
 
 	// Get index size
-
-	DWORD				dwIndexSize;
-
+	DWORD dwIndexSize;
 	pclArc->Read( &dwIndexSize, 4 );
-
 	dwIndexSize -= 32;
-
 	pclArc->SeekCur( 16 );
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->Read( &dwFiles, 4 );
-
 	pclArc->SeekCur( 4 );
 
 	// Get index
-
-	YCMemory<BYTE>		clmIndex( dwIndexSize );
-
+	YCMemory<BYTE> clmIndex( dwIndexSize );
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
 	// Get the filename index
-
-	BYTE*				pbtFileNameIndex = &clmIndex[*(DWORD*) &clmIndex[8]] - 32;
+	BYTE* pbtFileNameIndex = &clmIndex[*(DWORD*) &clmIndex[8]] - 32;
 
 	// Split archive files
-
 	if( pclArc->GetArcName() == _T("data.epk") )
 	{
-		YCString			clsPathToArc = pclArc->GetArcPath();
+		YCString clsPathToArc = pclArc->GetArcPath();
 
 		for( unsigned int i = 1 ; i <= 3 ; i++ )
 		{
-			YCString			clsArcExt;
-
+			YCString clsArcExt;
 			clsArcExt.Format( _T(".e%02d"), i );
-
 			clsPathToArc.RenameExtension( clsArcExt );
-
 			pclArc->Open( clsPathToArc );
-
 			pclArc->GetProg()->ReplaceAllFileSize( pclArc->GetArcSize() );
 		}
 
@@ -69,16 +54,14 @@ BOOL	CLostChild::Mount(
 	}
 
 	// Get file information
-
-	DWORD				dwIndexPtr = 0;
-	DWORD				dwFileNameIndexPtr = 0;
+	DWORD dwIndexPtr = 0;
+	DWORD dwFileNameIndexPtr = 0;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get filename
-
-		char				szFileName[_MAX_FNAME];
-		DWORD				dwLength = *(DWORD*) &pbtFileNameIndex[dwFileNameIndexPtr];
+		char  szFileName[_MAX_FNAME];
+		DWORD dwLength = *(DWORD*) &pbtFileNameIndex[dwFileNameIndexPtr];
 
 		for( DWORD j = 0 ; j < dwLength ; j++ )
 		{
@@ -86,13 +69,10 @@ BOOL	CLostChild::Mount(
 		}
 
 		szFileName[dwLength] = pbtFileNameIndex[dwFileNameIndexPtr + 4 + dwLength];
-
 		dwFileNameIndexPtr += 4 + dwLength + 1;
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.start = *(UINT64*) &clmIndex[dwIndexPtr + 16];
 		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[dwIndexPtr + 24];
@@ -130,9 +110,7 @@ BOOL	CLostChild::Mount(
 		}
 
 		// File size adjustment exceeds 1.2GB when adding
-
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-
 		if( stFileInfo.end > 1300000000 )
 		{
 			stFileInfo.end -= 1300000000;
@@ -143,17 +121,17 @@ BOOL	CLostChild::Mount(
 
 	pclArc->SetFirstArc();
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CLostChild::Decode(
+BOOL CLostChild::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->title != _T("LOST CHILD") )
 	{
@@ -174,27 +152,23 @@ BOOL	CLostChild::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ESUR Decoding
+// ESUR Decoding
 
-BOOL	CLostChild::DecodeESUR(
+BOOL CLostChild::DecodeESUR(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if( pstFileInfo->format != _T("SUR") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	DWORD				dwReadSize;
+	DWORD dwReadSize;
 
 	// Read
-
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-	YCMemory<BYTE>		clmSrc( dwSrcSize );
-
+	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	YCMemory<BYTE> clmSrc( dwSrcSize );
 	dwReadSize = pclArc->Read( &clmSrc[0], dwSrcSize );
 
 	if( dwReadSize < dwSrcSize )
@@ -206,53 +180,44 @@ BOOL	CLostChild::DecodeESUR(
 	}
 
 	// Get header information
-
-	long				lWidth = *(long*) &clmSrc[8];
-	long				lHeight = *(long*) &clmSrc[12];
-	DWORD				dwDstSize = *(DWORD*) &clmSrc[4] - 32;
-	WORD				wBpp = 32;
+	long  lWidth = *(long*) &clmSrc[8];
+	long  lHeight = *(long*) &clmSrc[12];
+	DWORD dwDstSize = *(DWORD*) &clmSrc[4] - 32;
+	WORD  wBpp = 32;
 
 	// Get a buffer for LZSS decompression
-
-	YCMemory<BYTE>		clmDst( dwDstSize );
+	YCMemory<BYTE> clmDst( dwDstSize );
 
 	// LZSS Decompression
-
 	DecompLZSS( &clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3 );
 
 	// Output
-
-	CImage				clImage;
-
+	CImage clImage;
 	clImage.Init( pclArc, lWidth, lHeight, wBpp );
 	clImage.WriteReverse( &clmDst[0], dwDstSize );
 	clImage.Close();
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LAD Decoding
+// LAD Decoding
 
-BOOL	CLostChild::DecodeLAD(
+BOOL CLostChild::DecodeLAD(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if( pstFileInfo->format != _T("LAD") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	DWORD				dwReadSize;
+	DWORD dwReadSize;
 
 	// Reading
-
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-	YCMemory<BYTE>		clmSrc( dwSrcSize );
-
+	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	YCMemory<BYTE> clmSrc( dwSrcSize );
 	dwReadSize = pclArc->Read( &clmSrc[0], dwSrcSize );
 
 	if( dwReadSize < dwSrcSize )
@@ -264,18 +229,15 @@ BOOL	CLostChild::DecodeLAD(
 	}
 
 	// Get header info
-
-	long				lWidth = *(long*) &clmSrc[8];
-	long				lHeight = *(long*) &clmSrc[12];
-	DWORD				dwDstSize = *(DWORD*) &clmSrc[28];
-	WORD				wBpp = 8;
+	long  lWidth = *(long*) &clmSrc[8];
+	long  lHeight = *(long*) &clmSrc[12];
+	DWORD dwDstSize = *(DWORD*) &clmSrc[28];
+	WORD  wBpp = 8;
 
 	// Get a buffer for LZSS decoding
-
-	YCMemory<BYTE>		clmDst( dwDstSize );
+	YCMemory<BYTE> clmDst( dwDstSize );
 
 	// LZSS Decompression
-
 	DecompLZSS( &clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3 );
 
 	pclArc->OpenFile();
@@ -283,20 +245,18 @@ BOOL	CLostChild::DecodeLAD(
 	pclArc->CloseFile();
 
 	// Output
-
-//	CImage				clImage;
-
+//	CImage clImage;
 //	clImage.Init( pclArc, lWidth, lHeight, wBpp );
 //	clImage.WriteReverse( &clmDst[0], dwDstSize );
 //	clImage.Close();
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSS Decompression
+// LZSS Decompression
 
-BOOL	CLostChild::DecompLZSS(
+BOOL CLostChild::DecompLZSS(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination size
 	const void*			pvSrc,							// Input data
@@ -306,28 +266,24 @@ BOOL	CLostChild::DecompLZSS(
 	DWORD				dwLengthOffset					// Length offset
 	)
 {
-	BYTE*				pbtDst = (BYTE*) pvDst;
-	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
+	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtSrc = (const BYTE*) pvSrc;
 
 	// Allocate buffer
-
-	YCMemory<BYTE>		clmbtDic( dwDicSize );
-
+	YCMemory<BYTE> clmbtDic( dwDicSize );
 	ZeroMemory( &clmbtDic[0], dwDicSize );
 
 	// Decoding
-
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
-	BYTE				btFlags;
-	DWORD				dwBitCount = 0;
+	DWORD dwSrcPtr = 0;
+	DWORD dwDstPtr = 0;
+	BYTE  btFlags;
+	DWORD dwBitCount = 0;
 
 	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
 	{
 		if( dwBitCount == 0 )
 		{
 			// 8bit reading
-
 			btFlags = pbtSrc[dwSrcPtr++];
 			dwBitCount = 8;
 		}
@@ -348,11 +304,11 @@ BOOL	CLostChild::DecompLZSS(
 		{
 			// Compressed data
 
-			BYTE				btLow = pbtSrc[dwSrcPtr++];
-			BYTE				btHigh = pbtSrc[dwSrcPtr++];
+			BYTE  btLow = pbtSrc[dwSrcPtr++];
+			BYTE  btHigh = pbtSrc[dwSrcPtr++];
 
-			DWORD				dwBack = ((btLow << 4) | (btHigh >> 4));
-			DWORD				dwLength = ((btHigh & 0x0F) + dwLengthOffset);
+			DWORD dwBack = ((btLow << 4) | (btHigh >> 4));
+			DWORD dwLength = ((btHigh & 0x0F) + dwLengthOffset);
 
 			if( (dwDstPtr + dwLength) > dwDstSize )
 			{
@@ -378,44 +334,36 @@ BOOL	CLostChild::DecompLZSS(
 		dwBitCount--;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Extraction
+// Extraction
 
-BOOL	CLostChild::Extract(
+BOOL CLostChild::Extract(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if( pstFileInfo->title != _T("LOST CHILD") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Ensure buffer exists
-
-	DWORD				dwBufferSize = pclArc->GetBufSize();
-
-	YCMemory<BYTE>		clmBuffer( dwBufferSize );
+	DWORD dwBufferSize = pclArc->GetBufSize();
+	YCMemory<BYTE> clmBuffer( dwBufferSize );
 
 	// Generate output files
-
 	pclArc->OpenFile();
 
 	for( DWORD WriteSize = 0 ; WriteSize != pstFileInfo->sizeCmp ; WriteSize += dwBufferSize )
 	{
 		// Adjust buffer size
-
 		pclArc->SetBufSize( &dwBufferSize, WriteSize );
 
 		// Read
-
-		DWORD				dwReadSize;
-
-		dwReadSize = pclArc->Read( &clmBuffer[0], dwBufferSize );
+		DWORD dwReadSize = pclArc->Read( &clmBuffer[0], dwBufferSize );
 		pclArc->WriteFile( &clmBuffer[0], dwReadSize );
 
 		if( dwReadSize < dwBufferSize )
@@ -430,5 +378,5 @@ BOOL	CLostChild::Extract(
 
 	pclArc->CloseFile();
 
-	return	TRUE;
+	return TRUE;
 }

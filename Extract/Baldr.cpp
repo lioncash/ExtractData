@@ -2,94 +2,73 @@
 #include "../ExtractBase.h"
 #include "Baldr.h"
 
-BOOL	CBaldr::Mount(
+BOOL CBaldr::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".pac") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "PAC", 3 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( &pclArc->GetHed()[72], "\0\0\0\0", 4 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get filecount
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->Seek( 4, FILE_BEGIN );
 	pclArc->Read( &dwFiles, 4 );
 
 	// Get flags
-
-	DWORD				dwFlags;
-
+	DWORD dwFlags;
 	pclArc->Read( &dwFlags, 4 );
 
 	// Get compressed formats
-
-	YCString				clsFormat;
-
+	YCString clsFormat;
 	switch( dwFlags )
 	{
-	case	0:
-		// No compression
-
+	case 0: // No compression
 		break;
 
-	case	1:
-		// LZSS
-
+	case 1: // LZSS
 		clsFormat = _T("LZ");
 		break;
 
-	case	2:
-		// Unknown
-
+	case 2: // Unknown
 		break;
 
-	case	3:
-		// ZLIB
-
+	case 3: // ZLIB
 		clsFormat = _T("zlib");
 		break;
 	}
 
 	// Get index
-
-	YCMemory<SPACFileInfo>	clmpacfiIndex( dwFiles );
-
+	YCMemory<SPACFileInfo> clmpacfiIndex( dwFiles );
 	pclArc->Read( &clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles) );
 
 	// Get file info
-
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get filename
-
-		char				szFileName[65];
-
+		char szFileName[65];
 		memcpy( szFileName, clmpacfiIndex[i].szFileName, 64 );
 		szFileName[64] = '\0';
 
 		if( strlen( szFileName ) <= 4 )
 		{
 			pclArc->SeekHed();
-			return	FALSE;
+			return FALSE;
 		}
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.sizeOrg = clmpacfiIndex[i].dwFileSize;
 		stFileInfo.sizeCmp = clmpacfiIndex[i].dwCompFileSize;
@@ -103,5 +82,5 @@ BOOL	CBaldr::Mount(
 		pclArc->AddFileInfo( stFileInfo );
 	}
 
-	return	TRUE;
+	return TRUE;
 }

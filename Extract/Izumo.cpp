@@ -14,9 +14,8 @@ BOOL CIzumo::Mount(CArcFile* pclArc)
     pclArc->Read(&index_size, 4);
 
     // Get number of bytes to be skipped
-
-    DWORD				dwDummys;
-    DWORD				dwSkip;
+    DWORD dwDummys;
+    DWORD dwSkip;
 
     pclArc->Read( &dwDummys, 4 );
     dwSkip = dwDummys << 3;

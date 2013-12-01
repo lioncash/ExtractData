@@ -1,17 +1,16 @@
+#pragma once
 
-#pragma	once
-
-class	CBaldr : public CExtractBase
+class CBaldr : public CExtractBase
 {
 public:
 
-	struct	SPACFileInfo
+	struct SPACFileInfo
 	{
-		char				szFileName[64];
-		DWORD				dwOffset;
-		DWORD				dwFileSize;
-		DWORD				dwCompFileSize;
+		char  szFileName[64];
+		DWORD dwOffset;
+		DWORD dwFileSize;
+		DWORD dwCompFileSize;
 	};
 
-	BOOL									Mount( CArcFile* pclArc );
+	BOOL Mount( CArcFile* pclArc );
 };

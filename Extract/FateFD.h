@@ -1,6 +1,7 @@
 #pragma once
 
-class CFateFD : public CExtractBase {
+class CFateFD : public CExtractBase
+{
 protected:
 	// Decode Info
 	struct DecodeInfo

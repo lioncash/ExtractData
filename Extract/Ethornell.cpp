@@ -1,54 +1,46 @@
 
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Image.h"
-#include	"Ethornell.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Image.h"
+#include "Ethornell.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CEthornell::Mount(
+BOOL CEthornell::Mount(
     CArcFile*			pclArc							// Archive
     )
 {
     if( pclArc->GetArcExten() != _T(".arc") )
     {
-        return	FALSE;
+        return FALSE;
     }
 
     if( memcmp( pclArc->GetHed(), "PackFile    ", 12 ) != 0 )
     {
-        return	FALSE;
+        return FALSE;
     }
 
     pclArc->SeekHed( 12 );
 
     // Get file count
-
-    DWORD				dwFiles;
-
+    DWORD dwFiles;
     pclArc->Read( &dwFiles, 4 );
 
     // Get index size
-
-    DWORD				dwIndexSize = (32 * dwFiles);
+    DWORD dwIndexSize = (32 * dwFiles);
 
     // Get index
-
-    YCMemory<BYTE>		clmIndex( dwIndexSize );
-
+    YCMemory<BYTE> clmIndex( dwIndexSize );
     pclArc->Read( &clmIndex[0], dwIndexSize );
 
     // Get offset
-
-    DWORD				dwOffset = 16 + dwIndexSize;
+    DWORD dwOffset = 16 + dwIndexSize;
 
     // Get file info
-
     for( DWORD i = 0 ; i < dwIndexSize ; i += 32 )
     {
-        SFileInfo			stFileInfo;
-
+        SFileInfo stFileInfo;
         stFileInfo.name.Copy( (char*) &clmIndex[i], 16 );
         stFileInfo.start = *(DWORD*) &clmIndex[i + 16] + dwOffset;
         stFileInfo.sizeCmp = *(DWORD*) &clmIndex[i + 20];
@@ -58,18 +50,17 @@ BOOL	CEthornell::Mount(
         pclArc->AddFileInfo( stFileInfo );
     }
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CEthornell::Decode(
+BOOL CEthornell::Decode(
     CArcFile*			pclArc							// Archive
     )
 {
-    BYTE				abtHeader[16];
-
+    BYTE abtHeader[16];
     pclArc->Read( abtHeader, sizeof(abtHeader) );
     pclArc->SeekCur( -(int)sizeof(abtHeader) );
 
@@ -77,55 +68,47 @@ BOOL	CEthornell::Decode(
     {
         // DSC
 
-        return	DecodeDSC( pclArc );
+        return DecodeDSC( pclArc );
     }
     else if( memcmp( abtHeader, "CompressedBG___\0", 16 ) == 0 )
     {
         // CompressedBG
 
-        return	DecodeCBG( pclArc );
+        return DecodeCBG( pclArc );
     }
 
     // Other
 
-    return	DecodeStd( pclArc );
+    return DecodeStd( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode DSC
+// Decode DSC
 
-BOOL	CEthornell::DecodeDSC(
+BOOL CEthornell::DecodeDSC(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     // Read
-
-    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-
+    DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+    YCMemory<BYTE> clmbtSrc( dwSrcSize );
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
     // Ensure output buffer
-
-    DWORD				dwDstSize = *(DWORD*) &clmbtSrc[20];
-
-    YCMemory<BYTE>		clmbtDst( dwDstSize );
+    DWORD          dwDstSize = *(DWORD*) &clmbtSrc[20];
+    YCMemory<BYTE> clmbtDst( dwDstSize );
 
     // Decompress DSC
-
     DecompDSC( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
 
     // Get image information
-
-    long				lWidth = *(WORD*) &clmbtDst[0];
-    long				lHeight = *(WORD*) &clmbtDst[2];
-    WORD				wBpp = *(WORD*) &clmbtDst[4];
-    WORD				wFlags = *(WORD*) &clmbtDst[6];
-
-    DWORD				dwOffset = *(DWORD*) &clmbtDst[0];
+    long  lWidth = *(WORD*) &clmbtDst[0];
+    long  lHeight = *(WORD*) &clmbtDst[2];
+    WORD  wBpp = *(WORD*) &clmbtDst[4];
+    WORD  wFlags = *(WORD*) &clmbtDst[6];
+    DWORD dwOffset = *(DWORD*) &clmbtDst[0];
 
     // Output
 
@@ -133,41 +116,32 @@ BOOL	CEthornell::DecodeDSC(
     {
         // Image
 
-        CImage				clImage;
-        YCMemory<BYTE>		clmbtDst2;
-        DWORD				dwDstSize2;
+        CImage         clImage;
+        YCMemory<BYTE> clmbtDst2;
+        DWORD          dwDstSize2;
 
         switch( wFlags )
         {
-        case	0:
-            // Common
-
+        case 0: // Common
             clImage.Init( pclArc, lWidth, lHeight, wBpp );
             clImage.WriteReverse( &clmbtDst[16], (dwDstSize - 16) );
 
             break;
 
-        case	1:
-            // Type 1 encryption
+        case 1:  // Type 1 encryption
 
             dwDstSize2 = (dwDstSize - 16);
-
             clmbtDst2.resize( dwDstSize2 );
 
             // Decryption
-
             DecryptBGType1( &clmbtDst2[0], &clmbtDst[16], lWidth, lHeight, wBpp );
 
             // Output
-
             clImage.Init( pclArc, lWidth, lHeight, wBpp );
             clImage.WriteReverse( &clmbtDst2[0], dwDstSize2 );
-
             break;
 
-        default:
-            // Unknown Format
-
+        default: // Unknown Format
             pclArc->OpenFile();
             pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
         }
@@ -187,146 +161,122 @@ BOOL	CEthornell::DecodeDSC(
         pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
     }
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode CompressedBG
+// Decode CompressedBG
 
-BOOL	CEthornell::DecodeCBG(
+BOOL CEthornell::DecodeCBG(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     // Read CompressedBG
-
-    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-
+    DWORD dwSrcSize = pstFileInfo->sizeCmp;
+    YCMemory<BYTE> clmbtSrc( dwSrcSize );
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
     // Width, Height, Get number of colors
-
-    long				lWidth = *(WORD*) &clmbtSrc[16];
-    long				lHeight = *(WORD*) &clmbtSrc[18];
-    WORD				wBpp = *(WORD*) &clmbtSrc[20];
+    long lWidth = *(WORD*) &clmbtSrc[16];
+    long lHeight = *(WORD*) &clmbtSrc[18];
+    WORD wBpp = *(WORD*) &clmbtSrc[20];
 
     // Ensure output buffer
-
-    DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
-
-    YCMemory<BYTE>		clmbtDst( dwDstSize );
+    DWORD          dwDstSize = lWidth * lHeight * (wBpp >> 3);
+    YCMemory<BYTE> clmbtDst( dwDstSize );
 
     // CompressedBG Decompression
-
     DecompCBG( &clmbtDst[0], &clmbtSrc[0] );
 
     // Output Image
-
-    CImage				clImage;
-
+    CImage clImage;
     clImage.Init( pclArc, lWidth, lHeight, wBpp );
     clImage.WriteReverse( &clmbtDst[0], dwDstSize );
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode other files
+// Decode other files
 
-BOOL	CEthornell::DecodeStd(
+BOOL CEthornell::DecodeStd(
     CArcFile*			pclArc							// Archive
     )
 {
     // Get offset
-
-    DWORD				dwOffset;
-
+    DWORD dwOffset;
     pclArc->Read( &dwOffset, 4 );
 
     // Check file header
-
-    BYTE				abtHeader[4];
-
+    BYTE abtHeader[4];
     if( (pclArc->GetArcPointer() + dwOffset) < pclArc->GetArcSize() )
     {
         // Seek possible file offset value
-
         pclArc->SeekCur( dwOffset - 4 );
         pclArc->Read( abtHeader, sizeof(abtHeader) );
     }
     else
     {
         // Cannot find a file offset value (Not an offset value)
-
         dwOffset = 0;
-
         ZeroMemory( abtHeader, sizeof(abtHeader) );
     }
 
     // Output
-
     if( memcmp( abtHeader, "OggS", 4 ) == 0 )
     {
         // Ogg Vorbis
-
         pclArc->SeekHed( pclArc->GetOpenFileInfo()->start + dwOffset );
-
         pclArc->OpenFile( _T(".ogg") );
     }
     else
     {
         // Other
-
         dwOffset = 0;
-
         pclArc->SeekHed( pclArc->GetOpenFileInfo()->start );
-
         pclArc->OpenFile();
     }
 
     pclArc->ReadWrite( pclArc->GetOpenFileInfo()->sizeOrg - dwOffset );
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get Key
+// Get Key
 
-DWORD	CEthornell::GetKey(
+DWORD CEthornell::GetKey(
     DWORD*				pdwKey							// Key generator
     )
 {
-    DWORD				dwWork1 = 20021 * (*pdwKey & 0xFFFF);
-    DWORD				dwWork2 = 20021 * (*pdwKey >> 16);
-    DWORD				dwWork  = 346 * (*pdwKey) + dwWork2 + (dwWork1 >> 16);
+    DWORD dwWork1 = 20021 * (*pdwKey & 0xFFFF);
+    DWORD dwWork2 = 20021 * (*pdwKey >> 16);
+    DWORD dwWork  = 346 * (*pdwKey) + dwWork2 + (dwWork1 >> 16);
 
     *pdwKey = (dwWork << 16) + (dwWork1 & 0xFFFF) + 1;
 
-    return	(dwWork & 0x7FFF);
+    return (dwWork & 0x7FFF);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get variable-length data
+// Get variable-length data
 
-DWORD	CEthornell::GetVariableData(
+DWORD CEthornell::GetVariableData(
     const BYTE*			pbtSrc,							// Input data
     DWORD*				pdwDstOfReadLength				// Destination of read length
     )
 {
-    DWORD				dwData = 0;
-    DWORD				dwSrcPtr = 0;
-    DWORD				dwShift = 0;
-    BYTE				btCurrentSrc;
+    DWORD dwData = 0;
+    DWORD dwSrcPtr = 0;
+    DWORD dwShift = 0;
+    BYTE  btCurrentSrc;
 
     do
     {
         btCurrentSrc = pbtSrc[dwSrcPtr++];
-
         dwData |= (btCurrentSrc & 0x7F) << dwShift;
-
         dwShift += 7;
     }
     while( btCurrentSrc & 0x80 );
@@ -336,7 +286,7 @@ DWORD	CEthornell::GetVariableData(
         *pdwDstOfReadLength = dwSrcPtr;
     }
 
-    return	dwData;
+    return dwData;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -349,16 +299,16 @@ void	CEthornell::DecompDSC(
     DWORD				dwSrcSize						// Compressed Data Size
     )
 {
-    DWORD				dwSrcPtr = 32;
-    DWORD				dwDstPtr = 0;
+    DWORD dwSrcPtr = 32;
+    DWORD dwDstPtr = 0;
 
-    DWORD				adwBuffer[512 + 1];
-    DWORD				adwBuffer2[1024];
-    BYTE				abtBuffer3[0x3FF0];
+    DWORD adwBuffer[512 + 1];
+    DWORD adwBuffer2[1024];
+    BYTE  abtBuffer3[0x3FF0];
 
-    DWORD				dwCount;
-    DWORD				dwWork;
-    BYTE				btWork;
+    DWORD dwCount;
+    DWORD dwWork;
+    BYTE  btWork;
 
     ZeroMemory( adwBuffer, sizeof(adwBuffer) );
     ZeroMemory( adwBuffer2, sizeof(adwBuffer2) );
@@ -366,8 +316,8 @@ void	CEthornell::DecompDSC(
 
     // 
 
-    DWORD				dwKey = *(DWORD*) &pbtSrc[16];
-    DWORD				dwBufferSize = 0;
+    DWORD dwKey = *(DWORD*) &pbtSrc[16];
+    DWORD dwBufferSize = 0;
 
     for( DWORD i = 0 ; i < 512 ; i++ )
     {
@@ -380,11 +330,9 @@ void	CEthornell::DecompDSC(
 
         dwSrcPtr++;
     }
-
     adwBuffer[dwBufferSize] = 0;
 
     // Sort
-
     for( DWORD i = 0 ; i < (dwBufferSize - 1) ; i++ )
     {
         for( DWORD j = (i + 1) ; j < dwBufferSize ; j++ )
@@ -398,13 +346,13 @@ void	CEthornell::DecompDSC(
 
     // 
 
-    int					nMin = 0;
-    int					nMax = 1;
-    DWORD				dwBufferPtr = 0;
-    DWORD				dwBufferPtr2 = 0;
-    DWORD				dwBufferPtrPrev2 = 0x200;
-    DWORD				dwCode = 1;
-    DWORD				dwIndex;
+    int   nMin = 0;
+    int   nMax = 1;
+    DWORD dwBufferPtr = 0;
+    DWORD dwBufferPtr2 = 0;
+    DWORD dwBufferPtrPrev2 = 0x200;
+    DWORD dwCode = 1;
+    DWORD dwIndex;
 
     for( dwIndex = 0 ; dwBufferPtr < dwBufferSize ; dwIndex++ )
     {
@@ -423,7 +371,7 @@ void	CEthornell::DecompDSC(
 
         while( (adwBuffer[dwBufferPtr] >> 16) == dwIndex )
         {
-            DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
+            DWORD* pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
 
             pdwBuffer3[0] = 0;
             pdwBuffer3[1] = adwBuffer[dwBufferPtr] & 0x1FF;
@@ -436,8 +384,8 @@ void	CEthornell::DecompDSC(
 
         for( int i = nMin ; i < nMax ; i++ )
         {
-            DWORD*				pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
-            DWORD				dwBufferPtr3 = 0;
+            DWORD* pdwBuffer3 = (DWORD*) &abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
+            DWORD  dwBufferPtr3 = 0;
 
             pdwBuffer3[dwBufferPtr3] = 1;
             dwBufferPtr3 += 2;
@@ -462,8 +410,8 @@ void	CEthornell::DecompDSC(
 
     //
 
-    DWORD				dwSize = *(DWORD*) &pbtSrc[24];
-    DWORD				dwSrc;
+    DWORD dwSize = *(DWORD*) &pbtSrc[24];
+    DWORD dwSrc;
 
     dwCount = 0;
 
@@ -492,8 +440,8 @@ void	CEthornell::DecompDSC(
 
         if( abtBuffer3[dwIndex + 5] == 1 )
         {
-            DWORD				dwBitBuffer = (dwSrc & 0xFF) >> (8 - dwCount);
-            DWORD				dwBitCount = dwCount;
+            DWORD dwBitBuffer = (dwSrc & 0xFF) >> (8 - dwCount);
+            DWORD dwBitCount = dwCount;
 
             if( dwCount < 12 )
             {
@@ -506,8 +454,8 @@ void	CEthornell::DecompDSC(
                 }
             }
 
-            DWORD				dwBack;
-            DWORD				dwLength;
+            DWORD dwBack;
+            DWORD dwLength;
 
             dwCount = dwBitCount - 12;
             dwSrc = (dwBitBuffer << (8 - dwCount));
@@ -534,38 +482,35 @@ void	CEthornell::DecompDSC(
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-//	CompressedBG Decompression
+// CompressedBG Decompression
 
-void	CEthornell::DecompCBG(
+void CEthornell::DecompCBG(
     BYTE*				pbtDst,							// Destination
     BYTE*				pbtSrc							// Compressed Data
     )
 {
-    DWORD				dwSrcPtr = 48;
-    DWORD				dwDstPtr = 0;
+    DWORD dwSrcPtr = 48;
+    DWORD dwDstPtr = 0;
 
-    long				lWidth = *(WORD*) &pbtSrc[16];
-    long				lHeight = *(WORD*) &pbtSrc[18];
-    WORD				wBpp = *(WORD*) &pbtSrc[20];
+    long  lWidth = *(WORD*) &pbtSrc[16];
+    long  lHeight = *(WORD*) &pbtSrc[18];
+    WORD  wBpp = *(WORD*) &pbtSrc[20];
 
-    DWORD				dwDstSizeOfHuffman = *(DWORD*) &pbtSrc[32];
-    DWORD				dwKey = *(DWORD*) &pbtSrc[36];
-    DWORD				dwDecryptSize = *(DWORD*) &pbtSrc[40];
+    DWORD dwDstSizeOfHuffman = *(DWORD*) &pbtSrc[32];
+    DWORD dwKey = *(DWORD*) &pbtSrc[36];
+    DWORD dwDecryptSize = *(DWORD*) &pbtSrc[40];
 
-    DWORD				dwWork;
-    BYTE				btWork;
+    DWORD dwWork;
+    BYTE  btWork;
 
     // Decryption
-
     for( DWORD i = 0 ; i < dwDecryptSize ; i++ )
     {
         pbtSrc[dwSrcPtr + i] -= (BYTE) GetKey( &dwKey );
     }
 
     // Get frequency table
-
-    DWORD				adwFreq[256];
-
+    DWORD adwFreq[256];
     for( DWORD i = 0 ; i < 256 ; i++ )
     {
         adwFreq[i] = GetVariableData( &pbtSrc[dwSrcPtr], &dwWork );
@@ -574,9 +519,8 @@ void	CEthornell::DecompCBG(
     }
 
     // Leaf node entry
-
-    SNodeInfo			astNodeInfo[511];
-    DWORD				dwFreqTotal = 0;
+    SNodeInfo astNodeInfo[511];
+    DWORD     dwFreqTotal = 0;
 
     for( DWORD i = 0 ; i < 256 ; i++ )
     {
@@ -589,7 +533,6 @@ void	CEthornell::DecompCBG(
     }
 
     // Initialization of the branch node
-
     for( DWORD i = 256 ; i < 511 ; i++ )
     {
         astNodeInfo[i].bValidity = FALSE;
@@ -599,16 +542,13 @@ void	CEthornell::DecompCBG(
     }
 
     // Branch node entry
-
-    DWORD				dwNodes;
-
+    DWORD dwNodes;
     for( dwNodes = 256 ; dwNodes < 511 ; dwNodes++ )
     {
         // Obtain value of minimum two
-
-        DWORD				dwMin;
-        DWORD				dwFreq = 0;
-        DWORD				adwChild[2];
+        DWORD dwMin;
+        DWORD dwFreq = 0;
+        DWORD adwChild[2];
 
         for( DWORD i = 0 ; i < 2 ; i++ )
         {
@@ -633,7 +573,6 @@ void	CEthornell::DecompCBG(
         }
 
         // Registration of branch node 
-
         astNodeInfo[dwNodes].bValidity = TRUE;
         astNodeInfo[dwNodes].dwFreq = dwFreq;
         astNodeInfo[dwNodes].dwLeft = adwChild[0];
@@ -642,21 +581,19 @@ void	CEthornell::DecompCBG(
         if( dwFreq == dwFreqTotal )
         {
             // Exit
-
             break;
         }
     }
 
     // Huffman Decompression
+    DWORD dwRoot = dwNodes;
+    DWORD dwMask = 0x80;
 
-    DWORD				dwRoot = dwNodes;
-    DWORD				dwMask = 0x80;
-
-    YCMemory<BYTE>		clmbtDstOfHuffman( dwDstSizeOfHuffman );
+    YCMemory<BYTE> clmbtDstOfHuffman( dwDstSizeOfHuffman );
 
     for( DWORD i = 0 ; i < dwDstSizeOfHuffman ; i++ )
     {
-        DWORD				dwNode = dwRoot;
+        DWORD dwNode = dwRoot;
 
         while( dwNode >= 256 )
         {
@@ -682,13 +619,12 @@ void	CEthornell::DecompCBG(
     }
 
     // RLE Decompression
-
-    DWORD				dwDstPtrOfHuffman = 0;
-    BYTE				btZeroFlag = 0;
+    DWORD dwDstPtrOfHuffman = 0;
+    BYTE  btZeroFlag = 0;
 
     while( dwDstPtrOfHuffman < dwDstSizeOfHuffman )
     {
-        DWORD				dwLength = GetVariableData( &clmbtDstOfHuffman[dwDstPtrOfHuffman], &dwWork );
+        DWORD dwLength = GetVariableData( &clmbtDstOfHuffman[dwDstPtrOfHuffman], &dwWork );
 
         dwDstPtrOfHuffman += dwWork;
 
@@ -711,8 +647,8 @@ void	CEthornell::DecompCBG(
 
     // 
 
-    WORD				wColors = (wBpp >> 3);
-    long				lLine = lWidth * wColors;
+    WORD wColors = (wBpp >> 3);
+    long lLine = lWidth * wColors;
 
     dwDstPtr = 0;
 
@@ -757,9 +693,9 @@ void	CEthornell::DecompCBG(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Image Decoding
+// Image Decoding
 
-void	CEthornell::DecryptBGType1(
+void CEthornell::DecryptBGType1(
     BYTE*				pbtDst,							// Destination for the decoded images
     BYTE*				pbtSrc,							// Encrypted image data
     long				lWidth,							// Image width
@@ -767,27 +703,21 @@ void	CEthornell::DecryptBGType1(
     WORD				wBpp							// Bit depth
     )
 {
-    WORD				wColors = (wBpp >> 3);
+    WORD wColors = (wBpp >> 3);
 
     // Get a pointer to each color component
-
-    BYTE*				apbtSrc[4];
-
+    BYTE* apbtSrc[4];
     for( WORD i = 0 ; i < wColors ; i++ )
     {
         apbtSrc[i] = &pbtSrc[lWidth * lHeight * i];
     }
 
     // Initialization of variables
-
-    BYTE				abtPrev[4];
-
+    BYTE abtPrev[4];
     ZeroMemory( abtPrev, sizeof( abtPrev ) );
 
     // Decryption
-
-    BYTE*				pbtDst2 = pbtDst;
-
+    BYTE* pbtDst2 = pbtDst;
     for( long i = 0 ; i < lHeight ; i++ )
     {
         if( i & 0x01 )

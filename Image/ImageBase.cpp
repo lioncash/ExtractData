@@ -44,15 +44,11 @@ BOOL CImageBase::OnInit(
 	// Number of bits processed
 	switch( wBpp )
 	{
-	case 8:
-		// 8bit
-
+	case 8: // 8bit
 		OnCreatePallet( pvPallet, dwPalletSize );
 		break;
 
-	case 32:
-		// 32bit
-
+	case 32: // 32bit
 		if( GetValidityOfAlphaBlend() )
 		{
 			// Alpha-blending is enabled
@@ -64,7 +60,6 @@ BOOL CImageBase::OnInit(
 
 			wBpp = 24;
 		}
-
 		break;
 	}
 
@@ -106,19 +101,14 @@ BOOL CImageBase::Init(
 	// Number of bits
 	switch( wBpp )
 	{
-	case 8:
-		// 8bit
-
+	case 8: // 8bit
 		OnCreatePallet( pvPallet, dwPalletSize );
 		break;
 
-	case 32:
-		// 32bit
-
+	case 32: // 32bit
 		if( pclArc->GetOpt()->bAlphaBlend )
 		{
 			// Alpha-blending is enabled
-
 			m_bAlphaBlendRequirement = TRUE;
 			wBpp = 24;
 
@@ -644,29 +634,21 @@ void CImageBase::AlphaBlend(
 		{
 			switch( pbtBuffer32[3] )
 			{
-			case 0x00:
-				// Alpha value is 0
-
+			case 0x00: // Alpha value is 0
 				for( int i = 0 ; i < 3 ; i++ )
 				{
 					*pbtBuffer24++ = pbtBG[i];
 				}
-
 				break;
 
-			case 0xFF:
-				// Alpha value is 255
-
+			case 0xFF: // Alpha value is 255
 				for( int i = 0 ; i < 3 ; i++ )
 				{
 					*pbtBuffer24++ = pbtBuffer32[i];
 				}
-
 				break;
 
-			default:
-				// Other
-
+			default: // Other
 				for( int i = 0 ; i < 3 ; i++ )
 				{
 					*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + pbtBG[i] * (255 - pbtBuffer32[3])) / 255;
