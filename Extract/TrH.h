@@ -1,9 +1,11 @@
 #pragma once
 
-class CTrH : public CExtractBase {
+class CTrH : public CExtractBase
+{
 protected:
-	// PX Format
-    struct PXHed {
+    // PX Format
+    struct PXHed
+    {
         BYTE    pxID[4];        // "fPX "
         DWORD   FileSize;       // File Size
         BYTE    CtrkID[4];      // "cTRK"

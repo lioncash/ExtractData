@@ -91,23 +91,22 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 	zlib.Decompress(&clmbtDst2[0], &dwDstSize2, &clmbtSrc2[0], dwSrcSize2);
 
 	// Decoding
+	BYTE  abyTable[128] = {0};
 
-	BYTE	abyTable[128] = {0};
+	DWORD dwDst1 = 0;
+	DWORD dwDst2a = 0;
+	DWORD dwDst2b = 0;
+	DWORD dwDst = 0;
 
-	DWORD	dwDst1 = 0;
-	DWORD	dwDst2a = 0;
-	DWORD	dwDst2b = 0;
-	DWORD	dwDst = 0;
+	DWORD EAX = 0;
+	DWORD EBX = 0;
+	DWORD ECX = 0;
+	DWORD EDX = 0;
+	DWORD EDI = 0;
+	DWORD ESI = 0;
+	DWORD EBP = 0;
 
-	DWORD	EAX = 0;
-	DWORD	EBX = 0;
-	DWORD	ECX = 0;
-	DWORD	EDX = 0;
-	DWORD	EDI = 0;
-	DWORD	ESI = 0;
-	DWORD	EBP = 0;
-
-	DWORD	SP[128];
+	DWORD SP[128];
 
 	abyTable[0x44] = clmbtDst2[dwDst2b++];
 

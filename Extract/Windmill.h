@@ -1,6 +1,7 @@
 #pragma once
 
-class CWindmill : public CExtractBase {
+class CWindmill : public CExtractBase
+{
 public:
 	BOOL Mount(CArcFile* pclArc);
 	BOOL Decode(CArcFile* pclArc);

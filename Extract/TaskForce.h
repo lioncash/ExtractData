@@ -6,7 +6,7 @@ class CTaskForce : public CExtractBase
 {
 public:
 
-    struct	SFileEntry
+    struct SFileEntry
     {
         char        szFileName[256];
         DWORD       dwOffset;

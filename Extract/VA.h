@@ -1,6 +1,7 @@
 #pragma once
 
-class CVA : public CExtractBase {
+class CVA : public CExtractBase
+{
 private:
     BOOL MountNwa(CArcFile* pclArc);
     BOOL MountNwk(CArcFile* pclArc);
@@ -11,7 +12,8 @@ private:
 
 protected:
     // NWA Format
-    struct NWAHed {
+    struct NWAHed
+    {
         WORD    channels;       // Number of channels
         WORD    bits;           // Number of bits per sample (bit/sample)
         DWORD   freq;           // Sampling Rate
@@ -24,10 +26,11 @@ protected:
         DWORD   BlockSize;      // The number of units of data samples of a block when you expand the data
         DWORD   RestSize;       // Number of sample units of data when you expand the last block
         DWORD   dummy2;         // Unknown
-	};
+    };
 
     // NWK Index Header
-    struct IndexNwk {
+    struct IndexNwk
+    {
         DWORD   size;
         DWORD   start;
         DWORD   dummy;

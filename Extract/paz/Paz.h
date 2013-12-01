@@ -6,73 +6,62 @@ class CPaz : public CExtractBase
 {
 public:
 
-    // Key Info
+	// Key Info
+	struct SKeyInfo
+	{
+		YCString    clsType;
+		BYTE        abtKey[64];
+	};
 
-    struct SKeyInfo
-    {
-        YCString    clsType;
-        BYTE        abtKey[64];
-    };
 
-
-    virtual BOOL Mount( CArcFile* pclArc );
-    virtual BOOL Decode( CArcFile* pclArc );
+	virtual BOOL Mount( CArcFile* pclArc );
+	virtual BOOL Decode( CArcFile* pclArc );
 
 
 protected:
 
-    // Initialization of the table of 72 + 4096 bytes
+	// Initialization of the table of 72 + 4096 bytes
+	virtual void                            InitTable();
 
-    virtual void                            InitTable();
+	// Initialization of the movie table
+	virtual DWORD                           InitMovieTable( void* pvTable );
 
-    // Initialization of the movie table
+	// Get the base archive filename
+	void                                    GetBaseArcName( LPTSTR pszDst, LPCTSTR pszArcName );
 
-    virtual DWORD                           InitMovieTable( void* pvTable );
+	// Set 32 byte keys (Keys differ for each file)
+	virtual void                            InitMountKey( CArcFile* pclArc ) = 0;
+	virtual void                            InitDecodeKey( CArcFile* pclArc ) = 0;
+	DWORD                                   SetKey( CArcFile* pclArc, const SKeyInfo* pstKeyInfo );
 
-    // Get the base archive filename
+	// Decrypt the table
+	virtual void                            DecodeTable1();
+	virtual void                            DecodeTable2();
 
-    void                                    GetBaseArcName( LPTSTR pszDst, LPCTSTR pszArcName );
+	// Cipher-specific decryption
+	virtual void                            Decrypt( void* pvTarget, DWORD dwSize ) {}
+	virtual void                            Decrypt2( void* pvTarget, DWORD dwSize ) {}
 
-    // Set 32 byte keys (Keys differ for each file)
+	// Decrypt the data
+	virtual void                            DecodeData( void* pvTarget, DWORD dwSize );
 
-    virtual void                            InitMountKey( CArcFile* pclArc ) = 0;
-    virtual void                            InitDecodeKey( CArcFile* pclArc ) = 0;
-    DWORD                                   SetKey( CArcFile* pclArc, const SKeyInfo* pstKeyInfo );
+	// Decrypt movie data
+	virtual void                            DecodeMovieData( void* pvTarget, DWORD dwSize );
 
-    // Decrypt the table
+	// Decode DWORD value
+	virtual DWORD                           DecodeValueByTable( DWORD dwValue, void* pvTable );
+	virtual void                            DecodeValue( DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable );
 
-    virtual void                            DecodeTable1();
-    virtual void                            DecodeTable2();
+	// Get 
+	virtual DWORD*                          GetTable();
+	virtual BYTE*                           GetMovieTable();
 
-    // Cipher-specific decryption
-
-    virtual void                            Decrypt( void* pvTarget, DWORD dwSize ) {}
-    virtual void                            Decrypt2( void* pvTarget, DWORD dwSize ) {}
-
-    // Decrypt the data
-
-    virtual void                            DecodeData( void* pvTarget, DWORD dwSize );
-
-    // Decrypt movie data
-
-    virtual void                            DecodeMovieData( void* pvTarget, DWORD dwSize );
-
-    // Decode DWORD value
-
-    virtual DWORD                           DecodeValueByTable( DWORD dwValue, void* pvTable );
-    virtual void                            DecodeValue( DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable );
-
-    // Get 
-
-    virtual DWORD*                          GetTable();
-    virtual BYTE*                           GetMovieTable();
-
-    virtual BYTE*                           GetKey();
-    virtual DWORD                           GetMovieBufSize( CArcFile* pclArc );
+	virtual BYTE*                           GetKey();
+	virtual DWORD                           GetMovieBufSize( CArcFile* pclArc );
 
 private:
 
-    DWORD       m_adwTable[1042];
-    BYTE        m_abtMovieTable[256];
-    BYTE        m_abtKey[32];
+	DWORD       m_adwTable[1042];
+	BYTE        m_abtMovieTable[256];
+	BYTE        m_abtKey[32];
 };

@@ -86,7 +86,7 @@ BOOL CVA::MountNwk(CArcFile* pclArc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Gets information from .ovk files
+// Gets information from .ovk files
 
 BOOL CVA::MountOvk(CArcFile* pclArc)
 {
@@ -94,27 +94,19 @@ BOOL CVA::MountOvk(CArcFile* pclArc)
 		return FALSE;
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->Read(&dwFiles, 4);
 
 	// Get index size
-
-	DWORD				dwIndexSize;
-
+	DWORD dwIndexSize;
 	dwIndexSize = dwFiles * 16;
 
 	// Read index
-
-	YCMemory<BYTE>		clmbtIndex(dwIndexSize);
-
+	YCMemory<BYTE> clmbtIndex(dwIndexSize);
 	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
 	// Get base filename
-
 	TCHAR szBaseFileName[_MAX_FNAME];
-
 	lstrcpy(szBaseFileName, pclArc->GetArcName());
 	PathRemoveExtension(szBaseFileName);
 
@@ -123,15 +115,11 @@ BOOL CVA::MountOvk(CArcFile* pclArc)
 	for (DWORD i = 0; i < dwIndexSize; i += 16)
 	{
 		// Get filename
-
-		TCHAR				szFileName[_MAX_FNAME];
-
+		TCHAR szFileName[_MAX_FNAME];
 		_stprintf(szFileName, _T("%s_%06d.ogg"), szBaseFileName, *(LPDWORD) &clmbtIndex[i + 8]);
 
 		// Get file information
-
-		SFileInfo			stfiWork;
-
+		SFileInfo stfiWork;
 		stfiWork.name = szFileName;
 		stfiWork.sizeCmp = *(LPDWORD)&clmbtIndex[i];
 		stfiWork.sizeOrg = stfiWork.sizeCmp;
@@ -189,8 +177,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 	else
 	{
 		// RLE compression
-
-		BOOL				bRLE = FALSE;
+		BOOL bRLE = FALSE;
 
 		if( (nwaHed.CmpLevel == 5) && (nwaHed.channels != 2) )
 		{
@@ -233,9 +220,8 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 			}
 
 			// Ensure buffers exist
-
-			BYTE*				pbtSrcEnd = z_pbuf + curcompsize;
-			BYTE*				pbtDstEnd = pbuf + curblocksize;
+			BYTE* pbtSrcEnd = z_pbuf + curcompsize;
+			BYTE* pbtDstEnd = pbuf + curblocksize;
 
 			// Read data
 			pclArc->Read(z_pbuf, curcompsize);
@@ -335,16 +321,13 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 					else
 						d[bFlip] += (b & MASK2) << SHIFT;
 				}
-
 				// type == 0
 				else
 				{
 					if( bRLE )
 					{
 						// Run-length compression 
-
-						int					nRunLength = getbits(z_pbuf, shift, 1);
-
+						int	 nRunLength = getbits(z_pbuf, shift, 1);
 						if( nRunLength == 1 )
 						{
 							nRunLength = getbits(z_pbuf, shift, 2);
@@ -356,7 +339,6 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 						}
 
 						// Going to write the same data as the previous data
-
 						for( int k = 0 ; k <= nRunLength ; k++ )
 						{
 							if( nwaHed.bits == 8 )
@@ -371,7 +353,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 
 							if (nwaHed.channels == 2)
 							{
-								bFlip ^= 1;	// channel switching
+								bFlip ^= 1; // channel switching
 							}
 						}
 
@@ -392,7 +374,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 
 				if( nwaHed.channels == 2 )
 				{
-					bFlip ^= 1;	// channel switching
+					bFlip ^= 1; // channel switching
 				}
 			}
 

@@ -1,86 +1,73 @@
-
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Image.h"
-#include	"Pajamas.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Image.h"
+#include "Pajamas.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CPajamas::Mount(
+BOOL CPajamas::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountDat1( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountDat2( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GAMEDAT PACK Mounting
+// GAMEDAT PACK Mounting
 
-BOOL	CPajamas::MountDat1(
+BOOL CPajamas::MountDat1(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( (pclArc->GetArcExten() != _T(".dat")) && (pclArc->GetArcExten() != _T(".pak")) )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "GAMEDAT PACK", 12 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->SeekHed( 12 );
 	pclArc->Read( &dwFiles, 4 );
 
 	// Get index size from file count
-
-	DWORD				dwIndexSize = dwFiles * 24;
+	DWORD dwIndexSize = dwFiles * 24;
 
 	// Get index
-
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
-
+	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	DWORD          dwIndexPtr = 0;
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
 	// Get index of the file information
-
-	DWORD				dwFileNameIndexSize = dwFiles << 4;
-
-	BYTE*				pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
+	DWORD dwFileNameIndexSize = dwFiles << 4;
+	BYTE* pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
 
 	// Get offset (Required for correction when the starting address is zero-based)
-
-	DWORD				dwOffset = 16 + dwIndexSize;
+	DWORD dwOffset = 16 + dwIndexSize;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get filename
-
-		TCHAR				szFileName[16];
-
+		TCHAR szFileName[16];
 		memcpy( szFileName, &clmbtIndex[dwIndexPtr], 16 );
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.start = *(DWORD*) &pbtFileInfoIndex[0] + dwOffset;
 		stFileInfo.sizeCmp = *(DWORD*) &pbtFileInfoIndex[4];
@@ -93,66 +80,54 @@ BOOL	CPajamas::MountDat1(
 		pbtFileInfoIndex += 8;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	GAMEDAT PAC2 Mounting
+// GAMEDAT PAC2 Mounting
 
-BOOL	CPajamas::MountDat2(
+BOOL CPajamas::MountDat2(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".dat") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "GAMEDAT PAC2", 12 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->SeekHed( 12 );
 	pclArc->Read( &dwFiles, 4 );
 
 	// Get index size from file count
-
-	DWORD				dwIndexSize = dwFiles * 40;
+	DWORD dwIndexSize = dwFiles * 40;
 
 	// Get index
-
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
-
+	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	DWORD         dwIndexPtr = 0;
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
 	// Get index of the file information
-
-	DWORD				dwFileNameIndexSize = dwFiles << 5;
-
-	BYTE*				pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
+	DWORD dwFileNameIndexSize = dwFiles << 5;
+	BYTE* pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
 
 	// Get offset (Required for correction when the starting address is zero-based)
-
-	DWORD				dwOffset = 16 + dwIndexSize;
+	DWORD dwOffset = 16 + dwIndexSize;
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get filename
-
-		TCHAR				szFileName[32];
-
+		TCHAR szFileName[32];
 		memcpy( szFileName, &clmbtIndex[dwIndexPtr], 32 );
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.start = *(DWORD*) &pbtFileInfoIndex[0] + dwOffset;
 		stFileInfo.sizeCmp = *(DWORD*) &pbtFileInfoIndex[4];
@@ -165,138 +140,116 @@ BOOL	CPajamas::MountDat2(
 		pbtFileInfoIndex += 8;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CPajamas::Decode(
+BOOL CPajamas::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeEPA( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	EPA Decoding
+// EPA Decoding
 
-BOOL	CPajamas::DecodeEPA(
+BOOL CPajamas::DecodeEPA(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if( pstFileInfo->format != _T("EPA") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Read header
-
-	BYTE				abtHeader[16];
-
+	BYTE abtHeader[16];
 	pclArc->Read( abtHeader, sizeof(abtHeader) );
 
 	// Difference flag, Number of colors, width, height
-
-	BYTE				btDiffFlag = abtHeader[3];
-	WORD				wBpp = abtHeader[4];
-	long				lWidth = *(long*) &abtHeader[8];
-	long				lHeight = *(long*) &abtHeader[12];
+	BYTE btDiffFlag = abtHeader[3];
+	WORD wBpp = abtHeader[4];
+	long lWidth = *(long*) &abtHeader[8];
+	long lHeight = *(long*) &abtHeader[12];
 
 	switch( wBpp )
 	{
-		case	0:
+		case 0:
 			wBpp = 8;
 			break;
 
-		case	1:
+		case 1:
 			wBpp = 24;
 			break;
 
-		case	2:
+		case 2:
 			wBpp = 32;
 			break;
 
-		case	4:
+		case 4:
 			wBpp = 8;
 			break;
 	}
 
 	switch( btDiffFlag )
 	{
-	case	1:
-		// Usual
-
+	case 1: // Usual
 		break;
 
-	case	2:
-		// Difference
-
+	case 2: // Difference
 		pclArc->SeekCur( 40 );
 		break;
 
-	default:
-		// Unknown
-
+	default: // Unknown
 		pclArc->SeekHed( pstFileInfo->start );
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Read palette
-
-	BYTE				abtPallet[768];
-
+	BYTE abtPallet[768];
 	if( wBpp == 8 )
 	{
 		pclArc->Read( abtPallet, sizeof(abtPallet) );
 	}
 
 	// Read EPA data
-
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp - 16;
-
+	DWORD dwSrcSize = pstFileInfo->sizeCmp - 16;
 	if( wBpp == 8 )
 	{
 		dwSrcSize -= sizeof(abtPallet);
 	}
-
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-
+	YCMemory<BYTE> clmbtSrc( dwSrcSize );
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
 	// Secure area to store the BMP data
-
-	DWORD				dwDstSize = lWidth * lHeight * (wBpp >> 3);
-
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
-
+	DWORD dwDstSize = lWidth * lHeight * (wBpp >> 3);
+	YCMemory<BYTE> clmbtDst( dwDstSize );
 	ZeroMemory( &clmbtDst[0], dwDstSize );
 
 	// Decompress EPA
-
 	DecompEPA( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize, lWidth );
 
 	// Output
-
-	CImage				clImage;
-
+	CImage clImage;
 	clImage.Init( pclArc, lWidth, lHeight, wBpp, abtPallet, sizeof(abtPallet) );
 	clImage.WriteCompoBGRAReverse( &clmbtDst[0], dwDstSize );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	EPA Decompression
+// EPA Decompression
 
-BOOL	CPajamas::DecompEPA(
+BOOL CPajamas::DecompEPA(
 	void*				pvDst,							// Destination
 	DWORD				dwDstSize,						// Destination Size
 	const void*			pvSrc,							// Input/Compressed data
@@ -304,15 +257,14 @@ BOOL	CPajamas::DecompEPA(
 	long				lWidth							// Width
 	)
 {
-	const BYTE*			pbtSrc = (const BYTE*) pvSrc;
-	BYTE*				pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtSrc = (const BYTE*) pvSrc;
+	BYTE*       pbtDst = (BYTE*) pvDst;
 
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
+	DWORD dwSrcPtr = 0;
+	DWORD dwDstPtr = 0;
 
 	// Offset table
-
-	const DWORD			adwOffsets[16] =
+	const DWORD adwOffsets[16] =
 	{
 		0, 1, lWidth, lWidth + 1,
 		2, lWidth - 1, lWidth << 1, 3,
@@ -321,11 +273,10 @@ BOOL	CPajamas::DecompEPA(
 	};
 
 	// Decompression
-
 	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
 	{
-		BYTE				btCode = pbtSrc[dwSrcPtr++];
-		DWORD				dwLength = btCode & 0x07;
+		BYTE btCode = pbtSrc[dwSrcPtr++];
+		DWORD dwLength = btCode & 0x07;
 
 		if( btCode & 0xF0 )
 		{
@@ -338,12 +289,11 @@ BOOL	CPajamas::DecompEPA(
 			{
 				btCode >>= 4;
 
-				DWORD				dwBack = dwDstPtr - adwOffsets[btCode];
+				DWORD dwBack = dwDstPtr - adwOffsets[btCode];
 
 				if( (dwDstPtr + dwLength) > dwDstSize )
 				{
 					// Exceeds output buffer
-
 					dwLength = (dwDstSize - dwDstPtr);
 				}
 
@@ -364,5 +314,5 @@ BOOL	CPajamas::DecompEPA(
 		}
 	}
 
-	return	TRUE;
+	return TRUE;
 }

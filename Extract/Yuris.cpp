@@ -1,47 +1,46 @@
-
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Arc/Zlib.h"
-#include	"Yuris.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Arc/Zlib.h"
+#include "Yuris.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CYuris::Mount(
+BOOL CYuris::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountYPF( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountYMV( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YPF Mounting
+// YPF Mounting
 
-BOOL	CYuris::MountYPF(
+BOOL CYuris::MountYPF(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ypf") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "YPF", 3 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	static const BYTE	fnameLenTable[256] =
+	static const BYTE fnameLenTable[256] =
 	{
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x0B, 0x0A, 0x09, 0x10, 0x13, 0x0E, 0x0F,
 		0x0C, 0x19, 0x12, 0x0D, 0x14, 0x1B, 0x16, 0x17, 0x18, 0x11, 0x1A, 0x15, 0x1E, 0x1D, 0x1C, 0x1F,
@@ -61,7 +60,7 @@ BOOL	CYuris::MountYPF(
 		0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 	};
 
-	static const BYTE	abtNotUseWord[] =
+	static const BYTE abtNotUseWord[] =
 	{
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -69,37 +68,31 @@ BOOL	CYuris::MountYPF(
 	};
 
 	// Get file count
-
 	DWORD ctFile;
-
 	pclArc->Seek(8, FILE_BEGIN);
 	pclArc->Read(&ctFile, 4);
 
 	// Get index size
-
 	DWORD index_size;
 	pclArc->Read(&index_size, 4);
 
 	// Get index
-
 	YCMemory<BYTE> index(index_size);
 	LPBYTE pIndex = &index[0];
 	pclArc->Seek(16, FILE_CURRENT);
 	pclArc->Read(pIndex, index_size);
 
 	// Decoding test
+	static DWORD adwFileInfoLength[] = { 26, 18 };
 
-	static DWORD		adwFileInfoLength[] = { 26, 18 };
-
-	BOOL				bSuccess = FALSE;
-	DWORD				dwFileInfoLength = 0;
-	BYTE				btKey1 = 0;
+	BOOL  bSuccess = FALSE;
+	DWORD dwFileInfoLength = 0;
+	BYTE  btKey1 = 0;
 
 	for( int i = 0 ; i < _countof( adwFileInfoLength ) ; i++ )
 	{
-		DWORD				dwCnt = 0;
-		DWORD				dwIndex = 0;
-
+		DWORD dwCnt = 0;
+		DWORD dwIndex = 0;
 		btKey1 = 0;
 
 		for( ; dwCnt < ctFile ; dwCnt++ )
@@ -113,11 +106,10 @@ BOOL	CYuris::MountYPF(
 				break;
 			}
 
-			char				szFileName[256];
-			BYTE				btLength = fnameLenTable[255 - pIndex[dwIndex]];
+			char szFileName[256];
+			BYTE btLength = fnameLenTable[255 - pIndex[dwIndex]];
 
 			dwIndex += 1;
-
 			if( dwIndex >= index_size )
 			{
 				break;
@@ -156,7 +148,6 @@ BOOL	CYuris::MountYPF(
 		if( (dwCnt == ctFile) && (dwIndex == index_size) )
 		{
 			// Successful decoding
-
 			bSuccess = TRUE;
 			dwFileInfoLength = adwFileInfoLength[i];
 			break;
@@ -166,16 +157,14 @@ BOOL	CYuris::MountYPF(
 	if( !bSuccess )
 	{
 		// Anomaly occurred
-
-		return	FALSE;
+		return FALSE;
 	}
 
 	for( DWORD i = 0 ; i < ctFile ; i++ )
 	{
 		// Filename
-
-		TCHAR				szFileName[256];
-		BYTE				btLength = fnameLenTable[255 - pIndex[4]];
+		TCHAR szFileName[256];
+		BYTE  btLength = fnameLenTable[255 - pIndex[4]];
 
 		for( DWORD j = 0 ; j < btLength ; j++ )
 		{
@@ -187,9 +176,7 @@ BOOL	CYuris::MountYPF(
 		BYTE bCmp = pIndex[5 + btLength + 1];
 
 		// Add to listview
-
 		SFileInfo infFile;
-
 		infFile.name = szFileName;
 		infFile.sizeOrg = *(LPDWORD)&pIndex[5 + btLength + 2];
 		infFile.sizeCmp = *(LPDWORD)&pIndex[5 + btLength + 6];
@@ -202,50 +189,43 @@ BOOL	CYuris::MountYPF(
 		pIndex += 5 + btLength + dwFileInfoLength;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YMV Mounting
+// YMV Mounting
 
-BOOL	CYuris::MountYMV(
+BOOL CYuris::MountYMV(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ymv") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "YSMV", 4 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	pclArc->SeekHed( 8 );
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->Read( &dwFiles, 4 );
-
 	pclArc->SeekCur( 4 );
 
 	// Get index
-
-	YCMemory<DWORD>		clmIndexOfOffset( dwFiles );
-	YCMemory<DWORD>		clmIndexOfSize( dwFiles );
-
+	YCMemory<DWORD> clmIndexOfOffset( dwFiles );
+	YCMemory<DWORD> clmIndexOfSize( dwFiles );
 	pclArc->Read( &clmIndexOfOffset[0], (4 * dwFiles) );
 	pclArc->Read( &clmIndexOfSize[0], (4 * dwFiles) );
 
 	// Additional file information
-
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name.Format( _T("%s_%06d.jpg"), pclArc->GetArcName().GetFileTitle(), i );
 		stFileInfo.start = clmIndexOfOffset[i];
 		stFileInfo.sizeCmp = clmIndexOfSize[i];
@@ -255,65 +235,60 @@ BOOL	CYuris::MountYMV(
 		pclArc->AddFileInfo( stFileInfo );
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CYuris::Decode(
+BOOL CYuris::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeYMV( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	YMV Decoding
+// YMV Decoding
 
-BOOL	CYuris::DecodeYMV(
+BOOL CYuris::DecodeYMV(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".ymv") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "YSMV", 4 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	// Reading
-
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-	YCMemory<BYTE>		clmSrc( dwSrcSize );
-
+	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	YCMemory<BYTE> clmSrc( dwSrcSize );
 	pclArc->Read( &clmSrc[0], dwSrcSize );
 
 	// Decoding
-
 	for( DWORD i = 0 ; i < dwSrcSize ; i++ )
 	{
-		BYTE				btKey = ((i & 0x0F) + 16);
+		BYTE btKey = ((i & 0x0F) + 16);
 
 		clmSrc[i] ^= btKey;
 	}
 
 	// Output
-
 	pclArc->OpenFile();
 	pclArc->WriteFile( &clmSrc[0], dwSrcSize );
 	pclArc->CloseFile();
 
-	return	TRUE;
+	return TRUE;
 }

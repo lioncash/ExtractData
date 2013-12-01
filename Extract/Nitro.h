@@ -1,6 +1,7 @@
 #pragma once
 
-class CNitro : public CExtractBase {
+class CNitro : public CExtractBase
+{
 private:
 	BOOL MountPak1(CArcFile* pclArc);
 	BOOL MountPak2(CArcFile* pclArc);

@@ -1,9 +1,12 @@
 #pragma once
 
-class CSpitan : public CExtractBase {
+class CSpitan : public CExtractBase
+{
 protected:
+
 	// Spitan File Info
-	struct FileInfo {
+	struct FileInfo
+	{
 		DWORD start;
 		DWORD size;
 		TCHAR dummy[20];

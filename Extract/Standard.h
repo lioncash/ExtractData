@@ -1,6 +1,6 @@
 #pragma once
 
-class	CStandard : public CExtractBase
+class CStandard : public CExtractBase
 {
 public:
 

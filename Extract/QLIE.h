@@ -1,12 +1,13 @@
 #pragma once
 
-class CQLIE : public CExtractBase {
+class CQLIE : public CExtractBase
+{
 private:
 
-	struct	SFileNameInfo
+	struct SFileNameInfo
 	{
-		YCString			clsFileName;				// Filename
-		DWORD				dwCount;					// Number of times
+		YCString clsFileName; // Filename
+		DWORD    dwCount;     // Number of times
 	};
 
 	BOOL DecodeB( CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize );

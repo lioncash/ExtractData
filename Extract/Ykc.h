@@ -1,6 +1,7 @@
 #pragma once
 
-class CYkc : public CExtractBase {
+class CYkc : public CExtractBase
+{
 private:
 	BOOL DecodeYKS(CArcFile* pclArc);
 	BOOL DecodeYKG(CArcFile* pclArc);

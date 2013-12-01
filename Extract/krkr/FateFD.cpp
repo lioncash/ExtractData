@@ -1,29 +1,29 @@
-#include	"stdafx.h"
-#include	"FateFD.h"
+#include "stdafx.h"
+#include "FateFD.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Check if it can be decoded
+// Check if it can be decoded
 
-BOOL	CFateFD::OnCheckDecrypt(
+BOOL CFateFD::OnCheckDecrypt(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcName() != _T("video.xp3") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	return	CheckTpm( "9C5BB86A5BBD1B77A311EC504DB45653" );
+	return CheckTpm( "9C5BB86A5BBD1B77A311EC504DB45653" );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialize Decryption Routine
+// Initialize Decryption Routine
 
-DWORD	CFateFD::OnInitDecrypt(
+DWORD CFateFD::OnInitDecrypt(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->name == _T("fd_op01.mpg") )
 	{
@@ -68,13 +68,13 @@ DWORD	CFateFD::OnInitDecrypt(
 		SetDecryptRequirement( FALSE );
 	}
 
-	return	0;
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding Process
+// Decoding Process
 
-DWORD	CFateFD::OnDecrypt(
+DWORD CFateFD::OnDecrypt(
 	BYTE*				pbtTarget,						// Data to be decoded
 	DWORD				dwTargetSize,					// Decoding size
 	DWORD				dwOffset,						// Location of data to be decoded (offset)
@@ -109,5 +109,5 @@ DWORD	CFateFD::OnDecrypt(
 		}
 	}
 
-	return	dwTargetSize;
+	return dwTargetSize;
 }

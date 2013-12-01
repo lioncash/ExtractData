@@ -1,82 +1,75 @@
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Arc/LZSS.h"
-#include	"../Image.h"
-#include	"../Image/Tga.h"
-#include	"TH2.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Arc/LZSS.h"
+#include "../Image.h"
+#include "../Image/Tga.h"
+#include "TH2.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CTH2::Mount(
+BOOL CTH2::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountKCAP( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountLAC( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountDpl( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountWMV( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	KCAP Mounting
+// KCAP Mounting
 
-BOOL	CTH2::MountKCAP(
+BOOL CTH2::MountKCAP(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten().CompareNoCase( _T(".pak") ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "KCAP", 4 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->SeekHed( 4 );
 	pclArc->Read( &dwFiles, 4 );
 
 	// Get index size from file count
-
 	DWORD				dwIndexSize = (dwFiles * 36);
 
 	// Get index
-
-	YCMemory<BYTE>		clmIndex( dwIndexSize );
-
+	YCMemory<BYTE> clmIndex( dwIndexSize );
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	DWORD				dwIndexPtr = 0;
-
+	DWORD dwIndexPtr = 0;
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
-		DWORD				dwType = *(DWORD*) &clmIndex[dwIndexPtr + 0];
+		DWORD dwType = *(DWORD*) &clmIndex[dwIndexPtr + 0];
 
 		// Skip garbage files
-
 		if( dwType == 0xCCCCCCCC )
 		{
 			dwIndexPtr += 36;
@@ -84,17 +77,12 @@ BOOL	CTH2::MountKCAP(
 		}
 
 		// Get filename
-
-		char				szFileName[25];
-
+		char szFileName[25];
 		memcpy( szFileName, &clmIndex[dwIndexPtr + 4], 24 );
-
 		szFileName[24] = '\0';
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.start = *(DWORD*) &clmIndex[dwIndexPtr + 28];
 		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[dwIndexPtr + 32];
@@ -112,64 +100,52 @@ BOOL	CTH2::MountKCAP(
 		dwIndexPtr += 36;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LAC Mounting
+// LAC Mounting
 
-BOOL	CTH2::MountLAC(
+BOOL CTH2::MountLAC(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten().CompareNoCase( _T(".pak") ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "LAC", 3 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	DWORD				dwFiles;
-
+	DWORD dwFiles;
 	pclArc->SeekHed( 4 );
 	pclArc->Read( &dwFiles, 4 );
 
 	// Get index size from file count
-
-	DWORD				dwIndexSize = (dwFiles * 40);
+	DWORD dwIndexSize = (dwFiles * 40);
 
 	// Get index
-
-	YCMemory<BYTE>		clmIndex( dwIndexSize );
-
+	YCMemory<BYTE> clmIndex( dwIndexSize );
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	DWORD				dwIndexPtr = 0;
-
+	DWORD dwIndexPtr = 0;
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get filename
-
-		char				szFileName[33];
-
+		char szFileName[33];
 		memcpy( szFileName, &clmIndex[dwIndexPtr + 0], 32 );
-
 		szFileName[32] = '\0';
-
 		for( int j = 0 ; j < lstrlen( szFileName ) ; j++ )
 		{
 			szFileName[j] ^= 0xFF;
 		}
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[dwIndexPtr + 32];
 		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
@@ -181,60 +157,50 @@ BOOL	CTH2::MountLAC(
 		dwIndexPtr += 40;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Dpl mounting
+// Dpl mounting
 
-BOOL	CTH2::MountDpl(
+BOOL CTH2::MountDpl(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".a") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "\x1E\xAF", 2 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	WORD				wFiles;
-
+	WORD wFiles;
 	pclArc->SeekHed( 2 );
 	pclArc->Read( &wFiles, 2 );
 
 	// Get index size from file count
-
-	DWORD				dwIndexSize = (wFiles << 5);
+	DWORD dwIndexSize = (wFiles << 5);
 
 	// Get index
-
-	YCMemory<BYTE>		clmIndex( dwIndexSize );
-
+	YCMemory<BYTE> clmIndex( dwIndexSize );
 	pclArc->Read( &clmIndex[0], dwIndexSize );
 
-	DWORD				dwOffset = (dwIndexSize + 4);
-	DWORD				dwIndexPtr = 0;
-
+	DWORD dwOffset = (dwIndexSize + 4);
+	DWORD dwIndexPtr = 0;
 	for( WORD i = 0 ; i < wFiles ; i++ )
 	{
 		// Get filename
 
-		char				szFileName[25];
-
+		char szFileName[25];
 		memcpy( szFileName, &clmIndex[dwIndexPtr + 0], 24 );
-
 		szFileName[24] = '\0';
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[dwIndexPtr + 24];
 		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
@@ -246,176 +212,152 @@ BOOL	CTH2::MountDpl(
 		dwIndexPtr += 32;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	WMV Mounting
+// WMV Mounting
 
-BOOL	CTH2::MountWMV(
+BOOL CTH2::MountWMV(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".wmv") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	return	pclArc->Mount();
+	return pclArc->Mount();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CTH2::Decode(
+BOOL CTH2::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeWMV( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeEtc( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	WMV Decoding
+// WMV Decoding
 
-BOOL	CTH2::DecodeWMV(
+BOOL CTH2::DecodeWMV(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pclArc->GetArcExten() != _T(".wmv") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( memcmp( pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16 ) != 0 )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get buffer
-
-	DWORD				dwBufferSize = pclArc->GetBufSize();
-
-	YCMemory<BYTE>		clmBuffer( dwBufferSize );
+	DWORD          dwBufferSize = pclArc->GetBufSize();
+	YCMemory<BYTE> clmBuffer( dwBufferSize );
 
 	// Output
-
 	pclArc->OpenFile();
-
 	pclArc->SeekCur( 8 );
 	pclArc->WriteFile( "\x30\x26\xB2\x75\x8E\x66\xCF\x11", 8 );
-
 	pclArc->ReadWrite( (pstFileInfo->sizeCmp - 8) );
-
 	pclArc->CloseFile();
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding other files
+// Decoding other files
 
-BOOL	CTH2::DecodeEtc(
+BOOL CTH2::DecodeEtc(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if( pstFileInfo->title != _T("TH2") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	if( (pstFileInfo->format != _T("LZ")) && (pstFileInfo->format != _T("TGA")) )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	YCMemory<BYTE>		clmDst;
-	DWORD				dwDstSize;
+	YCMemory<BYTE> clmDst;
+	DWORD          dwDstSize;
 
 	// LZ Decoding
-
 	if( pstFileInfo->format == _T("LZ") )
 	{
 		// Get input size
-
-		DWORD				dwSrcSize = (pstFileInfo->sizeCmp - 8);
+		DWORD dwSrcSize = (pstFileInfo->sizeCmp - 8);
 
 		// Get output size
-
 		pclArc->SeekCur( 4 );
 		pclArc->Read( &dwDstSize, 4 );
 
 		// Ensure buffers exist
-
-		YCMemory<BYTE>		clmSrc( dwSrcSize );
-
+		YCMemory<BYTE> clmSrc( dwSrcSize );
 		clmDst.resize( dwDstSize );
 
 		// Read
-
 		pclArc->Read( &clmSrc[0], dwSrcSize );
 
 		// LZSS Decompression
-
-		CLZSS				clLZSS;
-
+		CLZSS clLZSS;
 		clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
 	}
 	else
 	{
 		// Uncompressed
-
 		dwDstSize = pstFileInfo->sizeOrg;
-
 		clmDst.resize( dwDstSize );
-
 		pclArc->Read( &clmDst[0], dwDstSize );
 	}
 
-	YCString			clsFileExt = pstFileInfo->name.GetFileExt().MakeLower();
-
+	YCString clsFileExt = pstFileInfo->name.GetFileExt().MakeLower();
 	if( clsFileExt == _T(".tga") )
 	{
 		// TGA
-
-		CTga				clTGA;
-
+		CTga clTGA;
 		clTGA.Decode( pclArc, &clmDst[0], dwDstSize );
 	}
 	else if( clsFileExt == _T(".bmp") )
 	{
 		// BMP
-
-		CImage				clImage;
-
+		CImage clImage;
 		clImage.Init( pclArc, &clmDst[0] );
 		clImage.Write( dwDstSize );
 	}
 	else
 	{
 		// Other
-
 		pclArc->OpenFile();
 		pclArc->WriteFile( &clmDst[0], dwDstSize );
 	}
 
-	return	TRUE;
+	return TRUE;
 }

@@ -1,8 +1,10 @@
 #pragma once
 
-class CSummerDays : public CExtractBase {
+class CSummerDays : public CExtractBase
+{
 protected:
-	struct TCONTEXT {
+	struct TCONTEXT
+	{
 		YCString pcName;
 		int iType;
 		WORD ui16Code;

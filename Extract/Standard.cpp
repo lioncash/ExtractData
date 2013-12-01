@@ -1,23 +1,21 @@
-#include	"stdafx.h"
-#include	"../ExtractBase.h"
-#include	"../Arc/LZSS.h"
-#include	"../Arc/Zlib.h"
-#include	"Ahx.h"
-#include	"../Image.h"
-#include	"../Sound/Ogg.h"
-#include	"Standard.h"
+#include "stdafx.h"
+#include "../ExtractBase.h"
+#include "../Arc/LZSS.h"
+#include "../Arc/Zlib.h"
+#include "Ahx.h"
+#include "../Image.h"
+#include "../Sound/Ogg.h"
+#include "Standard.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CStandard::Mount(
+BOOL CStandard::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	// Get file info
-
-	SFileInfo			stFileInfo;
-
+	SFileInfo stFileInfo;
 	stFileInfo.name = pclArc->GetArcName();
 	stFileInfo.sizeOrg = pclArc->GetArcSize();
 	stFileInfo.sizeCmp = stFileInfo.sizeOrg;
@@ -26,108 +24,108 @@ BOOL	CStandard::Mount(
 
 	pclArc->AddFileInfo( stFileInfo );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CStandard::Decode(
+BOOL CStandard::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeLZSS( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeZlib( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeAhx( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeImage( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeOgg( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	Extract( pclArc );
+	return Extract( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSS Decoding
+// LZSS Decoding
 
-BOOL	CStandard::DecodeLZSS(
+BOOL CStandard::DecodeLZSS(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	CLZSS				clLZSS;
+	CLZSS clLZSS;
 
-	return	clLZSS.Decode( pclArc );
+	return clLZSS.Decode( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	zlib Decoding
+// zlib Decoding
 
-BOOL	CStandard::DecodeZlib(
+BOOL CStandard::DecodeZlib(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	CZlib				clZlib;
+	CZlib clZlib;
 
-	return	clZlib.Decode( pclArc );
+	return clZlib.Decode( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	AHX Decoding
+// AHX Decoding
 
-BOOL	CStandard::DecodeAhx(
+BOOL CStandard::DecodeAhx(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	CAhx				clAHX;
+	CAhx clAHX;
 
-	return	clAHX.Decode( pclArc );
+	return clAHX.Decode( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Image Decoding
+// Image Decoding
 
-BOOL	CStandard::DecodeImage(
+BOOL CStandard::DecodeImage(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	CImage				clImage;
+	CImage clImage;
 
-	return	clImage.Decode( pclArc );
+	return clImage.Decode( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Ogg Vorbis Decoding
+// Ogg Vorbis Decoding
 
-BOOL	CStandard::DecodeOgg(
+BOOL CStandard::DecodeOgg(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	COgg				clOgg;
+	COgg clOgg;
 
-	return	clOgg.Decode( pclArc );
+	return clOgg.Decode( pclArc );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Extraction
 
-BOOL	CStandard::Extract(
+BOOL CStandard::Extract(
 	CArcFile*			pclArc							// Archive
 	)
 {
@@ -135,5 +133,5 @@ BOOL	CStandard::Extract(
 	pclArc->ReadWrite();
 	pclArc->CloseFile();
 
-	return	TRUE;
+	return TRUE;
 }

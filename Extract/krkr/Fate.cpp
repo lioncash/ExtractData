@@ -1,10 +1,10 @@
-#include	"stdafx.h"
-#include	"Fate.h"
+#include "stdafx.h"
+#include "Fate.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Determine if decodable
+// Determine if decodable
 
-BOOL	CFate::OnCheckDecrypt(
+BOOL CFate::OnCheckDecrypt(
 	CArcFile*			pclArc							// Archive
 	)
 {
@@ -18,27 +18,27 @@ BOOL	CFate::OnCheckDecrypt(
 	{
 		if( CheckTpm( apszMD5[i] ) )
 		{
-			return	TRUE;
+			return TRUE;
 		}
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Initialization of Decryption Routine
+// Initialization of Decryption Routine
 
-DWORD	CFate::OnInitDecrypt(
+DWORD CFate::OnInitDecrypt(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	return	0x36;
+	return 0x36;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding Process
+// Decoding Process
 
-DWORD	CFate::OnDecrypt(
+DWORD CFate::OnDecrypt(
 	BYTE*				pbtTarget,						// Data to be decrypted
 	DWORD				dwTargetSize,					// Decryption size
 	DWORD				dwOffset,						// Location of data to be decoded (offset)
@@ -60,5 +60,5 @@ DWORD	CFate::OnDecrypt(
 		}
 	}
 
-	return	dwTargetSize;
+	return dwTargetSize;
 }
