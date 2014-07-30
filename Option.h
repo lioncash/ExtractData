@@ -31,7 +31,7 @@ public:
     void DoModal(HWND hWnd);
     HWND CreateProp(HWND hWnd);
 
-    SOption& GetOpt() { return (m_option); }
-    HWND GetParent()  { return (m_hParentWnd); }
-    HWND GetHandle()  { return (m_hDlg); }
+    SOption& GetOpt() { return m_option; }
+    HWND GetParent()  { return m_hParentWnd; }
+    HWND GetHandle()  { return m_hDlg; }
 };

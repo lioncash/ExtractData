@@ -46,29 +46,29 @@ void CSusie::Apply()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CSusie::Mount(
-	CArcFile* pclArc // Archive
-	)
+BOOL CSusie::Mount(CArcFile* pclArc)
 {
 	// Get header
 	BYTE* pbtHeader = pclArc->GetHed();
 
 	// Mount
-	for( size_t i = 0 ; i < m_stsiMain.size() ; i++ )
+	for (size_t i = 0; i < m_stsiMain.size(); i++)
 	{
 		SSusieInfo* pstsiTarget = &m_stsiMain[i];
 
-		if( pstsiTarget->bValidity == 0 )
+		if (pstsiTarget->bValidity == 0)
 		{
 			// Invalid Susie plugin
-
 			continue;
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress( _T("IsSupported") );
-		if( IsSupported == NULL )
+		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
+		if (IsSupported == NULL)
 		{
 			// IsSupported function is not implemented
 			continue;
@@ -77,33 +77,33 @@ BOOL CSusie::Mount(
 		// Copy the archive file path
 		char      szPathToArc[MAX_PATH];
 		YCStringA clsPathToArc = pclArc->GetArcPath();
-		strcpy( szPathToArc, clsPathToArc );
+		strcpy(szPathToArc, clsPathToArc);
 
 		// Call IsSupported()
 		BYTE abtHeader[2048];
-		memcpy( abtHeader, pbtHeader, sizeof(abtHeader) );
-		if( IsSupported( szPathToArc, (DWORD) abtHeader ) == 0 )
+		memcpy(abtHeader, pbtHeader, sizeof(abtHeader));
+		if (IsSupported(szPathToArc, (DWORD) abtHeader) == 0)
 		{
 			// Archive file not supported
 			continue;
 		}
 
 		// Get GetArchiveInfo()
-		GetArchiveInfoProc GetArchiveInfo = (GetArchiveInfoProc) pstsiTarget->cllPlugin.GetProcAddress( _T("GetArchiveInfo") );
-		if( GetArchiveInfo == NULL )
+		GetArchiveInfoProc GetArchiveInfo = (GetArchiveInfoProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetArchiveInfo"));
+		if (GetArchiveInfo == NULL)
 		{
 			// We trust IsSupported() and attempt to mount
 			return pclArc->Mount();
 		}
 
 		// Copy archive path (Since there is a chance that IsSupported() can be overwritten)
-		strcpy( szPathToArc, clsPathToArc );
+		strcpy(szPathToArc, clsPathToArc);
 
 		// Call GetArchiveInfo()
 		YCLocalMemory cllmFileInfo;
-		if( GetArchiveInfo( szPathToArc, 0, 0, &cllmFileInfo.GetHandle() ) != 0 )
-		{ // Error in function GetArchiveInfo()
-			
+		if (GetArchiveInfo(szPathToArc, 0, 0, &cllmFileInfo.GetHandle()) != 0)
+		{
+			// Error in function GetArchiveInfo()
 			cllmFileInfo.Free();
 
 			// We will trust IsSupported() and attempt to mount
@@ -111,7 +111,7 @@ BOOL CSusie::Mount(
 		}
 
 		// Error in the function GetArchiveInfo()
-		if( cllmFileInfo.GetHandle() == NULL )
+		if (cllmFileInfo.GetHandle() == NULL)
 		{
 			// We will trust IsSupported() and attempt to mount
 			return pclArc->Mount();
@@ -121,11 +121,11 @@ BOOL CSusie::Mount(
 		fileInfo* pstFileInfo = (fileInfo*) cllmFileInfo.Lock();
 
 		size_t    uSusieFileInfoSize = cllmFileInfo.GetSize();
-		size_t    uFileCount = uSusieFileInfoSize / sizeof( fileInfo );
+		size_t    uFileCount = uSusieFileInfoSize / sizeof(fileInfo);
 
-		for( size_t uIndex = 0 ; uIndex < uFileCount ; uIndex++ )
+		for (size_t uIndex = 0; uIndex < uFileCount; uIndex++)
 		{
-			if( pstFileInfo->method[0] == '\0' )
+			if (pstFileInfo->method[0] == '\0')
 			{
 				// Exit
 
@@ -134,16 +134,16 @@ BOOL CSusie::Mount(
 
 			char szFileName[MAX_PATH];
 
-			if( pstFileInfo->path[0] != '\0' )
+			if (pstFileInfo->path[0] != '\0')
 			{
 				// Path exists
 
-				strcpy( szFileName, pstFileInfo->path );
-				PathAppendA( szFileName, pstFileInfo->filename );
+				strcpy(szFileName, pstFileInfo->path);
+				PathAppendA(szFileName, pstFileInfo->filename);
 			}
 			else
 			{
-				strcpy( szFileName, pstFileInfo->filename );
+				strcpy(szFileName, pstFileInfo->filename);
 			}
 
 			// Set the file information
@@ -153,9 +153,9 @@ BOOL CSusie::Mount(
 			stFileInfo.sizeOrg = pstFileInfo->filesize;
 			stFileInfo.start = pstFileInfo->position;
 			stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-			stFileInfo.format.Append( (LPTSTR)pstFileInfo->method, 8 );
+			stFileInfo.format.Append((LPTSTR)pstFileInfo->method, 8);
 
-			pclArc->AddFileInfo( stFileInfo );
+			pclArc->AddFileInfo(stFileInfo);
 			pstFileInfo++;
 		}
 
@@ -170,10 +170,11 @@ BOOL CSusie::Mount(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CSusie::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CSusie::Decode(CArcFile* pclArc)
 {
 	YCStringA clsPathToArc = pclArc->GetArcPath();
 	YCStringA clsFileName = pclArc->GetOpenFileInfo()->name;
@@ -182,54 +183,50 @@ BOOL CSusie::Decode(
 	BYTE* pbtHeader = pclArc->GetHed();
 
 	// GetPicture() file input
-	std::vector<YCLibrary*>	vtSupportPlugin;
+	std::vector<YCLibrary*> vtSupportPlugin;
 
-	for( size_t i = 0, uPluginIndex = 0 ; i < m_stsiMain.size() ; i++ )
+	for (size_t i = 0, uPluginIndex = 0; i < m_stsiMain.size(); i++)
 	{
 		SSusieInfo* pstsiTarget = &m_stsiMain[i];
 
-		if( pstsiTarget->bValidity == 0 )
+		if (pstsiTarget->bValidity == 0)
 		{
 			// Invalid Susie plugin
-
 			continue;
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress( _T("IsSupported") );
-		if( IsSupported == NULL )
+		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
+		if (IsSupported == NULL)
 		{
 			// IsSupported() function is not implemented 
-
 			continue;
 		}
 
 		// Copy the archive's file path
 		char szPathToArc[MAX_PATH];
-		strcpy( szPathToArc, clsPathToArc );
+		strcpy(szPathToArc, clsPathToArc);
 
 		BYTE abtHeader[2048];
-		memcpy( abtHeader, pbtHeader, sizeof(abtHeader) );
+		memcpy(abtHeader, pbtHeader, sizeof(abtHeader));
 
-		if( !IsSupported( szPathToArc, (DWORD) abtHeader ) )
+		if (!IsSupported(szPathToArc, (DWORD) abtHeader))
 		{
 			// Archive file is not supported
-
 			continue;
 		}
 
 		// Archive file is supported
-		vtSupportPlugin.push_back( &pstsiTarget->cllPlugin );
+		vtSupportPlugin.push_back(&pstsiTarget->cllPlugin);
 
 		// Copy the archive file path
-		strcpy( szPathToArc, clsPathToArc );
+		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetPicture()
-		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress( _T("GetPicture") );
-		if( GetPicture == NULL )
+		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPicture"));
+		if (GetPicture == NULL)
 		{
 			// GetPicture() function is not implemented
-
 			continue;
 		}
 
@@ -237,10 +234,9 @@ BOOL CSusie::Decode(
 		YCLocalMemory cllmBitmapData;
 
 		// Call GetPicture()
-		if( GetPicture( szPathToArc, pclArc->GetOpenFileInfo()->start, 0x0000, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0 )
+		if (GetPicture( szPathToArc, pclArc->GetOpenFileInfo()->start, 0x0000, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0)
 		{
 			// GetPicture() has failed
-
 			continue;
 		}
 
@@ -251,8 +247,8 @@ BOOL CSusie::Decode(
 
 		// Image output
 		CImage image;
-		image.Init( pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (LPBYTE) pBMPInfo->bmiColors );
-		image.Write( pHBm, HBmSize );
+		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (LPBYTE) pBMPInfo->bmiColors);
+		image.Write(pHBm, HBmSize);
 		image.Close();
 
 		// Exit (Free resources)
@@ -266,23 +262,22 @@ BOOL CSusie::Decode(
 
 	YCLocalMemory cllmSrc;
 
-	for( size_t uCnt = 0 ; uCnt < vtSupportPlugin.size() ; uCnt++ )
+	for (size_t uCnt = 0; uCnt < vtSupportPlugin.size(); uCnt++)
 	{
 		// Copy archive file path
 		char szPathToArc[MAX_PATH];
-		strcpy( szPathToArc, clsPathToArc );
+		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetFile()
-		GetFileProc GetFile = (GetFileProc) vtSupportPlugin[uCnt]->GetProcAddress( _T("GetFile") );
-		if( GetFile == NULL )
+		GetFileProc GetFile = (GetFileProc) vtSupportPlugin[uCnt]->GetProcAddress(_T("GetFile"));
+		if (GetFile == NULL)
 		{
 			// GetFile() function is not supported
-
 			continue;
 		}
 
 		// Call GetFile()
-		if( GetFile( szPathToArc, pclArc->GetOpenFileInfo()->start, (LPSTR) &cllmSrc.GetHandle(), 0x0100, NULL, 0 ) != 0 )
+		if (GetFile(szPathToArc, pclArc->GetOpenFileInfo()->start, (LPSTR) &cllmSrc.GetHandle(), 0x0100, NULL, 0 ) != 0)
 		{
 			// GetFile has failed
 
@@ -300,7 +295,7 @@ BOOL CSusie::Decode(
 	LPBYTE pbtSrc = NULL;
 	DWORD  dwSrcSize;
 
-	if( cllmSrc.GetHandle() != NULL )
+	if (cllmSrc.GetHandle() != NULL)
 	{
 		// Successful GetFile()
 
@@ -315,32 +310,30 @@ BOOL CSusie::Decode(
 		// Memory allocation
 		dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp;
 
-		cllmSrc.Alloc( LHND, dwSrcSize );
+		cllmSrc.Alloc(LHND, dwSrcSize);
 		pbtSrc = (LPBYTE) cllmSrc.Lock();
 
 		// Reading
-		pclArc->Read( pbtSrc, dwSrcSize );
-		pclArc->SeekCur( -(INT64)dwSrcSize );
+		pclArc->Read(pbtSrc, dwSrcSize);
+		pclArc->SeekCur(-(INT64)dwSrcSize);
 	}
 
 	// Memory Input - GetPicture()
-	for( size_t i = 0 ; i < m_stsiMain.size() ; i++ )
+	for (size_t i = 0; i < m_stsiMain.size(); i++)
 	{
 		SSusieInfo* pstsiTarget = &m_stsiMain[i];
 
-		if( pstsiTarget->bValidity == 0 )
+		if (pstsiTarget->bValidity == 0)
 		{
 			// Invalid Susie plugin
-
 			continue;
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress( _T("IsSupported") );
-		if( IsSupported == NULL )
+		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
+		if (IsSupported == NULL)
 		{
 			// IsSupported() function is not implemented 
-
 			continue;
 		}
 
@@ -348,30 +341,28 @@ BOOL CSusie::Decode(
 		// Plugin fails if the full path does not exist
 
 		char szPathToFile[MAX_PATH];
-		strcpy( szPathToFile, clsPathToArc.GetDirPath() );
-		PathAppendA( szPathToFile, clsFileName );
+		strcpy(szPathToFile, clsPathToArc.GetDirPath());
+		PathAppendA(szPathToFile, clsFileName);
 
 		// Needs 2KB
 		BYTE  abtSrcHeader[2048];
 		DWORD dwCopySize = (dwSrcSize <= sizeof(abtSrcHeader)) ? dwSrcSize : sizeof(abtSrcHeader);
 
-		ZeroMemory( abtSrcHeader, sizeof(abtSrcHeader) );
-		memcpy( abtSrcHeader, pbtSrc, dwCopySize );
+		ZeroMemory(abtSrcHeader, sizeof(abtSrcHeader));
+		memcpy(abtSrcHeader, pbtSrc, dwCopySize);
 
 		// Call IsSupported()
-		if( !IsSupported( szPathToFile, (DWORD) abtSrcHeader ) )
+		if (!IsSupported(szPathToFile, (DWORD) abtSrcHeader))
 		{
 			// File is not supported
-
 			continue;
 		}
 
 		// Get GetPicture()
-		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress( _T("GetPicture") );
-		if( GetPicture == NULL )
+		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPicture"));
+		if (GetPicture == NULL)
 		{
 			// GetPicture() function is not implemented
-
 			continue;
 		}
 
@@ -379,10 +370,9 @@ BOOL CSusie::Decode(
 		YCLocalMemory cllmBitmapData;
 
 		// Call GetPicture()
-		if( GetPicture( (LPSTR) pbtSrc, dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0 )
+		if (GetPicture( (LPSTR) pbtSrc, dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0)
 		{
 			// GetPicture() has failed
-
 			continue;
 		}
 
@@ -393,8 +383,8 @@ BOOL CSusie::Decode(
 
 		// Image output
 		CImage image;
-		image.Init( pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (BYTE*) pBMPInfo->bmiColors );
-		image.Write( pHBm, HBmSize );
+		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (BYTE*) pBMPInfo->bmiColors);
+		image.Write(pHBm, HBmSize);
 		image.Close();
 
 		// Exit
@@ -406,7 +396,7 @@ BOOL CSusie::Decode(
 	}
 
 	// Exit if the file could not be obtained in the function GetFile()
-	if( !bGetFileSuccess )
+	if (!bGetFileSuccess)
 	{
 		cllmSrc.Free();
 
@@ -415,7 +405,7 @@ BOOL CSusie::Decode(
 
 	// Output file obtained from GetFile()
 	pclArc->OpenFile();
-	pclArc->WriteFile( pbtSrc, dwSrcSize, pclArc->GetOpenFileInfo()->sizeCmp );
+	pclArc->WriteFile(pbtSrc, dwSrcSize, pclArc->GetOpenFileInfo()->sizeCmp);
 	pclArc->CloseFile();
 
 	// Exit (Free resources)
@@ -427,9 +417,7 @@ BOOL CSusie::Decode(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Load Susie Plugin
 
-void CSusie::LoadSpi(
-	const YCString&		rfclsPathToSusieFolder			// Susie Folder path
-	)
+void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 {
 	// Release / Free Susie Plugin
 	m_stsiMain.clear();
@@ -437,76 +425,72 @@ void CSusie::LoadSpi(
 	// Susie Plugin Path
 	TCHAR szPathToSusiePlugin[MAX_PATH];
 
-	lstrcpy( szPathToSusiePlugin, rfclsPathToSusieFolder );
-	PathAppend( szPathToSusiePlugin, _T("*.spi") );
+	lstrcpy(szPathToSusiePlugin, rfclsPathToSusieFolder);
+	PathAppend(szPathToSusiePlugin, _T("*.spi"));
 
 	// Susie Plugin Info
 	YCFileFindSx          clffsSusie;
 	std::vector<YCString> vcPathToSusiePlugin;
 
-	clffsSusie.FindFile( vcPathToSusiePlugin, rfclsPathToSusieFolder, _T("*.spi"), FALSE );
+	clffsSusie.FindFile(vcPathToSusiePlugin, rfclsPathToSusieFolder, _T("*.spi"), FALSE);
 
 	// Get Susie Plugin Information
-	YCIni cliSusie( SBL_STR_INI_SUSIE );
-	cliSusie.SetSection( _T("Plugins") );
+	YCIni cliSusie(SBL_STR_INI_SUSIE);
+	cliSusie.SetSection(_T("Plugins"));
 
 	size_t uIndex = 0;
 
-	m_stsiMain.resize( vcPathToSusiePlugin.size() );
+	m_stsiMain.resize(vcPathToSusiePlugin.size());
 
-	for( size_t i = 0 ; i < vcPathToSusiePlugin.size() ; i++ )
+	for (size_t i = 0; i < vcPathToSusiePlugin.size(); i++)
 	{
 		SSusieInfo* pstsiTarget = &m_stsiMain[uIndex];
 		LPCTSTR     pszPathToTarget = vcPathToSusiePlugin[i];
 
 		// Load SPI
-		if( !pstsiTarget->cllPlugin.Load( pszPathToTarget ) )
+		if (!pstsiTarget->cllPlugin.Load(pszPathToTarget))
 		{
 			// Loading failed
-
 			continue;
 		}
 
 		// Validate SPI
-		cliSusie.SetKey( PathFindFileName( pszPathToTarget ) );
-		cliSusie.ReadDec( &pstsiTarget->bValidity, 1 );
+		cliSusie.SetKey(PathFindFileName(pszPathToTarget));
+		cliSusie.ReadDec(&pstsiTarget->bValidity, 1);
 
 		// SPI File Path Information
 		pstsiTarget->clsPath = pszPathToTarget;
 
 		// SPI Folder Name Information
-		pstsiTarget->clsName = PathFindFileName( pszPathToTarget );
+		pstsiTarget->clsName = PathFindFileName(pszPathToTarget);
 
 		// Get SPI Info
 		char szBuffer[1024];
 
-		GetPluginInfoProc GetPluginInfo = (GetPluginInfoProc) pstsiTarget->cllPlugin.GetProcAddress( _T("GetPluginInfo") );
-		if( GetPluginInfo != NULL )
+		GetPluginInfoProc GetPluginInfo = (GetPluginInfoProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPluginInfo"));
+		if (GetPluginInfo != NULL)
 		{
-			if( GetPluginInfo( 0, szBuffer, sizeof(szBuffer) ) != 0 )
+			if (GetPluginInfo(0, szBuffer, sizeof(szBuffer)) != 0)
 			{
 				// Successful at getting SPI info
-
 				pstsiTarget->clsVersion = szBuffer;
 			}
 
-			if( GetPluginInfo( 1, szBuffer, sizeof(szBuffer) ) != 0 )
+			if (GetPluginInfo(1, szBuffer, sizeof(szBuffer)) != 0)
 			{
 				// Successful at getting SPI info
-
 				pstsiTarget->clsInfo = szBuffer;
 			}
 
-			for( int nInfoNumber = 2 ; ; nInfoNumber += 2 )
+			for (int nInfoNumber = 2; ; nInfoNumber += 2)
 			{
-				if( GetPluginInfo( nInfoNumber, szBuffer, sizeof(szBuffer) ) == 0 )
+				if (GetPluginInfo(nInfoNumber, szBuffer, sizeof(szBuffer)) == 0)
 				{
 					// Could not get any more info
-
 					break;
 				}
 
-				if( !pstsiTarget->clsSupportFormat.IsEmpty() )
+				if (!pstsiTarget->clsSupportFormat.IsEmpty())
 				{
 					pstsiTarget->clsSupportFormat += _T(";");
 				}
@@ -516,7 +500,7 @@ void CSusie::LoadSpi(
 		}
 
 		// Check if the SPI has a configuration dialog
-		ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc) pstsiTarget->cllPlugin.GetProcAddress( _T("ConfigurationDlg") );
+		ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc) pstsiTarget->cllPlugin.GetProcAddress(_T("ConfigurationDlg"));
 		pstsiTarget->bConfig = (ConfigurationDlg != NULL);
 
 		// Prepare the next SPI
@@ -524,7 +508,7 @@ void CSusie::LoadSpi(
 	}
 
 	// Load segments
-	m_stsiMain.resize( uIndex );
+	m_stsiMain.resize(uIndex);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -532,18 +516,18 @@ void CSusie::LoadSpi(
 
 void CSusie::SaveSpi()
 {
-	YCIni cliSusie( SBL_STR_INI_SUSIE );
-	cliSusie.SetSection( _T("Plugins") );
+	YCIni cliSusie(SBL_STR_INI_SUSIE);
+	cliSusie.SetSection(_T("Plugins"));
 
 	// Delete info relating to Susie plugins that no longer exist.
 	cliSusie.DeleteSection();
 
 	// Save Susie plugin info
-	for( size_t i = 0 ; i < m_stsiMain.size() ; i++ )
+	for (size_t i = 0; i < m_stsiMain.size(); i++)
 	{
 		SSusieInfo* pstsiTarget = &m_stsiMain[i];
 
-		cliSusie.SetKey( pstsiTarget->clsName );
-		cliSusie.WriteDec( pstsiTarget->bValidity );
+		cliSusie.SetKey(pstsiTarget->clsName);
+		cliSusie.WriteDec(pstsiTarget->bValidity);
 	}
 }

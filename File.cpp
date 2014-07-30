@@ -58,7 +58,7 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 	LPBYTE pbyBufEnd = pbyBuf + dwBufSize;
 	DWORD dwTotalReadSize = 0;
 
-	while (1)
+	while (true)
 	{
 		// Read one byte
 		DWORD dwReadSize = Read(pbyBuf, 1);
@@ -70,7 +70,7 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 
 			if (bDeleteLineCode)
 			{
-				// Remove newline character
+				// Remove carriage return character
 				if (*(pbyBuf - 1) == '\r')
 					*(pbyBuf - 1) = '\0';
 				*pbyBuf = '\0';
@@ -108,7 +108,7 @@ void CFile::WriteLine(LPCVOID buf)
 {
 	LPBYTE pbyBuf = (LPBYTE)buf;
 
-	while (1)
+	while (true)
 	{
 		if (*pbyBuf == '\0')
 		{

@@ -15,6 +15,6 @@ public:
 
 private:
 
-	TCHAR  m_szOpen[_MAX_DIR];
-	TCHAR  m_szSave[_MAX_DIR];
+	TCHAR m_szOpen[_MAX_DIR];
+	TCHAR m_szSave[_MAX_DIR];
 };

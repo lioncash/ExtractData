@@ -17,7 +17,7 @@ protected:
 public:
 	CProgBar();
 	~CProgBar();
-	
+
 	void Init(HWND hDlg, QWORD AllFileSize);
 
 	void ReplaceFileSize(QWORD oldFileSize, QWORD newFileSize);

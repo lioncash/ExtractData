@@ -18,7 +18,7 @@ public:
 	void         ShowTip(LPNMLVGETINFOTIP ptip);
 	void         Clear();
 
-	virtual void OnBeginDrag( NMHDR* pNMHDR, LRESULT* pResult );
+	virtual void OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult);
 
-	std::vector<SFileInfo>& GetFileInfo() { return (m_ent); }
+	std::vector<SFileInfo>& GetFileInfo() { return m_ent; }
 };

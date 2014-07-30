@@ -63,54 +63,54 @@ void CMainListView::Show()
 
 void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
 {
-	static std::vector<SFileInfo>&	rfEnt = m_ent;
+	static std::vector<SFileInfo>& rfEnt = m_ent;
 
-	if( pstDispInfo->item.mask & LVIF_TEXT )
+	if (pstDispInfo->item.mask & LVIF_TEXT)
 	{
 		SFileInfo& rfstFileInfo = rfEnt[pstDispInfo->item.iItem];
-		int	       nTextMax = (pstDispInfo->item.cchTextMax - 1 );
+		int        nTextMax = (pstDispInfo->item.cchTextMax - 1 );
 
-		switch( pstDispInfo->item.iSubItem )
+		switch(pstDispInfo->item.iSubItem)
 		{
 		case 0: // No view
-			_stprintf( pstDispInfo->item.pszText, _T("%6d."), (pstDispInfo->item.iItem + 1) );
+			_stprintf(pstDispInfo->item.pszText, _T("%6d."), (pstDispInfo->item.iItem + 1));
 			break;
 
 		case 1: // Show file name
 			//_tcscpy_s(pstDispInfo->item.pszText, pstDispInfo->item.cchTextMax-100, pEnt[pstDispInfo->item.iItem].name);
-			lstrcpy( pstDispInfo->item.pszText, rfstFileInfo.name.Left( nTextMax ) );
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].name.GetBuffer( 0 );
+			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.name.Left(nTextMax));
+			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].name.GetBuffer(0);
 			break;
 
 		case 2: // Show file size
-			lstrcpy( pstDispInfo->item.pszText, rfstFileInfo.sSizeOrg.Left( nTextMax ) );
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeOrg.GetBuffer( 0 );
+			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.sSizeOrg.Left(nTextMax));
+			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeOrg.GetBuffer(0);
 			break;
 
 		case 3: // Show compressed file size
-			if( rfstFileInfo.sizeCmp != rfstFileInfo.sizeOrg )
+			if (rfstFileInfo.sizeCmp != rfstFileInfo.sizeOrg)
 			{
-				//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeCmp.GetBuffer( 0 );
-				lstrcpy( pstDispInfo->item.pszText, rfstFileInfo.sSizeCmp.Left( nTextMax ) );
+				//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeCmp.GetBuffer(0);
+				lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.sSizeCmp.Left(nTextMax));
 			}
 			break;
 
 		case 4: // Show file format
-			lstrcpy( pstDispInfo->item.pszText, rfstFileInfo.format.Left( nTextMax ) );
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].format.GetBuffer( 0 );
+			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.format.Left(nTextMax));
+			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].format.GetBuffer(0);
 			break;
 
 		case 5: // Display the archive filename
-			lstrcpy( pstDispInfo->item.pszText, rfstFileInfo.arcName.Left( nTextMax ) );
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].arcName.GetBuffer( 0 );
+			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.arcName.Left(nTextMax));
+			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].arcName.GetBuffer(0);
 			break;
 
 		case 6: // Display the start address
-			_stprintf( pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.start );
+			_stprintf(pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.start);
 			break;
 
 		case 7: // Display the end address
-			_stprintf( pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.end );
+			_stprintf(pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.end);
 			break;
 		}
 	}
@@ -160,19 +160,19 @@ BOOL CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 	switch (pSort->column)
 	{
 		case 1:
-			return (retCompare(a.name, b.name));
+			return retCompare(a.name, b.name);
 		case 2:
-			return (retCompare(a.sizeOrg, b.sizeOrg));
+			return retCompare(a.sizeOrg, b.sizeOrg);
 		case 3:
-			return (retCompare(a.sizeCmp, b.sizeCmp));
+			return retCompare(a.sizeCmp, b.sizeCmp);
 		case 4:
-			return (retCompare(a.format, b.format));
+			return retCompare(a.format, b.format);
 		case 5:
-			return (retCompare(a.arcName, b.arcName));
+			return retCompare(a.arcName, b.arcName);
 		case 6:
-			return (retCompare(a.start, b.start));
+			return retCompare(a.start, b.start);
 		case 7:
-			return (retCompare(a.end, b.end));
+			return retCompare(a.end, b.end);
 	}
 
 	return FALSE;
@@ -216,11 +216,7 @@ void CMainListView::Clear()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Drag has been initiated
 
-void CMainListView::OnBeginDrag(
-	NMHDR*				pNMHDR,
-	LRESULT*			pResult
-	)
+void CMainListView::OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
-
 }

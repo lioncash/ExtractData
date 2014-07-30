@@ -14,7 +14,7 @@ public:
 	HWND Create(HWND hWnd);
 	void CreateMenuHistory(int iItem);
 	void AddOpenHistory(std::vector<CArcFile*>& pclArcList);
-	std::vector<YCString>& GetHistory() { return (m_vcOpenHistoryList); }
+	std::vector<YCString>& GetHistory() { return m_vcOpenHistoryList; }
 
 	void LoadIni();
 	void SaveIni();

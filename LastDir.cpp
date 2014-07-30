@@ -15,14 +15,14 @@ CLastDir::CLastDir()
 
 void CLastDir::LoadIni()
 {
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
 
-	clIni.SetSection( _T("LastDir") );
+	clIni.SetSection(_T("LastDir"));
 
-	clIni.SetKey( _T("LastReadFileDir") );
-	clIni.ReadStr( m_szOpen, sizeof(m_szOpen), _T("") );
-	clIni.SetKey( _T("LastSaveFolderDir") );
-	clIni.ReadStr( m_szSave, sizeof(m_szSave), _T("") );
+	clIni.SetKey(_T("LastReadFileDir"));
+	clIni.ReadStr(m_szOpen, sizeof(m_szOpen), _T(""));
+	clIni.SetKey(_T("LastSaveFolderDir"));
+	clIni.ReadStr(m_szSave, sizeof(m_szSave), _T(""));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +30,14 @@ void CLastDir::LoadIni()
 
 void CLastDir::SaveIni()
 {
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
 
-	clIni.SetSection( _T("LastDir") );
+	clIni.SetSection(_T("LastDir"));
 
-	clIni.SetKey( _T("LastReadFileDir") );
-	clIni.WriteStr( m_szOpen );
-	clIni.SetKey( _T("LastSaveFolderDir") );
-	clIni.WriteStr( m_szSave );
+	clIni.SetKey(_T("LastReadFileDir"));
+	clIni.WriteStr(m_szOpen);
+	clIni.SetKey(_T("LastSaveFolderDir"));
+	clIni.WriteStr(m_szSave);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

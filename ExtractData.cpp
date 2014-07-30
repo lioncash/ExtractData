@@ -41,9 +41,9 @@ void CExtractData::Open(LPTSTR pOpenDir)
 
 	CFileDialog clFileDlg;
 
-	if( clFileDlg.DoModal( m_hParentWnd, &szFileNames[0], pOpenDir ) )
+	if (clFileDlg.DoModal(m_hParentWnd, &szFileNames[0], pOpenDir))
 	{
-		Mount( &szFileNames[0] );
+		Mount(&szFileNames[0]);
 	}
 }
 
@@ -168,10 +168,10 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 			// Open the archive file
 			CArcFile* pclArc = new CArcFile();
 
-			if( !pclArc->Open(*itr) )
+			if (!pclArc->Open(*itr))
 			{
 				itr = sArcNameList.erase(itr); // Remove archive files that could not be opened from the list
-				delete	pclArc;
+				delete pclArc;
 			}
 			else
 			{
@@ -225,7 +225,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 	PostMessage(pObj->m_hWnd, WM_THREAD_END, 0, 0);
 
-	_endthreadex( 0 );
+	_endthreadex(0);
 
 	return 0;
 }
@@ -234,39 +234,39 @@ void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert)
 {
 	SOption* pstOption = m_pOption;
 
-	if( pstOption->bSaveSel )
+	if (pstOption->bSaveSel)
 	{
 		// Specifies output destination
 
-		CFolderInputDialog	clFolderInputDlg;
+		CFolderInputDialog clFolderInputDlg;
 
-		if( clFolderInputDlg.DoModal( m_hParentWnd, pSaveDir ) == IDOK )
+		if (clFolderInputDlg.DoModal(m_hParentWnd, pSaveDir ) == IDOK)
 		{
-			Decode( ExtractMode, pSaveDir, bConvert );
+			Decode(ExtractMode, pSaveDir, bConvert);
 		}
 	}
-	else if( pstOption->bSaveSrc )
+	else if (pstOption->bSaveSrc)
 	{
 		// Output to input destination
 
-		Decode( ExtractMode, NULL, bConvert );
+		Decode(ExtractMode, NULL, bConvert);
 	}
-	else if( pstOption->bSaveDir )
+	else if (pstOption->bSaveDir)
 	{
 		// Output to a fixed destination
 
-		Decode( ExtractMode, pstOption->SaveDir, bConvert );
+		Decode(ExtractMode, pstOption->SaveDir, bConvert);
 	}
 }
 
 void CExtractData::SaveSel(LPTSTR pSaveDir, BOOL bConvert)
 {
-	Save( EXTRACT_SELECT, pSaveDir, bConvert );
+	Save(EXTRACT_SELECT, pSaveDir, bConvert);
 }
 
 void CExtractData::SaveAll(LPTSTR pSaveDir, BOOL bConvert)
 {
-	Save( EXTRACT_ALL, pSaveDir, bConvert );
+	Save(EXTRACT_ALL, pSaveDir, bConvert);
 }
 
 void CExtractData::SaveDrop()
@@ -452,7 +452,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 	// Send message to terminate the thread
 	PostMessage(pObj->m_hWnd, WM_THREAD_END, 0, 0);
 
-	_endthreadex( 0 );
+	_endthreadex(0);
 
 	return 0;
 }
@@ -462,17 +462,17 @@ void CExtractData::OpenRelate()
 	CMainListView* pListView = m_pListView;
 	int            nItem = -1;
 
-	while( (nItem = pListView->GetNextItem( nItem )) != -1 )
+	while ((nItem = pListView->GetNextItem(nItem)) != -1)
 	{
 		std::set<YCString>&	sTmpFilePathList = pListView->GetFileInfo()[nItem].sTmpFilePath;
 
-		if( !sTmpFilePathList.empty() )
+		if (!sTmpFilePathList.empty())
 		{
 			const YCString&	 clsTmpFilePath = *sTmpFilePathList.begin();
 
 			// Open from file association
 
-			if( ::ShellExecute( NULL, NULL, clsTmpFilePath, NULL, NULL, SW_SHOWNORMAL ) == (HINSTANCE) SE_ERR_NOASSOC )
+			if (::ShellExecute( NULL, NULL, clsTmpFilePath, NULL, NULL, SW_SHOWNORMAL ) == (HINSTANCE) SE_ERR_NOASSOC)
 			{
 				// If there is no association with the file, issue a 
 				// dialog to select an application which can open the file
@@ -484,11 +484,11 @@ void CExtractData::OpenRelate()
 
 			// Added to the temporary file list
 
-			for( std::set<YCString>::iterator itr = sTmpFilePathList.begin() ; itr != sTmpFilePathList.end() ; itr++ )
+			for (std::set<YCString>::iterator itr = sTmpFilePathList.begin() ; itr != sTmpFilePathList.end() ; itr++)
 			{
-				if( *itr != _T("") )
+				if (*itr != _T(""))
 				{
-					m_ssTmpFile.insert( *itr );
+					m_ssTmpFile.insert(*itr);
 				}
 			}
 
@@ -507,13 +507,13 @@ void CExtractData::DeleteTmpFile()
 		TCHAR szTmp[MAX_PATH];
 		lstrcpy(szTmp, *itr);
 
-		// Delete the temporary files
+		// Delete temporary files
 
-		if( PathFileExists( szTmp ) )
+		if (PathFileExists(szTmp))
 		{
 			// File exists
 
-			if( !DeleteFile( szTmp ) )
+			if (!DeleteFile(szTmp))
 			{
 				// Fails to remove it
 
@@ -526,7 +526,7 @@ void CExtractData::DeleteTmpFile()
 		{
 			// Delete folder
 
-			if( !PathRemoveFileSpec(szTmp) )
+			if (!PathRemoveFileSpec(szTmp))
 			{
 				break;
 			}

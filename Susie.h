@@ -19,13 +19,13 @@ class CSusie
 {
 public:
 
-	BOOL                           Mount( CArcFile* pclArc );
-	BOOL                           Decode( CArcFile* pclArc );
+	BOOL                           Mount(CArcFile* pclArc);
+	BOOL                           Decode(CArcFile* pclArc);
 
 	void                           Init();
 	void                           Apply();
 
-	void                           LoadSpi( const YCString& rclsPathToSusieFolder );
+	void                           LoadSpi(const YCString& rclsPathToSusieFolder);
 	void                           SaveSpi();
 
 	std::vector<SSusieInfo>&       GetSusie() { return m_stsiMain; }
@@ -34,6 +34,6 @@ public:
 
 private:
 
-	static std::vector<SSusieInfo>  m_stsiMain;
-	static std::vector<SSusieInfo>  m_stsiTemporary;
+	static std::vector<SSusieInfo> m_stsiMain;
+	static std::vector<SSusieInfo> m_stsiTemporary;
 };

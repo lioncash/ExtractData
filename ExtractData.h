@@ -55,7 +55,7 @@ public:
 
 	void Close();
 
-	std::vector<CArcFile*>& GetArcList() { return (m_ArcList); }
+	std::vector<CArcFile*>& GetArcList() { return m_ArcList; }
 
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
 };

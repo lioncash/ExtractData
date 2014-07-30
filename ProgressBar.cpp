@@ -77,7 +77,7 @@ void CProgBar::SetFileName(YCString& pFileName)
 	SetWindowText(m_hDlgItem_archive, pFileName);
 }
 
-// Function that is executed on cancelling
+// Function that is executed on canceling
 BOOL CProgBar::OnCancel()
 {
 	if (g_bThreadEnd)
