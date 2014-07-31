@@ -19,54 +19,47 @@ YCFileFind::~YCFileFind()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Start a file search
+//
+// Parameters:
+//   - pszPathToFile - File path
 
-BOOL YCFileFind::FindFirstFile(
-	LPCTSTR				pszPathToFile					// File path
-	)
+BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
 {
 	// Save directory path
-
 	TCHAR szPathToFolder[_MAX_PATH];
-
-	lstrcpy( szPathToFolder, pszPathToFile );
-	PathRemoveFileSpec( szPathToFolder );
-
+	lstrcpy(szPathToFolder, pszPathToFile);
+	PathRemoveFileSpec(szPathToFolder);
 	m_clsPathToFolder = szPathToFolder;
 
 	// Start of the file search
-
-	m_hFind = ::FindFirstFile( pszPathToFile, &m_stwfdFindData );
+	m_hFind = ::FindFirstFile(pszPathToFile, &m_stwfdFindData);
 
 	return (m_hFind != INVALID_HANDLE_VALUE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Start a file search
+//
+// Parameters:
+//   - pszPathToFolder - Directory path
+//   - pszFileName     - Filename (can be a wildcard)
 
-BOOL YCFileFind::FindFirstFile(
-	LPCTSTR				pszPathToFolder,				// Directory path
-	LPCTSTR				pszFileName						// Filename (can be a wildcard)
-	)
+BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 {
 	// Save directory path
-
 	TCHAR szPathToFolder[_MAX_PATH];
-
-	lstrcpy( szPathToFolder, pszPathToFolder );
-	PathRemoveBackslash( szPathToFolder );	
+	lstrcpy(szPathToFolder, pszPathToFolder);
+	PathRemoveBackslash(szPathToFolder);
 
 	m_clsPathToFolder = szPathToFolder;
 
 	// Create a file path
-
 	TCHAR szPathToFile[_MAX_PATH];
-
-	lstrcpy( szPathToFile, szPathToFolder );
-	PathAppend( szPathToFile, pszFileName );
+	lstrcpy(szPathToFile, szPathToFolder);
+	PathAppend(szPathToFile, pszFileName);
 
 	// Start of a file search
-
-	m_hFind = ::FindFirstFile( szPathToFile, &m_stwfdFindData );
+	m_hFind = ::FindFirstFile(szPathToFile, &m_stwfdFindData);
 
 	return (m_hFind != INVALID_HANDLE_VALUE);
 }
@@ -76,7 +69,7 @@ BOOL YCFileFind::FindFirstFile(
 
 BOOL YCFileFind::FindNextFile()
 {
-	return ::FindNextFile( m_hFind, &m_stwfdFindData );
+	return ::FindNextFile(m_hFind, &m_stwfdFindData);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +77,9 @@ BOOL YCFileFind::FindNextFile()
 
 void YCFileFind::Close()
 {
-	if( m_hFind != INVALID_HANDLE_VALUE )
+	if (m_hFind != INVALID_HANDLE_VALUE)
 	{
-		::FindClose( m_hFind );
+		::FindClose(m_hFind);
 		m_hFind = INVALID_HANDLE_VALUE;
 	}
 }
@@ -118,8 +111,8 @@ YCString YCFileFind::GetFileTitle()
 {
 	TCHAR szFileTitle[_MAX_FNAME];
 
-	lstrcpy( szFileTitle, m_stwfdFindData.cFileName );
-	PathRemoveExtension( szFileTitle );
+	lstrcpy(szFileTitle, m_stwfdFindData.cFileName);
+	PathRemoveExtension(szFileTitle);
 
 	return szFileTitle;
 }
@@ -137,5 +130,5 @@ BOOL YCFileFind::IsDirectory()
 
 BOOL YCFileFind::IsDots()
 {
-	return ((lstrcmp( m_stwfdFindData.cFileName, _T(".") ) == 0) || (lstrcmp( m_stwfdFindData.cFileName, _T("..") ) == 0));
+	return ((lstrcmp(m_stwfdFindData.cFileName, _T(".") ) == 0) || (lstrcmp( m_stwfdFindData.cFileName, _T("..") ) == 0));
 }

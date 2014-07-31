@@ -20,19 +20,19 @@ YCFile::~YCFile()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Specifies the mode to open the file with
+//
+// Parameters:
+//   - pszPathToFile - File path
+//   - uOpenFlags    - Mode
 
-BOOL YCFile::Open(
-	LPCTSTR				pszPathToFile,					// File path
-	UINT				uOpenFlags						// Mode
-	)
+BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
 
-	if( lstrlen( pszPathToFile ) > MAX_PATH )
+	// Path is too long
+	if (lstrlen(pszPathToFile) > MAX_PATH)
 	{
-		// Path is too long
-
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Access method
@@ -40,17 +40,17 @@ BOOL YCFile::Open(
 	DWORD dwAccess;
 	DWORD dwCreateDisposition;
 
-	if( uOpenFlags & modeRead )
+	if (uOpenFlags & modeRead)
 	{
 		dwAccess = GENERIC_READ;
 		dwCreateDisposition = OPEN_EXISTING;
 	}
-	else if( uOpenFlags & modeReadWrite )
+	else if (uOpenFlags & modeReadWrite)
 	{
 		dwAccess = (GENERIC_READ | GENERIC_WRITE);
 		dwCreateDisposition = OPEN_EXISTING;
 	}
-	else if( uOpenFlags & modeWrite )
+	else if (uOpenFlags & modeWrite)
 	{
 		dwAccess = GENERIC_WRITE;
 		dwCreateDisposition = CREATE_NEW;
@@ -65,15 +65,15 @@ BOOL YCFile::Open(
 
 	DWORD dwShare;
 
-	if( uOpenFlags & shareDenyNone )
+	if (uOpenFlags & shareDenyNone)
 	{
 		dwShare = (FILE_SHARE_READ | FILE_SHARE_WRITE);
 	}
-	else if( uOpenFlags & shareDenyRead )
+	else if (uOpenFlags & shareDenyRead)
 	{
 		dwShare = FILE_SHARE_WRITE;
 	}
-	else if( uOpenFlags & shareDenyWrite )
+	else if (uOpenFlags & shareDenyWrite)
 	{
 		dwShare = FILE_SHARE_READ;
 	}
@@ -86,28 +86,27 @@ BOOL YCFile::Open(
 
 	DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
 
-	if( uOpenFlags & osNoBuffer )
+	if (uOpenFlags & osNoBuffer)
 	{
 		dwFlagsAndAttributes |= FILE_FLAG_NO_BUFFERING;
 	}
-	if( uOpenFlags & osWriteThrough )
+	if (uOpenFlags & osWriteThrough)
 	{
 		dwFlagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;
 	}
-	if( uOpenFlags & osRandomAccess )
+	if (uOpenFlags & osRandomAccess)
 	{
 		dwFlagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
 	}
-	if( uOpenFlags & osSequentialScan )
+	if (uOpenFlags & osSequentialScan)
 	{
 		dwFlagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
 	}
 
 	// If the file exists, check its time. If not, then it does not exist
-
-	if( uOpenFlags & modeCreate )
+	if (uOpenFlags & modeCreate)
 	{
-		if( uOpenFlags & modeNoTruncate )
+		if (uOpenFlags & modeNoTruncate)
 		{
 			dwCreateDisposition = OPEN_ALWAYS;
 		}
@@ -118,11 +117,9 @@ BOOL YCFile::Open(
 	}
 
 	// Open the file
-
-	m_hFile = ::CreateFile( pszPathToFile, dwAccess, dwShare, NULL, dwCreateDisposition, dwFlagsAndAttributes, NULL );
+	m_hFile = ::CreateFile(pszPathToFile, dwAccess, dwShare, NULL, dwCreateDisposition, dwFlagsAndAttributes, NULL);
 
 	// Holds the file path
-
 	m_clsPathToFile = pszPathToFile;
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
@@ -135,24 +132,25 @@ BOOL YCFile::Open(
 
 void YCFile::Close()
 {
-	if( m_hFile != INVALID_HANDLE_VALUE )
+	if (m_hFile != INVALID_HANDLE_VALUE)
 	{
-		::CloseHandle( m_hFile );
+		::CloseHandle(m_hFile);
 		m_hFile = INVALID_HANDLE_VALUE;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Read File
+//
+// Parameters:
+//   - pvBuffer   - Buffer
+//   - dwReadSize - Number of bytes to read.
 
-DWORD YCFile::Read(
-	void*				pvBuffer,						// Buffer
-	DWORD				dwReadSize						// Read size
-	)
+DWORD YCFile::Read(void* pvBuffer, DWORD dwReadSize)
 {
 	DWORD dwResult;
 
-	if( !::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, NULL ) )
+	if (!::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, NULL))
 	{
 		dwResult = 0;
 	}
@@ -162,15 +160,16 @@ DWORD YCFile::Read(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Write File
+//
+// Parameters:
+//   - pvBuffer    - Buffer
+//   - dwWriteSize - Number of bytes to write.
 
-DWORD YCFile::Write(
-	const void*			pvBuffer,						// Buffer
-	DWORD				dwWriteSize						// Write Size
-	)
+DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 {
 	DWORD dwResult;
 
-	if( !::WriteFile( m_hFile, pvBuffer, dwWriteSize, &dwResult, NULL ) )
+	if (!::WriteFile(m_hFile, pvBuffer, dwWriteSize, &dwResult, NULL))
 	{
 		dwResult = 0;
 	}
@@ -180,11 +179,12 @@ DWORD YCFile::Write(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Move the file pointer
+//
+// Parameters:
+//   - n64Offset  - Number of bytes to move
+//   - dwSeekMode - Seek mode
 
-UINT64 YCFile::Seek(
-	INT64				n64Offset,						// Number of bytes to move
-	DWORD				dwSeekMode						// Seek Mode
-	)
+UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 {
 	switch( dwSeekMode )
 	{
@@ -207,9 +207,9 @@ UINT64 YCFile::Seek(
 	LARGE_INTEGER stliWork;
 
 	stliWork.QuadPart = n64Offset;
-	stliWork.LowPart = ::SetFilePointer( m_hFile, stliWork.LowPart, &stliWork.HighPart, dwSeekMode );
+	stliWork.LowPart = ::SetFilePointer(m_hFile, stliWork.LowPart, &stliWork.HighPart, dwSeekMode);
 
-	if( (stliWork.LowPart == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR) )
+	if ((stliWork.LowPart == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
 	{
 		// Seek fails
 
@@ -220,31 +220,34 @@ UINT64 YCFile::Seek(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Move file pointer from the head
+// Move file relative to the start of the file
+//
+// Parameters
+//   - n64Offset - Number of bytes to seek
 
-UINT64 YCFile::SeekHed(
-	INT64				n64Offset						// Number of bytes to move
-	)
+UINT64 YCFile::SeekHed(INT64 n64Offset)
 {
 	return Seek( n64Offset, begin );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer from the end of the file
+// Move the file pointer relative to the end of the file
+//
+// Parameters
+//   - n64Offset - Number of bytes to seek
 
-UINT64 YCFile::SeekEnd(
-	INT64				n64Offset						// Number of bytes to move
-	)
+UINT64 YCFile::SeekEnd(INT64 n64Offset)
 {
 	return Seek( -n64Offset, end );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer from its current position
+// Move the file pointer relative to its current position
+//
+// Parameters:
+//   - n64Offset - Number of bytes to seek
 
-UINT64 YCFile::SeekCur(
-	INT64				n64Offset						// Number of bytes to move
-	)
+UINT64 YCFile::SeekCur(INT64 n64Offset)
 {
 	return Seek( n64Offset, current );
 }
