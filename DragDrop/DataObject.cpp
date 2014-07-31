@@ -71,7 +71,7 @@ HRESULT WINAPI CDataObject::QueryGetData(FORMATETC* pFormatetc)
 		return DV_E_DVASPECT;
 
 	std::vector<CObject>& objects = m_objects;
-	for (int i = 0; i < (int)objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 	{
 		if ((objects[i].m_fmt.cfFormat == pFormatetc->cfFormat) && ((objects[i].m_fmt.tymed & pFormatetc->tymed) != 0))
 			return S_OK;
