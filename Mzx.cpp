@@ -10,12 +10,13 @@ void CMzx::Decompress(LPBYTE dst, DWORD len, LPBYTE src)
 	DWORD ring_wpos = 0;
 	int clear_count = 0;
 
-	for (int i = 0; i < (int)len; )
+	for (DWORD i = 0; i < len; )
 	{
 		if (clear_count <= 0)
 		{
 			clear_count = 0x1000;
-			last1 = last2 = 0;
+			last1 = 0;
+			last2 = 0;
 		}
 		clear_count -= (*psrc & 3) == 2 ? 1 : (*psrc >> 2) + 1;
 
