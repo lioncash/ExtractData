@@ -22,7 +22,7 @@ CListView::~CListView()
 void CListView::Init(HWND hWnd, SOption& option)
 {
 	m_hWnd = hWnd;
-	m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hInst = (HINSTANCE) GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
 	m_pOption = &option;
 }
 
@@ -50,23 +50,23 @@ HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, in
 	m_hImage = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
 	ListView_SetImageList(hList, m_hImage, LVSIL_STATE);
 
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA) ;
-	clIni.SetSection( uID );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	clIni.SetSection(uID);
 
 	// Add a column header
 
-	for( size_t i = 0 ; i < lvcols.size() ; i++ )
+	for (size_t i = 0 ; i < lvcols.size() ; i++)
 	{
 		TCHAR szColumn[256];
 
-		_stprintf( szColumn, _T("column%u"), i );
+		_stprintf(szColumn, _T("column%u"), i);
 
-		clIni.SetKey( szColumn );
-		clIni.ReadDec( &lvcols[i].cx );
+		clIni.SetKey(szColumn);
+		clIni.ReadDec(&lvcols[i].cx);
 
 		lvcols[i].iSubItem = i;
 
-		ListView_InsertColumn( hList, i, &lvcols[i] );
+		ListView_InsertColumn(hList, i, &lvcols[i]);
 	}
 
 	return m_hList;
@@ -102,20 +102,20 @@ void CListView::Enable(BOOL flag)
 
 void CListView::SaveIni()
 {
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
-	clIni.SetSection( m_uID );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	clIni.SetSection(m_uID);
 
 	// Save column width
-	int nColumns = Header_GetItemCount( ListView_GetHeader( m_hList ) );
+	int nColumns = Header_GetItemCount(ListView_GetHeader(m_hList));
 
-	for( int i = 0 ; i < nColumns ; i++ )
+	for (int i = 0 ; i < nColumns ; i++)
 	{
 		TCHAR szColumn[256];
 
-		_stprintf( szColumn, _T("Column%d"), i );
+		_stprintf(szColumn, _T("Column%d"), i);
 
-		clIni.SetKey( szColumn );
-		clIni.WriteDec( ListView_GetColumnWidth( m_hList, i ) );
+		clIni.SetKey(szColumn);
+		clIni.WriteDec( ListView_GetColumnWidth(m_hList, i));
 	}
 }
 

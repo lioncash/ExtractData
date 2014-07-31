@@ -10,5 +10,5 @@ public:
 	virtual ~CFont();
 
 	HFONT Create();
-	HFONT GetFont() { return (m_hFont); }
+	HFONT GetFont() { return m_hFont; }
 };

@@ -20,6 +20,6 @@ public:
 
 	virtual void SetWindowPos() { SendMessage(m_hToolBar, WM_SIZE, 0, 0); }
 
-	HWND GetHandle() { return (m_hWnd); }
-	HWND GetCtrlHandle() { return (m_hToolBar); }
+	HWND GetHandle() { return m_hWnd; }
+	HWND GetCtrlHandle() { return m_hToolBar; }
 };

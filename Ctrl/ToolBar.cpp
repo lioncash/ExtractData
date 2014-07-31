@@ -22,7 +22,7 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 {
 	Init(hWnd);
 
-	HBITMAP hBitmap = (HBITMAP)LoadImage(m_hInst, MAKEINTRESOURCE(BmpID), IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+	HBITMAP hBitmap = (HBITMAP) LoadImage(m_hInst, MAKEINTRESOURCE(BmpID), IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
 
 	HWND hToolBar = CreateToolbarEx(
 		m_hWnd,
@@ -76,5 +76,5 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 
 	SendMessage(hToolBar, TB_SETTOOLTIPS, (WPARAM)hToolTip, 0);
 
-	return (hToolBar);
+	return hToolBar;
 }

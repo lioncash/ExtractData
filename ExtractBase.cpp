@@ -3,20 +3,22 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
-
-BOOL CExtractBase::Decode(
-	CArcFile*			pclArc				// Archive
-	)
+//
+// Parameters:
+//   - pclArc - Archive
+//
+BOOL CExtractBase::Decode(CArcFile* pclArc)
 {
 	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Extraction
-
-BOOL CExtractBase::Extract(
-	CArcFile*			pclArc				// Archive
-	)
+//
+// Parameters:
+//   - pclArc - Archive
+//
+BOOL CExtractBase::Extract(CArcFile* pclArc)
 {
 	return FALSE;
 }

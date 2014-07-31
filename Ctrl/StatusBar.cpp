@@ -39,7 +39,7 @@ HWND CStatusBar::Create(HWND hWnd, SOption& option, CMainListView& listview)
 
 	SetCount();
 
-	return (hSBWnd);
+	return hSBWnd;
 }
 
 // Function to update the status bar: Displays the number of files

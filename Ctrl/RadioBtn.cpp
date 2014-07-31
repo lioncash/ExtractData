@@ -8,5 +8,5 @@ HWND CRadioBtn::Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x, int y, int 
 	HWND hRadio = CreateCtrl(_T("BUTTON"), BS_AUTORADIOBUTTON | WS_TABSTOP | Group, lpCaption, x, y, cx, cy);
 	m_hRadios.push_back(hRadio);
 	m_IDs.push_back(ID);
-	return (hRadio);
+	return hRadio;
 }

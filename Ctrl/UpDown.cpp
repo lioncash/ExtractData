@@ -12,5 +12,5 @@ HWND CUpDown::Create(HWND hWnd, HWND hBuddy, int nPos, UINT ID, int nUpper, int 
 		x, y, cx, cy,
 		hWnd, ID, m_hInst, hBuddy,
 		nUpper, nLower, nPos);
-	return (m_hCtrl);
+	return m_hCtrl;
 }

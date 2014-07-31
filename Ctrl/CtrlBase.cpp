@@ -11,7 +11,7 @@ CCtrlBase::CCtrlBase()
 void CCtrlBase::Init(HWND hWnd, UINT ID)
 {
 	m_hWnd = hWnd;
-	m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hInst = (HINSTANCE) GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
 	m_ID = ID;
 	m_font.Create();
 }
@@ -23,8 +23,10 @@ HWND CCtrlBase::CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption
 		lpClassName, lpCaption, dwStyle,
 		x, y, cx, cy,
 		GetHandle(), (HMENU)m_ID, GetInst(), NULL);
+
 	SetFont();
-	return (m_hCtrl);
+
+	return m_hCtrl;
 }
 
 void CCtrlBase::Enable(BOOL flag)
