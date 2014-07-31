@@ -19,7 +19,7 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 	pclArc->Seek(2, FILE_CURRENT);
 
 	// JPEG Image Search
-	while (1)
+	while (true)
 	{
 		// Get marker
 		BYTE marker[2];

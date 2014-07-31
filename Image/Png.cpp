@@ -360,7 +360,6 @@ BOOL CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 	// Use the default palette (Grayscale)
 	if (pbtSrcPallet == NULL)
 	{
-
 		for (int i = 0; i < 256; i++)
 		{
 			pstPallet[i].blue = i;
@@ -412,8 +411,8 @@ BOOL CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 
 void CPng::WriteLine(const void* pvBuffer)
 {
-	png_write_row( m_png_ptr, (png_bytep) pvBuffer );
-	m_pclArc->GetProg()->UpdatePercent( m_dwRowSize );
+	png_write_row(m_png_ptr, (png_bytep) pvBuffer);
+	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -426,10 +425,10 @@ void CPng::WriteLine(const void* pvBuffer)
 void CPng::WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 {
 	// Alpha blending
-	AlphaBlend( pvBuffer24, pvBuffer32 );
+	AlphaBlend(pvBuffer24, pvBuffer32);
 
-	png_write_row( m_png_ptr, (png_bytep) pvBuffer24 );
-	m_pclArc->GetProg()->UpdatePercent( m_dwRowSize );
+	png_write_row(m_png_ptr, (png_bytep) pvBuffer24);
+	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -437,8 +436,8 @@ void CPng::WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 
 void CPng::OnWriteFinish()
 {
-	png_write_end( m_png_ptr, m_info_ptr );
-	png_destroy_write_struct( &m_png_ptr, &m_info_ptr );
+	png_write_end(m_png_ptr, m_info_ptr);
+	png_destroy_write_struct(&m_png_ptr, &m_info_ptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

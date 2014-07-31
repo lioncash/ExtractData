@@ -451,8 +451,8 @@ void CWinMain::SetQuickMenu(HMENU hMenu)
 	{
 		LPBOOL pbOption;
 		int nID;
-	} 
-	
+	};
+
 	stQuickSet[] = {
 		{&stOption.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},
 		{&stOption.bCreateFolder,   IDM_QUICKSET_EXTRACT_CREATEFOLDER},
@@ -480,7 +480,7 @@ void CWinMain::SetQuickMenuItem(int nID)
 	{
 		LPBOOL pbOption;
 		int nID;
-	} 
+	};
 	
 	stQuickSet[] = {
 		{&stOption.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},

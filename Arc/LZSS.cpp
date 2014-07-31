@@ -4,57 +4,59 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CLZSS::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CLZSS::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
-	if( pstFileInfo->format != _T("LZ") )
+	if (pstFileInfo->format != _T("LZ"))
 	{
 		return FALSE;
 	}
 
-	return Decomp( pclArc, 4096, 4078, 3 );
+	return Decomp(pclArc, 4096, 4078, 3);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Extract the file
+//
+// Parameters:
+//   - pclArc         - Archive
+//   - dwDictSize     - Dictionary size
+//   - dwDicPtr       - Initial address to the dictionary position (dictionary pointer)
+//   - dwLengthOffset - Length offset
 
-BOOL CLZSS::Decomp(
-	CArcFile*			pclArc,							// Archive
-	DWORD				dwDicSize,						// Dictionary Size
-	DWORD				dwDicPtr,						// Initial dictionary position reference (Dictionary pointer)
-	DWORD				dwLengthOffset					// Length offset
-	)
+BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	// Read
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
-	YCMemory<BYTE> clmSrc( dwSrcSize );
-	pclArc->Read( &clmSrc[0], dwSrcSize );
+	YCMemory<BYTE> clmSrc(dwSrcSize);
+	pclArc->Read(&clmSrc[0], dwSrcSize);
 
 	// Buffer allocation for extraction
 	DWORD          dwDstSize = pstFileInfo->sizeOrg;
-	YCMemory<BYTE> clmDst( dwDstSize );
+	YCMemory<BYTE> clmDst(dwDstSize);
 
 	// Decompression
-	Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, dwDicSize, dwDicPtr, dwLengthOffset );
+	Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, dwDicSize, dwDicPtr, dwLengthOffset);
 
 	// Bitmap
-	if( lstrcmp( PathFindExtension( pstFileInfo->name ), _T(".bmp") ) == 0 )
+	if (lstrcmp(PathFindExtension(pstFileInfo->name), _T(".bmp")) == 0)
 	{
 		CImage clImage;
-		clImage.Init( pclArc, &clmDst[0] );
-		clImage.Write( dwDstSize );
+		clImage.Init(pclArc, &clmDst[0]);
+		clImage.Write(dwDstSize);
 		clImage.Close();
 	}
 	else // Other
 	{
 		pclArc->OpenFile();
-		pclArc->WriteFile( &clmDst[0], dwDstSize );
+		pclArc->WriteFile(&clmDst[0], dwDstSize);
 		pclArc->CloseFile();
 	}
 
@@ -63,23 +65,24 @@ BOOL CLZSS::Decomp(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Extract from memory
+//
+// Parameters:
+//   - pvDst          - Destination
+//   - dwDstSize      - Destination size
+//   - pvSrc          - Compressed data
+//   - dwSrcSize      - Compressed data size
+//   - dwDictSize     - Dictionary size
+//   - dwDicPtr       - Initial address to the dictionary position (dictionary pointer)
+//   - dwLengthOffset - Length offset
 
-BOOL CLZSS::Decomp(
-	void*				pvDst,							// Destination
-	DWORD				dwDstSize,						// Destination Size
-	const void*			pvSrc,							// Compressed Data
-	DWORD				dwSrcSize,						// Compressed Data Size
-	DWORD				dwDicSize,						// Dictionary Size
-	DWORD				dwDicPtr,						// Initial reference to dictionary position (Dictionary pointer)
-	DWORD				dwLengthOffset					// Length offset
-	)
+BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
 	BYTE*       pbtDst = (BYTE*) pvDst;
 	const BYTE* pbtSrc = (const BYTE*) pvSrc;
 
 	// Allocate dictionary buffer
-	YCMemory<BYTE> clmbtDic( dwDicSize );
-	ZeroMemory( &clmbtDic[0], dwDicSize );
+	YCMemory<BYTE> clmbtDic(dwDicSize);
+	ZeroMemory(&clmbtDic[0], dwDicSize);
 
 	// Decompression
 	DWORD dwSrcPtr = 0;
@@ -87,9 +90,9 @@ BOOL CLZSS::Decomp(
 	BYTE  btFlags;
 	DWORD dwBitCount = 0;
 
-	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
 	{
-		if( dwBitCount == 0 )
+		if (dwBitCount == 0)
 		{
 			// Finished reading 8-bits
 
@@ -97,7 +100,7 @@ BOOL CLZSS::Decomp(
 			dwBitCount = 8;
 		}
 
-		if( btFlags & 1 )
+		if (btFlags & 1)
 		{
 			// Non-compressed data
 
@@ -119,14 +122,14 @@ BOOL CLZSS::Decomp(
 			DWORD dwBack = (((btHigh & 0xF0) << 4) | btLow);
 			DWORD dwLength = ((btHigh & 0x0F) + dwLengthOffset);
 
-			if( (dwDstPtr + dwLength) > dwDstSize )
+			if ((dwDstPtr + dwLength) > dwDstSize)
 			{
 				// Exceeds the output buffer
 
 				dwLength = (dwDstSize - dwDstPtr);
 			}
 
-			for( DWORD j = 0 ; j < dwLength ; j++ )
+			for (DWORD j = 0; j < dwLength; j++)
 			{
 				pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = clmbtDic[dwBack];
 

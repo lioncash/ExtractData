@@ -660,7 +660,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				case PSN_APPLY:
 				case PSN_KILLACTIVE:
 					// Extraction Settings
-					for (int i = 0; i < (int)ExtractCheck.size(); i++)
+					for (size_t i = 0; i < ExtractCheck.size(); i++)
 						*ExtractCheckFlag[i] = ExtractCheck[i].GetCheck();
 					//
 					pOption->bDstBMP = ExtractRadioImage.GetCheck(0);

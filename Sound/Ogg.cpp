@@ -197,7 +197,7 @@ DWORD COgg::ReadHed(LPBYTE buf)
 DWORD COgg::GetSegSize(VH& vheader)
 {
 	DWORD SegmentSize = 0;
-	for (int i = 0; i < (int)vheader.page_segments; i++)
+	for (BYTE i = 0; i < vheader.page_segments; i++)
 		SegmentSize += vheader.segment_table[i];
 
 	return SegmentSize;
