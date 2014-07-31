@@ -9,7 +9,7 @@ CEnumFORMATETC::CEnumFORMATETC()
 
 HRESULT WINAPI CEnumFORMATETC::QueryInterface(const IID& iid, LPVOID* ppv)
 {
-	if ((iid == IID_IEnumFORMATETC) || (iid == IID_IUnknown))
+	if (iid == IID_IEnumFORMATETC || iid == IID_IUnknown)
 	{
 		*ppv = (LPVOID)this;
 		AddRef();
@@ -40,7 +40,7 @@ HRESULT WINAPI CEnumFORMATETC::Next(ULONG celt, FORMATETC* rgelt, ULONG* pceltFe
 		*pceltFetched = 0;
 
 	std::vector<FORMATETC>& fmt = m_fmt;
-	if ((celt <= 0) || (rgelt == NULL) || (m_current >= (int)fmt.size()))
+	if ((celt <= 0) || (rgelt == NULL) || (m_current >= fmt.size()))
 		return S_FALSE;
 
 	// pceltFetched can only be null when celt is 1
@@ -48,7 +48,7 @@ HRESULT WINAPI CEnumFORMATETC::Next(ULONG celt, FORMATETC* rgelt, ULONG* pceltFe
 		return S_FALSE;
 
 	ULONG n = celt;
-	while ((m_current < (int)fmt.size()) && (n > 0))
+	while ((m_current < fmt.size()) && (n > 0))
 	{
 		*rgelt++ = fmt[m_current];
 		m_current++;
@@ -63,7 +63,8 @@ HRESULT WINAPI CEnumFORMATETC::Next(ULONG celt, FORMATETC* rgelt, ULONG* pceltFe
 
 HRESULT WINAPI CEnumFORMATETC::Skip(ULONG celt)
 {
-	int ctFmt = (int)m_fmt.size();
+	size_t ctFmt = m_fmt.size();
+
 	while ((m_current < ctFmt) && (celt > 0))
 	{
 		m_current++;

@@ -23,5 +23,5 @@ private:
 
 protected:
 	std::vector<FORMATETC> m_fmt;
-	int m_current;
+	size_t m_current;
 };
