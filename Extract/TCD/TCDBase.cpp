@@ -1,147 +1,132 @@
-#include	"stdafx.h"
-#include	"../../Image.h"
-#include	"../../Sound/Ogg.h"
-#include	"TCDBase.h"
+#include "stdafx.h"
+#include "../../Image.h"
+#include "../../Sound/Ogg.h"
+#include "TCDBase.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mount
+// Mount
 
-BOOL	CTCDBase::Mount(
+BOOL CTCDBase::Mount(
     CArcFile*			pclArc							// Archive
     )
 {
-    return	FALSE;
+    return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode
+// Decode
 
-BOOL	CTCDBase::Decode(
+BOOL CTCDBase::Decode(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     if( pstFileInfo->format == _T("TCT") )
     {
-        return	DecodeTCT( pclArc );
+        return DecodeTCT( pclArc );
     }
 
     if( pstFileInfo->format == _T("TSF") )
     {
-        return	DecodeTSF( pclArc );
+        return DecodeTSF( pclArc );
     }
 
     if( pstFileInfo->format == _T("SPD") )
     {
-        return	DecodeSPD( pclArc );
+        return DecodeSPD( pclArc );
     }
 
     if( pstFileInfo->format == _T("OGG") )
     {
-        return	DecodeOgg( pclArc );
+        return DecodeOgg( pclArc );
     }
 
-    return	FALSE;
+    return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode TCT
+// Decode TCT
 
-BOOL	CTCDBase::DecodeTCT(
+BOOL CTCDBase::DecodeTCT(
     CArcFile*			pclArc							// Archive
     )
 {
     // TSF Decoding routine
 
-    return	DecodeTSF( pclArc);
+    return DecodeTSF( pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode TSF
+// Decode TSF
 
-BOOL	CTCDBase::DecodeTSF(
+BOOL CTCDBase::DecodeTSF(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     // Adjust input buffer
-
-    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    DWORD dwSrcSize = pstFileInfo->sizeCmp;
+    YCMemory<BYTE> clmbtSrc( dwSrcSize );
 
     // Read
-
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
     // Ensure output buffer
-
-    DWORD				dwDstSize = *(DWORD*)&clmbtSrc[0];
-
-    YCMemory<BYTE>		clmbtDst( dwDstSize );
+    DWORD dwDstSize = *(DWORD*)&clmbtSrc[0];
+    YCMemory<BYTE> clmbtDst( dwDstSize );
 
     // Decompress
-
     DecompLZSS( &clmbtDst[0], dwDstSize, &clmbtSrc[4], (dwSrcSize - 4) );
 
     // Decode
-
     Decrypt( &clmbtDst[0], dwDstSize );
 
     // Output
-
     pclArc->OpenFile();
     pclArc->WriteFile( &clmbtDst[0], dwDstSize, dwSrcSize );
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode SPD
+// Decode SPD
 
-BOOL	CTCDBase::DecodeSPD(
+BOOL CTCDBase::DecodeSPD(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     // Ensure input buffer
-
-    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    DWORD dwSrcSize = pstFileInfo->sizeCmp;
+    YCMemory<BYTE> clmbtSrc( dwSrcSize );
 
     // Read
-
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
     // Get header info
+    DWORD dwDataSize = *(DWORD*)&clmbtSrc[16];
 
-    DWORD				dwDataSize = *(DWORD*)&clmbtSrc[16];
+    long lWidth = *(long*)&clmbtSrc[8] - ((dwDataSize & 0x04DF) << 2);
+    long lHeight = *(long*)&clmbtSrc[12] - ((dwDataSize >> 2) & 0xF731);
+    WORD wBpp = *(WORD*)&clmbtSrc[6];
 
-    long				lWidth = *(long*)&clmbtSrc[8] - ((dwDataSize & 0x04DF) << 2);
-    long				lHeight = *(long*)&clmbtSrc[12] - ((dwDataSize >> 2) & 0xF731);
-    WORD				wBpp = *(WORD*)&clmbtSrc[6];
-
-    DWORD				dwFlags = *(DWORD*)&clmbtSrc[4] - ((dwDataSize << 4) & 0xFFFF);
+    DWORD dwFlags = *(DWORD*)&clmbtSrc[4] - ((dwDataSize << 4) & 0xFFFF);
 
     // Ensure output buffer
+    DWORD dwDstSize = dwDataSize;
+    YCMemory<BYTE> clmbtDst( dwDstSize );
 
-    DWORD				dwDstSize = dwDataSize;
+    DWORD dwDstSize2 = lWidth * lHeight * 4;
+    YCMemory<BYTE> clmbtDst2;
 
-    YCMemory<BYTE>		clmbtDst( dwDstSize );
+    BYTE* pbtUnLZSSBuffer = &clmbtSrc[0];
+    DWORD dwUnLZSSBufferSize = dwSrcSize;
 
-    DWORD				dwDstSize2 = lWidth * lHeight * 4;
-
-    YCMemory<BYTE>		clmbtDst2;
-
-    BYTE*				pbtUnLZSSBuffer = &clmbtSrc[0];
-    DWORD				dwUnLZSSBufferSize = dwSrcSize;
-
-    BYTE*				pbtDstForFinal = &clmbtDst[0];
-    DWORD				dwDstSizeForFinal = dwDstSize;
+    BYTE* pbtDstForFinal = &clmbtDst[0];
+    DWORD dwDstSizeForFinal = dwDstSize;
 
     // Decompression
 
@@ -162,102 +147,82 @@ BOOL	CTCDBase::DecodeSPD(
 
     switch( dwFlags & 0xFFFF )
     {
-    case	0:
-        // RLE0
-
+    case 0: // RLE0
         wBpp = 32;
-
         DecompRLE0( &pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize );
         break;
 
-    case	1:
-        // No compression
-
+    case 1: // No compression
         pbtDstForFinal = pbtUnLZSSBuffer;
         dwDstSizeForFinal = dwUnLZSSBufferSize;
-
         break;
 
-    case	2:
-        // RLE2
-
+    case 2: // RLE2
         wBpp = 32;
-
         DecompRLE2( &pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize );
         break;
 
-    case	257:
-        // Compression Transformation
-
+    case 257: // Compression Transformation
         DecompSPD( &pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize, lWidth );
         break;
 
-    default:
-        // Unknown
-
+    default: // Unknown
         pclArc->OpenFile();
         pclArc->WriteFile( &clmbtSrc[0], dwSrcSize );
-
-        return	TRUE;
+        return TRUE;
     }
 
     // Output
 
-    CImage				clImage;
-
+    CImage clImage;
     clImage.Init( pclArc, lWidth, lHeight, wBpp );
     clImage.WriteReverse( pbtDstForFinal, dwDstSizeForFinal, dwSrcSize );
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode Ogg Vorbis
+// Decode Ogg Vorbis
 
-BOOL	CTCDBase::DecodeOgg(
+BOOL CTCDBase::DecodeOgg(
     CArcFile*			pclArc							// Archive
     )
 {
-    SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+    SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
     // Ensure input buffer
-
-    DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-
-    YCMemory<BYTE>		clmbtSrc( dwSrcSize );
+    DWORD dwSrcSize = pstFileInfo->sizeCmp;
+    YCMemory<BYTE> clmbtSrc( dwSrcSize );
 
     // Read
-
     pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
     // Fix the CRC of Ogg Vorbis on output
-
-    COgg				clOgg;
-
+    COgg clOgg;
     clOgg.Decode( pclArc, &clmbtSrc[0] );
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decompress LZSS
+// Decompress LZSS
 
-BOOL	CTCDBase::DecompLZSS(
+BOOL CTCDBase::DecompLZSS(
     void*				pvDst,							// Destination
     DWORD				dwDstSize,						// Destination Size
     const void*			pvSrc,							// Input Data
     DWORD				dwSrcSize						// Input Data Size
     )
 {
-    BYTE*				pbtDst = (BYTE*)pvDst;
-    const BYTE*			pbtSrc = (const BYTE*)pvSrc;
+    BYTE* pbtDst = (BYTE*)pvDst;
+    const BYTE* pbtSrc = (const BYTE*)pvSrc;
 
-    DWORD				dwSrcPtr = 0;
-    DWORD				dwDstPtr = 0;
+    DWORD dwSrcPtr = 0;
+    DWORD dwDstPtr = 0;
 
     while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
     {
-        BYTE				btFlags = pbtSrc[dwSrcPtr++];
+        BYTE btFlags = pbtSrc[dwSrcPtr++];
 
         for( DWORD i = 0 ; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) ; i++ )
         {
@@ -271,12 +236,12 @@ BOOL	CTCDBase::DecompLZSS(
             {
                 // Is compressed 
 
-                WORD				wWork = *(WORD*)&pbtSrc[dwSrcPtr];
+                WORD wWork = *(WORD*)&pbtSrc[dwSrcPtr];
 
-                WORD				wLength = (wWork & 0x0F) + 3;
-                WORD				wBack = (wWork >> 4);
+                WORD wLength = (wWork & 0x0F) + 3;
+                WORD wBack = (wWork >> 4);
 
-                DWORD				dwBackPtr = (dwDstPtr - wBack);
+                DWORD dwBackPtr = (dwDstPtr - wBack);
 
                 if( (dwDstPtr + wLength) > dwDstSize )
                 {
@@ -295,35 +260,35 @@ BOOL	CTCDBase::DecompLZSS(
         }
     }
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //	Decode RLE (Type 0)
 
-BOOL	CTCDBase::DecompRLE0(
+BOOL CTCDBase::DecompRLE0(
     void*				pvDst,							// Destination
     DWORD				dwDstSize,						// Destination Size
     const void*			pvSrc,							// Input Data
     DWORD				dwSrcSize						// Input Data Size
     )
 {
-    const BYTE*			pbtSrc = (const BYTE*)pvSrc;
-    BYTE*				pbtDst = (BYTE*)pvDst;
+    const BYTE* pbtSrc = (const BYTE*)pvSrc;
+    BYTE* pbtDst = (BYTE*)pvDst;
 
-    DWORD				dwOffset = *(DWORD*)&pbtSrc[0];
-    DWORD				dwPixelCount = *(DWORD*)&pbtSrc[4];
-    DWORD				dwZeroFlag = *(DWORD*)&pbtSrc[8];
+    DWORD dwOffset = *(DWORD*)&pbtSrc[0];
+    DWORD dwPixelCount = *(DWORD*)&pbtSrc[4];
+    DWORD dwZeroFlag = *(DWORD*)&pbtSrc[8];
 
-    BOOL				bZero = (dwZeroFlag == 0);
+    BOOL bZero = (dwZeroFlag == 0);
 
-    DWORD				dwSrcHeaderPtr = 12;
-    DWORD				dwSrcDataPtr = dwOffset;
-    DWORD				dwDstPtr = 0;
+    DWORD dwSrcHeaderPtr = 12;
+    DWORD dwSrcDataPtr = dwOffset;
+    DWORD dwDstPtr = 0;
 
     while( (dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
     {
-        DWORD				dwLength = *(DWORD*)&pbtSrc[dwSrcHeaderPtr];
+        DWORD dwLength = *(DWORD*)&pbtSrc[dwSrcHeaderPtr];
 
         dwSrcHeaderPtr += 4;
 
@@ -363,26 +328,26 @@ BOOL	CTCDBase::DecompRLE0(
         bZero = !bZero;
     }
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decode RLE (Type 2)
+// Decode RLE (Type 2)
 
-BOOL	CTCDBase::DecompRLE2(
+BOOL CTCDBase::DecompRLE2(
     void*				pvDst,							// Destination
     DWORD				dwDstSize,						// Destination
     const void*			pvSrc,							// Input Data
     DWORD				dwSrcSize						// Input Data Size
     )
 {
-    return	FALSE;
+    return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decompress SPD
+// Decompress SPD
 
-BOOL	CTCDBase::DecompSPD(
+BOOL CTCDBase::DecompSPD(
     void*				pvDst,							// Destination
     DWORD				dwDstSize,						// Destination Size
     const void*			pvSrc,							// Input Data
@@ -390,7 +355,7 @@ BOOL	CTCDBase::DecompSPD(
     long				lWidth							// Image Width
     )
 {
-    static const BYTE	abtKey1[256] = {
+    static const BYTE abtKey1[256] = {
         0x10, 0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1, 0xF0,
         0x08, 0x08, 0x07, 0x07, 0x06, 0x06, 0x05, 0x05, 0xFB, 0xFB, 0xFA, 0xFA, 0xF9, 0xF9, 0xF8, 0xF8,
         0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -409,7 +374,7 @@ BOOL	CTCDBase::DecompSPD(
         0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE
     };
 
-    static const BYTE	abtKey2[1024] = {
+    static const BYTE abtKey2[1024] = {
         0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
         0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
         0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
@@ -476,7 +441,7 @@ BOOL	CTCDBase::DecompSPD(
         0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00
     };
 
-    static const BYTE	abtKey3[128] = {
+    static const BYTE abtKey3[128] = {
         0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
         0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
         0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
@@ -487,8 +452,8 @@ BOOL	CTCDBase::DecompSPD(
         0x04, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00
     };
 
-    long				alKey4[28];
-    long				lWork;
+    long alKey4[28];
+    long lWork;
 
     for( DWORD i = 0 ; i < 16 ; i++ )
     {
@@ -514,12 +479,12 @@ BOOL	CTCDBase::DecompSPD(
 
     // Decompress
 
-    const BYTE*			pbtSrc = (const BYTE*)pvSrc;
-    BYTE*				pbtDst = (BYTE*)pvDst;
+    const BYTE* pbtSrc = (const BYTE*)pvSrc;
+    BYTE* pbtDst = (BYTE*)pvDst;
 
-    DWORD				dwSrcPtr = 20;
-    DWORD				dwDstPtr = 0;
-    DWORD				dwOffset = 24;
+    DWORD dwSrcPtr = 20;
+    DWORD dwDstPtr = 0;
+    DWORD dwOffset = 24;
 
     for( DWORD i = 0 ; i < 3 ; i++ )
     {
@@ -528,35 +493,35 @@ BOOL	CTCDBase::DecompSPD(
 
     while( dwDstPtr < dwDstSize )
     {
-        DWORD				dwSrcPtrTemp = dwSrcPtr + (dwOffset >> 3);
-        DWORD				dwShift = (dwOffset & 7);
+        DWORD dwSrcPtrTemp = dwSrcPtr + (dwOffset >> 3);
+        DWORD dwShift = (dwOffset & 7);
 
-        DWORD				dwData = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 0];
-        DWORD				dwKeyPtr = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 1];
+        DWORD dwData = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 0];
+        DWORD dwKeyPtr = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 1];
 
         _asm
         {
-            push	ecx
-            push	edx
-            push	ebx
-            push	esi
+            push  ecx
+            push  edx
+            push  ebx
+            push  esi
 
-            mov		edx, dwData
-            mov		esi, dwKeyPtr
-            mov		ecx, dwShift
-            xor		ebx, ebx
+            mov   edx, dwData
+            mov   esi, dwKeyPtr
+            mov   ecx, dwShift
+            xor   ebx, ebx
 
-            bswap	edx
-            shld	edx, esi, cl
-            shld	ebx, edx, 5
+            bswap edx
+            shld  edx, esi, cl
+            shld  ebx, edx, 5
 
-            mov		dwData, edx
-            mov		dwKeyPtr, ebx
+            mov   dwData, edx
+            mov   dwKeyPtr, ebx
 
-            pop		esi
-            pop		ebx
-            pop		edx
-            pop		ecx
+            pop   esi
+            pop   ebx
+            pop   edx
+            pop   ecx
         }
 
         if( dwKeyPtr > 0x1B )
@@ -572,7 +537,7 @@ BOOL	CTCDBase::DecompSPD(
         }
         else
         {
-            DWORD				dwBackPtr = dwDstPtr + alKey4[dwKeyPtr];
+            DWORD dwBackPtr = dwDstPtr + alKey4[dwKeyPtr];
 
             for( DWORD i = 0 ; i < 3 ; i++ )
             {
@@ -585,18 +550,18 @@ BOOL	CTCDBase::DecompSPD(
 
             if( *(DWORD*)&abtKey3[dwKeyPtr * 4] & 1 )
             {
-                BYTE				btPrevKey1 = 0;
+                BYTE btPrevKey1 = 0;
 
                 dwShift += 8;
 
                 _asm
                 {
-                    push	ecx
+                    push ecx
 
-                    mov		ecx, dwShift
-                    rol		dwData, cl
+                    mov  ecx, dwShift
+                    rol  dwData, cl
 
-                    pop		ecx
+                    pop  ecx
                 }
 
                 dwKeyPtr = (dwData & 0xFF);
@@ -608,12 +573,12 @@ BOOL	CTCDBase::DecompSPD(
 
                 _asm
                 {
-                    push	ecx
+                    push ecx
 
-                    mov		ecx, dwShift
-                    rol		dwData, cl
+                    mov  ecx, dwShift
+                    rol  dwData, cl
 
-                    pop		ecx
+                    pop  ecx
                 }
 
                 dwKeyPtr = (dwData & 0xFF);
@@ -624,12 +589,12 @@ BOOL	CTCDBase::DecompSPD(
 
                 _asm
                 {
-                    push	ecx
+                    push ecx
 
-                    mov		ecx, dwShift
-                    rol		dwData, cl
+                    mov  ecx, dwShift
+                    rol  dwData, cl
 
-                    pop		ecx
+                    pop  ecx
                 }
 
                 dwKeyPtr = (dwData & 0xFF);
@@ -645,30 +610,30 @@ BOOL	CTCDBase::DecompSPD(
         }
     }
 
-    return	TRUE;
+    return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decryption
+// Decryption
 
-BOOL	CTCDBase::Decrypt(
+BOOL CTCDBase::Decrypt(
     void*				pvData,							// Data
     DWORD				dwDataSize						// Data Size
     )
 {
-    BYTE*				pbtData = (BYTE*)pvData;
+    BYTE* pbtData = (BYTE*)pvData;
 
     for( DWORD i = 0 ; i < dwDataSize ; i++ )
     {
-        BYTE				btData = pbtData[i];
+        BYTE btData = pbtData[i];
 
         _asm
         {
-            ror		btData, 1
+            ror btData, 1
         }
 
         pbtData[i] = btData;
     }
 
-    return	TRUE;
+    return TRUE;
 }
