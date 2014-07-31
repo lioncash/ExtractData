@@ -6,47 +6,46 @@
 #include	"Nscr.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Mounting
+// Mounting
 
-BOOL	CNscr::Mount(
+BOOL CNscr::Mount(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( MountNsa( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountSar( pclArc) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( MountScr( pclArc) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	nsa mounting
+// nsa mounting
 
-BOOL	CNscr::MountNsa(
+BOOL CNscr::MountNsa(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pclArc->GetArcExten() != _T(".nsa") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	DWORD				dwFiles = 0;
+	DWORD dwFiles = 0;
 
 	if( memcmp( pclArc->GetHed(), "\0\0", 2 ) == 0 )
 	{
@@ -63,8 +62,7 @@ BOOL	CNscr::MountNsa(
 	pclArc->ConvEndian( &dwFiles );
 
 	// Get offset
-
-	DWORD				dwOffset;
+	DWORD dwOffset;
 
 	pclArc->Read( &dwOffset, 4 );
 	pclArc->ConvEndian( &dwOffset );
@@ -75,32 +73,26 @@ BOOL	CNscr::MountNsa(
 	}
 
 	// Get index size
-
-	DWORD				dwIndexSize = dwOffset;
-
+	DWORD dwIndexSize = dwOffset;
 	dwIndexSize -= (memcmp( pclArc->GetHed(), "\0\0", 2 ) == 0) ? 8 : 6;
 
 	// Get the index
-
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
+	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	DWORD dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get file name
-
-		TCHAR				szFileName[256];
-
+		TCHAR szFileName[256];
 		lstrcpy( szFileName, (LPCTSTR) &clmbtIndex[dwIndexPtr] );
 		dwIndexPtr += lstrlen( szFileName ) + 1;
 
-		BYTE				btType = clmbtIndex[dwIndexPtr];
+		BYTE btType = clmbtIndex[dwIndexPtr];
 
 		// Add to list view
-
-		SFileInfo			stFileInfo;
+		SFileInfo stFileInfo;
 
 		stFileInfo.name = szFileName;
 		stFileInfo.start = pclArc->ConvEndian( *(DWORD*) &clmbtIndex[dwIndexPtr + 1] ) + dwOffset;
@@ -110,11 +102,11 @@ BOOL	CNscr::MountNsa(
 
 		switch( btType )
 		{
-			case	1:
+			case 1:
 				stFileInfo.format = _T("SPB");
 				break;
 
-			case	2:
+			case 2:
 				stFileInfo.format = _T("LZSS");
 				break;
 		}
@@ -124,59 +116,49 @@ BOOL	CNscr::MountNsa(
 		dwIndexPtr += 13;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	sar mounting
+// sar mounting
 
-BOOL	CNscr::MountSar(
+BOOL CNscr::MountSar(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcExten() != _T(".sar") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file count
-
-	WORD				dwFiles;
-
+	WORD dwFiles;
 	pclArc->Read( &dwFiles, 2 );
 	pclArc->ConvEndian( &dwFiles );
 
 	// Get offset
-
-	DWORD				dwOffset;
-
+	DWORD dwOffset;
 	pclArc->Read( &dwOffset, 4 );
 	pclArc->ConvEndian( &dwOffset );
 
 	// Get index size
-
-	DWORD				dwIndexSize = dwOffset - 6;
+	DWORD dwIndexSize = dwOffset - 6;
 
 	// Get the index
-
-	YCMemory<BYTE>		clmbtIndex( dwIndexSize );
-	DWORD				dwIndexPtr = 0;
+	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	DWORD dwIndexPtr = 0;
 
 	pclArc->Read( &clmbtIndex[0], dwIndexSize );
 
 	for( DWORD i = 0 ; i < dwFiles ; i++ )
 	{
 		// Get file name
-
-		TCHAR				szFileName[256];
-
+		TCHAR szFileName[256];
 		lstrcpy( szFileName, (LPCTSTR) &clmbtIndex[dwIndexPtr] );
 		dwIndexPtr += lstrlen( szFileName ) + 1;
 
 		// Add to listview
-
-		SFileInfo			stFileInfo;
-
+		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
 		stFileInfo.start = pclArc->ConvEndian( *(DWORD*) &clmbtIndex[dwIndexPtr + 0] ) + dwOffset;
 		stFileInfo.sizeOrg = pclArc->ConvEndian( *(DWORD*) &clmbtIndex[dwIndexPtr + 4] );
@@ -188,74 +170,72 @@ BOOL	CNscr::MountSar(
 		dwIndexPtr += 8;
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Script file mounting
+// Script file mounting
 
-BOOL	CNscr::MountScr(
+BOOL CNscr::MountScr(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( pclArc->GetArcName() != _T("nscript.dat") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
-	return	pclArc->Mount();
+	return pclArc->Mount();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Decoding
+// Decoding
 
-BOOL	CNscr::Decode(
+BOOL CNscr::Decode(
 	CArcFile*			pclArc							// Archive
 	)
 {
 	if( DecodeScr( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeSPB( pclArc ) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeLZSS( pclArc) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
 	if( DecodeNBZ( pclArc) )
 	{
-		return	TRUE;
+		return TRUE;
 	}
 
-	return	FALSE;
+	return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Script file decoding
+// Script file decoding
 
-BOOL	CNscr::DecodeScr(
+BOOL CNscr::DecodeScr(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->name != _T("nscript.dat") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Ensure buffer exists
-
-	DWORD				dwBufferSize = pclArc->GetBufSize();
-
-	YCMemory<BYTE>		clmbtBuffer( dwBufferSize );
-	YCMemory<BYTE>		clmbtBuffer2( dwBufferSize * 2 );
+	DWORD dwBufferSize = pclArc->GetBufSize();
+	YCMemory<BYTE> clmbtBuffer( dwBufferSize );
+	YCMemory<BYTE> clmbtBuffer2( dwBufferSize * 2 );
 
 	// Generate output files
 
@@ -264,23 +244,19 @@ BOOL	CNscr::DecodeScr(
 	for( DWORD dwWriteSize = 0 ; dwWriteSize != pstFileInfo->sizeOrg ; dwWriteSize += dwBufferSize )
 	{
 		// Buffer adjustment
-
 		pclArc->SetBufSize( &dwBufferSize, dwWriteSize );
 
 		// Reading
-
 		pclArc->Read( &clmbtBuffer[0], dwBufferSize );
 
-		DWORD				dwBufferSize2 = 0;
+		DWORD dwBufferSize2 = 0;
 
 		for( DWORD i = 0 ; i < dwBufferSize ; i++ )
 		{
 			// Decoding
-
 			clmbtBuffer2[dwBufferSize2] = clmbtBuffer[i] ^ 0x84;
 
 			// Change to CR + LF line endings
-
 			if( clmbtBuffer2[dwBufferSize2] == '\n' )
 			{
 				clmbtBuffer2[dwBufferSize2++] = '\r';
@@ -293,61 +269,53 @@ BOOL	CNscr::DecodeScr(
 		pclArc->WriteFile( &clmbtBuffer2[0], dwBufferSize2 );
 	}
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	NBZ Decoding
+// NBZ Decoding
 
-BOOL	CNscr::DecodeNBZ(
+BOOL CNscr::DecodeNBZ(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->format != _T("NBZ") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get file size
-
-	DWORD				dwDstSize;
-
+	DWORD dwDstSize;
 	pclArc->Read( &dwDstSize, 4 );
 	pclArc->ConvEndian( &dwDstSize );
 
-	DWORD				dwSrcSize = (pstFileInfo->sizeCmp - 4);
+	DWORD dwSrcSize = (pstFileInfo->sizeCmp - 4);
 
 	// Ensure buffer exists
-
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtSrc( dwSrcSize );
+	YCMemory<BYTE> clmbtDst( dwDstSize );
 
 	// NBZ decompression
-
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
-
 	BZ2_bzBuffToBuffDecompress( (char*) &clmbtDst[0], &(UINT&) dwDstSize, (char*) &clmbtSrc[0], dwSrcSize, 0, 0 );
 
 	// Obtain file extension
-
-	YCString			clsFileExt;
-
+	YCString clsFileExt;
 	GetFileExt( clsFileExt, &clmbtDst[0] );
 
 	// Output
-
 	pclArc->OpenFile( clsFileExt );
 	pclArc->WriteFile( &clmbtDst[0], dwDstSize );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Getting file extensions
+// Getting file extensions
 
-void	CNscr::GetFileExt(
+void CNscr::GetFileExt(
 	YCString&			rfclsDst,						// Destination
 	const BYTE*			pbtBuffer						// Buffer
 	)
@@ -367,16 +335,16 @@ void	CNscr::GetFileExt(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get a stream of bits
+// Get a stream of bits
 
-DWORD	CNscr::GetBit(
+DWORD CNscr::GetBit(
 	const BYTE*			pbtSrc,							// Input data
 	DWORD				dwReadBitLength,				// Number of bits to read
 	DWORD*				pdwReadByteLength				// Number of bytes read
 	)
 {
-	DWORD				dwResult = 0;
-	DWORD				dwSrcPtr = 0;
+	DWORD dwResult = 0;
+	DWORD dwSrcPtr = 0;
 
 	for( DWORD i = 0 ; i < dwReadBitLength ; i++ )
 	{
@@ -398,72 +366,64 @@ DWORD	CNscr::GetBit(
 
 	*pdwReadByteLength = dwSrcPtr;
 
-	return	dwResult;
+	return dwResult;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	SPB Decoding
+// SPB Decoding
 
-BOOL	CNscr::DecodeSPB(
+BOOL CNscr::DecodeSPB(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->format != _T("SPB") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Get the width
-
-	WORD				wWidth;
-
+	WORD wWidth;
 	pclArc->Read( &wWidth, 2 );
 	pclArc->ConvEndian( &wWidth );
 
 	// Get the height
-
-	WORD				wHeight;
-
+	WORD wHeight;
 	pclArc->Read( &wHeight, 2 );
 	pclArc->ConvEndian( &wHeight );
 
 	// Parameters for the image
-
-	DWORD				dwColorSize = (wWidth * wHeight);
-	DWORD				dwLine = (wWidth * 3);
-	DWORD				dwPitch = ((dwLine + 3) & 0xFFFFFFFC);
+	DWORD dwColorSize = (wWidth * wHeight);
+	DWORD dwLine = (wWidth * 3);
+	DWORD dwPitch = ((dwLine + 3) & 0xFFFFFFFC);
 
 	// Ensure buffers exist
+	DWORD dwSrcSize = pstFileInfo->sizeCmp - 4;
+	DWORD dwDstSize = pstFileInfo->sizeOrg - 54;
+	DWORD dwWorkSize = (dwColorSize + 4) * 3;
 
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp - 4;
-	DWORD				dwDstSize = pstFileInfo->sizeOrg - 54;
-	DWORD				dwWorkSize = (dwColorSize + 4) * 3;
-
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
-	YCMemory<BYTE>		clmbtWork( dwWorkSize );
+	YCMemory<BYTE> clmbtSrc( dwSrcSize );
+	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtWork( dwWorkSize );
 
 	// Read the SPB file
-
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
 	// SPB decompression
-
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
-	DWORD				dwWorkPtr = 0;
-	DWORD				adwWorkPtrForSave[3];
+	DWORD dwSrcPtr = 0;
+	DWORD dwDstPtr = 0;
+	DWORD dwWorkPtr = 0;
+	DWORD adwWorkPtrForSave[3];
 
 	btMaskForGetBit = 0;
 	btSrcForGetBit = 0;
 
 	for( unsigned int i = 0 ; i < 3 ; i++ )
 	{
-		DWORD				dwReadByteLength;
-		DWORD				dwData;
-		DWORD				dwWork;
+		DWORD dwReadByteLength;
+		DWORD dwData;
+		DWORD dwWork;
 
 		adwWorkPtrForSave[i] = dwWorkPtr;
 
@@ -477,15 +437,14 @@ BOOL	CNscr::DecodeSPB(
 
 		for( DWORD dwCount = 1 ; dwCount < dwColorSize ; dwCount += 4 )
 		{
-			DWORD				dwFlags = GetBit( &clmbtSrc[dwSrcPtr], 3, &dwReadByteLength );
-			DWORD				dwFlags2;
+			DWORD dwFlags = GetBit( &clmbtSrc[dwSrcPtr], 3, &dwReadByteLength );
+			DWORD dwFlags2;
 
 			dwSrcPtr += dwReadByteLength;
 
 			switch( dwFlags )
 			{
-			case	0:
-
+			case 0:
 				clmbtWork[dwWorkPtr + 0] = (BYTE) dwData;
 				clmbtWork[dwWorkPtr + 1] = (BYTE) dwData;
 				clmbtWork[dwWorkPtr + 2] = (BYTE) dwData;
@@ -494,15 +453,14 @@ BOOL	CNscr::DecodeSPB(
 				dwWorkPtr += 4;
 				continue;
 
-			case	7:
-
+			case 7:
 				dwFlags2 = GetBit( &clmbtSrc[dwSrcPtr], 1, &dwReadByteLength ) + 1;
 				dwSrcPtr += dwReadByteLength;
 				break;
 
 			default:
-
 				dwFlags2 = (dwFlags + 2);
+				break;
 			}
 
 			for( unsigned int j = 0 ; j < 4 ; j++ )
@@ -533,8 +491,8 @@ BOOL	CNscr::DecodeSPB(
 
 	// RGB synthesis
 
-	BYTE*				pbtDst = &clmbtDst[dwPitch * (wHeight - 1)];
-	const BYTE*			apbtWork[3];
+	BYTE* pbtDst = &clmbtDst[dwPitch * (wHeight - 1)];
+	const BYTE* apbtWork[3];
 
 	apbtWork[0] = &clmbtWork[adwWorkPtrForSave[0]];
 	apbtWork[1] = &clmbtWork[adwWorkPtrForSave[1]];
@@ -575,69 +533,62 @@ BOOL	CNscr::DecodeSPB(
 	}
 
 	// Output
-
-	CImage				clImage;
-
+	CImage clImage;
 	clImage.Init( pclArc, wWidth, wHeight, 24 );
 	clImage.Write( &clmbtDst[0], dwDstSize );
 
-	return	TRUE;
+	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSS Decoding
+// LZSS Decoding
 
-BOOL	CNscr::DecodeLZSS(
+BOOL CNscr::DecodeLZSS(
 	CArcFile*			pclArc							// Archive
 	)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if( pstFileInfo->format != _T("LZSS") )
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Ensure buffers exist
+	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwDstSize = pstFileInfo->sizeOrg;
+	DWORD dwDicSize = 256;
 
-	DWORD				dwSrcSize = pstFileInfo->sizeCmp;
-	DWORD				dwDstSize = pstFileInfo->sizeOrg;
-	DWORD				dwDicSize = 256;
-
-	YCMemory<BYTE>		clmbtSrc( dwSrcSize );
-	YCMemory<BYTE>		clmbtDst( dwDstSize );
-	YCMemory<BYTE>		clmbtDic( dwDicSize );
+	YCMemory<BYTE> clmbtSrc( dwSrcSize );
+	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtDic( dwDicSize );
 
 	ZeroMemory( &clmbtDic[0], dwDicSize );
 
 	// Read
-
 	pclArc->Read( &clmbtSrc[0], dwSrcSize );
 
 	// LZSS decompression
-
-	DWORD				dwSrcPtr = 0;
-	DWORD				dwDstPtr = 0;
-	DWORD				dwDicPtr = 239;
+	DWORD dwSrcPtr = 0;
+	DWORD dwDstPtr = 0;
+	DWORD dwDicPtr = 239;
 
 	btMaskForGetBit = 0;
 	btSrcForGetBit = 0;
 
 	while( dwDstPtr < dwDstSize )
 	{
-		DWORD				dwReadByteLength;
-		DWORD				dwData;
+		DWORD dwReadByteLength;
+		DWORD dwData;
 
 		// Get the compression flag
-
-		DWORD				dwFlag = GetBit( &clmbtSrc[dwSrcPtr], 1, &dwReadByteLength );
+		DWORD dwFlag = GetBit( &clmbtSrc[dwSrcPtr], 1, &dwReadByteLength );
 
 		dwSrcPtr += dwReadByteLength;
 
+		// Uncompressed
 		if( dwFlag & 1 )
 		{
-			// Uncompressed
-
 			dwData = GetBit( &clmbtSrc[dwSrcPtr], 8, &dwReadByteLength );
 
 			clmbtDst[dwDstPtr++] = (BYTE) dwData;
@@ -646,16 +597,12 @@ BOOL	CNscr::DecodeLZSS(
 			dwSrcPtr += dwReadByteLength;
 			dwDicPtr &= (dwDicSize - 1);
 		}
-		else
+		else // Compressed
 		{
-			// Compressed
-
-			DWORD				dwBack = GetBit( &clmbtSrc[dwSrcPtr], 8, &dwReadByteLength );
-
+			DWORD dwBack = GetBit( &clmbtSrc[dwSrcPtr], 8, &dwReadByteLength );
 			dwSrcPtr += dwReadByteLength;
 
-			DWORD				dwLength = GetBit( &clmbtSrc[dwSrcPtr], 4, &dwReadByteLength ) + 2;
-
+			DWORD dwLength = GetBit( &clmbtSrc[dwSrcPtr], 4, &dwReadByteLength ) + 2;
 			dwSrcPtr += dwReadByteLength;
 
 			if( (dwDstPtr + dwLength) > dwDstSize )
@@ -676,11 +623,9 @@ BOOL	CNscr::DecodeLZSS(
 	}
 
 	// Output
-
-	CImage				clImage;
-
+	CImage clImage;
 	clImage.Init( pclArc, &clmbtDst[0] );
 	clImage.Write( dwDstSize );
 
-	return	TRUE;
+	return TRUE;
 }

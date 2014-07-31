@@ -95,7 +95,7 @@ BOOL CFateFD::Decode(CArcFile* pclArc)
 			pclArc->Read(&buf[0], BufSize);
 			
 			// Decryption
-			for (unsigned int j = 0; j < (int)BufSize; j++)
+			for (unsigned int j = 0; j < BufSize; j++)
 				buf[j] ^= decode[i].key;
 				
 			// Write decoded files

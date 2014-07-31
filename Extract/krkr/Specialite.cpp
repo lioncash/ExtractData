@@ -24,7 +24,7 @@ DWORD CSpecialite::OnInitDecrypt(
 //////////////////////////////////////////////////////////////////////////////////////////
 //  Decryption Process
 
-DWORD	CSpecialite::OnDecrypt(
+DWORD CSpecialite::OnDecrypt(
 	BYTE*				pbtTarget,						// Data to be decrypted
 	DWORD				dwTargetSize,					// Decoding Size
 	DWORD				dwOffset,						// Location of data to be decoded (offset)
