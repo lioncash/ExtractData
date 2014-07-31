@@ -94,7 +94,7 @@ HRESULT WINAPI CDataObject::EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC** pp
 			if (pfmt == NULL)
 				return E_OUTOFMEMORY;
 
-			for (int i = 0; i < (int)m_objects.size(); i++)
+			for (size_t i = 0; i < m_objects.size(); i++)
 				pfmt->SetFormat(&m_objects[i].m_fmt);
 
 			*ppEnumFormatetc = pfmt;

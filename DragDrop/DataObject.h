@@ -22,8 +22,6 @@ public:
 	virtual HRESULT WINAPI DUnadvise(DWORD dwConnection);
 	virtual HRESULT WINAPI EnumDAdvise(IEnumSTATDATA** ppEnumAdvise);
 
-	BOOL allocate(int num);
-
 protected:
 	class CObject
 	{
