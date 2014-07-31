@@ -189,9 +189,9 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	*.b file decompressing
+// *.b file decompressing
 
-BOOL	CQLIE::DecodeB(
+BOOL CQLIE::DecodeB(
 	CArcFile*			pclArc,							// Archive
 	BYTE*				pbtSrc,							// .b file
 	DWORD				dwSrcSize						// .b file size
@@ -217,9 +217,9 @@ BOOL	CQLIE::DecodeB(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	ABMP7 Decompressing
+// ABMP7 Decompressing
 
-BOOL	CQLIE::DecodeABMP7(
+BOOL CQLIE::DecodeABMP7(
 	CArcFile*			pclArc,							// Archive
 	BYTE*				pbtSrc,							// .b file
 	DWORD				dwSrcSize,						// .b file size
@@ -229,14 +229,14 @@ BOOL	CQLIE::DecodeABMP7(
 {
 	DWORD				dwSrcIndex = 0;
 
-	if( (dwSrcIndex + 16) > dwSrcSize )
+	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
 		// Exit
 
 		return	FALSE;
 	}
 
-	if( memcmp( &pbtSrc[dwSrcIndex], "ABMP7", 5 ) != 0 )
+	if (memcmp(&pbtSrc[dwSrcIndex], "ABMP7", 5) != 0)
 	{
 		// Unsupported
 
@@ -247,7 +247,7 @@ BOOL	CQLIE::DecodeABMP7(
 
 	// Get the amount of unnecessary data we can skip
 
-	DWORD				dwUnKnownDataSize = *(DWORD*) &pbtSrc[dwSrcIndex];
+	DWORD				dwUnKnownDataSize = *(DWORD*)&pbtSrc[dwSrcIndex];
 
 	dwSrcIndex += 4;
 
@@ -255,102 +255,95 @@ BOOL	CQLIE::DecodeABMP7(
 
 	dwSrcIndex += dwUnKnownDataSize;
 
-//-- First read ------------------------------------------------------------------------
+	//-- First read ------------------------------------------------------------------------
 
 	// Get filesize
 
-	DWORD				dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
+	DWORD dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
 
 	dwSrcIndex += 4;
 
 	// Get the file extension
 
-	YCString			clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
+	YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
 
 	// Output
 
-	if( clsFileExt == _T(".bmp") )
+	if (clsFileExt == _T(".bmp"))
 	{
 		// BITMAP
 
-		CImage				clImage;
-
-		clImage.Init( pclArc, &pbtSrc[dwSrcIndex] );
-		clImage.Write( dwFileSize );
+		CImage clImage;
+		clImage.Init(pclArc, &pbtSrc[dwSrcIndex]);
+		clImage.Write(dwFileSize);
 		clImage.Close();
 	}
 	else
 	{
 		// Other
 
-		pclArc->OpenFile( clsFileExt );
-		pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
+		pclArc->OpenFile(clsFileExt);
+		pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
 		pclArc->CloseFile();
 	}
 
 	dwSrcIndex += dwFileSize;
 
-//-- Second read (and subsequent reads) -----------------------------------------------------------------
+	//-- Second read (and subsequent reads) -----------------------------------------------------------------
 
-	while( dwSrcIndex < dwSrcSize )
+	while (dwSrcIndex < dwSrcSize)
 	{
 		// Get the length of the filename
 
-		DWORD				dwFileNameLength = pbtSrc[dwSrcIndex];
+		DWORD dwFileNameLength = pbtSrc[dwSrcIndex];
 
 		dwSrcIndex += 1;
 
 		// Get the filename
-
-		char				szFileName[_MAX_FNAME];
-
-		memcpy( szFileName, &pbtSrc[dwSrcIndex], dwFileNameLength );
-
+		char szFileName[_MAX_FNAME];
+		memcpy(szFileName, &pbtSrc[dwSrcIndex], dwFileNameLength);
 		szFileName[dwFileNameLength] = '\0';
 
 		dwSrcIndex += 31;
 
 		// Get the file size
 
-		dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
+		dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
 
 		dwSrcIndex += 4;
 
-		if( dwFileSize == 0 )
+		if (dwFileSize == 0)
 		{
 			// Filesize is 0
-
 			continue;
 		}
 
 		// Get file extension
 
-		clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
+		clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
 
 		// Write the .b filename extension
 
-		TCHAR				szWork[_MAX_FNAME];
-
-		_stprintf( szWork, _T("_%s%s"), szFileName, clsFileExt );
+		TCHAR szWork[_MAX_FNAME];
+		_stprintf(szWork, _T("_%s%s"), szFileName, clsFileExt);
 
 		// Output
 
-		if( clsFileExt == _T(".bmp") )
+		if (clsFileExt == _T(".bmp"))
 		{
 			// BITMAP
 
-			CImage				clImage;
-
-			clImage.Init( pclArc, &pbtSrc[dwSrcIndex], szWork );
-			clImage.Write( dwFileSize );
+			CImage clImage;
+			clImage.Init(pclArc, &pbtSrc[dwSrcIndex], szWork);
+			clImage.Write(dwFileSize);
 			clImage.Close();
 		}
 		else
 		{
 			// Other
 
-			pclArc->OpenFile( szWork );
-			pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
+			pclArc->OpenFile(szWork);
+			pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
 			pclArc->CloseFile();
 		}
 

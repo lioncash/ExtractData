@@ -123,8 +123,8 @@ BOOL CYkc::DecodeYKG(CArcFile* pclArc)
 		memcpy(&clmbtSrc[0x41], "PNG", 3);
 
 		// Output
-		pclArc->OpenFile( _T(".png") );
-		pclArc->WriteFile( &clmbtSrc[0x40], pstfiWork->sizeCmp - 0x40 );
+		pclArc->OpenFile(_T(".png"));
+		pclArc->WriteFile(&clmbtSrc[0x40], pstfiWork->sizeCmp - 0x40);
 	}
 	else
 	{

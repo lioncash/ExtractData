@@ -3,16 +3,15 @@
 class CQLIE : public CExtractBase
 {
 private:
-
 	struct SFileNameInfo
 	{
 		YCString clsFileName; // Filename
 		DWORD    dwCount;     // Number of times
 	};
 
-	BOOL DecodeB( CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize );
-	BOOL DecodeABMP7( CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T("") );
-	BOOL DecodeABMP10( CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T("") );
+	BOOL DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize);
+	BOOL DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T(""));
+	BOOL DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T(""));
 
 	void Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize);
 
@@ -24,12 +23,11 @@ private:
 	static void DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed);
 	static void DecryptV3(LPBYTE buff, DWORD len, DWORD seed);
 
-	YCString GetExtension( BYTE* pbtSrc );
+	YCString GetExtension(BYTE* pbtSrc);
 
-	void EraseNotUsePathWord( YCString& clsPath );
+	void EraseNotUsePathWord(YCString& clsPath);
 
 public:
-
 	enum
 	{
 		ABIMGDAT10 = 0x00000000,

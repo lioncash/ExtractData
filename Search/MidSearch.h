@@ -9,8 +9,6 @@
 class CMidSearch : public CSearchBase
 {
 public:
-
-		 CMidSearch();
-
-	void Mount( CArcFile* pclArc );
+	CMidSearch();
+	void Mount(CArcFile* pclArc);
 };

@@ -5,30 +5,25 @@
 class CEFLatter : public CHaruotoFD
 {
 public:
-
-	virtual BOOL Mount( CArcFile* pclArc );
-	virtual BOOL Decode( CArcFile* pclArc );
-
+	virtual BOOL Mount(CArcFile* pclArc);
+	virtual BOOL Decode(CArcFile* pclArc);
 
 protected:
+	BOOL IsSupported(CArcFile* pclArc);
 
-	BOOL            IsSupported( CArcFile* pclArc );
+	virtual void InitMountKey(CArcFile* pclArc);
+	virtual void InitDecodeKey(CArcFile* pclArc);
 
-	virtual void    InitMountKey( CArcFile* pclArc );
-	virtual void    InitDecodeKey( CArcFile* pclArc );
+	virtual DWORD InitMovieTable(void* pvTable);
 
-	virtual DWORD   InitMovieTable( void* pvTable );
+	virtual void Decrypt(void* pvTarget, DWORD dwSize);
+	virtual void Decrypt2(void * pvTarget, DWORD dwSize);
 
-	virtual void    Decrypt( void* pvTarget, DWORD dwSize );
-	virtual void    Decrypt2( void * pvTarget, DWORD dwSize );
+	void SetDecryptKey2(CArcFile* pclArc);
 
-	void            SetDecryptKey2( CArcFile* pclArc );
-
-	virtual void    DecodeMovieData( void* pvTarget, DWORD dwSize );
-
+	virtual void DecodeMovieData(void* pvTarget, DWORD dwSize);
 
 private:
-
 	BYTE  m_btKey;
 
 	char  m_szKey[256];

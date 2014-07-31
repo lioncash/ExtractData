@@ -127,7 +127,7 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 	EBP = 1;
 
-	while (1)
+	while (true)
 	{
 		ESI = abyTable[0x40];
 
@@ -160,7 +160,7 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 
 	if (EBP != 0)
 	{
-		while (1)
+		while (true)
 		{
 			EDI = abyTable[0x40];
 

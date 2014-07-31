@@ -6,11 +6,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
 
-BOOL CWill::Mount(
-	CArcFile*			pclArc							// Mount
-	)
+BOOL CWill::Mount(CArcFile* pclArc)
 {
-	if( lstrcmpi( pclArc->GetArcExten(), _T(".arc") ) != 0 )
+	if (lstrcmpi(pclArc->GetArcExten(), _T(".arc")) != 0)
 	{
 		return FALSE;
 	}
@@ -22,84 +20,84 @@ BOOL CWill::Mount(
 		"OGG", "WSC", "ANM", "MSK", "WIP", "TBL", "SCR"
 	};
 
-	for( DWORD i = 0 ; i < _countof( apszHeader ) ; i++ )
+	for (DWORD i = 0; i < _countof(apszHeader); i++)
 	{
-		if( memcmp( &pclArc->GetHed()[4], apszHeader[i], 4 ) == 0 )
+		if (memcmp(&pclArc->GetHed()[4], apszHeader[i], 4) == 0)
 		{
 			bMatch = TRUE;
 			break;
 		}
 	}
 
-	if( !bMatch )
+	if (!bMatch)
 	{
 		return FALSE;
 	}
 
 	// Get number of file formats
 	DWORD dwFileFormats;
-	pclArc->Read( &dwFileFormats, 4 );
+	pclArc->Read(&dwFileFormats, 4);
 
 	// Get file format index
 	DWORD          dwFormatIndexSize = 12 * dwFileFormats;
-	YCMemory<BYTE> clmbtFormatIndex( dwFormatIndexSize );
+	YCMemory<BYTE> clmbtFormatIndex(dwFormatIndexSize);
 	DWORD          dwFormatIndexPtr = 0;
-	pclArc->Read( &clmbtFormatIndex[0], dwFormatIndexSize );
+	pclArc->Read(&clmbtFormatIndex[0], dwFormatIndexSize);
 
 	// Get index size
 	DWORD dwIndexSize = 0;
-	for( DWORD i = 0 ; i < dwFileFormats ; i++ )
+	for (DWORD i = 0; i < dwFileFormats; i++)
 	{
-		dwIndexSize += *(DWORD*) &clmbtFormatIndex[12 * i + 4] * 17;
+		dwIndexSize += *(DWORD*)&clmbtFormatIndex[12 * i + 4] * 17;
 	}
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex( dwIndexSize );
+	YCMemory<BYTE> clmbtIndex(dwIndexSize);
 	DWORD          dwIndexPtr = 0;
-	pclArc->Read( &clmbtIndex[0], dwIndexSize );
+	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
 	// Get file information
 	std::vector<SFileInfo>	vcFileInfo;
 	std::vector<SFileInfo>	vcMaskFileInfo;
 	std::vector<SFileInfo>	vcNotMaskFileInfo;
 
-	for( DWORD i = 0 ; i < dwFileFormats ; i++ )
+	for (DWORD i = 0; i < dwFileFormats; i++)
 	{
 		// Get filetype extension
 		TCHAR szFileExt[8];
-		memcpy( szFileExt, &clmbtFormatIndex[dwFormatIndexPtr], 4 );
+		memcpy(szFileExt, &clmbtFormatIndex[dwFormatIndexPtr], 4);
 		szFileExt[4] = '\0';
-		::CharLower( szFileExt );
+		::CharLower(szFileExt);
 
 		// Get file information
-		DWORD dwFiles = *(DWORD*) &clmbtFormatIndex[dwFormatIndexPtr + 4];
+		DWORD dwFiles = *(DWORD*)&clmbtFormatIndex[dwFormatIndexPtr + 4];
 
-		for( DWORD j = 0 ; j < dwFiles; j++ )
+		for (DWORD j = 0; j < dwFiles; j++)
 		{
 			// Get file name
 			char szFileTitle[16];
-			memcpy( szFileTitle, &clmbtIndex[dwIndexPtr], 9 );
+			memcpy(szFileTitle, &clmbtIndex[dwIndexPtr], 9);
 			szFileTitle[9] = '\0';
 
 			TCHAR szFileName[32];
-			_stprintf( szFileName, _T("%s.%s"), szFileTitle, szFileExt );
+			_stprintf(szFileName, _T("%s.%s"), szFileTitle, szFileExt);
 
 			// Add information to the list
 			SFileInfo stFileInfo;
 			stFileInfo.name = szFileName;
-			stFileInfo.sizeCmp = *(DWORD*) &clmbtIndex[dwIndexPtr + 9];
+			stFileInfo.sizeCmp = *(DWORD*)&clmbtIndex[dwIndexPtr + 9];
 			stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-			stFileInfo.start = *(DWORD*) &clmbtIndex[dwIndexPtr + 13];
+			stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 13];
 			stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
-			if( lstrcmp( szFileExt, _T("msk") ) == 0 )
+			if (lstrcmp(szFileExt, _T("msk")) == 0)
 			{
 				// Masked image
-				vcMaskFileInfo.push_back( stFileInfo );
+				vcMaskFileInfo.push_back(stFileInfo);
 			}
 			else
 			{
-				vcFileInfo.push_back( stFileInfo );
+				vcFileInfo.push_back(stFileInfo);
 			}
 
 			dwIndexPtr += 17;
@@ -109,48 +107,48 @@ BOOL CWill::Mount(
 	}
 
 	// Sort by filename
-	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
+	std::sort(vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo);
 
 	// Get file information from the mask image
-	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcMaskFileInfo.size(); i++)
 	{
 		SFileInfo* pstsiMask = &vcMaskFileInfo[i];
 
 		// Get the name of the file to be created
 		TCHAR szTargetName[_MAX_FNAME];
-		lstrcpy( szTargetName, pstsiMask->name );
-		PathRenameExtension( szTargetName, _T(".wip") );
+		lstrcpy(szTargetName, pstsiMask->name);
+		PathRenameExtension(szTargetName, _T(".wip"));
 
 		// Getting file information to be created
 		SFileInfo* pstsiTarget = NULL;
-		pstsiTarget = pclArc->SearchForFileInfo( vcFileInfo, szTargetName );
-		if( pstsiTarget != NULL )
+		pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szTargetName);
+		if (pstsiTarget != NULL)
 		{
 			// Definitely the mask image
-			pstsiTarget->starts.push_back( pstsiMask->start );
-			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
-			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
+			pstsiTarget->starts.push_back(pstsiMask->start);
+			pstsiTarget->sizesCmp.push_back(pstsiMask->sizeCmp);
+			pstsiTarget->sizesOrg.push_back(pstsiMask->sizeOrg);
 
 			// Progress update
-			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
+			pclArc->GetProg()->UpdatePercent(pstsiMask->sizeCmp);
 		}
 		else
 		{
 			// Is not a mask image
 
-			vcNotMaskFileInfo.push_back( *pstsiMask );
+			vcNotMaskFileInfo.push_back(*pstsiMask);
 		}
 	}
 
 	// Add to listview
-	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcFileInfo[i] );
+		pclArc->AddFileInfo(vcFileInfo[i]);
 	}
 
-	for( size_t i = 0 ; i < vcNotMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcNotMaskFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcNotMaskFileInfo[i] );
+		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
 	}
 
 	return TRUE;
@@ -159,25 +157,23 @@ BOOL CWill::Mount(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding
 
-BOOL CWill::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CWill::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( (pstFileInfo->format != _T("WIP")) && (pstFileInfo->format != _T("MSK")) )
+	if ((pstFileInfo->format != _T("WIP")) && (pstFileInfo->format != _T("MSK")))
 	{
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Read data
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
-	YCMemory<BYTE> clmbtSrc( dwSrcSize );
+	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	DWORD          dwSrcPtr = 0;
-	pclArc->Read( &clmbtSrc[0], dwSrcSize );
+	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// Get number of files and number of colors
-	WORD wFiles = *(WORD*) &clmbtSrc[4];
-	WORD wBpp = *(WORD*) &clmbtSrc[6];
+	WORD wFiles = *(WORD*)&clmbtSrc[4];
+	WORD wBpp = *(WORD*)&clmbtSrc[6];
 	dwSrcPtr += 8;
 
 	// Get width and height
@@ -185,11 +181,11 @@ BOOL CWill::Decode(
 	std::vector<long>  vclHeight;
 	std::vector<DWORD> vcdwSrcSize;
 
-	for( WORD i = 0 ; i < wFiles ; i++ )
+	for (WORD i = 0; i < wFiles; i++)
 	{
-		vclWidth.push_back( *(long*) &clmbtSrc[dwSrcPtr + 0] );
-		vclHeight.push_back( *(long*) &clmbtSrc[dwSrcPtr + 4] );
-		vcdwSrcSize.push_back( *(DWORD*) &clmbtSrc[dwSrcPtr + 20] );
+		vclWidth.push_back(*(long*)&clmbtSrc[dwSrcPtr + 0]);
+		vclHeight.push_back(*(long*)&clmbtSrc[dwSrcPtr + 4]);
+		vcdwSrcSize.push_back(*(DWORD*)&clmbtSrc[dwSrcPtr + 20]);
 
 		dwSrcPtr += 24;
 	}
@@ -207,28 +203,28 @@ BOOL CWill::Decode(
 	std::vector<long>  vclHeightForMask;
 	std::vector<DWORD> vcdwSrcSizeForMask;
 
-	if( bExistsMask )
+	if (bExistsMask)
 	{
 		// Image mask exists
 		dwSrcSizeForMask = pstFileInfo->sizesCmp[0];
 		dwSrcPtrForMask = 0;
-		clmbtSrcForMask.resize( dwSrcSizeForMask );
+		clmbtSrcForMask.resize(dwSrcSizeForMask);
 
 		// Read image mask
-		pclArc->SeekHed( pstFileInfo->starts[0] );
-		pclArc->Read( &clmbtSrcForMask[0], dwSrcSizeForMask );
+		pclArc->SeekHed(pstFileInfo->starts[0]);
+		pclArc->Read(&clmbtSrcForMask[0], dwSrcSizeForMask);
 
 		// Get number of files and colors
-		wFilesForMask = *(WORD*) &clmbtSrcForMask[4];
-		wBppForMask = *(WORD*) &clmbtSrcForMask[6];
+		wFilesForMask = *(WORD*)&clmbtSrcForMask[4];
+		wBppForMask = *(WORD*)&clmbtSrcForMask[6];
 		dwSrcPtrForMask += 8;
 
 		// Get width and height
-		for( WORD i = 0 ; i < wFilesForMask ; i++ )
+		for (WORD i = 0; i < wFilesForMask; i++)
 		{
-			vclWidthForMask.push_back( *(long*) &clmbtSrcForMask[dwSrcPtrForMask + 0] );
-			vclHeightForMask.push_back( *(long*) &clmbtSrcForMask[dwSrcPtrForMask + 4] );
-			vcdwSrcSizeForMask.push_back( *(DWORD*) &clmbtSrcForMask[dwSrcPtrForMask + 20] );
+			vclWidthForMask.push_back(*(long*)&clmbtSrcForMask[dwSrcPtrForMask + 0]);
+			vclHeightForMask.push_back(*(long*)&clmbtSrcForMask[dwSrcPtrForMask + 4]);
+			vcdwSrcSizeForMask.push_back(*(DWORD*)&clmbtSrcForMask[dwSrcPtrForMask + 20]);
 
 			dwSrcPtrForMask += 24;
 		}
@@ -239,58 +235,58 @@ BOOL CWill::Decode(
 
 	// Output
 
-	for( WORD i = 0 ; i < wFiles ; i++ )
+	for (WORD i = 0; i < wFiles; i++)
 	{
 		// マスク画像の付加で変更されるため再取得
-		WORD wBpp = *(WORD*) &clmbtSrc[6];
+		WORD wBpp = *(WORD*)&clmbtSrc[6];
 
 		// Ensure the output buffer exists
 		DWORD          dwDstSize = vclWidth[i] * vclHeight[i] * (wBpp >> 3);
-		YCMemory<BYTE> clmbtDst( dwDstSize );
-		ZeroMemory( &clmbtDst[0], dwDstSize );
+		YCMemory<BYTE> clmbtDst(dwDstSize);
+		ZeroMemory(&clmbtDst[0], dwDstSize);
 		BYTE* pbtDst = &clmbtDst[0];
 
 		// Get pallet
 		BYTE* pbtPallet = NULL;
 
-		if( wBpp == 8 )
+		if (wBpp == 8)
 		{
 			pbtPallet = &clmbtSrc[dwSrcPtr];
 			dwSrcPtr += 1024;
 		}
 
 		// LZSS Decompression
-		DecompLZSS( &clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr], vcdwSrcSize[i] );
+		DecompLZSS(&clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr], vcdwSrcSize[i]);
 		dwSrcPtr += vcdwSrcSize[i];
 
 		// マスク画像を付加して32bit化
 		DWORD          dwDstSizeFor32bit;
 		YCMemory<BYTE> clmbtDstFor32bit;
 
-		if( bExistsMask )
+		if (bExistsMask)
 		{
 			// Image mask exists
 			DWORD dwDstSizeForMask = vclWidthForMask[i] * vclHeightForMask[i] * (wBppForMask >> 3);
-			YCMemory<BYTE> clmbtDstForMask( dwDstSizeForMask );
-			ZeroMemory( &clmbtDstForMask[0], dwDstSizeForMask );
+			YCMemory<BYTE> clmbtDstForMask(dwDstSizeForMask);
+			ZeroMemory(&clmbtDstForMask[0], dwDstSizeForMask);
 
 			// Get pallet
 			BYTE* pbtPalletForMask = NULL;
 
-			if( wBppForMask == 8 )
+			if (wBppForMask == 8)
 			{
 				pbtPalletForMask = &clmbtSrcForMask[dwSrcPtrForMask];
 				dwSrcPtrForMask += 1024;
 			}
 
 			// LZSS Decompression
-			DecompLZSS( &clmbtDstForMask[0], dwDstSizeForMask, &clmbtSrcForMask[dwSrcPtrForMask], vcdwSrcSizeForMask[i] );
+			DecompLZSS(&clmbtDstForMask[0], dwDstSizeForMask, &clmbtSrcForMask[dwSrcPtrForMask], vcdwSrcSizeForMask[i]);
 			dwSrcPtrForMask += vcdwSrcSizeForMask[i];
 
 			// Add mask to image
 			dwDstSizeFor32bit = vclWidth[i] * vclHeight[i] * 4;
-			clmbtDstFor32bit.resize( dwDstSizeFor32bit );
-			if( AppendMask( &clmbtDstFor32bit[0], dwDstSizeFor32bit, &clmbtDst[0], dwDstSize, &clmbtDstForMask[0], dwDstSizeForMask ) )
+			clmbtDstFor32bit.resize(dwDstSizeFor32bit);
+			if (AppendMask(&clmbtDstFor32bit[0], dwDstSizeFor32bit, &clmbtDst[0], dwDstSize, &clmbtDstForMask[0], dwDstSizeForMask))
 			{
 				// Success in adding the mask to the image
 				wBpp = 32;
@@ -302,28 +298,28 @@ BOOL CWill::Decode(
 		// Get file name
 		TCHAR szFileExt[256];
 
-		if( wFiles == 1 )
+		if (wFiles == 1)
 		{
 			// One file
-			lstrcpy( szFileExt, _T("") );
+			lstrcpy(szFileExt, _T(""));
 		}
 		else
 		{
 			// Two or more files
-			_stprintf( szFileExt, _T("_%03u.bmp"), i );
+			_stprintf(szFileExt, _T("_%03u.bmp"), i);
 		}
 
 		// Request progress bar progress
 		BOOL bProgress = TRUE;
-		if( i >= 1 )
+		if (i >= 1)
 		{
 			bProgress = FALSE;
 		}
 
 		// Output
 		CImage clImage;
-		clImage.Init( pclArc, vclWidth[i], vclHeight[i], wBpp, pbtPallet, 1024, szFileExt );
-		clImage.WriteCompoBGRAReverse( pbtDst, dwDstSize, bProgress );
+		clImage.Init(pclArc, vclWidth[i], vclHeight[i], wBpp, pbtPallet, 1024, szFileExt);
+		clImage.WriteCompoBGRAReverse(pbtDst, dwDstSize, bProgress);
 		clImage.Close();
 	}
 
@@ -331,34 +327,35 @@ BOOL CWill::Decode(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	LZSS Decompression
+// LZSS Decompression
+//
+// Parameters:
+//   - pvDst     - Destination
+//   - dwDstSize - Destination Size
+//   - pvSrc     - Compressed data
+//   - dwSrcSize - Compressed data size
 
-void CWill::DecompLZSS(
-	void*				pvDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const void*			pvSrc,							// Compressed data
-	DWORD				dwSrcSize						// Compressed data size
-	)
+void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
-	const BYTE* pbtSrc = (const BYTE*) pvSrc;
-	BYTE*       pbtDst = (BYTE*) pvDst;
+	const BYTE* pbtSrc = (const BYTE*)pvSrc;
+	BYTE*       pbtDst = (BYTE*)pvDst;
 
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
 
 	// Slide dictionary
 	DWORD          dwDicSize = 4096;
-	YCMemory<BYTE> clmbtDic( dwDicSize );
-	ZeroMemory( &clmbtDic[0], dwDicSize );
+	YCMemory<BYTE> clmbtDic(dwDicSize);
+	ZeroMemory(&clmbtDic[0], dwDicSize);
 	DWORD dwDicPtr = 1;
 
-	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
 	{
 		BYTE btFlags = pbtSrc[dwSrcPtr++];
 
-		for( DWORD i = 0 ; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) ; i++ )
+		for (DWORD i = 0; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize); i++)
 		{
-			if( btFlags & 1 )
+			if (btFlags & 1)
 			{
 				// Uncompressed data
 				pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = pbtSrc[dwSrcPtr++];
@@ -371,7 +368,7 @@ void CWill::DecompLZSS(
 				BYTE btHigh = pbtSrc[dwSrcPtr++];
 
 				DWORD dwBack = ((btLow << 8) | btHigh) >> 4;
-				if( dwBack == 0 )
+				if (dwBack == 0)
 				{
 					// Completed decompressing
 					return;
@@ -379,14 +376,14 @@ void CWill::DecompLZSS(
 
 				// Get length from dictionary
 				DWORD dwLength = (btHigh & 0x0F) + 2;
-				if( (dwDstPtr + dwLength) > dwDstSize )
+				if ((dwDstPtr + dwLength) > dwDstSize)
 				{
 					// Exceeds the output buffer
 					dwLength = (dwDstSize - dwDstPtr);
 				}
 
 				// Enter data dictionary
-				for( DWORD j = 0 ; j < dwLength ; j++ )
+				for (DWORD j = 0; j < dwLength; j++)
 				{
 					pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = clmbtDic[dwBack++];
 
@@ -402,19 +399,19 @@ void CWill::DecompLZSS(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // マスク画像を付加して32bit化する
-
-BOOL CWill::AppendMask(
-	BYTE*				pbtDst,							// Storage location
-	DWORD				dwDstSize,						// Storage location size
-	const BYTE*			pbtSrc,							// 24bit Data
-	DWORD				dwSrcSize,						// 24bit Data Size
-	const BYTE*			pbtMask,						// 8bit Data (Mask)
-	DWORD				dwMaskSize						// 8bit Data Size
-	)
+//
+// Parameters:
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination Size
+//   - pbtSrc     - 24-bit data
+//   - dwSrcSize  - 24-bit data size
+//   - pbtMask    - 8-bit data (mask)
+//   - dwMaskSize - 8-bit data size
+BOOL CWill::AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize)
 {
 	// Make files
-	memcpy( pbtDst, pbtSrc, dwSrcSize );
-	memcpy( &pbtDst[dwSrcSize], pbtMask, dwMaskSize );
+	memcpy(pbtDst, pbtSrc, dwSrcSize);
+	memcpy(&pbtDst[dwSrcSize], pbtMask, dwMaskSize);
 
 	return TRUE;
 }

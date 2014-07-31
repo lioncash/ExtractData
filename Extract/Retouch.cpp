@@ -6,11 +6,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
 
-BOOL CRetouch::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CRetouch::Mount(CArcFile* pclArc)
 {
-	if( MountGYU( pclArc ) )
+	if (MountGYU(pclArc))
 	{
 		return TRUE;
 	}
@@ -21,16 +19,14 @@ BOOL CRetouch::Mount(
 //////////////////////////////////////////////////////////////////////////////////////////
 // GYU Mounting
 
-BOOL CRetouch::MountGYU(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CRetouch::MountGYU(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".gyu") )
+	if (pclArc->GetArcExten() != _T(".gyu"))
 	{
 		return FALSE;
 	}
 
-	if( memcmp( pclArc->GetHed(), "GYU\x1A", 4 ) != 0 )
+	if (memcmp(pclArc->GetHed(), "GYU\x1A", 4) != 0)
 	{
 		return FALSE;
 	}
@@ -41,11 +37,9 @@ BOOL CRetouch::MountGYU(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding
 
-BOOL CRetouch::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CRetouch::Decode(CArcFile* pclArc)
 {
-	if( DecodeGYU( pclArc ) )
+	if (DecodeGYU(pclArc))
 	{
 		return TRUE;
 	}
@@ -56,47 +50,45 @@ BOOL CRetouch::Decode(
 //////////////////////////////////////////////////////////////////////////////////////////
 // GYU Decoding
 
-BOOL CRetouch::DecodeGYU(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
-	if( pstFileInfo->format != _T("GYU") )
+	if (pstFileInfo->format != _T("GYU"))
 	{
 		return FALSE;
 	}
 
 	// Read header
 	SGYUHeader stGYUHeader;
-	pclArc->Read( &stGYUHeader, sizeof(stGYUHeader) );
-	if( memcmp( stGYUHeader.abtIdentifier, "GYU\x1A", 4 ) != 0 )
+	pclArc->Read(&stGYUHeader, sizeof(stGYUHeader));
+	if (memcmp(stGYUHeader.abtIdentifier, "GYU\x1A", 4) != 0)
 	{
 		// File does not matter
 
-		pclArc->SeekCur( -(INT64)sizeof(stGYUHeader) );
+		pclArc->SeekCur(-(INT64)sizeof(stGYUHeader));
 		return FALSE;
 	}
 
 	// Read pallet
 	BYTE  abtPallet[1024];
 	DWORD dwPalletSize = (stGYUHeader.dwPallets * 4);
-	ZeroMemory( abtPallet, sizeof(abtPallet) );
-	if( dwPalletSize > 0 )
+	ZeroMemory(abtPallet, sizeof(abtPallet));
+	if (dwPalletSize > 0)
 	{
 		// Palette exists
 		BYTE abtBlackPallet[1024];
-		ZeroMemory( abtBlackPallet, sizeof(abtBlackPallet) );
-		pclArc->Read( abtPallet, dwPalletSize );
+		ZeroMemory(abtBlackPallet, sizeof(abtBlackPallet));
+		pclArc->Read(abtPallet, dwPalletSize);
 
-		if( memcmp( abtPallet, abtBlackPallet, dwPalletSize ) == 0 )
+		if (memcmp(abtPallet, abtBlackPallet, dwPalletSize) == 0)
 		{
 			// All pallets set to zero
-			for( DWORD i = 0, j = 0 ; i < dwPalletSize ; i += 4, j++ )
+			for (DWORD i = 0, j = 0; i < dwPalletSize; i += 4, j++)
 			{
-				abtPallet[i + 0] = (BYTE) j;
-				abtPallet[i + 1] = (BYTE) j;
-				abtPallet[i + 2] = (BYTE) j;
+				abtPallet[i + 0] = (BYTE)j;
+				abtPallet[i + 1] = (BYTE)j;
+				abtPallet[i + 2] = (BYTE)j;
 				abtPallet[i + 3] = 0;
 			}
 		}
@@ -104,52 +96,52 @@ BOOL CRetouch::DecodeGYU(
 
 	// Read
 	DWORD          dwSrcSize = stGYUHeader.adwCompSize[0];
-	YCMemory<BYTE> clmbtSrc( dwSrcSize );
-	pclArc->Read( &clmbtSrc[0], dwSrcSize );
+	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// Ensure output buffers exist
-	DWORD          dwDstSize = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight );
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	DWORD          dwDstSize = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight);
+	YCMemory<BYTE> clmbtDst(dwDstSize);
 
 	// Decrypt GYU
-	DecryptGYU( &clmbtSrc[0], dwSrcSize, stGYUHeader.dwKey );
+	DecryptGYU(&clmbtSrc[0], dwSrcSize, stGYUHeader.dwKey);
 
 	// Decompress GYU
-	DecompGYU( &clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize );
+	DecompGYU(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
 
 	// Output
-	if( stGYUHeader.adwCompSize[1] != 0 )
+	if (stGYUHeader.adwCompSize[1] != 0)
 	{
 		// Alpha value exists
 
 		// Read
 		DWORD          dwSrcSize2 = stGYUHeader.adwCompSize[1];
-		YCMemory<BYTE> clmbtSrc2( dwSrcSize2 );
-		pclArc->Read( &clmbtSrc2[0], dwSrcSize2 );
+		YCMemory<BYTE> clmbtSrc2(dwSrcSize2);
+		pclArc->Read(&clmbtSrc2[0], dwSrcSize2);
 
 		// Ensure output buffer exists
 		DWORD          dwDstSize2 = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight);
-		YCMemory<BYTE> clmbtDst2( dwDstSize2 );
+		YCMemory<BYTE> clmbtDst2(dwDstSize2);
 
 		// Decompress GYU
-		DecompGYU( &clmbtDst2[0], dwDstSize2, &clmbtSrc2[0], dwSrcSize2 );
+		DecompGYU(&clmbtDst2[0], dwDstSize2, &clmbtSrc2[0], dwSrcSize2);
 
 		// Ensure output buffer exists
 		DWORD          dwDstSize32Bit = (stGYUHeader.lWidth * stGYUHeader.lHeight * 4);
-		YCMemory<BYTE> clmbtDst32Bit( dwDstSize32Bit );
+		YCMemory<BYTE> clmbtDst32Bit(dwDstSize32Bit);
 
 		// Into 32-bit by adding the alpha value
-		for( long i = 0, lY = 0 ; (i < dwDstSize32Bit) && (lY < stGYUHeader.lHeight) ; lY++ )
+		for (long i = 0, lY = 0; (i < dwDstSize32Bit) && (lY < stGYUHeader.lHeight); lY++)
 		{
 			long lPresentHeight = (((stGYUHeader.lWidth + 3) & 0xFFFFFFFC) * lY);
 
-			for( long lX = 0 ; lX < stGYUHeader.lWidth ; lX++ )
+			for (long lX = 0; lX < stGYUHeader.lWidth; lX++)
 			{
 				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 0];
 				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 1];
 				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 2];
 
-				if( clmbtDst2[lPresentHeight + lX] < 0x10 )
+				if (clmbtDst2[lPresentHeight + lX] < 0x10)
 				{
 					clmbtDst32Bit[i++] = clmbtDst2[lPresentHeight + lX] * 16;
 				}
@@ -162,16 +154,16 @@ BOOL CRetouch::DecodeGYU(
 
 		// Output
 		CImage clImage;
-		clImage.Init( pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, 32 );
-		clImage.Write( &clmbtDst32Bit[0], dwDstSize32Bit );
+		clImage.Init(pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, 32);
+		clImage.Write(&clmbtDst32Bit[0], dwDstSize32Bit);
 	}
 	else
 	{
 		// Alpha value does not exist
 
 		CImage clImage;
-		clImage.Init( pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, stGYUHeader.dwBpp, abtPallet, sizeof(abtPallet) );
-		clImage.Write( &clmbtDst[0], dwDstSize );
+		clImage.Init(pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, stGYUHeader.dwBpp, abtPallet, sizeof(abtPallet));
+		clImage.Write(&clmbtDst[0], dwDstSize);
 	}
 
 	return TRUE;
@@ -179,12 +171,13 @@ BOOL CRetouch::DecodeGYU(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // GYU Decryption
+//
+// Parameters:
+//   - pvSrc     - Encrypted data
+//   - dwSrcSize - Encrypted data size
+//   - dwKey     - Decryption key
 
-BOOL CRetouch::DecryptGYU(
-	void*				pvSrc,							// Encrypted data
-	DWORD				dwSrcSize,						// Encrypted data size
-	DWORD				dwKey							// Decryption key
-	)
+BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
 
@@ -196,7 +189,7 @@ BOOL CRetouch::DecryptGYU(
 
 	dwWork = dwKey;
 
-	for( DWORD i = 0 ; i < 624 ; i++ )
+	for (DWORD i = 0; i < 624; i++)
 	{
 		adwTable[i] = (dwWork & 0xFFFF0000);
 		dwWork = (dwWork * 0x10DCD + 1);
@@ -225,7 +218,7 @@ BOOL CRetouch::DecryptGYU(
 	astuliWork[2].QuadPart = *(UINT64*)&adwTable[397];
 
 	// First phase
-	for( DWORD i = 0, j = 397 ; (i < 226) && (j < 623) ; i += 2, j += 2 )
+	for (DWORD i = 0, j = 397; (i < 226) && (j < 623); i += 2, j += 2)
 	{
 		astuliWork[0].QuadPart |= astuliWork[1].QuadPart;
 		astuliWork[0].LowPart >>= 1;
@@ -261,7 +254,7 @@ BOOL CRetouch::DecryptGYU(
 	astuliWork[2].QuadPart = *(UINT64*)&adwTable[0];
 
 	// Second phase
-	for( DWORD i = 227, j = 0 ; (i < 625) && (j < 398) ; i += 2, j += 2 )
+	for (DWORD i = 227, j = 0; (i < 625) && (j < 398); i += 2, j += 2)
 	{
 		astuliWork[0].QuadPart |= astuliWork[1].QuadPart;
 		astuliWork[0].LowPart >>= 1;
@@ -297,7 +290,7 @@ BOOL CRetouch::DecryptGYU(
 	astuliWork[0].QuadPart ^= *(UINT64*)&adwTable[0];
 
 	// Third phase
-	for( DWORD i = 0, j = 625 ; (i < 624) && (j < 1249) ; i += 4, j += 4 )
+	for (DWORD i = 0, j = 625; (i < 624) && (j < 1249); i += 4, j += 4)
 	{
 		astuliWork[1].QuadPart = astuliWork[0].QuadPart;
 		astuliWork[3].QuadPart = astuliWork[2].QuadPart;
@@ -361,7 +354,7 @@ BOOL CRetouch::DecryptGYU(
 
 	// Decoding
 
-	for( DWORD i = 0, j = 625 ; i < 10 ; i++ )
+	for (DWORD i = 0, j = 625; i < 10; i++)
 	{
 		dwWork = (adwTable[j++] % dwSrcSize);
 		dwWork2 = (adwTable[j++] % dwSrcSize);
@@ -376,17 +369,18 @@ BOOL CRetouch::DecryptGYU(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // GYU Decompression
+//
+// Parameters:
+//   - pvDst     - Destination
+//   - dwDstSize - Destination size
+//   - pvSrc     - Compressed data
+//   - dwSrcSize - Compressed data size
 
-BOOL CRetouch::DecompGYU(
-	void*				pvDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const void*			pvSrc,							// Compressed data
-	DWORD				dwSrcSize						// Compressed data size
-	)
+BOOL CRetouch::DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	// LZSS Decompression
 	CLZSS clLZSS;
-	clLZSS.Decomp( pvDst, dwDstSize, pvSrc, dwSrcSize, 4096, 4078, 3 );
+	clLZSS.Decomp(pvDst, dwDstSize, pvSrc, dwSrcSize, 4096, 4078, 3);
 
 	return TRUE;
 }

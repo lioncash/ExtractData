@@ -3,7 +3,6 @@
 class CTga
 {
 public:
-
 	struct STGAHeader
 	{
 		BYTE btID;
@@ -19,12 +18,11 @@ public:
 	};
 
 
-	BOOL Decode( CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T("") );
+	BOOL Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
 
-	BOOL Decomp( void* dst, DWORD dstSize, const void* src, DWORD srcSize );
+	BOOL Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
 
 
 protected:
-
-	BOOL DecompRLE( void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp );
+	BOOL DecompRLE(void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp);
 };

@@ -7,21 +7,19 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
 
-BOOL CTaskForce::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::Mount(CArcFile* pclArc)
 {
-	if( MountDat( pclArc ) )
+	if (MountDat(pclArc))
 	{
 		return TRUE;
 	}
 
-	if( MountTlz( pclArc ) )
+	if (MountTlz(pclArc))
 	{
 		return TRUE;
 	}
 
-	if( MountBma( pclArc ) )
+	if (MountBma(pclArc))
 	{
 		return TRUE;
 	}
@@ -32,34 +30,32 @@ BOOL CTaskForce::Mount(
 //////////////////////////////////////////////////////////////////////////////////////////
 // dat mounting
 
-BOOL CTaskForce::MountDat(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::MountDat(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".dat") )
+	if (pclArc->GetArcExten() != _T(".dat"))
 	{
 		return FALSE;
 	}
 
-	if( memcmp( pclArc->GetHed(), "tskforce", 8 ) != 0 )
+	if (memcmp(pclArc->GetHed(), "tskforce", 8) != 0)
 	{
 		return FALSE;
 	}
 
-	pclArc->SeekHed( 8 );
+	pclArc->SeekHed(8);
 
 	// Get file count
 	DWORD dwFiles;
-	pclArc->Read( &dwFiles, 4 );
+	pclArc->Read(&dwFiles, 4);
 
 	// Get index
-	YCMemory<SFileEntry> clmIndex( dwFiles );
-	pclArc->Read( &clmIndex[0], (sizeof(SFileEntry) * dwFiles) );
+	YCMemory<SFileEntry> clmIndex(dwFiles);
+	pclArc->Read(&clmIndex[0], (sizeof(SFileEntry)* dwFiles));
 
 	// Get file information
 	DWORD dwIndexPtr = 0;
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
+	for (DWORD i = 0; i < dwFiles; i++)
 	{
 		SFileInfo stFileInfo;
 		stFileInfo.name = clmIndex[i].szFileName;
@@ -68,12 +64,12 @@ BOOL CTaskForce::MountDat(
 		stFileInfo.start = clmIndex[i].dwOffset;
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
-		if( stFileInfo.sizeCmp != stFileInfo.sizeOrg )
+		if (stFileInfo.sizeCmp != stFileInfo.sizeOrg)
 		{
 			stFileInfo.format = _T("LZ");
 		}
 
-		pclArc->AddFileInfo( stFileInfo );
+		pclArc->AddFileInfo(stFileInfo);
 
 		dwIndexPtr += sizeof(SFileEntry);
 	}
@@ -84,36 +80,32 @@ BOOL CTaskForce::MountDat(
 //////////////////////////////////////////////////////////////////////////////////////////
 // tlz mounting
 
-BOOL CTaskForce::MountTlz(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::MountTlz(CArcFile* pclArc)
 {
-	if( (pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")) )
+	if ((pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")))
 	{
 		return FALSE;
 	}
 
-	if( memcmp( pclArc->GetHed(), "tlz", 3 ) != 0 )
+	if (memcmp(pclArc->GetHed(), "tlz", 3) != 0)
 	{
 		return FALSE;
 	}
 
-	return	pclArc->Mount();
+	return pclArc->Mount();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // bma mounting
 
-BOOL CTaskForce::MountBma(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::MountBma(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".tsz") )
+	if (pclArc->GetArcExten() != _T(".tsz"))
 	{
 		return FALSE;
 	}
 
-	if( memcmp( pclArc->GetHed(), "bma", 3 ) != 0 )
+	if (memcmp(pclArc->GetHed(), "bma", 3) != 0)
 	{
 		return FALSE;
 	}
@@ -124,21 +116,19 @@ BOOL CTaskForce::MountBma(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding
 
-BOOL	CTaskForce::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::Decode(CArcFile* pclArc)
 {
-	if( DecodeTlz( pclArc ) )
+	if (DecodeTlz(pclArc))
 	{
 		return TRUE;
 	}
 
-	if( DecodeBma( pclArc ) )
+	if (DecodeBma(pclArc))
 	{
 		return TRUE;
 	}
 
-	if( DecodeTGA( pclArc ) )
+	if (DecodeTGA(pclArc))
 	{
 		return TRUE;
 	}
@@ -149,12 +139,10 @@ BOOL	CTaskForce::Decode(
 //////////////////////////////////////////////////////////////////////////////////////////
 // tlz decoding
 
-BOOL CTaskForce::DecodeTlz(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( (pstFileInfo->name.GetFileExt() != _T(".tsk")) && (pstFileInfo->name.GetFileExt() != _T(".tfz")) )
+	if ((pstFileInfo->name.GetFileExt() != _T(".tsk")) && (pstFileInfo->name.GetFileExt() != _T(".tfz")))
 	{
 		return FALSE;
 	}
@@ -162,79 +150,77 @@ BOOL CTaskForce::DecodeTlz(
 	// Read header
 
 	BYTE abtHeader[24];
-	pclArc->Read( abtHeader, sizeof(abtHeader) );
-	if( memcmp( abtHeader, "tlz", 3 ) != 0 )
+	pclArc->Read(abtHeader, sizeof(abtHeader));
+	if (memcmp(abtHeader, "tlz", 3) != 0)
 	{
-		pclArc->SeekHed( pstFileInfo->start );
+		pclArc->SeekHed(pstFileInfo->start);
 		return FALSE;
 	}
 
 	// Get file information
-	DWORD dwDstSize = *(DWORD*) &abtHeader[16];
-	DWORD dwSrcSize = *(DWORD*) &abtHeader[20];
+	DWORD dwDstSize = *(DWORD*)&abtHeader[16];
+	DWORD dwSrcSize = *(DWORD*)&abtHeader[20];
 
 	// Read compressed data
-	YCMemory<BYTE> clmSrc( dwSrcSize );
-	pclArc->Read( &clmSrc[0], dwSrcSize );
+	YCMemory<BYTE> clmSrc(dwSrcSize);
+	pclArc->Read(&clmSrc[0], dwSrcSize);
 
 	// Buffer allocation for decompression
-	YCMemory<BYTE> clmDst( dwDstSize );
+	YCMemory<BYTE> clmDst(dwDstSize);
 
 	// LZSS Decompression
 	CLZSS clLZSS;
-	clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
+	clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
 
 	// Output
 	pclArc->OpenFile();
-	pclArc->WriteFile( &clmDst[0], dwDstSize, dwSrcSize );
+	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
 	pclArc->CloseFile();
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	bma decoding
+// BMA decoding
 
-BOOL	CTaskForce::DecodeBma(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( pstFileInfo->name.GetFileExt() != _T(".tsz") )
+	if (pstFileInfo->name.GetFileExt() != _T(".tsz"))
 	{
 		return FALSE;
 	}
 
 	// Read header
 	BYTE abtHeader[24];
-	pclArc->Read( abtHeader, sizeof(abtHeader) );
-	if( memcmp( abtHeader, "bma", 3 ) != 0 )
+	pclArc->Read(abtHeader, sizeof(abtHeader));
+	if (memcmp(abtHeader, "bma", 3) != 0)
 	{
-		pclArc->SeekHed( pstFileInfo->start );
-		return	FALSE;
+		pclArc->SeekHed(pstFileInfo->start);
+		return FALSE;
 	}
 
 	// Get file information
-	long  lWidth = *(long*) &abtHeader[4];
-	long  lHeight = *(long*) &abtHeader[8];
-	DWORD dwDstSize = *(DWORD*) &abtHeader[16];
-	DWORD dwSrcSize = *(DWORD*) &abtHeader[20];
+	long  lWidth = *(long*)&abtHeader[4];
+	long  lHeight = *(long*)&abtHeader[8];
+	DWORD dwDstSize = *(DWORD*)&abtHeader[16];
+	DWORD dwSrcSize = *(DWORD*)&abtHeader[20];
 
 	// Read compressed data
-	YCMemory<BYTE> clmSrc( dwSrcSize );
-	pclArc->Read( &clmSrc[0], dwSrcSize );
+	YCMemory<BYTE> clmSrc(dwSrcSize);
+	pclArc->Read(&clmSrc[0], dwSrcSize);
 
 	// Buffer allocation for decompression
-	YCMemory<BYTE> clmDst( dwDstSize );
+	YCMemory<BYTE> clmDst(dwDstSize);
 
 	// LZSS Decoding
 	CLZSS clLZSS;
-	clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
+	clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
 
 	// Output
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, 32 );
-	clImage.WriteReverse( &clmDst[0], dwDstSize );
+	clImage.Init(pclArc, lWidth, lHeight, 32);
+	clImage.WriteReverse(&clmDst[0], dwDstSize);
 	clImage.Close();
 
 	return TRUE;
@@ -243,40 +229,38 @@ BOOL	CTaskForce::DecodeBma(
 //////////////////////////////////////////////////////////////////////////////////////////
 // TGA Decoding
 
-BOOL CTaskForce::DecodeTGA(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTaskForce::DecodeTGA(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( pstFileInfo->name.GetFileExt() != _T(".tga") )
+	if (pstFileInfo->name.GetFileExt() != _T(".tga"))
 	{
 		return FALSE;
 	}
 
 	// Read data
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
-	YCMemory<BYTE> clmSrc( dwSrcSize );
-	pclArc->Read( &clmSrc[0], dwSrcSize );
-	if( pstFileInfo->format == _T("LZ") )
+	YCMemory<BYTE> clmSrc(dwSrcSize);
+	pclArc->Read(&clmSrc[0], dwSrcSize);
+	if (pstFileInfo->format == _T("LZ"))
 	{
 		// Is compressed
 
 		DWORD          dwDstSize = pstFileInfo->sizeOrg;
-		YCMemory<BYTE> clmDst( dwDstSize );
+		YCMemory<BYTE> clmDst(dwDstSize);
 
 		// LZSS Decompression
 		CLZSS clLZSS;
-		clLZSS.Decomp( &clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3 );
+		clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
 
 		// Output
 		CTga clTGA;
-		clTGA.Decode( pclArc, &clmDst[0], dwDstSize );
+		clTGA.Decode(pclArc, &clmDst[0], dwDstSize);
 	}
 	else
 	{
 		// Uncompressed
 		CTga clTGA;
-		clTGA.Decode( pclArc, &clmSrc[0], dwSrcSize );
+		clTGA.Decode(pclArc, &clmSrc[0], dwSrcSize);
 	}
 
 	return TRUE;

@@ -48,5 +48,5 @@ public:
 	DWORD GetPageSize(VH& vheader);
 	DWORD GetPageSize(VH& vheader, DWORD SegmentSize);
 
-	VH& GetHed() { return (m_vheader); }
+	VH& GetHed() { return m_vheader; }
 };

@@ -3,7 +3,6 @@
 class CBaldr : public CExtractBase
 {
 public:
-
 	struct SPACFileInfo
 	{
 		char  szFileName[64];
@@ -12,5 +11,5 @@ public:
 		DWORD dwCompFileSize;
 	};
 
-	BOOL Mount( CArcFile* pclArc );
+	BOOL Mount(CArcFile* pclArc);
 };

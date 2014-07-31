@@ -179,7 +179,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 		// RLE compression
 		BOOL bRLE = FALSE;
 
-		if( (nwaHed.CmpLevel == 5) && (nwaHed.channels != 2) )
+		if ((nwaHed.CmpLevel == 5) && (nwaHed.channels != 2))
 		{
 			// Uses RLE 
 
@@ -258,7 +258,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 
 			for (int j = 0; j < dsize; j++)
 			{
-				if( (z_pbuf >= pbtSrcEnd) || (pbuf >= pbtDstEnd) )
+				if ((z_pbuf >= pbtSrcEnd) || (pbuf >= pbtDstEnd))
 				{
 					// Exit
 
@@ -287,7 +287,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 							BITS = 8 - nwaHed.CmpLevel;
 							SHIFT = 2 + type + nwaHed.CmpLevel;
 						}
-						
+
 						const int MASK1 = (1 << (BITS - 1));
 						const int MASK2 = (1 << (BITS - 1)) - 1;
 						int b = getbits(z_pbuf, shift, BITS);
@@ -312,7 +312,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 						BITS = 5 - nwaHed.CmpLevel;
 						SHIFT = 2 + type + nwaHed.CmpLevel;
 					}
-					
+
 					const int MASK1 = (1 << (BITS - 1));
 					const int MASK2 = (1 << (BITS - 1)) - 1;
 					int b = getbits(z_pbuf, shift, BITS);
@@ -324,24 +324,24 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 				// type == 0
 				else
 				{
-					if( bRLE )
+					if (bRLE)
 					{
 						// Run-length compression 
 						int	 nRunLength = getbits(z_pbuf, shift, 1);
-						if( nRunLength == 1 )
+						if (nRunLength == 1)
 						{
 							nRunLength = getbits(z_pbuf, shift, 2);
 
-							if( nRunLength == 3 )
+							if (nRunLength == 3)
 							{
 								nRunLength = getbits(z_pbuf, shift, 8);
 							}
 						}
 
 						// Going to write the same data as the previous data
-						for( int k = 0 ; k <= nRunLength ; k++ )
+						for (int k = 0; k <= nRunLength; k++)
 						{
-							if( nwaHed.bits == 8 )
+							if (nwaHed.bits == 8)
 							{
 								*pbuf++ = (BYTE)d[bFlip];
 							}
@@ -362,7 +362,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 					}
 				}
 
-				if( nwaHed.bits == 8 )
+				if (nwaHed.bits == 8)
 				{
 					*pbuf++ = (BYTE)d[bFlip];
 				}
@@ -372,7 +372,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 					pbuf += 2;
 				}
 
-				if( nwaHed.channels == 2 )
+				if (nwaHed.channels == 2)
 				{
 					bFlip ^= 1; // channel switching
 				}

@@ -36,7 +36,7 @@ void COggSearch::Mount(CArcFile* pclArc)
 	DWORD ReadCount = 0;
 	infFile.sizeOrg = 0;
 
-	while (1)
+	while (true)
 	{
 		ReadCount++;
 
