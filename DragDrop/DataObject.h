@@ -27,23 +27,32 @@ public:
 protected:
 	class CObject
 	{
-
 	public:
 		FORMATETC m_fmt;
 		STGMEDIUM m_medium;
 
 	public:
-		CObject() { m_medium.tymed = TYMED_NULL; }
-		~CObject() { if (m_medium.tymed != TYMED_NULL) ReleaseStgMedium(&m_medium); }
+		CObject()
+		{
+			m_medium.tymed = TYMED_NULL;
+		}
+
+		~CObject()
+		{
+			if (m_medium.tymed != TYMED_NULL)
+				ReleaseStgMedium(&m_medium);
+		}
 
 		BOOL Set(FORMATETC* pf, STGMEDIUM* pm, BOOL bRelease)
 		{
 			m_fmt = *pf;
+
 			if (bRelease)
 			{
 				m_medium = *pm;
 				return TRUE;
 			}
+
 			return CSTGMEDIUM::Dup(&m_medium, pf, pm);
 		}
 	};
