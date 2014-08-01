@@ -19,54 +19,54 @@ YCStdioFile::~YCStdioFile()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mode to open the file in
+//
+// Parameters:
+//   - pszPathToFile - File path
+//   - uOpenFlags    - Mode
 
-BOOL YCStdioFile::Open(
-	LPCTSTR				pszPathToFile,					// File path
-	UINT				uOpenFlags						// Mode
-	)
+BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
 
-	if( lstrlen( pszPathToFile ) >= MAX_PATH )
+	if (lstrlen(pszPathToFile) >= MAX_PATH)
 	{
 		// Path is too long
 
-		return	FALSE;
+		return FALSE;
 	}
 
 	// Accessing Mode
+	YCString clsMode;
 
-	YCString			clsMode;
-
-	if( uOpenFlags & typeBinary )
+	if (uOpenFlags & typeBinary)
 	{
 		// Binary
 
-		if( uOpenFlags & modeRead )
+		if (uOpenFlags & modeRead)
 		{
 			clsMode = _T("rb");
 		}
 
-		if( uOpenFlags & modeCreate )
+		if (uOpenFlags & modeCreate)
 		{
-			if( uOpenFlags & modeNoTruncate )
+			if (uOpenFlags & modeNoTruncate)
 			{
-				if( uOpenFlags & modeReadWrite )
+				if (uOpenFlags & modeReadWrite)
 				{
 					clsMode = _T("rb+");
 				}
-				else if( uOpenFlags & modeWrite )
+				else if (uOpenFlags & modeWrite)
 				{
 					clsMode = _T("ab");
 				}
 			}
 			else
 			{
-				if( uOpenFlags & modeReadWrite )
+				if (uOpenFlags & modeReadWrite)
 				{
 					clsMode = _T("wb+");
 				}
-				else if( uOpenFlags & modeWrite )
+				else if (uOpenFlags & modeWrite)
 				{
 					clsMode = _T("wb");
 				}
@@ -74,45 +74,43 @@ BOOL YCStdioFile::Open(
 		}
 		else
 		{
-			if( uOpenFlags & modeReadWrite )
+			if (uOpenFlags & modeReadWrite)
 			{
 				clsMode = _T("ab+");
 			}
-			else if( uOpenFlags & modeWrite )
+			else if (uOpenFlags & modeWrite)
 			{
 				clsMode = _T("ab");
 			}
 		}
 	}
-	else
+	else // Text
 	{
-		// Text
-
-		if( uOpenFlags & modeRead )
+		if (uOpenFlags & modeRead)
 		{
 			clsMode = _T("r");
 		}
 
-		if( uOpenFlags & modeCreate )
+		if (uOpenFlags & modeCreate)
 		{
-			if( uOpenFlags & modeNoTruncate )
+			if (uOpenFlags & modeNoTruncate)
 			{
-				if( uOpenFlags & modeReadWrite )
+				if (uOpenFlags & modeReadWrite)
 				{
 					clsMode = _T("r+");
 				}
-				else if( uOpenFlags & modeWrite )
+				else if (uOpenFlags & modeWrite)
 				{
 					clsMode = _T("a");
 				}
 			}
 			else
 			{
-				if( uOpenFlags & modeReadWrite )
+				if (uOpenFlags & modeReadWrite)
 				{
 					clsMode = _T("w+");
 				}
-				else if( uOpenFlags & modeWrite )
+				else if (uOpenFlags & modeWrite)
 				{
 					clsMode = _T("w");
 				}
@@ -120,11 +118,11 @@ BOOL YCStdioFile::Open(
 		}
 		else
 		{
-			if( uOpenFlags & modeReadWrite )
+			if (uOpenFlags & modeReadWrite)
 			{
 				clsMode = _T("a+");
 			}
-			else if( uOpenFlags & modeWrite )
+			else if (uOpenFlags & modeWrite)
 			{
 				clsMode = _T("a");
 			}
@@ -133,7 +131,7 @@ BOOL YCStdioFile::Open(
 
 	// Open File
 
-	m_pStream = _tfopen( pszPathToFile, clsMode );
+	m_pStream = _tfopen(pszPathToFile, clsMode);
 
 	m_clsPathToFile = pszPathToFile;
 	m_clsFileName = m_clsPathToFile.GetFileName();
@@ -156,33 +154,36 @@ void YCStdioFile::Close()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Read File
+//
+// Parameters:
+//   - pvBuffer   - Buffer
+//   - dwReadSize - Read size
 
-DWORD YCStdioFile::Read(
-	void*				pvBuffer,						// Buffer
-	DWORD				dwReadSize						// Read Size
-	)
+DWORD YCStdioFile::Read(void* pvBuffer, DWORD dwReadSize)
 {
-	return fread( pvBuffer, 1, dwReadSize, m_pStream );
+	return fread(pvBuffer, 1, dwReadSize, m_pStream);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Write File
+//
+// Parameters:
+//   - pvBuffer    - Buffer
+//   - dwWriteSize - Write size
 
-DWORD YCStdioFile::Write(
-	const void*			pvBuffer,						// Buffer
-	DWORD				dwWriteSize						// Write Size
-	)
+DWORD YCStdioFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 {
-	return fwrite( pvBuffer, 1, dwWriteSize, m_pStream );
+	return fwrite(pvBuffer, 1, dwWriteSize, m_pStream);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Read a file line
+//
+// Parameters:
+//   - pszBuffer    - Buffer
+//   - dwBufferSize - Buffer size
 
-LPTSTR YCStdioFile::ReadString(
-	LPTSTR				pszBuffer,						// Buffer
-	DWORD				dwBufferSize					// Buffer Size
-	)
+LPTSTR YCStdioFile::ReadString(LPTSTR pszBuffer, DWORD dwBufferSize)
 {
 	return _fgetts( pszBuffer, dwBufferSize, m_pStream );
 }
@@ -191,19 +192,20 @@ LPTSTR YCStdioFile::ReadString(
 // Read a file line
 //
 // Remark: Gets rid of the newline at the end
+//
+// Parameters:
+//   - rfclsBuffer - Buffer
 
-BOOL YCStdioFile::ReadString(
-	YCString&			rfclsBuffer						// Buffer
-	)
+BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 {
 	BOOL  bReturn = FALSE;
 	TCHAR szBuffer[1024];
 
 	rfclsBuffer = _T("");
 
-	while( 1 )
+	while (true)
 	{
-		if( ReadString( szBuffer, _countof( szBuffer ) ) == NULL )
+		if (ReadString(szBuffer, _countof(szBuffer)) == NULL)
 		{
 			// Read until the end
 
@@ -214,7 +216,7 @@ BOOL YCStdioFile::ReadString(
 
 		bReturn = TRUE;
 
-		if( szBuffer[lstrlen( szBuffer ) - 1] == _T('\n') )
+		if (szBuffer[lstrlen(szBuffer) - 1] == _T('\n'))
 		{
 			// Read until a newline character
 
@@ -228,22 +230,21 @@ BOOL YCStdioFile::ReadString(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Writes a line into the file
 
-void YCStdioFile::WriteString(
-	LPCTSTR				pszBuffer						// Buffer
-	)
+void YCStdioFile::WriteString(LPCTSTR pszBuffer)
 {
-	_fputts( pszBuffer, m_pStream );
+	_fputts(pszBuffer, m_pStream);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Move the file pointer (Seek)
+//
+// Parameters:
+//   - n64Offset  - Number of bytes to seek
+//   - dwSeekMode - Seek mode
 
-UINT64 YCStdioFile::Seek(
-	INT64				n64Offset,						// Number of bytes to seek
-	DWORD				dwSeekMode						// Seek Mode
-	)
+UINT64 YCStdioFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 {
-	switch( dwSeekMode )
+	switch (dwSeekMode)
 	{
 	case begin:
 		dwSeekMode = SEEK_SET;
@@ -261,9 +262,9 @@ UINT64 YCStdioFile::Seek(
 		dwSeekMode = SEEK_SET;
 	}
 
-	if( _fseeki64( m_pStream, n64Offset, dwSeekMode ) )
+	if (_fseeki64(m_pStream, n64Offset, dwSeekMode))
 	{
-		return (UINT64) _ftelli64( m_pStream );
+		return (UINT64)_ftelli64(m_pStream);
 	}
 
 	return 0;

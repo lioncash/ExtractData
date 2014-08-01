@@ -72,55 +72,54 @@ YCString YCUtil::SetCommaFormat(
 */
 //////////////////////////////////////////////////////////////////////////////////////////
 // Creates the lowest level directory you want to create
+//
+// Parameters:
+//   - pszPathToFile - File path
+//   - bFileName     - Contains a file name or file path
 
-void YCUtil::CreateDirectory(
-	LPCTSTR				pszPathToFile,					// File path
-	BOOL				bFileName						// Contains a file name or file path(TRUEÅF Included, FALSEÅF Not included)
-	)
+void YCUtil::CreateDirectory(LPCTSTR pszPathToFile, BOOL bFileName)
 {
 	std::vector<YCString> vcDirPathList;
 	LPCTSTR               pszFilePathBase = pszPathToFile;
 
-	while( (pszPathToFile = PathFindNextComponent( pszPathToFile )) != NULL )
+	while ((pszPathToFile = PathFindNextComponent(pszPathToFile)) != NULL)
 	{
-		YCString clsDirPath( pszFilePathBase, pszPathToFile - pszFilePathBase - 1 ); // Do not put a '\' at the end just to be sure to -1
+		YCString clsDirPath(pszFilePathBase, pszPathToFile - pszFilePathBase - 1); // Do not put a '\' at the end just to be sure to -1
 
-		vcDirPathList.push_back( clsDirPath );
+		vcDirPathList.push_back(clsDirPath);
 	}
 
 	// Create a directory in the order from the root
 
 	size_t uMax = vcDirPathList.size();
 
-	if( bFileName )
+	if (bFileName)
 	{
 		// To -1 so as not to create a directory of the file name
 
 		uMax--;
 	}
 
-	for( size_t uCnt = 0 ; uCnt < uMax ; uCnt++ )
+	for (size_t uCnt = 0; uCnt < uMax; uCnt++)
 	{
-		::CreateDirectory( vcDirPathList[uCnt], NULL );
+		::CreateDirectory(vcDirPathList[uCnt], NULL);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Replace forward slashes with backward slashes
 
-void YCUtil::ReplaceSlashToBackslash(
-	LPSTR				pszFileName						// Filename
-	)
+void YCUtil::ReplaceSlashToBackslash(LPSTR pszFileName)
 {
-	while( *pszFileName != '\0' )
+	while (*pszFileName != '\0')
 	{
-		if( !::IsDBCSLeadByte( *pszFileName ) )
+		if (!::IsDBCSLeadByte(*pszFileName))
 		{
 			// 1 byte character
 
 			// Replace forward slashes with backward slashes
 
-			if( *pszFileName == '/' )
+			if (*pszFileName == '/')
 			{
 				*pszFileName = '\\';
 			}
@@ -128,20 +127,18 @@ void YCUtil::ReplaceSlashToBackslash(
 
 		// Advance to next character
 
-		pszFileName = ::CharNextA( pszFileName );
+		pszFileName = ::CharNextA(pszFileName);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Replace forward slashes with backward slashes
 
-void YCUtil::ReplaceSlashToBackslash(
-	LPWSTR				pwszFileName					// Filename
-	)
+void YCUtil::ReplaceSlashToBackslash(LPWSTR pwszFileName)
 {
-	for( ; *pwszFileName != L'\0' ; pwszFileName++ )
+	for (; *pwszFileName != L'\0'; pwszFileName++)
 	{
-		if( *pwszFileName == L'/' )
+		if (*pwszFileName == L'/')
 		{
 			// Slash
 
@@ -153,26 +150,22 @@ void YCUtil::ReplaceSlashToBackslash(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Convert Endian (4byte)
 
-DWORD YCUtil::ConvEndian(
-	DWORD				dwSrc
-	)
+DWORD YCUtil::ConvEndian(DWORD dwSrc)
 {
 	_asm
 	{
-		mov				eax, dwSrc
-		bswap			eax
-		mov				dwSrc, eax
+		mov   eax, dwSrc
+		bswap eax
+		mov   dwSrc, eax
 	}
 
-	return	dwSrc;
+	return dwSrc;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Convert Endian (4byte)
 
-void YCUtil::ConvEndian(
-	LPDWORD				pdwDst
-	)
+void YCUtil::ConvEndian(LPDWORD pdwDst)
 {
 	*pdwDst = ConvEndian( *pdwDst );
 }
@@ -180,55 +173,50 @@ void YCUtil::ConvEndian(
 //////////////////////////////////////////////////////////////////////////////////////////
 // Convert Endian (2byte)
 
-WORD YCUtil::ConvEndian(
-	WORD				wSrc
-	)
+WORD YCUtil::ConvEndian(WORD wSrc)
 {
 	_asm
 	{
-		mov				ax, wSrc
-		rol				ax, 8
-		mov				wSrc, ax
+		mov ax, wSrc
+		rol ax, 8
+		mov wSrc, ax
 	}
 
-	return	wSrc;
+	return wSrc;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Convert Endian (2byte)
 
-void YCUtil::ConvEndian(
-	LPWORD				pwDst
-	)
+void YCUtil::ConvEndian(LPWORD pwDst)
 {
-	*pwDst = ConvEndian( *pwDst );
+	*pwDst = ConvEndian(*pwDst);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Compares the contents of memory
 //
 // Remark: Wildcard compatible version of the standard memcmp() function
+//
+// Parameters:
+//   - pvData1 - Comparison data 1
+//   - pvData2 - Comparison data 2
+//   - dwSize  - Number of elements to compare
 
-BOOL YCUtil::CompareMemory(
-	const void*			pvData1,						// Comparison Data 1
-	const void*			pvData2,						// Comparison Data 2
-	DWORD				dwSize							// Size Comparison
-	)
+BOOL YCUtil::CompareMemory(const void* pvData1, const void* pvData2, DWORD dwSize)
 {
 	BYTE* pbtData1 = (BYTE*)pvData1;
 	BYTE* pbtData2 = (BYTE*)pvData2;
 
-	for( DWORD i = 0 ; i < dwSize ; i++ )
+	for (DWORD i = 0; i < dwSize; i++)
 	{
-		if( (pbtData1[i] != pbtData2[i]) && (pbtData2[i] != '*') )
+		if ((pbtData1[i] != pbtData2[i]) && (pbtData2[i] != '*'))
 		{
 			// Mismatch
-
 			return FALSE;
 		}
 	}
 
 	// Match
-
 	return TRUE;
 }

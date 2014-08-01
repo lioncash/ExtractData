@@ -22,17 +22,18 @@ YCLocalMemory::~YCLocalMemory()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Allocation of memory
+//
+// Parameters:
+//   - uFlags - Flags
+//   - uBytes - Bytes to allocate
 
-BOOL YCLocalMemory::Alloc(
-	UINT				uFlags,							// Flag
-	UINT				uBytes							// Memory size to ensure
-	)
+BOOL YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 {
-	m_hMemory = ::LocalAlloc( uFlags, uBytes );
+	m_hMemory = ::LocalAlloc(uFlags, uBytes);
 
-	if( m_hMemory == NULL )
+	if (m_hMemory == NULL)
 	{
-		throw	std::bad_alloc();
+		throw std::bad_alloc();
 	}
 
 	return (m_hMemory != NULL);
@@ -45,9 +46,9 @@ BOOL YCLocalMemory::Free()
 {
 	Unlock();
 
-	if( m_hMemory != NULL )
+	if (m_hMemory != NULL)
 	{
-		if( ::LocalFree( m_hMemory ) != NULL )
+		if (::LocalFree(m_hMemory) != NULL)
 		{
 			return FALSE;
 		}
@@ -63,7 +64,7 @@ BOOL YCLocalMemory::Free()
 
 void* YCLocalMemory::Lock()
 {
-	m_pvMemory = ::LocalLock( m_hMemory );
+	m_pvMemory = ::LocalLock(m_hMemory);
 
 	return m_pvMemory;
 }
@@ -73,9 +74,9 @@ void* YCLocalMemory::Lock()
 
 BOOL YCLocalMemory::Unlock()
 {
-	if( m_pvMemory != NULL )
+	if (m_pvMemory != NULL)
 	{
-		while( ::LocalUnlock( m_hMemory ) );
+		while (::LocalUnlock(m_hMemory));
 		m_pvMemory = NULL;
 	}
 
@@ -87,12 +88,12 @@ BOOL YCLocalMemory::Unlock()
 
 UINT YCLocalMemory::GetSize()
 {
-	if( m_hMemory == NULL )
+	if (m_hMemory == NULL)
 	{
 		return 0;
 	}
 
-	return ::LocalSize( m_hMemory );
+	return ::LocalSize(m_hMemory);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -104,7 +105,7 @@ HLOCAL& YCLocalMemory::GetHandle()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//	Get Memory Pointer
+// Get Memory Pointer
 
 void* YCLocalMemory::GetPtr()
 {

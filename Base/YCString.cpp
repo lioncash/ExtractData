@@ -7,12 +7,13 @@
 // Returns: Length of the wide-character string equivalent of the given multi-byte string.
 //
 // Remarks: Multi-byte character -> Wide character
+//
+// Parameters:
+//   - pszSrc - Multi-byte string
 
-int YCBaseString::GetBaseTypeLength(
-	const char*			pszSrc					// Multi-byte string
-	) const
+int YCBaseString::GetBaseTypeLength(const char* pszSrc) const
 {
-	return (GetBaseTypeLength( pszSrc, -1 ) - 1);
+	return (GetBaseTypeLength(pszSrc, -1) - 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -21,13 +22,14 @@ int YCBaseString::GetBaseTypeLength(
 // Returns: The length of the resulting wide-character string.
 //
 // Remarks: Multi-byte character -> Wide character
+//
+// Parameters:
+//   - pszSrc  - Multi-byte string
+//   - nLength - Length
 
-int YCBaseString::GetBaseTypeLength(
-	const char*			pszSrc,					// Multi-byte string
-	int					nLength					// Length
-	) const
+int YCBaseString::GetBaseTypeLength(const char* pszSrc, int nLength) const
 {
-	return ::MultiByteToWideChar( CP_ACP, 0, pszSrc, nLength, NULL, 0 );
+	return ::MultiByteToWideChar(CP_ACP, 0, pszSrc, nLength, NULL, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -36,10 +38,11 @@ int YCBaseString::GetBaseTypeLength(
 // Returns: Length of the multi-byte string equivalent of the given wide-character string.
 //
 // Remarks: Wide character -> Multi-byte character
+//
+// Parameters:
+//   - pwszSrc - Wide-character string
 
-int YCBaseString::GetBaseTypeLength(
-	const wchar_t*		pwszSrc					// Wide-character string
-	) const
+int YCBaseString::GetBaseTypeLength(const wchar_t* pwszSrc) const
 {
 	return (GetBaseTypeLength( pwszSrc, -1 ) - 1);
 }
@@ -50,13 +53,14 @@ int YCBaseString::GetBaseTypeLength(
 // Returns: The length of the multi-byte character.
 //
 // Remarks: Wide character -> Multi-byte character
+//
+// Parameters:
+//   - pwszSrc - Wide-character string
+//   - nLength - Length
 
-int YCBaseString::GetBaseTypeLength(
-	const wchar_t*		pwszSrc,				// Wide-character string
-	int					nLength					// Length
-	) const
+int YCBaseString::GetBaseTypeLength(const wchar_t* pwszSrc, int nLength) const
 {
-	return ::WideCharToMultiByte( CP_ACP, 0, pwszSrc, nLength, NULL, 0, NULL, NULL );
+	return ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nLength, NULL, 0, NULL, NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -65,17 +69,18 @@ int YCBaseString::GetBaseTypeLength(
 // Return: The length of the wide-character string.
 //
 // Remarks: Multi-byte string -> Wide-character string
+//
+// Parameters:
+//   - pwszDst    - Wide-character string destination
+//   - nDstLength - Destination size
+//   - pszSrc     - Multi-byte string
+//   - nSrcLength - Multi-byte string length
 
-int YCBaseString::ConvertToBaseType(
-	wchar_t*			pwszDst,				// Wide-character string destination
-	int					nDstLength,				// Destination size
-	const char*			pszSrc,					// Multi-byte string
-	int					nSrcLength				// Multi-byte string length
-	) const
+int YCBaseString::ConvertToBaseType(wchar_t* pwszDst, int nDstLength, const char* pszSrc, int nSrcLength) const
 {
-	int nLength = ::MultiByteToWideChar( CP_ACP, 0, pszSrc, nSrcLength, pwszDst, nDstLength );
+	int nLength = ::MultiByteToWideChar(CP_ACP, 0, pszSrc, nSrcLength, pwszDst, nDstLength);
 
-	if( nSrcLength == -1 )
+	if (nSrcLength == -1)
 	{
 		nLength -= 1;
 	}
@@ -93,17 +98,17 @@ int YCBaseString::ConvertToBaseType(
 // Returns: The length of the multi-byte string.
 //
 // Remarks: Wide-character string -> Multi-byte string
+// Parameters:
+//   - pszDst     - Multi-byte string destination
+//   - nDstLength - Destination size
+//   - pwszSrc    - Wide-character string
+//   - nSrcLength - Wide-character string length
 
-int YCBaseString::ConvertToBaseType(
-	char*				pszDst,					// Multi-byte string destination.
-	int					nDstLength,				// Destination size
-	const wchar_t*		pwszSrc,				// Wide-character string
-	int					nSrcLength				// Wide-character string length
-	) const
+int YCBaseString::ConvertToBaseType(char* pszDst, int nDstLength, const wchar_t* pwszSrc, int nSrcLength) const
 {
-	int nLength = ::WideCharToMultiByte( CP_ACP, 0, pwszSrc, nSrcLength, pszDst, nDstLength, NULL, NULL );
+	int nLength = ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nSrcLength, pszDst, nDstLength, NULL, NULL);
 
-	if( nSrcLength == -1 )
+	if (nSrcLength == -1)
 	{
 		nLength -= 1;
 	}
