@@ -10,17 +10,17 @@ public:
 	YCFileFind();
 	virtual ~YCFileFind();
 
-	virtual BOOL FindFirstFile(LPCTSTR pszPathToFile);
-	virtual BOOL FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName);
-	virtual BOOL FindNextFile();
+	virtual bool FindFirstFile(LPCTSTR pszPathToFile);
+	virtual bool FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName);
+	virtual bool FindNextFile();
 	virtual void Close();
 
 	virtual YCString GetFileName();
 	virtual YCString GetFilePath();
 	virtual YCString GetFileTitle();
 
-	virtual BOOL IsDirectory();
-	virtual BOOL IsDots();
+	virtual bool IsDirectory();
+	virtual bool IsDots();
 
 private:
 	HANDLE          m_hFind;

@@ -89,12 +89,12 @@ void YCIni::WriteStr(LPCTSTR pszStr)
 //////////////////////////////////////////////////////////////////////////////////////////
 // Delete section
 
-BOOL YCIni::DeleteSection(LPCTSTR pszSection)
+bool YCIni::DeleteSection(LPCTSTR pszSection)
 {
 	if (pszSection == NULL)
 	{
 		pszSection = m_clsSection;
 	}
 
-	return ::WritePrivateProfileString(pszSection, NULL, NULL, m_clsPathToIni);
+	return ::WritePrivateProfileString(pszSection, NULL, NULL, m_clsPathToIni) != 0;
 }

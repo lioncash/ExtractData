@@ -432,7 +432,7 @@ void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 	YCFileFindSx          clffsSusie;
 	std::vector<YCString> vcPathToSusiePlugin;
 
-	clffsSusie.FindFile(vcPathToSusiePlugin, rfclsPathToSusieFolder, _T("*.spi"), FALSE);
+	clffsSusie.FindFile(vcPathToSusiePlugin, rfclsPathToSusieFolder, _T("*.spi"), false);
 
 	// Get Susie Plugin Information
 	YCIni cliSusie(SBL_STR_INI_SUSIE);

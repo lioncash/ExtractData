@@ -23,7 +23,7 @@ YCFileFind::~YCFileFind()
 // Parameters:
 //   - pszPathToFile - File path
 
-BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
+bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
 {
 	// Save directory path
 	TCHAR szPathToFolder[_MAX_PATH];
@@ -44,7 +44,7 @@ BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
 //   - pszPathToFolder - Directory path
 //   - pszFileName     - Filename (can be a wildcard)
 
-BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
+bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 {
 	// Save directory path
 	TCHAR szPathToFolder[_MAX_PATH];
@@ -67,7 +67,7 @@ BOOL YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 //////////////////////////////////////////////////////////////////////////////////////////
 // Continue to search for files
 
-BOOL YCFileFind::FindNextFile()
+bool YCFileFind::FindNextFile()
 {
 	return ::FindNextFile(m_hFind, &m_stwfdFindData);
 }
@@ -120,7 +120,7 @@ YCString YCFileFind::GetFileTitle()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check whether or not the found 'file' is a directory
 
-BOOL YCFileFind::IsDirectory()
+bool YCFileFind::IsDirectory()
 {
 	return (m_stwfdFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 }
@@ -128,7 +128,7 @@ BOOL YCFileFind::IsDirectory()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Examines the marker of the current directory and its parent directory
 
-BOOL YCFileFind::IsDots()
+bool YCFileFind::IsDots()
 {
 	return ((lstrcmp(m_stwfdFindData.cFileName, _T(".") ) == 0) || (lstrcmp( m_stwfdFindData.cFileName, _T("..") ) == 0));
 }

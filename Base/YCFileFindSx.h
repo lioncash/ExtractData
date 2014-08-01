@@ -3,5 +3,5 @@
 class YCFileFindSx
 {
 public:
-	BOOL FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName = _T("*.*"), BOOL bSearchSubDirectory = TRUE);
+	bool FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName = _T("*.*"), bool bSearchSubDirectory = true);
 };

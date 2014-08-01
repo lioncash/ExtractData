@@ -27,7 +27,7 @@ YCLocalMemory::~YCLocalMemory()
 //   - uFlags - Flags
 //   - uBytes - Bytes to allocate
 
-BOOL YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
+bool YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 {
 	m_hMemory = ::LocalAlloc(uFlags, uBytes);
 
@@ -42,7 +42,7 @@ BOOL YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 //////////////////////////////////////////////////////////////////////////////////////////
 // Release Memory
 
-BOOL YCLocalMemory::Free()
+bool YCLocalMemory::Free()
 {
 	Unlock();
 
@@ -50,13 +50,13 @@ BOOL YCLocalMemory::Free()
 	{
 		if (::LocalFree(m_hMemory) != NULL)
 		{
-			return FALSE;
+			return false;
 		}
 
 		m_hMemory = NULL;
 	}
 
-	return TRUE;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ void* YCLocalMemory::Lock()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Unlock Memory
 
-BOOL YCLocalMemory::Unlock()
+bool YCLocalMemory::Unlock()
 {
 	if (m_pvMemory != NULL)
 	{
@@ -80,7 +80,7 @@ BOOL YCLocalMemory::Unlock()
 		m_pvMemory = NULL;
 	}
 
-	return TRUE;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

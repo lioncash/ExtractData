@@ -23,7 +23,7 @@ YCLibrary::~YCLibrary()
 // Parameters:
 //   - pszPathToFile - Load module name
 
-BOOL YCLibrary::Load(LPCTSTR pszPathToFile)
+bool YCLibrary::Load(LPCTSTR pszPathToFile)
 {
 	m_hModule = ::LoadLibrary( pszPathToFile );
 

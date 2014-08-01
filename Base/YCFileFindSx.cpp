@@ -11,9 +11,9 @@
 //   - pszTargetFileName     - Target filename (can be a wildcard)
 //   - bSearchSubDirectory   - Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
 
-BOOL YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName, BOOL bSearchSubDirectory)
+bool YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName, bool bSearchSubDirectory)
 {
-	BOOL bReturn = FALSE;
+	bool bReturn = false;
 
 	// Searching for file
 	YCFileFind clffTarget;
@@ -40,7 +40,7 @@ BOOL YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR ps
 		}
 		while (clffTarget.FindNextFile());
 
-		bReturn = TRUE;
+		bReturn = true;
 	}
 
 	clffTarget.Close();
@@ -73,7 +73,7 @@ BOOL YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR ps
 		}
 		while (clffTarget.FindNextFile());
 
-		bReturn = TRUE;
+		bReturn = true;
 	}
 
 	clffTarget.Close();

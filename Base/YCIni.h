@@ -30,7 +30,7 @@ public:
 
 	void WriteStr(LPCTSTR pszStr);
 
-	BOOL DeleteSection(LPCTSTR pszSection = NULL);
+	bool DeleteSection(LPCTSTR pszSection = NULL);
 
 private:
 	YCString m_clsPathToIni;

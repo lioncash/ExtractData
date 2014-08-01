@@ -10,11 +10,11 @@ public:
 	YCLocalMemory();
 	virtual ~YCLocalMemory();
 
-	BOOL Alloc( UINT uFlags, UINT uBytes );
-	BOOL Free();
+	bool Alloc(UINT uFlags, UINT uBytes);
+	bool Free();
 
 	void* Lock();
-	BOOL Unlock();
+	bool Unlock();
 
 	UINT GetSize();
 

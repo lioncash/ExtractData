@@ -10,7 +10,7 @@ public:
 	YCLibrary();
 	virtual ~YCLibrary();
 
-	BOOL Load(LPCTSTR pszPathToFile);
+	bool Load(LPCTSTR pszPathToFile);
 	void Free();
 
 	FARPROC GetProcAddress(LPCTSTR pszProcName);
