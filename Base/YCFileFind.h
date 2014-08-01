@@ -10,8 +10,8 @@ public:
 	YCFileFind();
 	virtual ~YCFileFind();
 
-	virtual BOOL FindFirstFile( LPCTSTR pszPathToFile );
-	virtual BOOL FindFirstFile( LPCTSTR pszPathToFolder, LPCTSTR pszFileName );
+	virtual BOOL FindFirstFile(LPCTSTR pszPathToFile);
+	virtual BOOL FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName);
 	virtual BOOL FindNextFile();
 	virtual void Close();
 
