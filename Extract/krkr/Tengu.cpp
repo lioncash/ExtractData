@@ -3,20 +3,22 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if it can be decoded
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CTengu::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CTengu::OnCheckDecrypt(CArcFile* pclArc)
 {
-	return	CheckTpm( "CE093BB86595E62ADBCB1280CA6583EF" );
+	return CheckTpm("CE093BB86595E62ADBCB1280CA6583EF");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Process
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CTengu::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CTengu::OnInitDecrypt(CArcFile* pclArc)
 {
 	// Decryption Key
 	return 0x08;
@@ -24,13 +26,14 @@ DWORD CTengu::OnInitDecrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decryption Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CTengu::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decoded
-	DWORD				dwTargetSize,					// Decoding size
-	DWORD				dwOffset,						// Location of data to be decoded (offset)
-	DWORD				dwDecryptKey					// Decryption Key
-	)
+DWORD CTengu::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	BYTE btDecryptKey = (BYTE) dwDecryptKey;
 

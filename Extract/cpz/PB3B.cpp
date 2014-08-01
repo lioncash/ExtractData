@@ -7,72 +7,73 @@
 // Decoding
 //
 // Remarks: pvSrc is decoded first
+//
+// Parameters:
+//   - pclArc     - Archive
+//   - pvSrc      - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - pfnDecrypt - Decoding function
 
-BOOL CPB3B::Decode(
-	CArcFile*			pclArc,							// Archive
-	void*				pvSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	PB3B_DECRYPT		pfnDecrypt						// Decoding function
-	)
+BOOL CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT pfnDecrypt)
 {
-	BYTE* pbtSrc = (BYTE*) pvSrc;
+	BYTE* pbtSrc = (BYTE*)pvSrc;
 
 	// Decryption
-	Decrypt( pbtSrc, dwSrcSize );
+	Decrypt(pbtSrc, dwSrcSize);
 
 	// Get image information
-	WORD wType = *(WORD*) &pbtSrc[28];
-	long lWidth = *(WORD*) &pbtSrc[30];
-	long lHeight = *(WORD*) &pbtSrc[32];
-	WORD wBpp = *(WORD*) &pbtSrc[34];
+	WORD wType = *(WORD*)&pbtSrc[28];
+	long lWidth = *(WORD*)&pbtSrc[30];
+	long lHeight = *(WORD*)&pbtSrc[32];
+	WORD wBpp = *(WORD*)&pbtSrc[34];
 
-	switch( wType )
+	switch (wType)
 	{
-		case 1:
-			Decode1( pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
-			break;
+	case 1:
+		Decode1(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		break;
 
-		case 2:
-		case 3:
-			Decode3( pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
-			break;
+	case 2:
+	case 3:
+		Decode3(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		break;
 
-		case 4:
-			Decode4( pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
-			break;
+	case 4:
+		Decode4(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		break;
 
-		case 5:
-			Decode5( pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
-			break;
+	case 5:
+		Decode5(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		break;
 
-		case 6:
-			Decode6( pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, pfnDecrypt );
-			break;
+	case 6:
+		Decode6(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, pfnDecrypt);
+		break;
 
-		default:
-			// Unknown
-
-			pclArc->OpenFile();
-			pclArc->WriteFile( pbtSrc, dwSrcSize );
+	default: // Unknown
+		pclArc->OpenFile();
+		pclArc->WriteFile(pbtSrc, dwSrcSize);
+		break;
 	}
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//  Decryption
+// Decryption
+//
+// Parameters:
+//   - pbtTarget - Decoded data
+//   - dwSize    - Decoded data size
 
-void CPB3B::Decrypt(
-	BYTE*				pbtTarget,						// Decoded data
-	DWORD				dwSize							// Decoded data size
-	)
+void CPB3B::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 {
-	for( int i = 8 ; i < 52 ; i += 2 )
+	for (int i = 8; i < 52; i += 2)
 	{
-		*(WORD*) &pbtTarget[i] ^= *(WORD*) &pbtTarget[dwSize - 3];
+		*(WORD*)&pbtTarget[i] ^= *(WORD*)&pbtTarget[dwSize - 3];
 	}
 
-	for( int i = 8, j = 0 ; i < 52 ; i++, j++ )
+	for (int i = 8, j = 0; i < 52; i++, j++)
 	{
 		pbtTarget[i] -= pbtTarget[dwSize - 47 + j];
 	}
@@ -80,99 +81,103 @@ void CPB3B::Decrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode 1
+//
+// Parameters
+//   - pclArc    - Archive
+//   - pbtSrc    - Compressed data
+//   - dwSrcSize - Compressed data size
+//   - lWidth    - Width
+//   - lHeight   - Height
+//   - wBpp      - Number of bits
 
-BOOL CPB3B::Decode1(
-	CArcFile*			pclArc,							// Archive
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD          dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtDst(dwDstSize);
 
 	// Decompress
-	Decomp1( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
+	Decomp1(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
 
 	// Output
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+	clImage.Init(pclArc, lWidth, lHeight, wBpp);
+	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode 3
+//
+// Parameters
+//   - pclArc    - Archive
+//   - pbtSrc    - Compressed data
+//   - dwSrcSize - Compressed data size
+//   - lWidth    - Width
+//   - lHeight   - Height
+//   - wBpp      - Number of bits
 
-BOOL CPB3B::Decode3(
-	CArcFile*			pclArc,							// Archive
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD          dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtDst(dwDstSize);
 
 	// Decompress
-	Decomp3( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
+	Decomp3(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
 
 	// Output
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+	clImage.Init(pclArc, lWidth, lHeight, wBpp);
+	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-//  Decode 4
+// Decode 4
+//
+// Parameters
+//   - pclArc    - Archive
+//   - pbtSrc    - Compressed data
+//   - dwSrcSize - Compressed data size
+//   - lWidth    - Width
+//   - lHeight   - Height
+//   - wBpp      - Number of bits
 
-BOOL CPB3B::Decode4(
-	CArcFile*			pclArc,							// Archive
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	pclArc->OpenFile();
-	pclArc->WriteFile( pbtSrc, dwSrcSize );
+	pclArc->WriteFile(pbtSrc, dwSrcSize);
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode 5
+//
+// Parameters
+//   - pclArc    - Archive
+//   - pbtSrc    - Compressed data
+//   - dwSrcSize - Compressed data size
+//   - lWidth    - Width
+//   - lHeight   - Height
+//   - wBpp      - Number of bits
 
-BOOL CPB3B::Decode5(
-	CArcFile*			pclArc,							// Archive
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
 	DWORD          dwBaseSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtBase( dwBaseSize );
+	YCMemory<BYTE> clmbtBase(dwBaseSize);
 
 	// Decompress base image
-	Decomp5( &clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
+	Decomp5(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
 
 	// Output base image
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtBase[0], dwBaseSize );
+	clImage.Init(pclArc, lWidth, lHeight, wBpp);
+	clImage.WriteReverse(&clmbtBase[0], dwBaseSize);
 	clImage.Close();
 
 	return TRUE;
@@ -180,24 +185,25 @@ BOOL CPB3B::Decode5(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode 6
+//
+// Parameters
+//   - pclArc     - Archive
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits
+//   - pfnDecrypt - Decryption function
 
-BOOL CPB3B::Decode6(
-	CArcFile*			pclArc,							// Archive
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp,							// Number of bits per pixel
-	PB3B_DECRYPT		pfnDecrypt						// Decryption function
-	)
+BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp, PB3B_DECRYPT pfnDecrypt)
 {
 	// Ensure output buffer
 	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtDst(dwDstSize);
 
 	// Get base image file name
 	BYTE abtBaseFileName[64];
-	memcpy( abtBaseFileName, pbtSrc + 52, 32 );
+	memcpy(abtBaseFileName, pbtSrc + 52, 32);
 
 	// Decrypt base image filename
 	const static DWORD	adwCrypt[] =
@@ -205,122 +211,123 @@ BOOL CPB3B::Decode6(
 		0x9CF375A6, 0xA37869C5, 0x794FA53E, 0xC73AFE59
 	};
 
-	for( int i = 0 ; i < 2 ; i++ )
+	for (int i = 0; i < 2; i++)
 	{
-		for( int j = 0 ; j < 4 ; j++ )
+		for (int j = 0; j < 4; j++)
 		{
-			((DWORD*) abtBaseFileName)[i * 4 + j] ^= adwCrypt[j];
+			((DWORD*)abtBaseFileName)[i * 4 + j] ^= adwCrypt[j];
 		}
 	}
 
 	abtBaseFileName[32] = '\0';
 
-	YCString clsBaseFileName = (char*) abtBaseFileName;
+	YCString clsBaseFileName = (char*)abtBaseFileName;
 	clsBaseFileName += _T(".pb3");
 
 	// プリミティブリンクのベース画像のファイル名が一部変になっているので修正
-	if( clsBaseFileName == _T("ast-si0a_100.pb3") )
+	if (clsBaseFileName == _T("ast-si0a_100.pb3"))
 	{
 		clsBaseFileName = _T("st-si0a_100a.pb3");
 	}
 
 	// Store base image
-	const SFileInfo* pstBaseFileInfo = pclArc->GetFileInfo( clsBaseFileName, TRUE );
+	const SFileInfo* pstBaseFileInfo = pclArc->GetFileInfo(clsBaseFileName, TRUE);
 
 	// Base image exists
-	if( pstBaseFileInfo != NULL )
+	if (pstBaseFileInfo != NULL)
 	{
 		DWORD          dwBaseSrcSize = pstBaseFileInfo->sizeCmp;
-		YCMemory<BYTE> clmbtBaseSrc( dwBaseSrcSize );
+		YCMemory<BYTE> clmbtBaseSrc(dwBaseSrcSize);
 
 		// Read base image
-		pclArc->SeekHed( pstBaseFileInfo->start );
-		pclArc->Read( &clmbtBaseSrc[0], dwBaseSrcSize );
+		pclArc->SeekHed(pstBaseFileInfo->start);
+		pclArc->Read(&clmbtBaseSrc[0], dwBaseSrcSize);
 
 		// Decrypt base image
-		pfnDecrypt( &clmbtBaseSrc[0], dwBaseSrcSize, pclArc, *pstBaseFileInfo );
-		Decrypt( &clmbtBaseSrc[0], dwBaseSrcSize );
+		pfnDecrypt(&clmbtBaseSrc[0], dwBaseSrcSize, pclArc, *pstBaseFileInfo);
+		Decrypt(&clmbtBaseSrc[0], dwBaseSrcSize);
 
 		// Decompress base image
-		Decomp5( &clmbtDst[0], dwDstSize, &clmbtBaseSrc[0], dwBaseSrcSize, lWidth, lHeight, wBpp );
+		Decomp5(&clmbtDst[0], dwDstSize, &clmbtBaseSrc[0], dwBaseSrcSize, lWidth, lHeight, wBpp);
 	}
 	else // Base image does not exist
 	{
-		ZeroMemory( &clmbtDst[0], dwDstSize );
+		ZeroMemory(&clmbtDst[0], dwDstSize);
 	}
 
 	// Decompress difference image
-	Decomp6( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
+	Decomp6(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
 
 	// Output
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+	clImage.Init(pclArc, lWidth, lHeight, wBpp);
+	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decompression 1
+//
+// Parameters
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination size
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits per pixel
 
-BOOL CPB3B::Decomp1(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
-	DWORD dwOffsetOfFlags = *(DWORD*) &pbtSrc[44];
-	DWORD dwOffsetOfCompData = *(DWORD*) &pbtSrc[48];
-	long  lWidthOfBlock = *(DWORD*) &pbtSrc[24];
-	long  lHeightOfBlock = *(DWORD*) &pbtSrc[24];
+	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[44];
+	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[48];
+	long  lWidthOfBlock = *(DWORD*)&pbtSrc[24];
+	long  lHeightOfBlock = *(DWORD*)&pbtSrc[24];
 	WORD  wByteCount = (wBpp >> 3);
 	long  lLine = (lWidth * wByteCount);
 
 	// Ensure LZSS decompression buffer
 	DWORD dwTempSize = (lWidth * lHeight);
-	YCMemory<BYTE> clmbtTemp( dwTempSize );
+	YCMemory<BYTE> clmbtTemp(dwTempSize);
 
 	// Decompress
-	for( WORD wColor = 0 ; wColor < wByteCount ; wColor++ )
+	for (WORD wColor = 0; wColor < wByteCount; wColor++)
 	{
 		const BYTE* pbtWorkOfSrc = &pbtSrc[dwOffsetOfFlags];
 		DWORD dwWork = (wByteCount * 4);
-		for( WORD i = 0 ; i < wColor ; i++ )
+		for (WORD i = 0; i < wColor; i++)
 		{
-			dwWork += ((DWORD*) pbtWorkOfSrc)[i];
+			dwWork += ((DWORD*)pbtWorkOfSrc)[i];
 		}
 		pbtWorkOfSrc += dwWork;
 
 		// Get the LZSS size after decompression
-		DWORD dwLZSSDecodeSize = *(DWORD*) &pbtWorkOfSrc[8];
+		DWORD dwLZSSDecodeSize = *(DWORD*)&pbtWorkOfSrc[8];
 
 		// Get pointer to flag data
-		const BYTE* pbtFlags = pbtWorkOfSrc + *(DWORD*) &pbtWorkOfSrc[0] + *(DWORD*) &pbtWorkOfSrc[4] + 12;
+		const BYTE* pbtFlags = pbtWorkOfSrc + *(DWORD*)&pbtWorkOfSrc[0] + *(DWORD*)&pbtWorkOfSrc[4] + 12;
 
 		// Get pointer to decompressed data
 		const BYTE* pbtCompData = &pbtSrc[dwOffsetOfCompData];
 		dwWork = (wByteCount * 4);
-		for( WORD i = 0 ; i < wColor ; i++ )
+		for (WORD i = 0; i < wColor; i++)
 		{
-			dwWork += ((DWORD*) pbtCompData)[i];
+			dwWork += ((DWORD*)pbtCompData)[i];
 		}
 		pbtCompData += dwWork;
 
 		// バッファ不足に対処
 		// dwLZSSDecodeSizeで毎回バッファ確保すれば対処する必要ないけど、メモリ確保／破棄は最小限に抑えたい
-		if( dwTempSize < dwLZSSDecodeSize )
+		if (dwTempSize < dwLZSSDecodeSize)
 		{
-			clmbtTemp.resize( dwLZSSDecodeSize );
+			clmbtTemp.resize(dwLZSSDecodeSize);
 		}
 
 		// LZSS Decompression
 		DWORD dwFlagsSize = 0xFFFFFFFF;    // Unknown size
 		DWORD dwCompDataSize = 0xFFFFFFFF; // Unknown size
-		DecompLZSS( &clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
+		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
 
 		// Decompress compressed blocks
 		BYTE* pbtWorkOfDst = &pbtDst[wColor];
@@ -332,16 +339,16 @@ BOOL CPB3B::Decomp1(
 		DWORD dwCompDataPtr = 0;
 
 		pbtFlags = pbtWorkOfSrc + 12;
-		pbtCompData = pbtWorkOfSrc + *(DWORD*) &pbtWorkOfSrc[0] + 12;
+		pbtCompData = pbtWorkOfSrc + *(DWORD*)&pbtWorkOfSrc[0] + 12;
 
-		for( long lY = 0, lBlockY = 0 ; lBlockY < lBlockCountOfHeight ; lY += lHeightOfBlock, lBlockY++ )
+		for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
 		{
 			BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
 			long  lHeightOfBlockMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
 
-			for( long lX = 0, lBlockX = 0 ; lBlockX < lBlockCountOfWidth ; lX += lWidthOfBlock, lBlockX++ )
+			for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
 			{
-				if( btCode == 0 )
+				if (btCode == 0)
 				{
 					// 8-block processing
 					dwFlagsPtr++;
@@ -353,11 +360,11 @@ BOOL CPB3B::Decomp1(
 				long  lWidthOfBlockMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
 
 				// Compressed
-				if( pbtFlags[dwFlagsPtr] & btCode )
+				if (pbtFlags[dwFlagsPtr] & btCode)
 				{
-					for( long i = 0 ; i < lHeightOfBlockMax ; i++ )
+					for (long i = 0; i < lHeightOfBlockMax; i++)
 					{
-						for( long j = 0 ; j < lWidthOfBlockMax ; j++ )
+						for (long j = 0; j < lWidthOfBlockMax; j++)
 						{
 							pbtWorkOfDst3[j * wByteCount] = pbtCompData[dwCompDataPtr];
 						}
@@ -369,9 +376,9 @@ BOOL CPB3B::Decomp1(
 				}
 				else // Not compressed
 				{
-					for( long i = 0 ; i < lHeightOfBlockMax ; i++ )
+					for (long i = 0; i < lHeightOfBlockMax; i++)
 					{
-						for( long j = 0 ; j < lWidthOfBlockMax ; j++ )
+						for (long j = 0; j < lWidthOfBlockMax; j++)
 						{
 							pbtWorkOfDst3[j * wByteCount] = clmbtTemp[dwTempPtr++];
 						}
@@ -394,77 +401,80 @@ BOOL CPB3B::Decomp1(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decompression 3
+//
+// Parameters
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination size
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits per pixel
 
-BOOL CPB3B::Decomp3(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Get alpha value
-	const BYTE* pbtAlpha = pbtSrc + *(DWORD*) &pbtSrc[44];
-	DWORD dwAlphaSize = *(DWORD*) &pbtSrc[48];
+	const BYTE* pbtAlpha = pbtSrc + *(DWORD*)&pbtSrc[44];
+	DWORD dwAlphaSize = *(DWORD*)&pbtSrc[48];
 
 	// Decompress
 	CJBP1 clJBP1;
-	clJBP1.Decomp( pbtDst, &pbtSrc[52], wBpp, pbtAlpha, dwAlphaSize );
+	clJBP1.Decomp(pbtDst, &pbtSrc[52], wBpp, pbtAlpha, dwAlphaSize);
 
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decompression 4
+//
+// Parameters
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination size
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits per pixel
 
-BOOL CPB3B::Decomp4(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decompression 5
+//
+// Parameters
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination size
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits per pixel
 
-BOOL CPB3B::Decomp5(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// LZSS decompression buffer
 	DWORD dwTempSize = (lWidth * lHeight);
 	YCMemory<BYTE> aclmbtTemp[4];
 
 	// Decompress base image
-	for( int i = 0 ; i < 4 ; i++ )
+	for (int i = 0; i < 4; i++)
 	{
 		// Ensure LZSS decompression buffer
-		aclmbtTemp[i].resize( dwTempSize );
+		aclmbtTemp[i].resize(dwTempSize);
 
 		// Get pointer to flag data
-		const BYTE* pbtFlags = pbtSrc + 84 + *(DWORD*) &pbtSrc[i * 8 + 52];
+		const BYTE* pbtFlags = pbtSrc + 84 + *(DWORD*)&pbtSrc[i * 8 + 52];
 
 		// Get pointer to compressed data
-		const BYTE* pbtCompData = pbtSrc + 84 + *(DWORD*) &pbtSrc[i * 8 + 56];
+		const BYTE* pbtCompData = pbtSrc + 84 + *(DWORD*)&pbtSrc[i * 8 + 56];
 
 		// LZSS Decompression
 		DWORD dwFlagsSize = 0xFFFFFFFF;    // Unknown size
 		DWORD dwCompDataSize = 0xFFFFFFFF; // Unknown size
-		DecompLZSS( &aclmbtTemp[i][0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
+		DecompLZSS(&aclmbtTemp[i][0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
 	}
 
 	// Store
@@ -473,7 +483,7 @@ BOOL CPB3B::Decomp5(
 	pbtDst[2] = aclmbtTemp[2][0];
 	pbtDst[3] = aclmbtTemp[3][0];
 
-	for( DWORD i = 1 ; i < dwTempSize ; i++ )
+	for (DWORD i = 1; i < dwTempSize; i++)
 	{
 		pbtDst[i * 4 + 0] = aclmbtTemp[0][i] + pbtDst[i * 4 - 4];
 		pbtDst[i * 4 + 1] = aclmbtTemp[1][i] + pbtDst[i * 4 - 3];
@@ -488,27 +498,28 @@ BOOL CPB3B::Decomp5(
 // Decompress 6
 //
 // Remarks: Assumes that the base image is stored in pbtDst
+//
+// Parameters
+//   - pbtDst     - Destination
+//   - dwDstSize  - Destination size
+//   - pbtSrc     - Compressed data
+//   - dwSrcSize  - Compressed data size
+//   - lWidth     - Width
+//   - lHeight    - Height
+//   - wBpp       - Number of bits per pixel
 
-BOOL CPB3B::Decomp6(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed data
-	DWORD				dwSrcSize,						// Compressed data size
-	long				lWidth,							// Width
-	long				lHeight,						// Height
-	WORD				wBpp							// Number of bits per pixel
-	)
+BOOL CPB3B::Decomp6(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure LZSS decompression buffer
-	DWORD dwLZSSDecodeSize = *(DWORD*) &pbtSrc[24];
-	YCMemory<BYTE> clmbtTemp( dwLZSSDecodeSize );
+	DWORD dwLZSSDecodeSize = *(DWORD*)&pbtSrc[24];
+	YCMemory<BYTE> clmbtTemp(dwLZSSDecodeSize);
 
 	// LZSS Decompression
 	const BYTE* pbtFlags = pbtSrc + 84;
-	const BYTE* pbtCompData = pbtSrc + 84 + *(DWORD*) &pbtSrc[44];
+	const BYTE* pbtCompData = pbtSrc + 84 + *(DWORD*)&pbtSrc[44];
 	DWORD       dwFlagsSize = 0xFFFFFFFF;	// Unknown size
 	DWORD       dwCompDataSize = 0xFFFFFFFF;	// Unknown size
-	DecompLZSS( &clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize );
+	DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
 
 	// Decompression
 	WORD  wByteCount = (wBpp >> 3);
@@ -522,18 +533,18 @@ BOOL CPB3B::Decomp6(
 	BYTE  btCode = 0x80;
 
 	pbtFlags = &clmbtTemp[8];
-	pbtCompData = &clmbtTemp[*(DWORD*) &clmbtTemp[0] + 8];
+	pbtCompData = &clmbtTemp[*(DWORD*)&clmbtTemp[0] + 8];
 
 	BYTE* pbtWorkOfDst = pbtDst;
 
-	for( long lY = 0, lBlockY = 0 ; lBlockY < lBlockCountOfHeight ; lY += lHeightOfBlock, lBlockY++ )
+	for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
 	{
 		BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
 		long  lBlockOfHeightMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
 
-		for( long lX = 0, lBlockX = 0 ; lBlockX < lBlockCountOfWidth ; lX += lWidthOfBlock, lBlockX++ )
+		for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
 		{
-			if( btCode == 0 )
+			if (btCode == 0)
 			{
 				// Processing 8 blocks
 				btCode = 0x80;
@@ -544,14 +555,14 @@ BOOL CPB3B::Decomp6(
 			BYTE* pbtWorkOfDst3 = pbtWorkOfDst2;
 			long  lBlockOfWidthMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
 
-			if( (pbtFlags[dwFlagsPtr] & btCode) == 0 )
+			if ((pbtFlags[dwFlagsPtr] & btCode) == 0)
 			{
 				// Difference
-				for( long i = 0 ; i < lBlockOfHeightMax ; i++ )
+				for (long i = 0; i < lBlockOfHeightMax; i++)
 				{
-					for( long j = 0 ; j < lBlockOfWidthMax ; j++ )
+					for (long j = 0; j < lBlockOfWidthMax; j++)
 					{
-						memcpy( &pbtWorkOfDst3[j * 4], &pbtCompData[dwCompDataPtr + j * 4], 4 );
+						memcpy(&pbtWorkOfDst3[j * 4], &pbtCompData[dwCompDataPtr + j * 4], 4);
 					}
 
 					dwCompDataPtr += (lBlockOfWidthMax * 4);

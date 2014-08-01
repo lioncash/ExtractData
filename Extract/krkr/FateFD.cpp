@@ -3,29 +3,31 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if it can be decoded
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CFateFD::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 {
-	if( pclArc->GetArcName() != _T("video.xp3") )
+	if (pclArc->GetArcName() != _T("video.xp3"))
 	{
 		return FALSE;
 	}
 
-	return CheckTpm( "9C5BB86A5BBD1B77A311EC504DB45653" );
+	return CheckTpm("9C5BB86A5BBD1B77A311EC504DB45653");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Routine
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CFateFD::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
-	if( pstFileInfo->name == _T("fd_op01.mpg") )
+	if (pstFileInfo->name == _T("fd_op01.mpg"))
 	{
 		// OP1
 
@@ -43,7 +45,7 @@ DWORD CFateFD::OnInitDecrypt(
 		m_adwOffset[4] = 0xAF27 - pstFileInfo->start;
 		m_adwOffset[5] = 0xAF28 - pstFileInfo->start;
 	}
-	else if( pstFileInfo->name == _T("fd_op02.mpg") )
+	else if (pstFileInfo->name == _T("fd_op02.mpg"))
 	{
 		// OP2
 
@@ -65,7 +67,7 @@ DWORD CFateFD::OnInitDecrypt(
 	{
 		// Other
 
-		SetDecryptRequirement( FALSE );
+		SetDecryptRequirement(FALSE);
 	}
 
 	return 0;
@@ -73,33 +75,34 @@ DWORD CFateFD::OnInitDecrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CFateFD::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decoded
-	DWORD				dwTargetSize,					// Decoding size
-	DWORD				dwOffset,						// Location of data to be decoded (offset)
-	DWORD				dwDecryptKey					// Decryption key
-	)
+DWORD CFateFD::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
-	for( DWORD i = 0 ; i < dwTargetSize ; i++ )
+	for (DWORD i = 0; i < dwTargetSize; i++)
 	{
-		if( (dwOffset + i) < m_adwOffset[1] )
+		if ((dwOffset + i) < m_adwOffset[1])
 		{
 			pbtTarget[i] ^= m_abtKey[0];
 		}
-		else if( (dwOffset + i) < m_adwOffset[2] )
+		else if ((dwOffset + i) < m_adwOffset[2])
 		{
 			pbtTarget[i] ^= m_abtKey[1];
 		}
-		else if( (dwOffset + i) < m_adwOffset[3] )
+		else if ((dwOffset + i) < m_adwOffset[3])
 		{
 			pbtTarget[i] ^= m_abtKey[2];
 		}
-		else if( (dwOffset + i) < m_adwOffset[4] )
+		else if ((dwOffset + i) < m_adwOffset[4])
 		{
 			pbtTarget[i] ^= m_abtKey[3];
 		}
-		else if( (dwOffset + i) < m_adwOffset[5] )
+		else if ((dwOffset + i) < m_adwOffset[5])
 		{
 			pbtTarget[i] ^= m_abtKey[4];
 		}

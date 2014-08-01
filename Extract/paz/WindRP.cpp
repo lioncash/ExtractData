@@ -3,40 +3,43 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CWindRP::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CWindRP::Mount(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("WindRP.exe") ) )
+	if (!pclArc->CheckExe(_T("WindRP.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CWindRP::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CWindRP::Decode(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("WindRP.exe") ) )
+	if (!pclArc->CheckExe(_T("WindRP.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Mount Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CWindRP::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CWindRP::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -50,15 +53,16 @@ void CWindRP::InitMountKey(
 		{ _T("mov"),    "\xE2\xD7\x8F\x24\xB9\x5E\x15\x8F\x99\x08\x36\xD4\xA9\xA6\xB0\x3B\x95\xAB\xC1\x35\x7D\x60\x99\x14\xCE\x51\x10\xDB\xCF\xB5\x6E\xF1" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decode Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CWindRP::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CWindRP::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -72,5 +76,5 @@ void CWindRP::InitDecodeKey(
 		{ _T("mov"),    "\x20\xDF\xEC\x87\x9C\x2A\x88\x07\xB7\x35\xD2\x79\xD1\x87\x3C\x61\xBF\x73\x4C\xBE\xD9\xFD\xE0\x39\x68\x83\x3C\xEE\x46\xD7\xAD\x97" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }

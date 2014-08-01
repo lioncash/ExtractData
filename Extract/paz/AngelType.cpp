@@ -3,40 +3,43 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CAngelType::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CAngelType::Mount(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("ANGELTYPE.exe") ) )
+	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CAngelType::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CAngelType::Decode(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("ANGELTYPE.exe") ) )
+	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize mount key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CAngelType::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CAngelType::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -50,15 +53,16 @@ void CAngelType::InitMountKey(
 		{ _T("mov"),    "\xA1\x4B\x5E\x7B\x93\xA7\x53\xA9\x5C\xE6\x25\x76\x6D\x96\x8B\x8D\x43\xCB\x9C\xB6\x72\x10\xFB\x3D\x6E\xF0\x39\xD4\xF2\xDD\x24\xAA" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize decode key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CAngelType::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CAngelType::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -72,5 +76,5 @@ void CAngelType::InitDecodeKey(
 		{ _T("mov"),    "\xF7\x68\xC4\xCA\xEE\x54\x5B\x96\x0B\xFC\xF5\x6A\x91\x9D\xBD\x2D\xA1\x56\xE6\x99\x1C\x6B\xDD\xA5\x4C\x5D\x15\x2F\x01\x81\x2C\x81" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }

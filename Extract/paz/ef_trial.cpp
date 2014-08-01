@@ -3,40 +3,43 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL Cef_trial::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL Cef_trial::Mount(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("ef_trial.exe") ) )
+	if (!pclArc->CheckExe(_T("ef_trial.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL Cef_trial::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL Cef_trial::Decode(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("ef_trial.exe") ) )
+	if (!pclArc->CheckExe(_T("ef_trial.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize mount key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void Cef_trial::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void Cef_trial::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -50,17 +53,18 @@ void Cef_trial::InitMountKey(
 		{ _T("mov"),    "\x7E\x32\xD4\xA7\x2F\x0C\xAE\x61\xB8\xAA\x15\xA2\xDC\xA5\x97\xC0\xA9\xAC\xAF\xAF\x00\xD4\xD1\xF1\xCB\x1E\xE6\x16\x77\xDD\x0B\x86" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize decode key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void Cef_trial::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void Cef_trial::InitDecodeKey(CArcFile* pclArc)
 {
-	static const SKeyInfo	astKeyInfo[] =
+	static const SKeyInfo astKeyInfo[] =
 	{
 		{ _T("scr"),    "\x46\x79\xA3\xCE\x7F\x4E\xD6\x9D\x62\x0E\x42\x95\x1D\x19\x1D\x05\xCB\xEC\x7B\x25\x89\xF3\xCB\x82\x1E\x8D\xD9\xFD\x04\xF4\x10\x18" },
 		{ _T("bg"),     "\x85\xD5\xAA\x49\xC1\x57\xAE\x1A\x44\x48\x5A\xDB\xFF\x37\xD3\x98\x5B\x41\xCB\x24\x23\x41\xEB\xE3\x17\x30\xAD\x2E\xCB\x70\x7F\xFA" },
@@ -72,5 +76,5 @@ void Cef_trial::InitDecodeKey(
 		{ _T("mov"),    "\x5B\x69\xEB\xD2\x82\x35\xE9\x28\x17\x0F\x84\x23\x17\x5E\x56\x69\x1B\xAB\xCE\x9A\x86\x11\xD4\x5D\x4E\xDE\xE5\x01\x28\x1D\x75\x66" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }

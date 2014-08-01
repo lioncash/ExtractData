@@ -3,63 +3,67 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Dealing with files
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL Cef_first::IsSupported(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL Cef_first::IsSupported(CArcFile* pclArc)
 {
 	// Get header
 	BYTE abtHeader[32];
-	memcpy( abtHeader, pclArc->GetHed(), sizeof(abtHeader) );
+	memcpy(abtHeader, pclArc->GetHed(), sizeof(abtHeader));
 
 	// Get decryption key
 	m_btKey = abtHeader[8];
 
 	// Decrypt
-	Decrypt( abtHeader, sizeof(abtHeader) );
+	Decrypt(abtHeader, sizeof(abtHeader));
 
-	return (memcmp( abtHeader, "ef_first", 8 ) == 0);
+	return (memcmp(abtHeader, "ef_first", 8) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL Cef_first::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL Cef_first::Mount(CArcFile* pclArc)
 {
-	if( !IsSupported( pclArc ) )
+	if (!IsSupported(pclArc))
 	{
 		return FALSE;
 	}
 
 	// Skip 32 bytes
-	pclArc->Seek( 32, FILE_BEGIN );
+	pclArc->Seek(32, FILE_BEGIN);
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL Cef_first::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL Cef_first::Decode(CArcFile* pclArc)
 {
-	if( !IsSupported( pclArc ) )
+	if (!IsSupported(pclArc))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize mount key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void Cef_first::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void Cef_first::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -73,15 +77,16 @@ void Cef_first::InitMountKey(
 		{ _T("mov"),    "\x75\xE3\xE5\x40\xC9\x5B\x77\x17\x34\x4A\xD9\xC7\x12\xE3\x5A\xBB\x31\x60\x8D\xDB\x04\x57\xFD\xC2\x95\xC4\x0A\x7A\x14\xB5\xC0\x08" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize decode key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void Cef_first::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void Cef_first::InitDecodeKey(CArcFile* pclArc)
 {
 	m_dwMovieTableID = 0;
 
@@ -97,31 +102,32 @@ void Cef_first::InitDecodeKey(
 		{ _T("mov"),    "\x40\x28\x70\x54\x8C\x92\xDD\xBF\xF2\xC8\xEC\x43\x2F\x42\x0F\xC9\x54\x0F\x65\x31\xF4\x7B\xE0\xDA\x35\x21\x1C\x8D\x96\x4E\x73\x61" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Movie Table
 //
 // return Table size
+//
+// Parameters:
+//   - pvTable - Table
 
-DWORD Cef_first::InitMovieTable(
-	void*				pvTable							// Table
-	)
+DWORD Cef_first::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtTable = (BYTE*)pvTable;
 
-	for( DWORD i = 0 ; i < 256 ; i++ )
+	for (DWORD i = 0; i < 256; i++)
 	{
 		LPBYTE pMovieTables = m_aabtMovieTable[i];
 
-		for( DWORD j = 0 ; j < 256 ; j++ )
+		for (DWORD j = 0; j < 256; j++)
 		{
 			m_aabtMovieTable[i][*pbtTable++] = j;
 		}
 	}
 
-	return	65536;
+	return 65536;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -133,16 +139,16 @@ void Cef_first::DecodeTable1()
 	BYTE*  pbtKey = GetKey();
 	DWORD  dwKeyPtr = 0;
 
-	static const BYTE abtKeyTable[6] = 
+	static const BYTE abtKeyTable[6] =
 	{
 		0x6D, 0x69, 0x6E, 0x6F, 0x72, 0x69
 	};
 
-	for( DWORD i = 0 ; i < 18 ; i++ )
+	for (DWORD i = 0; i < 18; i++)
 	{
 		DWORD dwValue = 0;
 
-		for( DWORD j = 0 ; j < 4 ; j++ )
+		for (DWORD j = 0; j < 4; j++)
 		{
 			dwValue <<= 8;
 			dwValue |= (pbtKey[dwKeyPtr] ^ abtKeyTable[dwKeyPtr % 6]);
@@ -156,15 +162,16 @@ void Cef_first::DecodeTable1()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode movie table
+//
+// Parameters:
+//   - pvTarget - Data to be decoded
+//   - dwSize   - Decoding size
 
-void Cef_first::DecodeMovieData(
-	void*				pvTarget,						// Data to be decoded
-	DWORD				dwSize							// Decoding size
-	)
+void Cef_first::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
 
-	for( DWORD i = 0; i < dwSize ; i++ )
+	for (DWORD i = 0; i < dwSize; i++)
 	{
 		pbtTarget[i] = m_aabtMovieTable[m_dwMovieTableID][pbtTarget[i]];
 	}
@@ -174,15 +181,16 @@ void Cef_first::DecodeMovieData(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Cipher-specific Decryption
+//
+// Parameters:
+//   - pvTarget - Data to be decoded
+//   - dwSize   - Decoding size
 
-void	Cef_first::Decrypt(
-	void*				pvTarget,						// Data to be decoded
-	DWORD				dwSize							// Decoding size
-	)
+void Cef_first::Decrypt(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
 
-	for( DWORD i = 0 ; i < dwSize ; i++ )
+	for (DWORD i = 0; i < dwSize; i++)
 	{
 		pbtTarget[i] ^= m_btKey;
 	}
@@ -190,10 +198,11 @@ void	Cef_first::Decrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Get movie buffer size
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD	Cef_first::GetMovieBufSize(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD Cef_first::GetMovieBufSize(CArcFile* pclArc)
 {
 	return 65536;
 }

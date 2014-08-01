@@ -3,33 +3,36 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if it can be decrypted
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CNatsupochi::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CNatsupochi::OnCheckDecrypt(CArcFile* pclArc)
 {
-	return CheckTpm( "B1CCCE8E4048B563B316D8BAEDF7E2B1" );
+	return CheckTpm("B1CCCE8E4048B563B316D8BAEDF7E2B1");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Process
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CNatsupochi::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CNatsupochi::OnInitDecrypt(CArcFile* pclArc)
 {
 	return (pclArc->GetOpenFileInfo()->key >> 3);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CNatsupochi::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decoded
-	DWORD				dwTargetSize,					// Decoding size
-	DWORD				dwOffset,						// Location of data to be decoded
-	DWORD				dwDecryptKey					// Decryption Key
-	)
+DWORD CNatsupochi::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	BYTE btDecryptKey = (BYTE) (dwDecryptKey & 0xFF);
 

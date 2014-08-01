@@ -3,35 +3,37 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if it can be decoded
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHachukano::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHachukano::OnCheckDecrypt(CArcFile* pclArc)
 {
-	return pclArc->CheckExe( _T("hachukano.exe") );
+	return pclArc->CheckExe(_T("hachukano.exe"));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Process
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CHachukano::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CHachukano::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo*			pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR				pszFileExt = PathFindExtension( pstFileInfo->name );
+	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	LPCTSTR pszFileExt = PathFindExtension(pstFileInfo->name);
 
-	if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
+	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (pstFileInfo->name == _T("startup.tjs")))
 	{
 		// Files we don't decode
-		SetDecryptRequirement( FALSE );
+		SetDecryptRequirement(FALSE);
 		return 0;
 	}
 
 	// Size to decrypt
-	if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
+	if ((lstrcmp(pszFileExt, _T(".ks")) != 0) && (lstrcmp(pszFileExt, _T(".tjs")) != 0) && (lstrcmp(pszFileExt, _T(".asd")) != 0))
 	{
-		SetDecryptSize( 512 );
+		SetDecryptSize(512);
 	}
 
 	// Decryption key
@@ -42,18 +44,19 @@ DWORD CHachukano::OnInitDecrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decoding Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CHachukano::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decoded
-	DWORD				dwTargetSize,					// Decoding Size
-	DWORD				dwOffset,						// Location of data to be decoded (offset)
-	DWORD				dwDecryptKey					// Decryption Key
-	)
+DWORD CHachukano::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decrypt
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+	for (DWORD i = 0; i < dwTargetSize; i += 4)
 	{
-		if( (i & 255) == 0 )
+		if ((i & 255) == 0)
 		{
 			m_dwChangeDecryptKey = 0;
 		}
@@ -62,7 +65,7 @@ DWORD CHachukano::OnDecrypt(
 			m_dwChangeDecryptKey += 0x04040404;
 		}
 
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
+		*(DWORD*)&pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
 	}
 
 	return dwTargetSize;

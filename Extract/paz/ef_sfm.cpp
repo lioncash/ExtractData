@@ -3,53 +3,54 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if files are supported
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CEFsfm::IsSupported(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CEFsfm::IsSupported(CArcFile* pclArc)
 {
-	return	(memcmp( pclArc->GetHed(), "ef_sfm", 6 ) == 0);
+	return (memcmp(pclArc->GetHed(), "ef_sfm", 6) == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CEFsfm::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CEFsfm::Mount(CArcFile* pclArc)
 {
-	if( !IsSupported( pclArc ) )
+	if (!IsSupported(pclArc))
 	{
 		return FALSE;
 	}
 
 	// Skip 32 bytes
-	pclArc->SeekHed( 32 );
+	pclArc->SeekHed(32);
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
 
-BOOL CEFsfm::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CEFsfm::Decode(CArcFile* pclArc)
 {
-	if( !IsSupported( pclArc ) )
+	if (!IsSupported(pclArc))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Mount Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CEFsfm::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CEFsfm::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -63,15 +64,16 @@ void CEFsfm::InitMountKey(
 		{ _T("mov"),    "\xB3\x25\x8D\x86\x56\xFF\x2F\x27\xA4\x93\xB1\x4B\x97\xB9\xFB\x99\x94\x4B\xDA\x46\xF6\xB4\xCF\xC8\x15\x74\x21\x50\xE3\x76\x55\x79" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decode Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CEFsfm::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CEFsfm::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -85,23 +87,24 @@ void CEFsfm::InitDecodeKey(
 		{ _T("mov"),    "\x2A\xCA\x1A\x43\xC0\x38\x86\xA1\x42\x9E\x65\xAC\xEB\x67\x38\x1A\x2A\x9F\x5F\xF5\x68\x9A\xB3\xC5\xF9\x24\xF2\xBB\x16\x09\xF1\xD2" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 
 	m_dwMovieTableID = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Movie Table
+//
+// Parameters:
+//   - pvTable - Table
 
-DWORD CEFsfm::InitMovieTable(
-	void*				pvTable							// Table
-	)
+DWORD CEFsfm::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtTable = (BYTE*)pvTable;
 
-	for( DWORD i = 0 ; i < 256 ; i++ )
+	for (DWORD i = 0; i < 256; i++)
 	{
-		for( DWORD j = 0 ; j < 256 ; j++ )
+		for (DWORD j = 0; j < 256; j++)
 		{
 			m_aabtMovieTable[i][*pbtTable++] = j;
 		}
@@ -112,15 +115,16 @@ DWORD CEFsfm::InitMovieTable(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode Movie Data
+//
+// Parameters:
+//   - pvTarget - Data to be decoded
+//   - dwSize   - Decoding size
 
-void CEFsfm::DecodeMovieData(
-	void*				pvTarget,						// Data to be decoded
-	DWORD				dwSize							// Decoding Size
-	)
+void CEFsfm::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
 
-	for( DWORD i = 0; i < dwSize ; i++ )
+	for (DWORD i = 0; i < dwSize; i++)
 	{
 		pbtTarget[i] = m_aabtMovieTable[m_dwMovieTableID][pbtTarget[i]];
 	}
@@ -130,10 +134,11 @@ void CEFsfm::DecodeMovieData(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Get Movie Buffer Size
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CEFsfm::GetMovieBufSize(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CEFsfm::GetMovieBufSize(CArcFile* pclArc)
 {
 	return 65536;
 }

@@ -3,35 +3,37 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Check if it can be decrypted
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHimesyo::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHimesyo::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return pclArc->CheckExe( _T("himesyo.exe") );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Process
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CHimesyo::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CHimesyo::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR    pszFileExt = PathFindExtension( pstFileInfo->name );
+	LPCTSTR    pszFileExt = PathFindExtension(pstFileInfo->name);
 
-	if( (lstrcmp( pszFileExt, _T(".dll") ) == 0) || (pstFileInfo->name == _T("startup.tjs")) )
+	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (pstFileInfo->name == _T("startup.tjs")))
 	{
 		// Files we don't decode
-		SetDecryptRequirement( FALSE );
-		return	0;
+		SetDecryptRequirement(FALSE);
+		return 0;
 	}
 
 	// Size to decrypt
-	if( (lstrcmp( pszFileExt, _T(".ks") ) != 0) && (lstrcmp( pszFileExt, _T(".tjs") ) != 0) && (lstrcmp( pszFileExt, _T(".asd") ) != 0) )
+	if ((lstrcmp(pszFileExt, _T(".ks")) != 0) && (lstrcmp(pszFileExt, _T(".tjs")) != 0) && (lstrcmp(pszFileExt, _T(".asd")) != 0))
 	{
-		SetDecryptSize( 256 );
+		SetDecryptSize(256);
 	}
 
 	// Decryption key
@@ -42,18 +44,19 @@ DWORD CHimesyo::OnInitDecrypt(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decryption Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CHimesyo::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decoded
-	DWORD				dwTargetSize,					// Decoding Size
-	DWORD				dwOffset,						// Location of data to decode (offset)
-	DWORD				dwDecryptKey					// Decryption Key
-	)
+DWORD CHimesyo::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decryption
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+	for (DWORD i = 0; i < dwTargetSize; i += 4)
 	{
-		if( (i & 255) == 0 )
+		if ((i & 255) == 0)
 		{
 			m_dwChangeDecryptKey = 0;
 		}
@@ -62,7 +65,7 @@ DWORD CHimesyo::OnDecrypt(
 			m_dwChangeDecryptKey += 0x04040404;
 		}
 
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
+		*(DWORD*)&pbtTarget[i] ^= dwDecryptKey ^ m_dwChangeDecryptKey;
 	}
 
 	return dwTargetSize;

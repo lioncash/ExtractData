@@ -3,40 +3,43 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHaruotoFD::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHaruotoFD::Mount(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("haruotoFD.exe") ) )
+	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHaruotoFD::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHaruotoFD::Decode(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("haruotoFD.exe") ) )
+	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Mount Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CHaruotoFD::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CHaruotoFD::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo	astKeyInfo[] =
 	{
@@ -50,15 +53,16 @@ void CHaruotoFD::InitMountKey(
 		{ _T("mov"),    "\x7C\x7E\xEB\x16\xDE\xBE\x46\xD0\xFD\x7A\xD4\xBC\xE7\x74\x8F\x2F\xD0\x67\x34\x23\x37\xA4\x6D\xBE\x3F\xFF\x12\x8D\x08\xC0\x46\x26" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decode Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CHaruotoFD::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CHaruotoFD::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo	astKeyInfo[] =
 	{
@@ -72,7 +76,7 @@ void CHaruotoFD::InitDecodeKey(
 		{ _T("mov"),    "\xF0\x0B\x6D\x74\xFA\x27\xB3\xEE\x55\xBD\x0A\x78\x76\xD7\x16\xE7\x99\x9A\xD0\x07\x40\xCE\x08\x08\xF0\x9C\x0A\x97\xEB\x6C\x1F\x61" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -88,24 +92,24 @@ void CHaruotoFD::DecodeTable2()
 	DWORD dwValue3 = 0;
 	DWORD dwValue4 = 0;
 
-	for( DWORD i = 0 ; i < 18 ; i += 2 )
+	for (DWORD i = 0; i < 18; i += 2)
 	{
 		dwValue1 ^= pdwTable[0];
 
-		dwValue4 = DecodeValueByTable( dwValue1, pdwTable ) ^ dwValue2 ^ pdwTable[1];
-		dwValue3 = DecodeValueByTable( dwValue4, pdwTable ) ^ dwValue1 ^ pdwTable[2];
+		dwValue4 = DecodeValueByTable(dwValue1, pdwTable) ^ dwValue2 ^ pdwTable[1];
+		dwValue3 = DecodeValueByTable(dwValue4, pdwTable) ^ dwValue1 ^ pdwTable[2];
 
-		dwValue2 = DecodeValueByTable( dwValue3, pdwTable ) ^ dwValue4 ^ pdwTable[3];
+		dwValue2 = DecodeValueByTable(dwValue3, pdwTable) ^ dwValue4 ^ pdwTable[3];
 
-		for( DWORD j = 4 ; j < 16 ; j += 3 )
+		for (DWORD j = 4; j < 16; j += 3)
 		{
-			dwValue1 = DecodeValueByTable( dwValue2, pdwTable ) ^ dwValue3 ^ pdwTable[j + 0];
-			dwValue3 = DecodeValueByTable( dwValue1, pdwTable ) ^ dwValue2 ^ pdwTable[j + 1];
-			dwValue2 = DecodeValueByTable( dwValue3, pdwTable ) ^ dwValue1 ^ pdwTable[j + 2];
+			dwValue1 = DecodeValueByTable(dwValue2, pdwTable) ^ dwValue3 ^ pdwTable[j + 0];
+			dwValue3 = DecodeValueByTable(dwValue1, pdwTable) ^ dwValue2 ^ pdwTable[j + 1];
+			dwValue2 = DecodeValueByTable(dwValue3, pdwTable) ^ dwValue1 ^ pdwTable[j + 2];
 		}
 
 		dwValue1 = dwValue2 ^ pdwTable[17];
-		dwValue2 = DecodeValueByTable( dwValue2, pdwTable ) ^ dwValue3 ^ pdwTable[16];
+		dwValue2 = DecodeValueByTable(dwValue2, pdwTable) ^ dwValue3 ^ pdwTable[16];
 
 		pdwTable[i + 0] = dwValue1;
 		pdwTable[i + 1] = dwValue2;
@@ -114,18 +118,18 @@ void CHaruotoFD::DecodeTable2()
 	// Decrypt 4096 byte table
 	DWORD dwTablePtr = 18;
 
-	for( DWORD i = 0 ; i < 512 ; i++ )
+	for (DWORD i = 0; i < 512; i++)
 	{
 		dwValue1 ^= pdwTable[0];
 
-		for( DWORD j = 1 ; j < 16 ; j += 3 )
+		for (DWORD j = 1; j < 16; j += 3)
 		{
-			dwValue3 = DecodeValueByTable( dwValue1, pdwTable ) ^ dwValue2 ^ pdwTable[j + 0];
-			dwValue2 = DecodeValueByTable( dwValue3, pdwTable ) ^ dwValue1 ^ pdwTable[j + 1];
-			dwValue1 = DecodeValueByTable( dwValue2, pdwTable ) ^ dwValue3 ^ pdwTable[j + 2];
+			dwValue3 = DecodeValueByTable(dwValue1, pdwTable) ^ dwValue2 ^ pdwTable[j + 0];
+			dwValue2 = DecodeValueByTable(dwValue3, pdwTable) ^ dwValue1 ^ pdwTable[j + 1];
+			dwValue1 = DecodeValueByTable(dwValue2, pdwTable) ^ dwValue3 ^ pdwTable[j + 2];
 		}
 
-		dwValue2 = DecodeValueByTable( dwValue1, pdwTable ) ^ dwValue2 ^ pdwTable[16];
+		dwValue2 = DecodeValueByTable(dwValue1, pdwTable) ^ dwValue2 ^ pdwTable[16];
 		dwValue1 ^= pdwTable[17];
 
 		pdwTable[dwTablePtr++] = dwValue1;
@@ -135,11 +139,12 @@ void CHaruotoFD::DecodeTable2()
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode Data
+//
+// Parameters:
+//   - pvTarget - Data to be decoded
+//   - dwSize   - Decoding size
 
-void CHaruotoFD::DecodeData(
-	void*				pvTarget,						// Data to be decoded
-	DWORD				dwSize							// Decoding size
-	)
+void CHaruotoFD::DecodeData(void* pvTarget, DWORD dwSize)
 {
 	BYTE*  pbtTarget = (BYTE*)pvTarget;
 	DWORD* pdwTable = GetTable();
@@ -147,18 +152,18 @@ void CHaruotoFD::DecodeData(
 	DWORD dwValue1;
 	DWORD dwValue2;
 
-	for( DWORD i = 0 ; i < dwSize ; i += 8 )
+	for (DWORD i = 0; i < dwSize; i += 8)
 	{
 		dwValue1 = *(DWORD*)&pbtTarget[i] ^ pdwTable[17];
-		dwValue2 = DecodeValueByTable( dwValue1, pdwTable ) ^ *(DWORD*)&pbtTarget[i + 4] ^ pdwTable[16];
+		dwValue2 = DecodeValueByTable(dwValue1, pdwTable) ^ *(DWORD*)&pbtTarget[i + 4] ^ pdwTable[16];
 
-		for( DWORD j = 15; j > 1 ; j -= 2 )
+		for (DWORD j = 15; j > 1; j -= 2)
 		{
-			dwValue1 ^= DecodeValueByTable( dwValue2, pdwTable ) ^ pdwTable[j - 0];
-			dwValue2 ^= DecodeValueByTable( dwValue1, pdwTable ) ^ pdwTable[j - 1];
+			dwValue1 ^= DecodeValueByTable(dwValue2, pdwTable) ^ pdwTable[j - 0];
+			dwValue2 ^= DecodeValueByTable(dwValue1, pdwTable) ^ pdwTable[j - 1];
 		}
 
-		dwValue1 ^= DecodeValueByTable( dwValue2, pdwTable );
+		dwValue1 ^= DecodeValueByTable(dwValue2, pdwTable);
 
 		*(DWORD*)&pbtTarget[i + 0] = pdwTable[0] ^ dwValue2;
 		*(DWORD*)&pbtTarget[i + 4] = pdwTable[1] ^ dwValue1;

@@ -3,33 +3,36 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //  Check if it can be decrypted
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CSpecialite::OnCheckDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CSpecialite::OnCheckDecrypt(CArcFile* pclArc)
 {
-	return CheckTpm( "F78FF15C0BD396080BCDF431AED59211" );
+	return CheckTpm("F78FF15C0BD396080BCDF431AED59211");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decryption Process
+//
+// Parameters:
+//   - pclArc - Archive
 
-DWORD CSpecialite::OnInitDecrypt(
-	CArcFile*			pclArc							// Archive
-	)
+DWORD CSpecialite::OnInitDecrypt(CArcFile* pclArc)
 {
 	return 0xAF;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //  Decryption Process
+//
+// Parameters:
+//   - pbtTarget    - Data to be decrypted
+//   - dwTargetSize - Decryption size
+//   - dwOffset     - Offset of data to be decoded
+//   - dwDecryptKey - Decryption key
 
-DWORD CSpecialite::OnDecrypt(
-	BYTE*				pbtTarget,						// Data to be decrypted
-	DWORD				dwTargetSize,					// Decoding Size
-	DWORD				dwOffset,						// Location of data to be decoded (offset)
-	DWORD				dwDecryptKey					// Decryption Key
-	)
+DWORD CSpecialite::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	BYTE btDecryptKey = (BYTE) dwDecryptKey;
 

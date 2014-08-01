@@ -3,40 +3,43 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHaruoto::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHaruoto::Mount(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("haruoto.exe") ) )
+	if (!pclArc->CheckExe(_T("haruoto.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Mount( pclArc );
+	return CPaz::Mount(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
+//
+// Parameters:
+//   - pclArc - Archive
 
-BOOL CHaruoto::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+BOOL CHaruoto::Decode(CArcFile* pclArc)
 {
-	if( !pclArc->CheckExe( _T("haruoto.exe") ) )
+	if (!pclArc->CheckExe(_T("haruoto.exe")))
 	{
 		return FALSE;
 	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Mount Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CHaruoto::InitMountKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CHaruoto::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -55,10 +58,11 @@ void CHaruoto::InitMountKey(
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Decode Key
+//
+// Parameters:
+//   - pclArc - Archive
 
-void CHaruoto::InitDecodeKey(
-	CArcFile*			pclArc							// Archive
-	)
+void CHaruoto::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
 	{
@@ -72,5 +76,5 @@ void CHaruoto::InitDecodeKey(
 		{ _T("mov"),    "\xC8\xB4\xFB\xD3\xCE\xA6\xD5\xF4\x28\x29\x5D\xEA\x55\x2B\x75\x05\x9F\x43\x0D\x63\xD4\x77\xBE\x26\xC1\xCC\x2C\x5B\x71\x91\x18\xA4"}
 	};
 
-	SetKey( pclArc, astKeyInfo );
+	SetKey(pclArc, astKeyInfo);
 }
