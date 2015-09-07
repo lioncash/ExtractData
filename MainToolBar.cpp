@@ -114,38 +114,36 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 
 void CMainToolBar::LoadIni()
 {
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
-	clIni.SetSection( _T("OpenHistory") );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	clIni.SetSection(_T("OpenHistory"));
 
-	for( unsigned int i = 0 ; i < 10 ; i++ )
+	for (unsigned int i = 0; i < 10; i++)
 	{
 		TCHAR szKey[256];
-		_stprintf( szKey, _T("File%u"), i );
-		clIni.SetKey( szKey );
+		_stprintf(szKey, _T("File%u"), i);
+		clIni.SetKey(szKey);
 
 		YCString clsPathToArc;
-		clIni.ReadStr( clsPathToArc, _T("") );
+		clIni.ReadStr(clsPathToArc, _T(""));
 
-		if( clsPathToArc == _T("") )
-		{
+		if (clsPathToArc == _T(""))
 			break;
-		}
 
-		m_vcOpenHistoryList.push_back( clsPathToArc );
+		m_vcOpenHistoryList.push_back(clsPathToArc);
 	}
 }
 
 void CMainToolBar::SaveIni()
 {
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
-	clIni.SetSection( _T("OpenHistory") );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	clIni.SetSection(_T("OpenHistory"));
 
-	for( size_t i = 0; i < m_vcOpenHistoryList.size() ; i++ )
+	for (size_t i = 0; i < m_vcOpenHistoryList.size(); i++)
 	{
 		TCHAR szKey[256];
-		_stprintf( szKey, _T("File%u"), i );
-		clIni.SetKey( szKey );
-		clIni.WriteStr( m_vcOpenHistoryList[i] );
+		_stprintf(szKey, _T("File%u"), i);
+		clIni.SetKey(szKey);
+		clIni.WriteStr(m_vcOpenHistoryList[i]);
 	}
 }
 
