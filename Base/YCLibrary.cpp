@@ -6,7 +6,7 @@
 
 YCLibrary::YCLibrary()
 {
-	m_hModule = NULL;
+	m_hModule = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -25,9 +25,9 @@ YCLibrary::~YCLibrary()
 
 bool YCLibrary::Load(LPCTSTR pszPathToFile)
 {
-	m_hModule = ::LoadLibrary( pszPathToFile );
+	m_hModule = ::LoadLibrary(pszPathToFile);
 
-	return (m_hModule != NULL);
+	return (m_hModule != nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -35,10 +35,10 @@ bool YCLibrary::Load(LPCTSTR pszPathToFile)
 
 void YCLibrary::Free()
 {
-	if (m_hModule != NULL)
+	if (m_hModule != nullptr)
 	{
 		::FreeLibrary(m_hModule);
-		m_hModule = NULL;
+		m_hModule = nullptr;
 	}
 }
 
@@ -50,10 +50,8 @@ void YCLibrary::Free()
 
 FARPROC YCLibrary::GetProcAddress(LPCTSTR pszProcName)
 {
-	if (m_hModule == NULL)
-	{
-		return NULL;
-	}
+	if (m_hModule == nullptr)
+		return nullptr;
 
 	YCStringA clsProcName = pszProcName; // Done as a last resort because there is no GetProcAddressW
 

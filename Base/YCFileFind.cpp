@@ -99,7 +99,7 @@ YCString YCFileFind::GetFilePath()
 {
 	TCHAR szPathToFile[_MAX_PATH];
 
-	_stprintf( szPathToFile, _T("%s\\%s"), m_clsPathToFolder, m_stwfdFindData.cFileName );
+	_stprintf(szPathToFile, _T("%s\\%s"), m_clsPathToFolder.GetString(), m_stwfdFindData.cFileName);
 
 	return szPathToFile;
 }
@@ -130,5 +130,5 @@ bool YCFileFind::IsDirectory()
 
 bool YCFileFind::IsDots()
 {
-	return ((lstrcmp(m_stwfdFindData.cFileName, _T(".") ) == 0) || (lstrcmp( m_stwfdFindData.cFileName, _T("..") ) == 0));
+	return ((lstrcmp(m_stwfdFindData.cFileName, _T(".")) == 0) || (lstrcmp(m_stwfdFindData.cFileName, _T("..")) == 0));
 }

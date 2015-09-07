@@ -6,7 +6,7 @@
 
 YCStdioFile::YCStdioFile()
 {
-	m_pStream = NULL;
+	m_pStream = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
 
-	return (m_pStream != NULL);
+	return (m_pStream != nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -145,10 +145,10 @@ BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 
 void YCStdioFile::Close()
 {
-	if( m_pStream != NULL )
+	if (m_pStream != nullptr)
 	{
-		fclose( m_pStream );
-		m_pStream = NULL;
+		fclose(m_pStream);
+		m_pStream = nullptr;
 	}
 }
 
@@ -205,7 +205,7 @@ BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 
 	while (true)
 	{
-		if (ReadString(szBuffer, _countof(szBuffer)) == NULL)
+		if (ReadString(szBuffer, _countof(szBuffer)) == nullptr)
 		{
 			// Read until the end
 

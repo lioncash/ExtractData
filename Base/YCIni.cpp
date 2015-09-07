@@ -9,7 +9,7 @@ YCIni::YCIni(LPCTSTR pszPathToIni)
 {
 	// Gets the execution path of the file
 	TCHAR szPathToExecuteFolder[MAX_PATH];
-	::GetModuleFileName(NULL, szPathToExecuteFolder, _countof(szPathToExecuteFolder));
+	::GetModuleFileName(nullptr, szPathToExecuteFolder, _countof(szPathToExecuteFolder));
 	::PathRemoveFileSpec(szPathToExecuteFolder);
 
 	// Get INI file path
@@ -36,7 +36,7 @@ void YCIni::SetSection(UINT uID)
 {
 	TCHAR szSection[256];
 
-	::LoadString(::GetModuleHandle(NULL), uID, szSection, _countof(szSection));
+	::LoadString(::GetModuleHandle(nullptr), uID, szSection, _countof(szSection));
 
 	SetSection(szSection);
 }
@@ -91,10 +91,8 @@ void YCIni::WriteStr(LPCTSTR pszStr)
 
 bool YCIni::DeleteSection(LPCTSTR pszSection)
 {
-	if (pszSection == NULL)
-	{
+	if (pszSection == nullptr)
 		pszSection = m_clsSection;
-	}
 
-	return ::WritePrivateProfileString(pszSection, NULL, NULL, m_clsPathToIni) != 0;
+	return ::WritePrivateProfileString(pszSection, nullptr, nullptr, m_clsPathToIni) != 0;
 }

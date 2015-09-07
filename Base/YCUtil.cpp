@@ -82,7 +82,7 @@ void YCUtil::CreateDirectory(LPCTSTR pszPathToFile, BOOL bFileName)
 	std::vector<YCString> vcDirPathList;
 	LPCTSTR               pszFilePathBase = pszPathToFile;
 
-	while ((pszPathToFile = PathFindNextComponent(pszPathToFile)) != NULL)
+	while ((pszPathToFile = PathFindNextComponent(pszPathToFile)) != nullptr)
 	{
 		YCString clsDirPath(pszFilePathBase, pszPathToFile - pszFilePathBase - 1); // Do not put a '\' at the end just to be sure to -1
 
@@ -102,7 +102,7 @@ void YCUtil::CreateDirectory(LPCTSTR pszPathToFile, BOOL bFileName)
 
 	for (size_t uCnt = 0; uCnt < uMax; uCnt++)
 	{
-		::CreateDirectory(vcDirPathList[uCnt], NULL);
+		::CreateDirectory(vcDirPathList[uCnt], nullptr);
 	}
 }
 

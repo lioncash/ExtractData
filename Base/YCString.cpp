@@ -60,7 +60,7 @@ int YCBaseString::GetBaseTypeLength(const wchar_t* pwszSrc) const
 
 int YCBaseString::GetBaseTypeLength(const wchar_t* pwszSrc, int nLength) const
 {
-	return ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nLength, NULL, 0, NULL, NULL);
+	return ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nLength, nullptr, 0, nullptr, nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ int YCBaseString::ConvertToBaseType(wchar_t* pwszDst, int nDstLength, const char
 
 int YCBaseString::ConvertToBaseType(char* pszDst, int nDstLength, const wchar_t* pwszSrc, int nSrcLength) const
 {
-	int nLength = ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nSrcLength, pszDst, nDstLength, NULL, NULL);
+	int nLength = ::WideCharToMultiByte(CP_ACP, 0, pwszSrc, nSrcLength, pszDst, nDstLength, nullptr, nullptr);
 
 	if (nSrcLength == -1)
 	{

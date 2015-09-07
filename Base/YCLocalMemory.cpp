@@ -6,8 +6,8 @@
 
 YCLocalMemory::YCLocalMemory()
 {
-	m_hMemory = NULL;
-	m_pvMemory = NULL;
+	m_hMemory = nullptr;
+	m_pvMemory = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -31,12 +31,10 @@ bool YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 {
 	m_hMemory = ::LocalAlloc(uFlags, uBytes);
 
-	if (m_hMemory == NULL)
-	{
+	if (m_hMemory == nullptr)
 		throw std::bad_alloc();
-	}
 
-	return (m_hMemory != NULL);
+	return (m_hMemory != nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -46,14 +44,12 @@ bool YCLocalMemory::Free()
 {
 	Unlock();
 
-	if (m_hMemory != NULL)
+	if (m_hMemory != nullptr)
 	{
-		if (::LocalFree(m_hMemory) != NULL)
-		{
+		if (::LocalFree(m_hMemory) != nullptr)
 			return false;
-		}
 
-		m_hMemory = NULL;
+		m_hMemory = nullptr;
 	}
 
 	return true;
@@ -74,10 +70,10 @@ void* YCLocalMemory::Lock()
 
 bool YCLocalMemory::Unlock()
 {
-	if (m_pvMemory != NULL)
+	if (m_pvMemory != nullptr)
 	{
 		while (::LocalUnlock(m_hMemory));
-		m_pvMemory = NULL;
+		m_pvMemory = nullptr;
 	}
 
 	return true;
@@ -88,10 +84,8 @@ bool YCLocalMemory::Unlock()
 
 UINT YCLocalMemory::GetSize()
 {
-	if (m_hMemory == NULL)
-	{
+	if (m_hMemory == nullptr)
 		return 0;
-	}
 
 	return ::LocalSize(m_hMemory);
 }

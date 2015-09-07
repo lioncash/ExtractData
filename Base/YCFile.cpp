@@ -117,7 +117,7 @@ BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	}
 
 	// Open the file
-	m_hFile = ::CreateFile(pszPathToFile, dwAccess, dwShare, NULL, dwCreateDisposition, dwFlagsAndAttributes, NULL);
+	m_hFile = ::CreateFile(pszPathToFile, dwAccess, dwShare, nullptr, dwCreateDisposition, dwFlagsAndAttributes, nullptr);
 
 	// Holds the file path
 	m_clsPathToFile = pszPathToFile;
@@ -150,7 +150,7 @@ DWORD YCFile::Read(void* pvBuffer, DWORD dwReadSize)
 {
 	DWORD dwResult;
 
-	if (!::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, NULL))
+	if (!::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, nullptr))
 	{
 		dwResult = 0;
 	}
@@ -169,7 +169,7 @@ DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 {
 	DWORD dwResult;
 
-	if (!::WriteFile(m_hFile, pvBuffer, dwWriteSize, &dwResult, NULL))
+	if (!::WriteFile(m_hFile, pvBuffer, dwWriteSize, &dwResult, nullptr))
 	{
 		dwResult = 0;
 	}
@@ -186,7 +186,7 @@ DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 
 UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 {
-	switch( dwSeekMode )
+	switch (dwSeekMode)
 	{
 	case begin:
 		dwSeekMode = FILE_BEGIN;
@@ -227,7 +227,7 @@ UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 
 UINT64 YCFile::SeekHed(INT64 n64Offset)
 {
-	return Seek( n64Offset, begin );
+	return Seek(n64Offset, begin);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ UINT64 YCFile::SeekHed(INT64 n64Offset)
 
 UINT64 YCFile::SeekEnd(INT64 n64Offset)
 {
-	return Seek( -n64Offset, end );
+	return Seek(-n64Offset, end);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -249,7 +249,7 @@ UINT64 YCFile::SeekEnd(INT64 n64Offset)
 
 UINT64 YCFile::SeekCur(INT64 n64Offset)
 {
-	return Seek( n64Offset, current );
+	return Seek(n64Offset, current);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +257,7 @@ UINT64 YCFile::SeekCur(INT64 n64Offset)
 
 UINT64 YCFile::GetPosition()
 {
-	return SeekCur( 0 );
+	return SeekCur(0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ UINT64 YCFile::GetLength()
 	UINT64 u64CurrentOffset = GetPosition();
 	UINT64 u64EndOffset     = SeekEnd();
 
-	SeekHed( u64CurrentOffset );
+	SeekHed(u64CurrentOffset);
 
 	return u64EndOffset;
 }
