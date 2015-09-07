@@ -106,11 +106,11 @@ void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
 			break;
 
 		case 6: // Display the start address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.start);
+			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), rfstFileInfo.start);
 			break;
 
 		case 7: // Display the end address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%x"), rfstFileInfo.end);
+			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), rfstFileInfo.end);
 			break;
 		}
 	}
@@ -145,10 +145,10 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
 			lstrcpy(ptip->pszText, pEnt[ptip->iItem].arcName);
 			break;
 		case 6:
-			_stprintf(ptip->pszText, _T("0x%x"), pEnt[ptip->iItem].start);
+			_stprintf(ptip->pszText, _T("0x%llx"), pEnt[ptip->iItem].start);
 			break;
 		case 7:
-			_stprintf(ptip->pszText, _T("0x%x"), pEnt[ptip->iItem].end);
+			_stprintf(ptip->pszText, _T("0x%llx"), pEnt[ptip->iItem].end);
 			break;
 	}
 }
