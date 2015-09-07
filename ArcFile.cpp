@@ -709,24 +709,20 @@ YCString CArcFile::CreateFileName(LPCTSTR pszRenameFileExt)
 
 DWORD CArcFile::ConvEndian(DWORD value)
 {
-	_asm
-	{
-		mov   eax, value
-		bswap eax
-		mov   value, eax
-	}
-
-	return value;
+#if defined(_MSC_VER)
+	return _byteswap_ulong(value);
+#else
+	return ((value & 0x000000FF) << 24) | (value & 0x0000FF00) << 8) | ((value & 0x00FF0000) >> 8) | ((value & 0xFF000000) >> 24);
+#endif
 }
 
 WORD CArcFile::ConvEndian(WORD value)
 {
-	_asm
-	{
-		ror value, 8
-	}
-
-	return value;
+#if defined(_MSC_VER)
+	return _byteswap_ushort(value);
+#else
+	return (value << 8) | (value >> 8);
+#endif
 }
 
 void CArcFile::ConvEndian(LPDWORD value)
