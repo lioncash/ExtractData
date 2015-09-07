@@ -15,7 +15,7 @@ class YCMemory
 {
 public:
 	YCMemory();
-	YCMemory(DWORD dwCount);
+	explicit YCMemory(DWORD dwCount);
 	YCMemory(DWORD dwCount, const TYPE& rftInitValue);
 	YCMemory(const YCMemory<TYPE>& rfclmSrc);
 	~YCMemory();

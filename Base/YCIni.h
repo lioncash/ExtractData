@@ -7,7 +7,7 @@
 class YCIni
 {
 public:
-	YCIni(LPCTSTR pszIniName);
+	explicit YCIni(LPCTSTR pszIniName);
 
 	void SetSection(UINT uID);
 	void SetSection(LPCTSTR pszSection);
