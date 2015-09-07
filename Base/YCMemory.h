@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 //#define YCMemory std::valarray
 
 //----------------------------------------------------------------------------------------
@@ -142,11 +144,11 @@ DWORD YCMemory<TYPE>::size() const
 template<class TYPE>
 TYPE YCMemory<TYPE>::at(DWORD dwPos) const
 {
-	if (dwPos >= m_dwMemorySize)
+	if (dwPos >= m_dwMemoryCount)
 	{
 		// Outside the reference range.
 
-		throw std::out_of_range;
+		throw std::out_of_range("dwPos is outsize the memory range.");
 	}
 
 	return m_ptMemory[dwPos];
