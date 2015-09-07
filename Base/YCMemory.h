@@ -119,10 +119,10 @@ void YCMemory<TYPE>::resize(DWORD dwCount, const TYPE& rftInitValue)
 
 template<class TYPE> void YCMemory<TYPE>::clear()
 {
-	if (m_ptMemory != NULL)
+	if (m_ptMemory != nullptr)
 	{
 		delete[] m_ptMemory;
-		m_ptMemory = NULL;
+		m_ptMemory = nullptr;
 		m_dwMemoryCount = 0;
 	}
 }

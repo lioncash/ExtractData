@@ -30,7 +30,7 @@ public:
 
 	void WriteStr(LPCTSTR pszStr);
 
-	bool DeleteSection(LPCTSTR pszSection = NULL);
+	bool DeleteSection(LPCTSTR pszSection = nullptr);
 
 private:
 	YCString m_clsPathToIni;
@@ -88,7 +88,7 @@ TYPE YCIni::ReadHex(LPCTSTR pszDefault)
 
 	::GetPrivateProfileString(m_clsSection, m_clsKey, pszDefault, szWork, sizeof(szWork), m_clsPathToIni);
 
-	return strtoul(szWork, NULL, 16);
+	return strtoul(szWork, nullptr, 16);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
