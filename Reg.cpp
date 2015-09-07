@@ -32,7 +32,7 @@ BOOL CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
 
 	BYTE data[MAX_PATH];
 	DWORD cbData = sizeof(data);
-	if (RegQueryValueEx(hkResult, pKeyName, NULL, NULL, data, &cbData) != 0)
+	if (RegQueryValueEx(hkResult, pKeyName, nullptr, nullptr, data, &cbData) != 0)
 		return FALSE;
 
 	Value = (LPTSTR)data;

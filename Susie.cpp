@@ -25,8 +25,8 @@ struct fileInfo
 };
 #pragma pack(pop, 1)
 
-std::vector<SSusieInfo>	CSusie::m_stsiMain;
-std::vector<SSusieInfo>	CSusie::m_stsiTemporary;
+std::vector<SSusieInfo> CSusie::m_stsiMain;
+std::vector<SSusieInfo> CSusie::m_stsiTemporary;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialization
@@ -68,7 +68,7 @@ BOOL CSusie::Mount(CArcFile* pclArc)
 
 		// Get IsSupported()
 		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
-		if (IsSupported == NULL)
+		if (IsSupported == nullptr)
 		{
 			// IsSupported function is not implemented
 			continue;
@@ -90,7 +90,7 @@ BOOL CSusie::Mount(CArcFile* pclArc)
 
 		// Get GetArchiveInfo()
 		GetArchiveInfoProc GetArchiveInfo = (GetArchiveInfoProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetArchiveInfo"));
-		if (GetArchiveInfo == NULL)
+		if (GetArchiveInfo == nullptr)
 		{
 			// We trust IsSupported() and attempt to mount
 			return pclArc->Mount();
@@ -111,7 +111,7 @@ BOOL CSusie::Mount(CArcFile* pclArc)
 		}
 
 		// Error in the function GetArchiveInfo()
-		if (cllmFileInfo.GetHandle() == NULL)
+		if (cllmFileInfo.GetHandle() == nullptr)
 		{
 			// We will trust IsSupported() and attempt to mount
 			return pclArc->Mount();
@@ -197,7 +197,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 		// Get IsSupported()
 		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
-		if (IsSupported == NULL)
+		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
 			continue;
@@ -224,7 +224,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 		// Get GetPicture()
 		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPicture"));
-		if (GetPicture == NULL)
+		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
 			continue;
@@ -234,7 +234,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 		YCLocalMemory cllmBitmapData;
 
 		// Call GetPicture()
-		if (GetPicture( szPathToArc, pclArc->GetOpenFileInfo()->start, 0x0000, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0)
+		if (GetPicture(szPathToArc, pclArc->GetOpenFileInfo()->start, 0x0000, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), nullptr, 0) != 0)
 		{
 			// GetPicture() has failed
 			continue;
@@ -270,14 +270,14 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 		// Get GetFile()
 		GetFileProc GetFile = (GetFileProc) vtSupportPlugin[uCnt]->GetProcAddress(_T("GetFile"));
-		if (GetFile == NULL)
+		if (GetFile == nullptr)
 		{
 			// GetFile() function is not supported
 			continue;
 		}
 
 		// Call GetFile()
-		if (GetFile(szPathToArc, pclArc->GetOpenFileInfo()->start, (LPSTR) &cllmSrc.GetHandle(), 0x0100, NULL, 0 ) != 0)
+		if (GetFile(szPathToArc, pclArc->GetOpenFileInfo()->start, (LPSTR)&cllmSrc.GetHandle(), 0x0100, nullptr, 0) != 0)
 		{
 			// GetFile has failed
 
@@ -292,10 +292,10 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 	// Lock the memory for reading
 
 	BOOL   bGetFileSuccess = TRUE;
-	LPBYTE pbtSrc = NULL;
+	LPBYTE pbtSrc = nullptr;
 	DWORD  dwSrcSize;
 
-	if (cllmSrc.GetHandle() != NULL)
+	if (cllmSrc.GetHandle() != nullptr)
 	{
 		// Successful GetFile()
 
@@ -331,7 +331,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 		// Get IsSupported()
 		IsSupportedProc IsSupported = (IsSupportedProc) pstsiTarget->cllPlugin.GetProcAddress(_T("IsSupported"));
-		if (IsSupported == NULL)
+		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
 			continue;
@@ -360,7 +360,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 		// Get GetPicture()
 		GetPictureProc GetPicture = (GetPictureProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPicture"));
-		if (GetPicture == NULL)
+		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
 			continue;
@@ -370,7 +370,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 		YCLocalMemory cllmBitmapData;
 
 		// Call GetPicture()
-		if (GetPicture( (LPSTR) pbtSrc, dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), NULL, 0 ) != 0)
+		if (GetPicture((LPSTR)pbtSrc, dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), nullptr, 0) != 0)
 		{
 			// GetPicture() has failed
 			continue;
@@ -468,7 +468,7 @@ void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 		char szBuffer[1024];
 
 		GetPluginInfoProc GetPluginInfo = (GetPluginInfoProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPluginInfo"));
-		if (GetPluginInfo != NULL)
+		if (GetPluginInfo != nullptr)
 		{
 			if (GetPluginInfo(0, szBuffer, sizeof(szBuffer)) != 0)
 			{
@@ -501,7 +501,7 @@ void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 
 		// Check if the SPI has a configuration dialog
 		ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc) pstsiTarget->cllPlugin.GetProcAddress(_T("ConfigurationDlg"));
-		pstsiTarget->bConfig = (ConfigurationDlg != NULL);
+		pstsiTarget->bConfig = (ConfigurationDlg != nullptr);
 
 		// Prepare the next SPI
 		uIndex++;

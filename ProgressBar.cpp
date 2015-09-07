@@ -6,8 +6,8 @@ extern BOOL g_bThreadEnd;
 
 CProgBar::CProgBar()
 {
-	m_hDlg = NULL;
-	m_hInst = NULL;
+	m_hDlg = nullptr;
+	m_hInst = nullptr;
 	m_percent = -1;
 	m_ProgSize = 0;
 }

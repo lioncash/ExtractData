@@ -45,12 +45,12 @@ int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, in
 
 CWinMain::CWinMain()
 {
-	m_hWnd = NULL;
+	m_hWnd = nullptr;
 	ZeroMemory(&m_wc, sizeof(WNDCLASSEX));
 
-	m_hInst = NULL;
-	m_hPrevInst = NULL;
-	m_lpsCmdLine = NULL;
+	m_hInst = nullptr;
+	m_hPrevInst = nullptr;
+	m_lpsCmdLine = nullptr;
 	m_nCmdShow = 0;
 }
 
@@ -66,7 +66,7 @@ int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, i
 	m_lpsCmdLine = lpsCmdLine;
 	m_nCmdShow = nCmdShow;
 
-	OleInitialize(NULL);
+	OleInitialize(nullptr);
 
 	if (!InitApp())
 		return FALSE;
@@ -81,7 +81,7 @@ int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, i
 	COption option;
 	MSG msg;
 	int bRet;
-	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0)
+	while ((bRet = GetMessage(&msg, nullptr, 0, 0)) != 0)
 	{
 		if (bRet == -1)
 		{
@@ -94,7 +94,7 @@ int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, i
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			//}
-			//if (option.GetHandle() && PropSheet_GetCurrentPageHwnd(option.GetHandle()) == NULL)
+			//if (option.GetHandle() && PropSheet_GetCurrentPageHwnd(option.GetHandle()) == nullptr)
 			//{
 				// Exits the property sheet
 			//  option.Close();
@@ -116,12 +116,12 @@ ATOM CWinMain::InitApp()
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = m_hInst;  // Instance
-	wc.hIcon         = LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon         = LoadIcon(m_hInst, MAKEINTRESOURCE(IDI_ICON_APP));
+	wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
 	wc.lpszMenuName  = _T("MAINMENU"); // Menu name
 	wc.lpszClassName = WINDOWCLASS_NAME;
-	wc.hIconSm       = LoadIcon( m_hInst, MAKEINTRESOURCE( IDI_ICON_APP ) );
+	wc.hIconSm       = LoadIcon(m_hInst, MAKEINTRESOURCE(IDI_ICON_APP));
 
 	m_wc = wc;
 	return (RegisterClassEx(&m_wc));
@@ -137,8 +137,8 @@ BOOL CWinMain::InitInstance()
 		0,                      // Y Coordinate
 		0,                      // Width
 		0,                      // Height
-		NULL,                   // When creating the parent window handle, the parent is NULL
-		NULL,                   // When creating the menu handle, the handle is NULL
+		nullptr,                // When creating the parent window handle, the parent is NULL
+		nullptr,                // When creating the menu handle, the handle is NULL
 		m_hInst,                // Instance handle
 		(LPVOID)this);
 	if (!m_hWnd)
@@ -190,7 +190,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			// Get full path
 			TCHAR ModulePath[MAX_PATH];
-			GetModuleFileName(NULL, ModulePath, MAX_PATH);
+			GetModuleFileName(nullptr, ModulePath, MAX_PATH);
 			PathRemoveFileSpec(ModulePath);
 
 			// Retrieves full path of the location of Readme.txt
@@ -276,9 +276,9 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			break;
 
 		case IDM_EXTRACT: // Extract the selected range
-			if( listview.GetCountSel() > 0 )
+			if (listview.GetCountSel() > 0)
 			{
-				extract.SaveSel( lastdir.GetSave(), TRUE );
+				extract.SaveSel(lastdir.GetSave(), TRUE);
 			}
 			lastdir.SaveIni();
 			break;
@@ -286,23 +286,23 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case IDM_EXTRACTALL: // Extract all
 			if( listview.GetCount() > 0 )
 			{
-				extract.SaveAll( lastdir.GetSave(), TRUE );
+				extract.SaveAll(lastdir.GetSave(), TRUE);
 			}
 			lastdir.SaveIni();
 			break;
 
 		case IDM_EXTRACT_NOTCONVERT: // Extracts the selection without converting it
-			if( listview.GetCountSel() > 0 )
+			if (listview.GetCountSel() > 0)
 			{
-				extract.SaveSel( lastdir.GetSave(), FALSE );
+				extract.SaveSel(lastdir.GetSave(), FALSE);
 			}
 			lastdir.SaveIni();
 			break;
 
 		case IDM_EXTRACTALL_NOTCONVERT: // Extracts all without conversion
-			if( listview.GetCount() > 0 )
+			if (listview.GetCount() > 0)
 			{
-				extract.SaveAll( lastdir.GetSave(), FALSE );
+				extract.SaveAll(lastdir.GetSave(), FALSE);
 			}
 			lastdir.SaveIni();
 			break;
@@ -316,15 +316,15 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			break;
 
 		case IDM_README: // Open Readme.txt
-			ShellExecute(NULL, _T("open"), ReadmeFileName, NULL, NULL, SW_SHOWNORMAL);
+			ShellExecute(nullptr, _T("open"), ReadmeFileName, nullptr, nullptr, SW_SHOWNORMAL);
 			break;
 
 		case IDM_HISTORY: // Open History.txt
-			ShellExecute(NULL, _T("open"), HistoryFileName, NULL, NULL, SW_SHOWNORMAL);
+			ShellExecute(nullptr, _T("open"), HistoryFileName, nullptr, nullptr, SW_SHOWNORMAL);
 			break;
 
 		case IDM_STATE: // Open State.txt
-			ShellExecute(NULL, _T("open"), StateFileName, NULL, NULL, SW_SHOWNORMAL);
+			ShellExecute(nullptr, _T("open"), StateFileName, nullptr, nullptr, SW_SHOWNORMAL);
 			break;
 
 		case IDM_VERSION: // Version info
@@ -385,7 +385,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				case LVN_BEGINDRAG:
 					//extract.SaveDrop();
 					LRESULT             lResult;
-					listview.OnBeginDrag( (NMHDR*)lp, &lResult );
+					listview.OnBeginDrag((NMHDR*)lp, &lResult);
 					break;
 				// Playback / Viewing by double-clicking
 				case NM_DBLCLK:
@@ -438,7 +438,7 @@ void CWinMain::CreateMenu(LPARAM lp)
 
 	SetQuickMenu(rMenu);
 
-	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, NULL);
+	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, nullptr);
 	DestroyMenu(rMenu);
 }
 

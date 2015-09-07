@@ -4,9 +4,9 @@
 
 CWindowBase::CWindowBase()
 {
-	m_hWnd = NULL;
-	m_hInst = NULL;
-	m_oldWndProc = NULL;
+	m_hWnd = nullptr;
+	m_hInst = nullptr;
+	m_oldWndProc = nullptr;
 	m_bDialog = FALSE;
 }
 
@@ -143,7 +143,7 @@ LRESULT CALLBACK CWindowBase::WndStaticProc(HWND hWnd, UINT msg, WPARAM wp, LPAR
 	CWindowBase* tWnd = (CWindowBase*)GetProp(hWnd, _T("CWindowBase"));
 
 	// Could not be obtained during processing
-	if (tWnd == NULL)
+	if (tWnd == nullptr)
 	{
 		if ((msg == WM_CREATE) || (msg == WM_NCCREATE))
 			tWnd = (CWindowBase*)((LPCREATESTRUCT)lp)->lpCreateParams;
@@ -217,7 +217,7 @@ POINT CWindowBase::GetCenterPt(RECT& dlgrc)
 {
 	RECT ParentRect;
 	HWND hParentWnd = GetParent(m_hWnd);
-	if (hParentWnd == NULL)
+	if (hParentWnd == nullptr)
 		hParentWnd = GetDesktopWindow();
 	GetWindowRect(hParentWnd, &ParentRect);
 	//CError error;
@@ -234,7 +234,7 @@ POINT CWindowBase::GetCenterPt(HWND hWnd, RECT& dlgrc)
 {
 	RECT ParentRect;
 	HWND hParentWnd = GetParent(hWnd);
-	if (hParentWnd == NULL)
+	if (hParentWnd == nullptr)
 		hParentWnd = GetDesktopWindow();
 	GetWindowRect(hParentWnd, &ParentRect);
 	//CError error;

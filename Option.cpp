@@ -20,8 +20,8 @@ SOption COption::m_option_tmp;
 std::vector<YCString> COption::m_SearchFiles;
 CMainListView* COption::m_pListView;
 CSearchToolBar* COption::m_pToolBar;
-HWND COption::m_hDlg = NULL;
-HWND COption::m_hParentWnd = NULL;
+HWND COption::m_hDlg = nullptr;
+HWND COption::m_hParentWnd = nullptr;
 
 void COption::Init(CSearchToolBar& toolbar, CMainListView& listview)
 {
@@ -53,125 +53,125 @@ void COption::LoadIni()
 {
 	SOption* pOption = &m_option;
 
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
 	CReg  clReg;
 
-	clIni.SetSection( _T("Option") );
+	clIni.SetSection(_T("Option"));
 
 	// List background color
-	clIni.SetKey( _T("ListBkColor") );
-	clIni.ReadStr( pOption->szListBkColor, sizeof(pOption->szListBkColor), _T("FFFFFF") );
-	pOption->ListBkColor = _tcstol( pOption->szListBkColor, NULL, 16 );
+	clIni.SetKey(_T("ListBkColor"));
+	clIni.ReadStr(pOption->szListBkColor, sizeof(pOption->szListBkColor), _T("FFFFFF"));
+	pOption->ListBkColor = _tcstol(pOption->szListBkColor, nullptr, 16);
 
 	// List text color
-	clIni.SetKey( _T("ListTextColor") );
-	clIni.ReadStr( pOption->szListTextColor, sizeof(pOption->szListTextColor), _T("000000") );
-	pOption->ListTextColor = _tcstol( pOption->szListTextColor, NULL, 16 );
+	clIni.SetKey(_T("ListTextColor"));
+	clIni.ReadStr(pOption->szListTextColor, sizeof(pOption->szListTextColor), _T("000000"));
+	pOption->ListTextColor = _tcstol(pOption->szListTextColor, nullptr, 16);
 
 	// Set whether or not to increase the accuracy of searching for OGG files
-	clIni.SetKey( _T("HighSearchOgg") );
-	clIni.ReadDec( &pOption->bHighSearchOgg, TRUE );
+	clIni.SetKey(_T("HighSearchOgg"));
+	clIni.ReadDec(&pOption->bHighSearchOgg, TRUE);
 
 	// Set whether or not to extract each folder
-	clIni.SetKey( _T("ExtFolder") );
-	clIni.ReadDec( &pOption->bCreateFolder, TRUE );
+	clIni.SetKey(_T("ExtFolder"));
+	clIni.ReadDec(&pOption->bCreateFolder, TRUE);
 
 	// Set whether or not to fix the CRC of each OGG file on extraction
-	clIni.SetKey( _T("OggCRC") );
-	clIni.ReadDec( &pOption->bFixOgg, FALSE );
+	clIni.SetKey(_T("OggCRC"));
+	clIni.ReadDec(&pOption->bFixOgg, FALSE);
 
 	// Set whether or not to enable simple decoding
-	clIni.SetKey( _T("EasyDecrypt") );
-	clIni.ReadDec( &pOption->bEasyDecrypt, FALSE );
+	clIni.SetKey(_T("EasyDecrypt"));
+	clIni.ReadDec(&pOption->bEasyDecrypt, FALSE);
 
 	// Set whether or not to change the extension of the script
-	clIni.SetKey( _T("RenameScriptExt") );
-	clIni.ReadDec( &pOption->bRenameScriptExt, TRUE );
+	clIni.SetKey(_T("RenameScriptExt"));
+	clIni.ReadDec(&pOption->bRenameScriptExt, TRUE);
 
 	// Set the ouput image format
-	clIni.SetKey( _T("DstBMP") );
-	clIni.ReadDec( &pOption->bDstBMP, TRUE );
-	clIni.SetKey( _T("DstPNG") );
-	clIni.ReadDec( &pOption->bDstPNG, FALSE );
+	clIni.SetKey(_T("DstBMP"));
+	clIni.ReadDec(&pOption->bDstBMP, TRUE);
+	clIni.SetKey(_T("DstPNG"));
+	clIni.ReadDec(&pOption->bDstPNG, FALSE);
 
 	// Set the PNG compression level
-	clIni.SetKey( _T("CmplvPng") );
-	clIni.ReadDec( &pOption->CmplvPng, (DWORD) 1 );
+	clIni.SetKey(_T("CmplvPng"));
+	clIni.ReadDec(&pOption->CmplvPng, (DWORD)1);
 
 	// Set whether or not to do alpha blending
-	clIni.SetKey( _T("AlphaBlend") );
-	clIni.ReadDec( &pOption->bAlphaBlend, FALSE );
+	clIni.SetKey(_T("AlphaBlend"));
+	clIni.ReadDec(&pOption->bAlphaBlend, FALSE);
 
 	// Set whether or not to do fast alpha blending
-	clIni.SetKey( _T("FastAlphaBlend") );
-	clIni.ReadDec( &pOption->bFastAlphaBlend, FALSE );
+	clIni.SetKey(_T("FastAlphaBlend"));
+	clIni.ReadDec(&pOption->bFastAlphaBlend, FALSE);
 
 	// Set the background color of the alpha blending
-	clIni.SetKey( _T("BG_RGB") );
-	clIni.ReadStr( pOption->szBgRGB, sizeof(pOption->szBgRGB), _T("FFFFFF") );
-	pOption->BgRGB = _tcstol( pOption->szBgRGB, NULL, 16 );
+	clIni.SetKey(_T("BG_RGB"));
+	clIni.ReadStr(pOption->szBgRGB, sizeof(pOption->szBgRGB), _T("FFFFFF"));
+	pOption->BgRGB = _tcstol(pOption->szBgRGB, nullptr, 16);
 
 	// Destination
-	clIni.SetKey( _T("SaveMethodSel") );
-	clIni.ReadDec( &pOption->bSaveSel, TRUE );
-	clIni.SetKey( _T("SaveMethodSrc") );
-	clIni.ReadDec( &pOption->bSaveSrc, FALSE );
-	clIni.SetKey( _T("SaveMethodDir") );
-	clIni.ReadDec( &pOption->bSaveDir, FALSE );
+	clIni.SetKey(_T("SaveMethodSel"));
+	clIni.ReadDec(&pOption->bSaveSel, TRUE);
+	clIni.SetKey(_T("SaveMethodSrc"));
+	clIni.ReadDec(&pOption->bSaveSrc, FALSE);
+	clIni.SetKey(_T("SaveMethodDir"));
+	clIni.ReadDec(&pOption->bSaveDir, FALSE);
 
 	// Fixed output folder
 	TCHAR szDesktopPath[_MAX_DIR];
 
-	::SHGetSpecialFolderPath( NULL, szDesktopPath, CSIDL_DESKTOPDIRECTORY, FALSE );
+	::SHGetSpecialFolderPath(nullptr, szDesktopPath, CSIDL_DESKTOPDIRECTORY, FALSE);
 
-	clIni.SetKey( _T("SaveDir") );
-	clIni.ReadStr( pOption->SaveDir, szDesktopPath );
+	clIni.SetKey(_T("SaveDir"));
+	clIni.ReadStr(pOption->SaveDir, szDesktopPath);
 
 	// Buffer size
-	clIni.SetKey( _T("BufSize") );
-	clIni.ReadDec( &pOption->BufSize, (DWORD) 64 );
+	clIni.SetKey(_T("BufSize"));
+	clIni.ReadDec(&pOption->BufSize, (DWORD)64);
 
 	// Temporary folder
 	TCHAR szTmpDir[_MAX_DIR];
 	TCHAR szTmpDirLong[_MAX_DIR];
 
-	::GetTempPath( _countof(szTmpDir), szTmpDir );
-	::GetLongPathName( szTmpDir, szTmpDirLong, 256 );
-	PathAppend( szTmpDirLong, _T("ExtractData") );
+	::GetTempPath(_countof(szTmpDir), szTmpDir);
+	::GetLongPathName(szTmpDir, szTmpDirLong, 256);
+	PathAppend(szTmpDirLong, _T("ExtractData"));
 
-	clIni.SetKey( _T("TmpDir") );
-	clIni.ReadStr( pOption->TmpDir, szTmpDirLong );
+	clIni.SetKey(_T("TmpDir"));
+	clIni.ReadStr(pOption->TmpDir, szTmpDirLong);
 
 	// Susie Settings
-	clIni.SetSection( _T("Susie") );
+	clIni.SetSection(_T("Susie"));
 
 	// Set whether or not to use Susie plugins
-	clIni.SetKey( _T("SusieUse") );
-	clIni.ReadDec( &pOption->bSusieUse, FALSE );
+	clIni.SetKey(_T("SusieUse"));
+	clIni.ReadDec(&pOption->bSusieUse, FALSE);
 
 	// Susie Folder
 	YCString clsPathToSusieFolder;
 
-	clReg.GetValue( clsPathToSusieFolder, _T("HKEY_CURRENT_USER\\Software\\Takechin\\Susie\\Plug-in"), _T("Path") );
+	clReg.GetValue(clsPathToSusieFolder, _T("HKEY_CURRENT_USER\\Software\\Takechin\\Susie\\Plug-in"), _T("Path"));
 
-	clIni.SetKey( _T("SusieDir") );
-	clIni.ReadStr( pOption->SusieDir, clsPathToSusieFolder );
+	clIni.SetKey(_T("SusieDir"));
+	clIni.ReadStr(pOption->SusieDir, clsPathToSusieFolder);
 
 	// Set whether or not to give Susie plugins priority on decoding
-	clIni.SetKey( _T("SusieFirst") );
-	clIni.ReadDec( &pOption->bSusieFirst, FALSE );
+	clIni.SetKey(_T("SusieFirst"));
+	clIni.ReadDec(&pOption->bSusieFirst, FALSE);
 
 	// Set of files to search through
-	clIni.SetSection( _T("Search") );
+	clIni.SetSection(_T("Search"));
 
-	for( size_t i = 0 ; i < m_SearchFiles.size() ; i++ )
+	for (size_t i = 0; i < m_SearchFiles.size(); i++)
 	{
 		BOOL bSearch;
 
-		clIni.SetKey( m_SearchFiles[i] );
-		clIni.ReadDec( &bSearch, TRUE );
+		clIni.SetKey(m_SearchFiles[i]);
+		clIni.ReadDec(&bSearch, TRUE);
 
-		pOption->bSearch.push_back( bSearch );
+		pOption->bSearch.push_back(bSearch);
 	}
 }
 
@@ -524,10 +524,10 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			// Extraction Settings
 
-			for( int i = 0 ; i < ExtractCheckNum ; i++ )
+			for (int i = 0; i < ExtractCheckNum; i++)
 			{
-				ExtractCheck[i].Create( hWnd, ExtractCheckText[i], ID++, x, y += 20, 230, 20 );
-				ExtractCheck[i].SetCheck( *ExtractCheckFlag[i] );
+				ExtractCheck[i].Create(hWnd, ExtractCheckText[i], ID++, x, y += 20, 230, 20);
+				ExtractCheck[i].SetCheck(*ExtractCheckFlag[i]);
 			}
 
 			//
@@ -553,9 +553,9 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			ExtractEditAlpha.SetLimit(6);
 			ExtractEditAlpha.Enable(pOption->bAlphaBlend);
 
-			ExtractCheckFastAlpha.Create( hWnd, _T("Faster processing"), ID++, x + xx * 2 - 15, y_Image += 20, 120, 20);
-			ExtractCheckFastAlpha.SetCheck( pOption->bFastAlphaBlend );
-			ExtractCheckFastAlpha.Enable( pOption->bAlphaBlend );
+			ExtractCheckFastAlpha.Create(hWnd, _T("Faster processing"), ID++, x + xx * 2 - 15, y_Image += 20, 120, 20);
+			ExtractCheckFastAlpha.SetCheck(pOption->bFastAlphaBlend);
+			ExtractCheckFastAlpha.Enable(pOption->bAlphaBlend);
 
 			//
 
@@ -809,15 +809,13 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				SSusieInfo* pstSusieInfo = SusieListView.GetFocusSusieInfo();
 
 				// Get ConfigurationDlg()
-				ConfigurationDlgProc	ConfigurationDlg = (ConfigurationDlgProc) pstSusieInfo->cllPlugin.GetProcAddress( _T("ConfigurationDlg") );
+				ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc)pstSusieInfo->cllPlugin.GetProcAddress(_T("ConfigurationDlg"));
 
-				if( ConfigurationDlg == NULL )
-				{
+				if (ConfigurationDlg == nullptr)
 					break;
-				}
 
 				// Call settings
-				ConfigurationDlg( hWnd, 1 );
+				ConfigurationDlg(hWnd, 1);
 
 				break;
 			}

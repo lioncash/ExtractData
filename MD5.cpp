@@ -140,7 +140,7 @@ SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitial
 	}
 
 	// Set initial value
-	if (pdwInitialize == NULL)
+	if (pdwInitialize == nullptr)
 	{
 		// Using the default initialization values
 

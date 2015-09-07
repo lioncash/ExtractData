@@ -7,9 +7,9 @@
 
 CImage::CImage()
 {
-	m_pbtBMP = NULL;
-	m_pstBMPFileHeader = NULL;
-	m_pstBMPInfoHeader = NULL;
+	m_pbtBMP = nullptr;
+	m_pstBMPFileHeader = nullptr;
+	m_pstBMPInfoHeader = nullptr;
 	m_bBMPHeader = TRUE;
 }
 

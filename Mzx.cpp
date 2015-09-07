@@ -3,7 +3,9 @@
 
 void CMzx::Decompress(LPBYTE dst, DWORD len, LPBYTE src)
 {
-	BYTE ringbuf[128], last1, last2;
+	BYTE ringbuf[128];
+	BYTE last1 = 0;
+	BYTE last2 = 0;
 
 	LPBYTE psrc = src + 8;
 	LPBYTE pdst = dst;

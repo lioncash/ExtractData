@@ -52,33 +52,33 @@ void CSusieListView::Show(NMLVDISPINFO* pDispInfo)
 {
 	CSusie clSusie;
 
-	static std::vector<SSusieInfo>&	rvcSusieInfos = clSusie.GetSusieTmp();
+	static std::vector<SSusieInfo>& rvcSusieInfos = clSusie.GetSusieTmp();
 
-	if( pDispInfo->item.mask & LVIF_TEXT )
+	if (pDispInfo->item.mask & LVIF_TEXT)
 	{
-		switch( pDispInfo->item.iSubItem )
+		switch (pDispInfo->item.iSubItem)
 		{
 			case 0: // Show plug-in name
-				lstrcpy( pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsName );
+				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsName);
 				break;
 
 			case 1: // Show plug-in info
-				lstrcpy( pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsInfo );
+				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsInfo);
 				break;
 
 			case 2: // Show supported formats
-				lstrcpy( pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsSupportFormat );
+				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsSupportFormat);
 				break;
 
 			case 3: // Show version info
-				lstrcpy( pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsVersion );
+				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsVersion);
 				break;
 		}
 	}
 
 	if( pDispInfo->item.mask & LVIF_STATE )
 	{
-		pDispInfo->item.state = m_pOption->bSusieUse ? INDEXTOSTATEIMAGEMASK( rvcSusieInfos[pDispInfo->item.iItem].bValidity + 1 ) : 0;
+		pDispInfo->item.state = m_pOption->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[pDispInfo->item.iItem].bValidity + 1) : 0;
 	}
 }
 
@@ -88,28 +88,28 @@ void CSusieListView::ShowTip(LPNMLVGETINFOTIP ptip)
 
 	static std::vector<SSusieInfo>&	rvcSusieInfos = clSusie.GetSusieTmp();
 
-	switch( ptip->iSubItem )
+	switch (ptip->iSubItem)
 	{
 		case 0:
 			// dwFlags to display (when the character is hidden) in which case 0
 			// Even when dwFlags is 1 (when the left-most column is not hidden)
 
-			if( ptip->dwFlags == 0 )
+			if (ptip->dwFlags == 0)
 			{
-				lstrcpy( ptip->pszText, rvcSusieInfos[ptip->iItem].clsName );
+				lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsName);
 			}
 			break;
 
 		case 1:
-			lstrcpy( ptip->pszText, rvcSusieInfos[ptip->iItem].clsInfo );
+			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsInfo);
 			break;
 
 		case 2:
-			lstrcpy( ptip->pszText, rvcSusieInfos[ptip->iItem].clsSupportFormat );
+			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsSupportFormat);
 			break;
 
 		case 3:
-			lstrcpy( ptip->pszText, rvcSusieInfos[ptip->iItem].clsVersion );
+			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsVersion);
 			break;
 	}
 }
@@ -121,18 +121,18 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
 	static std::vector<SSusieInfo>&	rvcSusieInfos = clSusie.GetSusieTmp();
 	static SOption* pOption = m_pOption;
 
-	switch( plvcd->nmcd.dwDrawStage )
+	switch (plvcd->nmcd.dwDrawStage)
 	{
 		case CDDS_PREPAINT: // Before drawing
-			SetWindowLongPtr( m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW );
+			SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
 			return TRUE;
 
 		case CDDS_ITEMPREPAINT: // Item before it is drawn
-			if( rvcSusieInfos[plvcd->nmcd.dwItemSpec].bConfig && pOption->bSusieUse )
+			if (rvcSusieInfos[plvcd->nmcd.dwItemSpec].bConfig && pOption->bSusieUse)
 			{
 				// ConfigurationDlg has been defined
-				plvcd->clrText = RGB( 0, 0, 255 );
-				SetWindowLong( m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW );
+				plvcd->clrText = RGB(0, 0, 255);
+				SetWindowLong(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
 
 				return TRUE;
 			}
@@ -145,24 +145,20 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
 void CSusieListView::CreateMenu(LPARAM lp)
 {
 	int nItem = GetFocusItem();
-	if( nItem == -1 )
-	{
+	if (nItem == -1)
 		return;
-	}
 
 	CSusie clSusie;
 	m_SusieInfo = clSusie.GetSusieTmp()[nItem];
-	if( !m_SusieInfo.bConfig )
-	{
+	if (!m_SusieInfo.bConfig)
 		return;
-	}
 
 	POINT pt;
 	pt.x = LOWORD(lp);
 	pt.y = HIWORD(lp);
 	HMENU rMenu = LoadMenu(m_hInst, _T("SUSIEMENU"));
 	HMENU rSubMenu = GetSubMenu(rMenu, 0);
-	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, NULL);
+	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, nullptr);
 	DestroyMenu(rMenu);
 }
 

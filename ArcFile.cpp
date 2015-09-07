@@ -12,7 +12,7 @@
 CArcFile::CArcFile()
 {
 	m_dwArcsID = -1;
-	m_pEnt = NULL;
+	m_pEnt = nullptr;
 	m_hFile = INVALID_HANDLE_VALUE;
 	m_ctEnt = 0;
 	m_bState = FALSE;
@@ -117,7 +117,7 @@ DWORD CArcFile::Read(LPVOID buf, DWORD size)
 {
 	DWORD dwReadSize;
 
-	::ReadFile(m_hArcs[m_dwArcsID], buf, size, &dwReadSize, NULL);
+	::ReadFile(m_hArcs[m_dwArcsID], buf, size, &dwReadSize, nullptr);
 
 	return dwReadSize;
 }
@@ -548,7 +548,7 @@ void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo, DWORD& dwFile, LPCTSTR pszFi
 {
 	// Set filename
 	TCHAR szFileName[_MAX_FNAME];
-	_stprintf(szFileName, _T("%s_%06d%s"), GetArcName(), dwFile++, pszFileExt);
+	_stprintf(szFileName, _T("%s_%06d%s"), GetArcName().GetString(), dwFile++, pszFileExt);
 	rfstFileInfo.name = szFileName;
 
 	if (rfstFileInfo.format == _T(""))
@@ -610,7 +610,7 @@ void CArcFile::MakeDirectory(LPCTSTR pFilePath)
 	std::vector<YCString> sDirPathList;
 	LPCTSTR pFilePathBase = pFilePath;
 
-	while ((pFilePath = PathFindNextComponent(pFilePath)) != NULL)
+	while ((pFilePath = PathFindNextComponent(pFilePath)) != nullptr)
 	{
 		YCString sDirPath(pFilePathBase, pFilePath - pFilePathBase - 1); // You do not put a '\' at the end just to be sure to -1
 		sDirPathList.push_back(sDirPath);
@@ -619,7 +619,7 @@ void CArcFile::MakeDirectory(LPCTSTR pFilePath)
 	// Create a directory in the order from the root
 	for (size_t i = 0; i < sDirPathList.size() - 1; i++) // -1 so as not to create a directory of the file name
 	{
-		CreateDirectory(sDirPathList[i], NULL);
+		CreateDirectory(sDirPathList[i], nullptr);
 	}
 }
 
@@ -682,7 +682,7 @@ YCString CArcFile::CreateFileName(LPCTSTR pszRenameFileExt)
 //  lstrcat(szFilePath, szFileName);
 
 	// Changing the extension
-	if (pszRenameFileExt != NULL)
+	if (pszRenameFileExt != nullptr)
 	{
 		clsPathToFile.RenameExtension(pszRenameFileExt);
 		clsPathToFile.Replace(_T('/'), _T('\\'));
@@ -794,7 +794,7 @@ SFileInfo* CArcFile::GetFileInfo(LPCTSTR pszFileName, BOOL bCmpFileNameOnly)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -889,5 +889,5 @@ SFileInfo* CArcFile::SearchForFileInfo(std::vector<SFileInfo>& rvcFileInfo, LPCT
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }

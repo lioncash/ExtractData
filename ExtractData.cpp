@@ -17,12 +17,12 @@ BOOL g_bThreadEnd;
 
 CExtractData::CExtractData()
 {
-	m_hParentWnd = NULL;
-	m_hParentInst = NULL;
-	m_pOption = NULL;
-	m_pListView = NULL;
+	m_hParentWnd = nullptr;
+	m_hParentInst = nullptr;
+	m_pOption = nullptr;
+	m_pListView = nullptr;
 
-	GetModuleFileName(NULL, m_szPathToTmpFileList, MAX_PATH);
+	GetModuleFileName(nullptr, m_szPathToTmpFileList, MAX_PATH);
 	PathRemoveFileSpec(m_szPathToTmpFileList);
 	PathAppend(m_szPathToTmpFileList, _T("TmpFileList.txt"));
 }
@@ -57,7 +57,7 @@ void CExtractData::OpenHistory(YCString& clsFilePath)
 void CExtractData::OpenDrop(WPARAM wp)
 {
 	HDROP hDrop = (HDROP)wp;
-	UINT uFileNo = DragQueryFile(hDrop, -1, NULL, 0);
+	UINT uFileNo = DragQueryFile(hDrop, -1, nullptr, 0);
 
 	std::vector<TCHAR> szFileNames(MAX_PATH * uFileNo, 0);
 
@@ -249,7 +249,7 @@ void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert)
 	{
 		// Output to input destination
 
-		Decode(ExtractMode, NULL, bConvert);
+		Decode(ExtractMode, nullptr, bConvert);
 	}
 	else if (pstOption->bSaveDir)
 	{
@@ -343,7 +343,7 @@ void CExtractData::DecodeTmp()
 UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 {
 	CExtractData* pObj = (CExtractData*)lpParam;
-	CArcFile* pclArc = NULL;
+	CArcFile* pclArc = nullptr;
 
 	try
 	{
@@ -385,7 +385,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 			pclArc->SetProg(prog);
 
 			// Create destination folder name from the destination filename input
-			if (pSaveDir == NULL && pOption->bSaveSrc == TRUE)
+			if (pSaveDir == nullptr && pOption->bSaveSrc == TRUE)
 			{
 				TCHAR SaveDir[MAX_PATH];
 
@@ -446,7 +446,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 	}
 
 	// Corresponds to the case where the file was still not closed, even with the exception thrown.
-	if (pclArc != NULL)
+	if (pclArc != nullptr)
 		pclArc->CloseFile();
 
 	// Send message to terminate the thread
@@ -472,14 +472,14 @@ void CExtractData::OpenRelate()
 
 			// Open from file association
 
-			if (::ShellExecute( NULL, NULL, clsTmpFilePath, NULL, NULL, SW_SHOWNORMAL ) == (HINSTANCE) SE_ERR_NOASSOC)
+			if (::ShellExecute(nullptr, nullptr, clsTmpFilePath, nullptr, nullptr, SW_SHOWNORMAL) == (HINSTANCE)SE_ERR_NOASSOC)
 			{
 				// If there is no association with the file, issue a 
 				// dialog to select an application which can open the file
 
 				YCString clsParam = _T("shell32.dll, OpenAs_RunDLL ") + clsTmpFilePath;
 
-				::ShellExecute( NULL, NULL, _T("rundll32.exe"), clsParam, NULL, TRUE );
+				::ShellExecute(nullptr, nullptr, _T("rundll32.exe"), clsParam, nullptr, TRUE);
 			}
 
 			// Added to the temporary file list
@@ -631,7 +631,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INPUT_FILE:
 		{
 			// Information Acquisition Start
-			hThread = (HANDLE) _beginthreadex( NULL, 0, MountThread, this, 0, &thId );
+			hThread = (HANDLE)_beginthreadex(nullptr, 0, MountThread, this, 0, &thId);
 			//hThread = CreateThread(NULL, 0, MountThread, this, 0, &thId);
 		}
 		return FALSE;
@@ -639,7 +639,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_OUTPUT_FILE:
 		{
 			// Start extraction process
-			hThread = (HANDLE) _beginthreadex( NULL, 0, DecodeThread, this, 0, &thId );
+			hThread = (HANDLE)_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thId);
 			//hThread = CreateThread(NULL, 0, DecodeThread, this, 0, &thId);
 		}
 		return FALSE;

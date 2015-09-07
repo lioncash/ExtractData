@@ -5,14 +5,14 @@ CSearchBase::CSearchBase()
 {
 	Init();
 	//for (int i = 0; i < 2; i++)
-	//    m_pattern[i].pattern = NULL;
+	//    m_pattern[i].pattern = nullptr;
 }
 
 CSearchBase::~CSearchBase()
 {
 	//for (int i = 0; i < 2; i++)
 	//{
-	//    if (m_pattern[i].pattern != NULL)
+	//    if (m_pattern[i].pattern != nullptr)
 	//        delete[] m_pattern[i].pattern;
 	//}
 }
@@ -115,7 +115,7 @@ BOOL CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize)
 	{
 		if (CmpHed(&buf[i]) == TRUE)
 		{
-			//if (hed2 != NULL)
+			//if (hed2 != nullptr)
 			{
 			//  pclArc->Seek(-(BUFSIZE-i), FILE_CURRENT);
 			//  if (CmpHed2(&buf[i]) == TRUE)

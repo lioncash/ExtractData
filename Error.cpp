@@ -7,14 +7,14 @@ extern BOOL g_bThreadEnd;
 void CError::LastError(HWND hWnd)
 {
 	g_bThreadEnd = TRUE;
-	LPTSTR lpMsgBuf = NULL;
+	LPTSTR lpMsgBuf = nullptr;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
+		nullptr,
 		GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 		lpMsgBuf,
 		0,
-		NULL);
+		nullptr);
 
 	if (lpMsgBuf)
 	{
