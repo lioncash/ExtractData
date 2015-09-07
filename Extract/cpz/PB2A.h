@@ -3,12 +3,12 @@
 #include "PB.h"
 #include "../../ArcFile.h"
 
-class CPB2A : public CPB
+class CPB2A final : public CPB
 {
 public:
 	BOOL Decode(CArcFile* pclArc, void* pbtSrc, DWORD dwSrcSize);
 
-protected:
+private:
 	void Decrypt(BYTE* pbtTarget, DWORD dwSize);
 
 	BOOL Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp);

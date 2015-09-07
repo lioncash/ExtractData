@@ -1,6 +1,6 @@
 #pragma once
 
-class CTga
+class CTga final
 {
 public:
 	struct STGAHeader
@@ -17,12 +17,10 @@ public:
 		BYTE btParam;
 	};
 
-
 	BOOL Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
 
 	BOOL Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
 
-
-protected:
+private:
 	BOOL DecompRLE(void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp);
 };

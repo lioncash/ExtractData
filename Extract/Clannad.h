@@ -1,8 +1,8 @@
 #pragma once
 
-class CClannad : public CExtractBase
+class CClannad final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 };

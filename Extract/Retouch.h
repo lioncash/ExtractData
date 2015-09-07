@@ -2,7 +2,7 @@
 
 #include "../ExtractBase.h"
 
-class CRetouch : public CExtractBase
+class CRetouch final : public CExtractBase
 {
 public:
 	struct SGYUHeader
@@ -17,11 +17,10 @@ public:
 		DWORD dwPallets;
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL MountGYU(CArcFile* pclArc);
 
 	BOOL DecodeGYU(CArcFile* pclArc);

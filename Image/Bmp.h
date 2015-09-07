@@ -2,23 +2,20 @@
 
 #include "ImageBase.h"
 
-class CBmp : public CImageBase
+class CBmp final : public CImageBase
 {
 public:
 	BOOL Mount(CArcFile* pclArc);
 
-
-protected:
+private:
 	BITMAPFILEHEADER m_stBMPFileHeader;
 	BITMAPINFOHEADER m_stBMPInfoHeader;
 	RGBQUAD          m_astPallet[256];
 
+	BOOL OnInit(const YCString& rfclsFileName) override;
+	BOOL OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
 
-protected:
-	virtual BOOL OnInit(const YCString& rfclsFileName);
-	virtual BOOL OnCreatePallet(const void* pvPallet, DWORD dwPalletSize);
-
-	void         WriteHed(const YCString& rfclsFileName);
-	virtual void WriteLine(const void* pvBuffer);
-	virtual void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32);
+	void WriteHed(const YCString& rfclsFileName);
+	void WriteLine(const void* pvBuffer) override;
+	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;
 };

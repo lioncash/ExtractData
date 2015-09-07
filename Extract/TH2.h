@@ -1,13 +1,12 @@
 #pragma once
 
-class CTH2 : public CExtractBase
+class CTH2 final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL MountKCAP(CArcFile* pclArc);
 	BOOL MountLAC(CArcFile* pclArc);
 	BOOL MountDpl(CArcFile* pclArc);

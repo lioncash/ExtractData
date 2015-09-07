@@ -1,8 +1,15 @@
 #pragma once
 
-class CSummerDays : public CExtractBase
+class CSummerDays final : public CExtractBase
 {
-protected:
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+
+	int _sub(CArcFile* pclArc, LPTSTR pcPath);
+	WORD _context_new(CArcFile* pclArc, WORD ui16Length);
+	int _context_add(WORD ui16Code);
+
+private:
 	struct TCONTEXT
 	{
 		YCString pcName;
@@ -14,11 +21,4 @@ protected:
 	WORD m_ui16ContextCount;
 
 	DWORD m_RestArchiveSize;
-
-public:
-	BOOL Mount(CArcFile* pclArc);
-
-	int _sub(CArcFile* pclArc, LPTSTR pcPath);
-	WORD _context_new(CArcFile* pclArc, WORD ui16Length);
-	int _context_add(WORD ui16Code);
 };

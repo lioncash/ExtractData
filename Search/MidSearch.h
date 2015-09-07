@@ -6,9 +6,9 @@
 //-- MIDI Search Class -------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class CMidSearch : public CSearchBase
+class CMidSearch final : public CSearchBase
 {
 public:
 	CMidSearch();
-	void Mount(CArcFile* pclArc);
+	void Mount(CArcFile* pclArc) override;
 };

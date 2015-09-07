@@ -5,14 +5,14 @@
 class CHaruotoFD : public CPaz
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
 protected:
-	virtual void InitMountKey(CArcFile* pclArc);
-	virtual void InitDecodeKey(CArcFile* pclArc);
+	void InitMountKey(CArcFile* pclArc) override;
+	void InitDecodeKey(CArcFile* pclArc) override;
 
-	virtual void DecodeTable2();
+	void DecodeTable2() override;
 
-	virtual void DecodeData(void* pvTarget, DWORD dwSize);
+	void DecodeData(void* pvTarget, DWORD dwSize) override;
 };

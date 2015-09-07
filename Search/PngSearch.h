@@ -1,8 +1,8 @@
 #pragma once
 
-class CPngSearch : public CSearchBase
+class CPngSearch final : public CSearchBase
 {
 public:
 	CPngSearch();
-	void Mount(CArcFile* pclArc);
+	void Mount(CArcFile* pclArc) override;
 };

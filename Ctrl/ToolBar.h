@@ -1,14 +1,7 @@
 #pragma once
 
-#include "../ArcFile.h"
-
 class CToolBar
 {
-private:
-	HWND m_hWnd;
-	HINSTANCE m_hInst;
-	HWND m_hToolBar;
-
 public:
 	CToolBar();
 
@@ -22,4 +15,9 @@ public:
 
 	HWND GetHandle() { return m_hWnd; }
 	HWND GetCtrlHandle() { return m_hToolBar; }
+
+private:
+	HWND m_hWnd;
+	HINSTANCE m_hInst;
+	HWND m_hToolBar;
 };

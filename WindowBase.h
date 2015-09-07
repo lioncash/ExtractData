@@ -2,14 +2,6 @@
 
 class CWindowBase
 {
-protected:
-	HWND m_hWnd;
-	HINSTANCE m_hInst;
-	WNDPROC m_oldWndProc; // Window procedure address
-	BOOL m_bDialog; // If dialog, then TRUE
-
-	UINT m_uID;
-
 public:
 	CWindowBase();
 	virtual ~CWindowBase();
@@ -36,4 +28,12 @@ public:
 
 	POINT GetCenterPt(RECT& dlgrc);
 	static POINT GetCenterPt(HWND hWnd, RECT& dlgrc);
+
+protected:
+	HWND m_hWnd;
+	HINSTANCE m_hInst;
+	WNDPROC m_oldWndProc; // Window procedure address
+	BOOL m_bDialog; // If dialog, then TRUE
+
+	UINT m_uID;
 };

@@ -1,9 +1,9 @@
 #pragma once
 
-class COggSearch : public CSearchBase
+class COggSearch final : public CSearchBase
 {
 public:
 	COggSearch();
-	void OnInit(SOption* pOption);
-	void Mount(CArcFile* pclArc);
+	void OnInit(SOption* pOption) override;
+	void Mount(CArcFile* pclArc) override;
 };

@@ -1,13 +1,12 @@
 #pragma once
 
-class CNscr : public CExtractBase
+class CNscr final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL MountNsa(CArcFile* pclArc);
 	BOOL MountSar(CArcFile* pclArc);
 	BOOL MountScr(CArcFile* pclArc);
@@ -20,7 +19,6 @@ protected:
 	void  GetFileExt(YCString& clsDst, const BYTE* pbtBuffer);
 	DWORD GetBit(const BYTE* pbtSrc, DWORD dwReadBitLength, DWORD* pdwReadByteLength);
 
-private:
 	BYTE btMaskForGetBit;
 	BYTE btSrcForGetBit;
 };

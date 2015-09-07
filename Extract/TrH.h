@@ -1,8 +1,12 @@
 #pragma once
 
-class CTrH : public CExtractBase
+class CTrH final : public CExtractBase
 {
-protected:
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	// PX Format
 	struct PXHed
 	{
@@ -20,8 +24,4 @@ protected:
 		WORD    bits;           // Number of bits per sample(bit/sample)
 		WORD    FormatID;       // Format ID
 	};
-
-public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
 };

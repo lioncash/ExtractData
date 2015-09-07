@@ -1,8 +1,8 @@
 #pragma once
 
-class CWavSearch : public CSearchBase
+class CWavSearch final : public CSearchBase
 {
 public:
 	CWavSearch();
-	void Mount(CArcFile* pclArc);
+	void Mount(CArcFile* pclArc) override;
 };

@@ -6,7 +6,7 @@
 
 #include "TCDBase.h"
 
-class CTCD2 : public CTCDBase
+class CTCD2 final : public CTCDBase
 {
 public:
 	struct STCD2IndexInfo
@@ -29,8 +29,8 @@ public:
 		DWORD dwReserve;              // Reserved
 	};
 
-	virtual BOOL Mount(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
 
-protected:
-	virtual BOOL DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+private:
+	BOOL DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize) override;
 };

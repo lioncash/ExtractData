@@ -1,7 +1,13 @@
 #pragma once
 
-class CWav
+class CWav final
 {
+public:
+	void Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WORD bits);
+	void Write();
+	void Write(LPBYTE buf);
+	void Write(LPBYTE buf, DWORD size);
+
 private:
 	// WAV Format
 	struct WAVHed
@@ -23,10 +29,4 @@ private:
 
 	CArcFile* m_pclArc;
 	WAVHed m_wavHed;
-
-public:
-	void Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WORD bits);
-	void Write();
-	void Write(LPBYTE buf);
-	void Write(LPBYTE buf, DWORD size);
 };

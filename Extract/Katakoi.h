@@ -1,7 +1,11 @@
 #pragma once
 
-class CKatakoi : public CExtractBase
+class CKatakoi final : public CExtractBase
 {
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
 private:
 	BOOL MountIar(CArcFile* pclArc);
 	BOOL MountWar(CArcFile* pclArc);
@@ -17,8 +21,4 @@ private:
 
 	BOOL Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp);
 	BOOL DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff);
-
-public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
 };

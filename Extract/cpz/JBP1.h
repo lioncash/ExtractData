@@ -1,11 +1,11 @@
 #pragma once
 
-class CJBP1
+class CJBP1 final
 {
 public:
-	void Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp = 0, const BYTE* pbtAlpha = NULL, DWORD dwAlphaSize = 0);
+	void Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp = 0, const BYTE* pbtAlpha = nullptr, DWORD dwAlphaSize = 0);
 
-protected:
+private:
 	void DCT(BYTE* arg1, BYTE* arg2);
 	int GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_remain);
 	int MakeTree(BYTE* lp1, int size, DWORD* lp2);

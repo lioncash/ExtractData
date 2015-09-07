@@ -1,7 +1,19 @@
 #pragma once
 
-class CQLIE : public CExtractBase
+class CQLIE final : public CExtractBase
 {
+public:
+	enum
+	{
+		ABIMGDAT10 = 0x00000000,
+		ABIMGDAT11,
+		ABSNDDAT10,
+		ABSNDDAT11,
+	};
+
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
 private:
 	struct SFileNameInfo
 	{
@@ -10,8 +22,8 @@ private:
 	};
 
 	BOOL DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize);
-	BOOL DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T(""));
-	BOOL DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = NULL, const YCString& rfclsBFileName = _T(""));
+	BOOL DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	BOOL DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
 
 	void Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize);
 
@@ -26,16 +38,4 @@ private:
 	YCString GetExtension(BYTE* pbtSrc);
 
 	void EraseNotUsePathWord(YCString& clsPath);
-
-public:
-	enum
-	{
-		ABIMGDAT10 = 0x00000000,
-		ABIMGDAT11,
-		ABSNDDAT10,
-		ABSNDDAT11,
-	};
-
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
 };

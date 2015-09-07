@@ -233,9 +233,3 @@ BOOL CWindmill::Decode(CArcFile* pclArc)
 */
 	return TRUE;
 }
-
-//DWORD CWindmill::Sub(LPBYTE* pbuf2, LPDWORD tmp1, LPDWORD tmp2)
-//{
-
-
-//}

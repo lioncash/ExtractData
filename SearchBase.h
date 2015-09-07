@@ -15,12 +15,6 @@ struct HF
 
 class CSearchBase
 {
-private:
-	HF m_pattern[2];
-	DWORD m_offset;
-	DWORD m_ctFile;
-	void InitPattern(const LPVOID pattern, DWORD size, DWORD num);
-
 public:
 	CSearchBase();
 	virtual ~CSearchBase();
@@ -48,4 +42,10 @@ public:
 	DWORD   GetOffset()             { return m_offset; }
 
 	virtual void Mount(CArcFile* pclArc) = 0;
+
+private:
+	HF m_pattern[2];
+	DWORD m_offset;
+	DWORD m_ctFile;
+	void InitPattern(const LPVOID pattern, DWORD size, DWORD num);
 };

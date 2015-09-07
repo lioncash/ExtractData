@@ -2,7 +2,7 @@
 
 #include "../ExtractBase.h"
 
-class CTaskForce : public CExtractBase
+class CTaskForce final : public CExtractBase
 {
 public:
 	struct SFileEntry
@@ -13,11 +13,10 @@ public:
 		DWORD dwCompressedSize;
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL MountDat(CArcFile* pclArc);
 	BOOL MountTlz(CArcFile* pclArc);
 	BOOL MountBma(CArcFile* pclArc);

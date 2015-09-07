@@ -2,7 +2,7 @@
 
 #include "../ExtractBase.h"
 
-class CAOS : public CExtractBase
+class CAOS final : public CExtractBase
 {
 public:
 	struct SABMHeader
@@ -13,10 +13,10 @@ public:
 		DWORD            dwFrames;        // Number of frames
 	};
 
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL DecodeABM(CArcFile* pclArc);
 	BOOL DecodeMask(CArcFile* pclArc);
 	BOOL DecodeScript(CArcFile* pclArc);

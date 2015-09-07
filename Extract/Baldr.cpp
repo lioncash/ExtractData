@@ -2,33 +2,29 @@
 #include "../ExtractBase.h"
 #include "Baldr.h"
 
-BOOL CBaldr::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+/// Mounting
+///
+/// @param pclArc Archive
+///
+BOOL CBaldr::Mount(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".pac") )
-	{
+	if (pclArc->GetArcExten() != _T(".pac"))
 		return FALSE;
-	}
 
-	if( memcmp( pclArc->GetHed(), "PAC", 3 ) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "PAC", 3) != 0)
 		return FALSE;
-	}
 
-	if( memcmp( &pclArc->GetHed()[72], "\0\0\0\0", 4 ) != 0 )
-	{
+	if (memcmp(&pclArc->GetHed()[72], "\0\0\0\0", 4) != 0)
 		return FALSE;
-	}
 
 	// Get filecount
 	DWORD dwFiles;
-	pclArc->Seek( 4, FILE_BEGIN );
-	pclArc->Read( &dwFiles, 4 );
+	pclArc->Seek(4, FILE_BEGIN);
+	pclArc->Read(&dwFiles, 4);
 
 	// Get flags
 	DWORD dwFlags;
-	pclArc->Read( &dwFlags, 4 );
+	pclArc->Read(&dwFlags, 4);
 
 	// Get compressed formats
 	YCString clsFormat;
@@ -50,18 +46,18 @@ BOOL CBaldr::Mount(
 	}
 
 	// Get index
-	YCMemory<SPACFileInfo> clmpacfiIndex( dwFiles );
-	pclArc->Read( &clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles) );
+	YCMemory<SPACFileInfo> clmpacfiIndex(dwFiles);
+	pclArc->Read(&clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles));
 
 	// Get file info
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
+	for (DWORD i = 0; i < dwFiles; i++)
 	{
 		// Get filename
 		char szFileName[65];
-		memcpy( szFileName, clmpacfiIndex[i].szFileName, 64 );
+		memcpy(szFileName, clmpacfiIndex[i].szFileName, 64);
 		szFileName[64] = '\0';
 
-		if( strlen( szFileName ) <= 4 )
+		if (strlen(szFileName) <= 4)
 		{
 			pclArc->SeekHed();
 			return FALSE;
@@ -76,10 +72,10 @@ BOOL CBaldr::Mount(
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 		stFileInfo.format = clsFormat;
 
-//		if( (stFileInfo.sizeOrg != infFile.sizeCmp) && (lstrcmp(PathFindExtension(infFile.name), _T(".wav")) != 0))
+//		if ((stFileInfo.sizeOrg != infFile.sizeCmp) && (lstrcmp(PathFindExtension(infFile.name), _T(".wav")) != 0))
 //			infFile.format = _T("LZ");
 
-		pclArc->AddFileInfo( stFileInfo );
+		pclArc->AddFileInfo(stFileInfo);
 	}
 
 	return TRUE;

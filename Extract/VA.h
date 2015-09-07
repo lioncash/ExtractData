@@ -1,16 +1,12 @@
 #pragma once
 
-class CVA : public CExtractBase
+class CVA final : public CExtractBase
 {
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
 private:
-	BOOL MountNwa(CArcFile* pclArc);
-	BOOL MountNwk(CArcFile* pclArc);
-	BOOL MountOvk(CArcFile* pclArc);
-	BOOL DecodeNwa(CArcFile* pclArc);
-
-	inline int getbits(LPBYTE& data, int& shift, int bits);
-
-protected:
 	// NWA Format
 	struct NWAHed
 	{
@@ -36,7 +32,10 @@ protected:
 		DWORD   dummy;
 	};
 
-public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL MountNwa(CArcFile* pclArc);
+	BOOL MountNwk(CArcFile* pclArc);
+	BOOL MountOvk(CArcFile* pclArc);
+	BOOL DecodeNwa(CArcFile* pclArc);
+
+	inline int getbits(LPBYTE& data, int& shift, int bits);
 };

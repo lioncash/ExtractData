@@ -1,10 +1,10 @@
 #pragma once
 
-class CMeltyBlood : public CExtractBase
+class CMeltyBlood final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
 	void Decrypt(CArcFile* pclArc);
 };

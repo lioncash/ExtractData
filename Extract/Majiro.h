@@ -1,6 +1,6 @@
 #pragma once
 
-class CMajiro : public CExtractBase
+class CMajiro final : public CExtractBase
 {
 public:
 	struct SRCHeader
@@ -11,10 +11,10 @@ public:
 		DWORD dwDataSize;
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL MountArc1(CArcFile* pclArc);
 	BOOL MountArc2(CArcFile* pclArc);
 	BOOL MountMJO(CArcFile* pclArc);

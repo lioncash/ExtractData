@@ -2,16 +2,13 @@
 
 #include "HaruotoFD.h"
 
-class Cef_ffd : public CHaruotoFD
+class Cef_ffd final : public CHaruotoFD
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-    virtual BOOL Mount( CArcFile* pclArc );
-    virtual BOOL Decode( CArcFile* pclArc );
-
-
-protected:
-
-    virtual void InitMountKey( CArcFile* pclArc );
-    virtual void InitDecodeKey( CArcFile* pclArc );
+private:
+	void InitMountKey(CArcFile* pclArc) override;
+	void InitDecodeKey(CArcFile* pclArc) override;
 };

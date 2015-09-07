@@ -10,7 +10,6 @@
 class CImageBase
 {
 public:
-
 	enum
 	{
 		BMP = 0,
@@ -38,7 +37,6 @@ public:
 	BOOL Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize);
 	BOOL Compress(void* pvDst, DWORD dwDstSize, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
 
-
 	BOOL ComposeBGRA(void* pvDst, const void* pvBuffer, DWORD dwBufferSize);
 	void WriteCompoBGRA(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress = TRUE);
 	void WriteCompoBGRAReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress = TRUE);
@@ -62,18 +60,12 @@ protected:
 
 	static long CalculatePitch( long lWidth, WORD wBpp );
 
-
-protected:
 	CArcFile* m_pclArc;
-
-
 	BYTE m_abtBG[4];
 
 	DWORD m_dwRowSize;
 	DWORD m_dwRowSizeOfRemainder;
 
-
-protected:
 	BOOL IsRequireAlphaBlend();
 
 	void AlphaBlend(void* pvBuffer24, const void* pvBuffer32);
@@ -84,15 +76,10 @@ protected:
 //  virtual void WriteLine( const void* pvBuffer );
 	virtual void OnWriteFinish() {}
 
-
-
 	virtual void WriteLine(const void* pvBuffer) {}
 	virtual void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) {}
 
-
-//private:
 protected:
-
 	BOOL   m_bValidityOfAlphaBlend;
 	BOOL   m_bAlphaBlendRequirement;
 	BOOL   m_bOutputDummyFromBuffer;

@@ -309,8 +309,8 @@ void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
 
 void CAlcot::Decrypt(LPBYTE src, DWORD srcSize, DWORD dstSize)
 {
-	//            Kurobane, Kurobane DVD,  TOY‚Â‚ß,   Trip trial,   Trip,       Ramune
-	DWORD x[] = {0xF44387F3, 0xE1B2097A, 0xD153D863, 0xF389842D, 0x1DE71CB9, 0x99E15CB4};
+	//                        Kurobane, Kurobane DVD,  TOY‚Â‚ß,   Trip trial,   Trip,       Ramune
+	static const DWORD x[] = {0xF44387F3, 0xE1B2097A, 0xD153D863, 0xF389842D, 0x1DE71CB9, 0x99E15CB4};
 
 	for (int i = 0; i < ARRAYSIZE(x); i++)
 	{

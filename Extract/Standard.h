@@ -3,9 +3,9 @@
 class CStandard : public CExtractBase
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
-	virtual BOOL Extract(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+	BOOL Extract(CArcFile* pclArc) override;
 
 
 protected:

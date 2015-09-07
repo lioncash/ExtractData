@@ -2,29 +2,28 @@
 
 #include "HaruotoFD.h"
 
-class Cef_first : public CHaruotoFD
+class Cef_first final : public CHaruotoFD
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
-
-protected:
-	BOOL IsSupported(CArcFile* pclArc);
-
-	virtual void InitMountKey(CArcFile* pclArc);
-	virtual void InitDecodeKey(CArcFile* pclArc);
-
-	virtual DWORD InitMovieTable(void* pvTable);
-
-	virtual void DecodeTable1();
-
-	virtual void Decrypt(void* pvTarget, DWORD dwSize);
-
-	virtual void DecodeMovieData(void* pvTarget, DWORD dwSize);
-
-	virtual DWORD GetMovieBufSize(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
 private:
+	BOOL IsSupported(CArcFile* pclArc);
+
+	void InitMountKey(CArcFile* pclArc) override;
+	void InitDecodeKey(CArcFile* pclArc) override;
+
+	DWORD InitMovieTable(void* pvTable) override;
+
+	void DecodeTable1() override;
+
+	void Decrypt(void* pvTarget, DWORD dwSize) override;
+
+	void DecodeMovieData(void* pvTarget, DWORD dwSize) override;
+
+	DWORD GetMovieBufSize(CArcFile* pclArc) override;
+
 	BYTE  m_btKey;
 	BYTE  m_aabtMovieTable[256][256];
 	DWORD m_dwMovieTableID;

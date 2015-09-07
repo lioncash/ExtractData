@@ -9,8 +9,8 @@
 class CTCDBase : public CExtractBase
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
 protected:
 	virtual BOOL DecodeTCT(CArcFile* pclArc);

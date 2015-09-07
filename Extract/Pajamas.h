@@ -1,13 +1,12 @@
-#pragma	once
+#pragma once
 
-class CPajamas : public CExtractBase
+class CPajamas final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL MountDat1(CArcFile* pclArc);
 	BOOL MountDat2(CArcFile* pclArc);
 

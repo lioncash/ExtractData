@@ -2,28 +2,27 @@
 
 #include "HaruotoFD.h"
 
-class CEFLatter : public CHaruotoFD
+class CEFLatter final : public CHaruotoFD
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL IsSupported(CArcFile* pclArc);
 
-	virtual void InitMountKey(CArcFile* pclArc);
-	virtual void InitDecodeKey(CArcFile* pclArc);
+	void InitMountKey(CArcFile* pclArc) override;
+	void InitDecodeKey(CArcFile* pclArc) override;
 
-	virtual DWORD InitMovieTable(void* pvTable);
+	DWORD InitMovieTable(void* pvTable) override;
 
-	virtual void Decrypt(void* pvTarget, DWORD dwSize);
-	virtual void Decrypt2(void * pvTarget, DWORD dwSize);
+	void Decrypt(void* pvTarget, DWORD dwSize) override;
+	void Decrypt2(void * pvTarget, DWORD dwSize) override;
 
 	void SetDecryptKey2(CArcFile* pclArc);
 
-	virtual void DecodeMovieData(void* pvTarget, DWORD dwSize);
+	void DecodeMovieData(void* pvTarget, DWORD dwSize) override;
 
-private:
 	BYTE  m_btKey;
 
 	char  m_szKey[256];

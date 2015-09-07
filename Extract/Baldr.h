@@ -1,6 +1,6 @@
 #pragma once
 
-class CBaldr : public CExtractBase
+class CBaldr final : public CExtractBase
 {
 public:
 	struct SPACFileInfo
@@ -11,5 +11,5 @@ public:
 		DWORD dwCompFileSize;
 	};
 
-	BOOL Mount(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
 };

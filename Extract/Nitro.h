@@ -1,7 +1,11 @@
 #pragma once
 
-class CNitro : public CExtractBase
+class CNitro final : public CExtractBase
 {
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
 private:
 	BOOL MountPak1(CArcFile* pclArc);
 	BOOL MountPak2(CArcFile* pclArc);
@@ -25,8 +29,4 @@ private:
 	void DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile);
 	void DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile, BYTE& byKey);
 	void DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile);
-
-public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
 };

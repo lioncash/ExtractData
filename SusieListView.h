@@ -17,7 +17,6 @@ public:
 
 	SSusieInfo* GetFocusSusieInfo() { return &m_SusieInfo; }
 
-
 private:
 	SSusieInfo m_SusieInfo;
 };

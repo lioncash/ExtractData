@@ -1,10 +1,10 @@
 #pragma once
 
-class CCyc : public CExtractBase
+class CCyc final : public CExtractBase
 {
 public:
 	// Mount
-	BOOL Mount(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
 	// References gtb, Mount gpk (dwq has been archived)
 	BOOL MountGpk(CArcFile* pclArc);
 	// References vtb, Mount vpk (wgq has been archived)

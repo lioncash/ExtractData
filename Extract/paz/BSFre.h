@@ -6,13 +6,13 @@
 //-- BITTERSWEET FOOLS Repackage ---------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class CBSFre : public CPaz
+class CBSFre final : public CPaz
 {
 public:
-	virtual BOOL Mount(CArcFile* pclArc);
-	virtual BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
-	virtual void InitMountKey(CArcFile* pclArc);
-	virtual void InitDecodeKey(CArcFile* pclArc);
+private:
+	void InitMountKey(CArcFile* pclArc) override;
+	void InitDecodeKey(CArcFile* pclArc) override;
 };

@@ -1,10 +1,10 @@
 #pragma once
 
-class CAlcot : public CExtractBase
+class CAlcot final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 	BOOL DecodeASB(CArcFile* pclArc);
 	BOOL DecodeCPB(CArcFile* pclArc);
 

@@ -2,10 +2,9 @@
 
 #include "ImageBase.h"
 
-class CPng : public CImageBase
+class CPng final : public CImageBase
 {
 public:
-
 	enum
 	{
 		modeRead  = 0x00000000,
@@ -17,7 +16,6 @@ public:
 		BYTE* pbtData;
 		DWORD dwDataPtr;
 	};
-
 
 	CPng();
 	virtual ~CPng();
@@ -36,8 +34,20 @@ public:
 
 	BOOL Decompress();
 
-
 private:
+	BOOL OnInit(const YCString& rfclsFileName) override;
+	BOOL OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
+
+	void WriteLine(const void* pvBuffer) override;
+	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;
+	void OnWriteFinish() override;
+
+	void SetMode(DWORD dwMode);
+	DWORD GetMode();
+
+	static inline void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length);
+	static inline void PNGAPI WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
+	static inline void PNGAPI WritePNGToMemory(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
 
 	png_structp m_png_ptr;
 	png_infop   m_info_ptr;
@@ -50,21 +60,4 @@ private:
 	int         m_nCompressLevel;
 
 	DWORD       m_dwMode;
-
-
-protected:
-
-	virtual BOOL OnInit(const YCString& rfclsFileName);
-	virtual BOOL OnCreatePallet(const void* pvPallet, DWORD dwPalletSize);
-
-	virtual void WriteLine(const void* pvBuffer);
-	virtual void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32);
-	virtual void OnWriteFinish();
-
-	void SetMode(DWORD dwMode);
-	DWORD GetMode();
-
-	static inline void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length);
-	static inline void PNGAPI WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
-	static inline void PNGAPI WritePNGToMemory(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
 };

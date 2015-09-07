@@ -18,22 +18,19 @@ struct SSusieInfo
 class CSusie
 {
 public:
+	BOOL Mount(CArcFile* pclArc);
+	BOOL Decode(CArcFile* pclArc);
 
-	BOOL                           Mount(CArcFile* pclArc);
-	BOOL                           Decode(CArcFile* pclArc);
+	void Init();
+	void Apply();
 
-	void                           Init();
-	void                           Apply();
+	void LoadSpi(const YCString& rclsPathToSusieFolder);
+	void SaveSpi();
 
-	void                           LoadSpi(const YCString& rclsPathToSusieFolder);
-	void                           SaveSpi();
-
-	std::vector<SSusieInfo>&       GetSusie() { return m_stsiMain; }
-	std::vector<SSusieInfo>&       GetSusieTmp() { return m_stsiTemporary; }
-
+	std::vector<SSusieInfo>& GetSusie() { return m_stsiMain; }
+	std::vector<SSusieInfo>& GetSusieTmp() { return m_stsiTemporary; }
 
 private:
-
 	static std::vector<SSusieInfo> m_stsiMain;
 	static std::vector<SSusieInfo> m_stsiTemporary;
 };

@@ -6,5 +6,5 @@ class CVersionInfo : public CWindowBase
 {
 public:
 	void DoModal(HWND hWnd);
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
 };

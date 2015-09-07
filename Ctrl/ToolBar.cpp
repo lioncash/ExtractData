@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../stdafx.h"
 #include "../res/ResExtractData.h"
+#include "Common.h"
 #include "Toolbar.h"
 
 CToolBar::CToolBar()

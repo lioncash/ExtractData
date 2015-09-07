@@ -2,14 +2,13 @@
 
 #include "../ExtractBase.h"
 
-class COyatu : public CExtractBase
+class COyatu final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-
-protected:
+private:
 	BOOL IsSupported(CArcFile* pclArc);
 
 	BOOL DecodeSound(CArcFile* pclArc, const BYTE* pbtKey);

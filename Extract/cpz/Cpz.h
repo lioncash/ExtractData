@@ -2,7 +2,7 @@
 
 #include "../../ExtractBase.h"
 
-class CCpz : public CExtractBase
+class CCpz final : public CExtractBase
 {
 public:
 	struct SCPZ5Header
@@ -17,10 +17,10 @@ public:
 		DWORD adwUnKnown2[3];             // Unknown
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL MountCpz1(CArcFile* pclArc);
 	BOOL MountCpz2(CArcFile* pclArc);
 	BOOL MountCpz3(CArcFile* pclArc);

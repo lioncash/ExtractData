@@ -273,17 +273,17 @@ BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
 
 /*
 	static char* key[] = {
-		"SUMMER",		// チュートリアルサマー
-		"HIDAMARI",		// ひだまり
-		"KIMIKOE",		// キミの声がきこえる
-		"CFTRIAL",		// CROSS FIRE Trial Version v1
-		"TEST",			// CROSS FIRE, CROSS FIRE Trial Version v2
-		"SAKURA-R",		// さくらリラクゼーション
-		"KOICHU",		// こいちゅ！ ～恋に恋するかたおもい～
-		"LAVENDURA",	// 黎明のラヴェンデュラ
-		"HAMA",			// 真章 幻夢館, そらのいろ、みずのいろ
-		"OBA",			// 叔母の寝室
-		"KANSEN"		// 姦染 ～淫欲の連鎖～
+		"SUMMER",     // チュートリアルサマー
+		"HIDAMARI",   // ひだまり
+		"KIMIKOE",    // キミの声がきこえる
+		"CFTRIAL",    // CROSS FIRE Trial Version v1
+		"TEST",       // CROSS FIRE, CROSS FIRE Trial Version v2
+		"SAKURA-R",   // さくらリラクゼーション
+		"KOICHU",     // こいちゅ！ ～恋に恋するかたおもい～
+		"LAVENDURA",  // 黎明のラヴェンデュラ
+		"HAMA",       // 真章 幻夢館, そらのいろ、みずのいろ
+		"OBA",        // 叔母の寝室
+		"KANSEN"      // 姦染 ～淫欲の連鎖～
 	};
 
 	YCMemory<BYTE> pIndex_copy(index_size);

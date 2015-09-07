@@ -1,8 +1,14 @@
 #pragma once
 
-class CNavel : public CExtractBase
+class CNavel final : public CExtractBase
 {
-protected:
+public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL MountPac(CArcFile* pclArc);
+	BOOL MountWpd(CArcFile* pclArc);
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	// WPD Format
 	struct FormatWPD
 	{
@@ -20,10 +26,4 @@ protected:
 		WORD    bits;       // Number of bits per sample (bit/sample)
 		DWORD   dummy3;     // Unknown
 	};
-
-public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL MountPac(CArcFile* pclArc);
-	BOOL MountWpd(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
 };

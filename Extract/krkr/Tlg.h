@@ -1,10 +1,10 @@
 #pragma once
 
-class CTlg : public CExtractBase
+class CTlg final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 	BOOL Decode(CArcFile* pclArc, LPBYTE src);
 	BOOL DecompTLG5(CArcFile* pclArc, LPBYTE src);
 	BOOL DecompTLG6(CArcFile* pclArc, LPBYTE src);

@@ -1,8 +1,8 @@
 #pragma once
 
-class CJpgSearch : public CSearchBase
+class CJpgSearch final : public CSearchBase
 {
 public:
 	CJpgSearch();
-	void Mount(CArcFile* pclArc);
+	void Mount(CArcFile* pclArc) override;
 };

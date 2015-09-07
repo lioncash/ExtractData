@@ -2,7 +2,7 @@
 
 #include "../ExtractBase.h"
 
-class CCircus : public CExtractBase
+class CCircus final : public CExtractBase
 {
 public:
 	struct SPCMHeader
@@ -18,10 +18,10 @@ public:
 		WORD  wBits;           // Number of bits
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL MountPCK(CArcFile* pclArc);
 	BOOL MountVoiceDat(CArcFile* pclArc);
 	BOOL MountCRX(CArcFile* pclArc);

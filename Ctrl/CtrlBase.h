@@ -4,16 +4,6 @@
 
 class CCtrlBase
 {
-private:
-	HWND      m_hWnd;
-	HINSTANCE m_hInst;
-	HWND      m_hCtrl;
-	UINT      m_ID;
-	CFont     m_font;
-
-protected:
-	HWND CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption, int x, int y, int cx, int cy, DWORD dwExStyle = 0);
-
 public:
 	CCtrlBase();
 	void Init(HWND hWnd, UINT ID);
@@ -31,4 +21,14 @@ public:
 	void      SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); };
 
 	void Enable(BOOL flag);
+
+protected:
+	HWND CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption, int x, int y, int cx, int cy, DWORD dwExStyle = 0);
+
+private:
+	HWND      m_hWnd;
+	HINSTANCE m_hInst;
+	HWND      m_hCtrl;
+	UINT      m_ID;
+	CFont     m_font;
 };

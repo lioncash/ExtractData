@@ -1,7 +1,7 @@
 #pragma once
 
-class CIzumo : public CExtractBase
+class CIzumo final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
 };

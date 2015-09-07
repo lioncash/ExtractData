@@ -12,26 +12,6 @@
 
 class CExtractData : public CWindowBase, public CExtract
 {
-private:
-	HWND                    m_hParentWnd;
-	HINSTANCE               m_hParentInst;
-	CMainListView*          m_pListView;
-	TCHAR                   m_szPathToTmpFileList[MAX_PATH];
-
-	LPCTSTR                 m_pclArcNames;
-	DWORD                   m_dwExtractMode;
-	LPCTSTR                 m_pSaveDir;
-	BOOL                    m_bConvert;
-	SOption*                m_pOption;
-	BOOL                    m_bInput;
-	std::vector<CArcFile*>  m_ArcList;
-
-	std::set<YCString>      m_ssTmpFile;
-
-	void Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert);
-	static UINT WINAPI MountThread(LPVOID lpParam);
-	static UINT WINAPI DecodeThread(LPVOID lpParam);
-
 public:
 	CExtractData();
 	void Init(HWND hWnd, SOption& option, CMainListView& listview);
@@ -57,5 +37,25 @@ public:
 
 	std::vector<CArcFile*>& GetArcList() { return m_ArcList; }
 
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
+
+private:
+	HWND                    m_hParentWnd;
+	HINSTANCE               m_hParentInst;
+	CMainListView*          m_pListView;
+	TCHAR                   m_szPathToTmpFileList[MAX_PATH];
+
+	LPCTSTR                 m_pclArcNames;
+	DWORD                   m_dwExtractMode;
+	LPCTSTR                 m_pSaveDir;
+	BOOL                    m_bConvert;
+	SOption*                m_pOption;
+	BOOL                    m_bInput;
+	std::vector<CArcFile*>  m_ArcList;
+
+	std::set<YCString>      m_ssTmpFile;
+
+	void Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert);
+	static UINT WINAPI MountThread(LPVOID lpParam);
+	static UINT WINAPI DecodeThread(LPVOID lpParam);
 };

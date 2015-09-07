@@ -17,23 +17,13 @@ struct VH
 
 #pragma pack(pop, 1)
 
-class COgg : public CExtractBase
+class COgg final : public CExtractBase
 {
-
-private:
-	CArcFile* m_pclArc;
-	VH m_vheader;
-	DWORD m_SegmentSize;
-	DWORD m_PageSize;
-
-protected:
-	DWORD m_pCRCTable[256];
-
 public:
 	COgg();
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 	void Decode(CArcFile* pclArc, LPBYTE buf);
 
 	void Init(CArcFile* pclArc);
@@ -49,4 +39,12 @@ public:
 	DWORD GetPageSize(VH& vheader, DWORD SegmentSize);
 
 	VH& GetHed() { return m_vheader; }
+
+private:
+	CArcFile* m_pclArc;
+	VH m_vheader;
+	DWORD m_SegmentSize;
+	DWORD m_PageSize;
+
+	DWORD m_pCRCTable[256];
 };

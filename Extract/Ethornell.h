@@ -1,6 +1,6 @@
 #pragma once
 
-class CEthornell : public CExtractBase
+class CEthornell final : public CExtractBase
 {
 public:
 	struct SNodeInfo
@@ -11,10 +11,10 @@ public:
 		DWORD dwRight;   // Right Node
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL DecodeDSC(CArcFile* pclArc);
 	BOOL DecodeCBG(CArcFile* pclArc);
 	BOOL DecodeStd(CArcFile* pclArc);

@@ -1,9 +1,9 @@
 #pragma once
 
-class CCircusPak : public CExtractBase
+class CCircusPak final : public CExtractBase
 {
 public:
-	typedef BOOL(*FDecrypt)(void*, DWORD, const void*);
+	using FDecrypt = BOOL (*)(void*, DWORD, const void*);
 
 	struct SPakFileInfoType1
 	{
@@ -27,10 +27,10 @@ public:
 		DWORD   dwOffset;
 	};
 
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
 
-protected:
+private:
 	BOOL MountPakForKujiraCons(CArcFile* pclArc);
 	BOOL MountPakForKujira(CArcFile* pclArc);
 	BOOL MountPakForACDC(CArcFile* pclArc);

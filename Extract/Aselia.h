@@ -1,7 +1,7 @@
 #pragma once
 
-class CAselia : public CExtractBase
+class CAselia final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
+	BOOL Mount(CArcFile* pclArc) override;
 };
