@@ -152,14 +152,11 @@ void YCUtil::ReplaceSlashToBackslash(LPWSTR pwszFileName)
 
 DWORD YCUtil::ConvEndian(DWORD dwSrc)
 {
-	_asm
-	{
-		mov   eax, dwSrc
-		bswap eax
-		mov   dwSrc, eax
-	}
-
-	return dwSrc;
+#if defined(_MSC_VER)
+	return _byteswap_ulong(dwSrc);
+#else
+	return ((dwSrc & 0x000000FF) << 24) | (dwSrc & 0x0000FF00) << 8) | ((dwSrc & 0x00FF0000) >> 8) | ((dwSrc & 0xFF000000) >> 24);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +164,7 @@ DWORD YCUtil::ConvEndian(DWORD dwSrc)
 
 void YCUtil::ConvEndian(LPDWORD pdwDst)
 {
-	*pdwDst = ConvEndian( *pdwDst );
+	*pdwDst = ConvEndian(*pdwDst);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -175,14 +172,11 @@ void YCUtil::ConvEndian(LPDWORD pdwDst)
 
 WORD YCUtil::ConvEndian(WORD wSrc)
 {
-	_asm
-	{
-		mov ax, wSrc
-		rol ax, 8
-		mov wSrc, ax
-	}
-
-	return wSrc;
+#if defined(_MSC_VER)
+	return _byteswap_ushort(wSrc);
+#else
+	return (value << 8) | (value >> 8);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
