@@ -38,7 +38,7 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 	YCMemory<BYTE> index(index_size);
 	pclArc->Read(&index[0], index_size);
 
-	DWORD   seed;
+	DWORD   seed = 0;
 	LPBYTE  pIndex = &index[0];
 	YCString version;
 	void (*DecryptFunc)(LPBYTE, DWORD, DWORD);
@@ -316,7 +316,7 @@ BOOL CQLIE::DecodeABMP7(
 		// Write the .b filename extension
 
 		TCHAR szWork[_MAX_FNAME];
-		_stprintf(szWork, _T("_%s%s"), szFileName, clsFileExt);
+		_stprintf(szWork, _T("_%s%s"), szFileName, clsFileExt.GetString());
 
 		// Output
 
@@ -358,7 +358,7 @@ BOOL CQLIE::DecodeABMP10(
 	static DWORD dwDstFiles;
 	static std::vector<SFileNameInfo> vtFileNameList;
 
-	if( pdwSrcIndex == NULL )
+	if (pdwSrcIndex == nullptr)
 	{
 		// First call
 		dwDstFiles = 0;
@@ -533,15 +533,15 @@ BOOL CQLIE::DecodeABMP10(
 			// Write the .b extension
 			TCHAR szWork[_MAX_FNAME];
 
-			if( dwFileNameLength == 0 )
+			if (dwFileNameLength == 0)
 			{
 				// No filename (only put extension)
 
-				_stprintf( szWork, _T("%s%s"), clsBFileName, clsFileName );
+				_stprintf(szWork, _T("%s%s"), clsBFileName.GetString(), clsFileName.GetString());
 			}
 			else
 			{
-				_stprintf( szWork, _T("%s_%s"), clsBFileName, clsFileName );
+				_stprintf(szWork, _T("%s_%s"), clsBFileName.GetString(), clsFileName.GetString());
 			}
 
 			// Check to see if the same filename doesn't exist
@@ -557,7 +557,7 @@ BOOL CQLIE::DecodeABMP10(
 					// Overwrite will not occur
 
 					TCHAR szWork2[256];
-					_stprintf( szWork2, _T("_%d%s"), vtFileNameList[uIndex].dwCount, clsFileName.GetFileExt() );
+					_stprintf(szWork2, _T("_%d%s"), vtFileNameList[uIndex].dwCount, clsFileName.GetFileExt().GetString());
 
 					PathRenameExtension( szWork, szWork2 );
 
@@ -601,7 +601,7 @@ BOOL CQLIE::DecodeABMP10(
 		}
 	}
 
-	if( pdwSrcIndex != NULL )
+	if (pdwSrcIndex != nullptr)
 	{
 		// Recursive call being performed
 
