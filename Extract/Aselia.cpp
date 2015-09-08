@@ -47,7 +47,7 @@ BOOL CAselia::Mount(CArcFile* pclArc)
 	{
 		// Get filename
 		TCHAR szFileName[MAX_PATH];
-		_stprintf(szFileName, _T("%s_%06d%s"), pclArc->GetArcName(), i + 1, sFileExt);
+		_stprintf(szFileName, _T("%s_%06d%s"), pclArc->GetArcName().GetString(), i + 1, sFileExt.GetString());
 
 		SFileInfo infFile;
 		infFile.start = *(LPDWORD)&pIndex[0];
