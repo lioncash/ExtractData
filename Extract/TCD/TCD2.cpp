@@ -105,7 +105,7 @@ BOOL CTCD2::Mount(CArcFile* pclArc)
 
 				// Folder name + File name + Extension
 				TCHAR szFullName[_MAX_PATH];
-				_stprintf(szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType]);
+				_stprintf(szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType].GetString());
 
 				// Store info
 				SFileInfo stFileInfo;
