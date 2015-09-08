@@ -254,16 +254,16 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 				DWORD dwLength = *(LPDWORD)&clmbtSec[dwNameIndex + dwWork];		// Archive name + File number
 				dwWork += 4;
 
-				for (DWORD i = (dwNameIndex + dwWork); ; i++)
+				for (DWORD j = (dwNameIndex + dwWork); ; j++)
 				{
-					if (clmbtSec[i] == '\0')
+					if (clmbtSec[j] == '\0')
 					{
 						// Index dex doesn't match the name of the archive
 
 						break;
 					}
 
-					if (lstrcmp((LPCTSTR)&clmbtSec[i], pclArc->GetArcName()) == 0)
+					if (lstrcmp((LPCTSTR)&clmbtSec[j], pclArc->GetArcName()) == 0)
 					{
 						// Found a match with the name of the archive
 
@@ -432,12 +432,12 @@ BOOL CKatakoi::DecodeWar(CArcFile* pclArc)
 	}
 	else
 	{
-		// WAV(Supposedly)
+		// WAV (supposedly)
 
-		DWORD	dwDataSize = *(LPDWORD)&clmbtSrc[4];
-		DWORD	dwFreq = *(LPDWORD)&clmbtSrc[12];
-		WORD	wChannels = *(LPWORD)&clmbtSrc[10];
-		WORD	wBits = *(LPWORD)&clmbtSrc[22];
+		DWORD dwDataSize = *(LPDWORD)&clmbtSrc[4];
+		DWORD dwFreq = *(LPDWORD)&clmbtSrc[12];
+		WORD  wChannels = *(LPWORD)&clmbtSrc[10];
+		WORD  wBits = *(LPWORD)&clmbtSrc[22];
 
 		CWav wav;
 		wav.Init(pclArc, dwDataSize, dwFreq, wChannels, wBits);
@@ -677,7 +677,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	SFileInfo*       pstfiDiff = pclArc->GetOpenFileInfo();
 	DWORD            dwDiffNum = pclArc->GetOpenFileInfoNum();
 
-	const SFileInfo* pstfiBase;
+	const SFileInfo* pstfiBase = nullptr;
 	BOOL             bExistsForBase = FALSE;
 	TCHAR            szFileNameForBase[MAX_PATH];
 
@@ -687,8 +687,8 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	LPTSTR pszFileNumberFordiff2 = &szFileNameForBase[lstrlen(szFileNameForBase) - 2];
 
 	// Convert numerical value to a serial number
-	long lFileNumberForDiff1 = _tcstol(pszFileNumberFordiff1, NULL, 10);
-	long lFileNumberForDiff2 = _tcstol(pszFileNumberFordiff2, NULL, 10);
+	long lFileNumberForDiff1 = _tcstol(pszFileNumberFordiff1, nullptr, 10);
+	long lFileNumberForDiff2 = _tcstol(pszFileNumberFordiff2, nullptr, 10);
 
 	if (pclArc->GetFlag())
 	{
@@ -712,7 +712,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL)
+			if (pstfiBase == nullptr)
 			{
 				// Missing number file
 				continue;
@@ -749,7 +749,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL)
+			if (pstfiBase == nullptr)
 			{
 				// Missing number file
 				continue;
@@ -786,7 +786,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 
 			pstfiBase = pclArc->GetFileInfo(szFileNameForBase);
 
-			if (pstfiBase == NULL)
+			if (pstfiBase == nullptr)
 			{
 				// Missing number file
 				continue;
