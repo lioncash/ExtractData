@@ -120,9 +120,9 @@ BOOL CWill::Mount(CArcFile* pclArc)
 		PathRenameExtension(szTargetName, _T(".wip"));
 
 		// Getting file information to be created
-		SFileInfo* pstsiTarget = NULL;
+		SFileInfo* pstsiTarget = nullptr;
 		pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szTargetName);
-		if (pstsiTarget != NULL)
+		if (pstsiTarget != nullptr)
 		{
 			// Definitely the mask image
 			pstsiTarget->starts.push_back(pstsiMask->start);
@@ -194,11 +194,11 @@ BOOL CWill::Decode(CArcFile* pclArc)
 	BOOL bExistsMask = !pstFileInfo->starts.empty();
 
 	// Get image mask
-	DWORD              dwSrcSizeForMask;
+	DWORD              dwSrcSizeForMask = 0;
 	YCMemory<BYTE>     clmbtSrcForMask;
-	DWORD              dwSrcPtrForMask;
-	WORD               wFilesForMask;
-	WORD               wBppForMask;
+	DWORD              dwSrcPtrForMask = 0;
+	WORD               wFilesForMask = 0;
+	WORD               wBppForMask = 0;
 	std::vector<long>  vclWidthForMask;
 	std::vector<long>  vclHeightForMask;
 	std::vector<DWORD> vcdwSrcSizeForMask;
@@ -247,7 +247,7 @@ BOOL CWill::Decode(CArcFile* pclArc)
 		BYTE* pbtDst = &clmbtDst[0];
 
 		// Get pallet
-		BYTE* pbtPallet = NULL;
+		BYTE* pbtPallet = nullptr;
 
 		if (wBpp == 8)
 		{
@@ -271,7 +271,7 @@ BOOL CWill::Decode(CArcFile* pclArc)
 			ZeroMemory(&clmbtDstForMask[0], dwDstSizeForMask);
 
 			// Get pallet
-			BYTE* pbtPalletForMask = NULL;
+			BYTE* pbtPalletForMask = nullptr;
 
 			if (wBppForMask == 8)
 			{
