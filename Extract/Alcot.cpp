@@ -94,9 +94,9 @@ BOOL CAlcot::DecodeASB(CArcFile* pclArc)
 		DWORD key = ((*(LPDWORD)&z_buf[16] - 0x78) ^ buf_len) & 0xFF;
 		YCMemory<BYTE> tmp(z_buf_len);
 
-		for (QWORD i = 0; i < (QWORD)0xFFFFFFFF; i += 0x00000100)
+		for (QWORD i = 0; i < 0xFFFFFFFFULL; i += 0x00000100ULL)
 		{
-			DWORD x = i | key;
+			DWORD x = static_cast<DWORD>(i | key);
 			memcpy(&tmp[0], &z_buf[16], z_buf_len);
 
 			DWORD key2 = buf_len ^ x;
