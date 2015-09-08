@@ -184,7 +184,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 	CharLower(szFileName);
 
 	// Create Key
-	sprintf(m_szKey, "%s %08X %s", szFileName, pstFileInfo->sizeOrg, clsBaseKey);
+	sprintf(m_szKey, "%s %08X %s", szFileName, pstFileInfo->sizeOrg, clsBaseKey.GetString());
 
 	// Create Table
 	if ((clsBaseKey == "8fO1Xj6g") && (lstrcmpi(pszFileExt, _T(".avi")) == 0))
