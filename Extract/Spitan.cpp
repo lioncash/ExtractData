@@ -35,7 +35,7 @@ BOOL CSpitan::MountSound(CArcFile* pclArc)
 
 		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.ogg"), pclArc->GetArcName(), i);
+		_stprintf(szFileName, _T("%s_%06d.ogg"), pclArc->GetArcName().GetString(), i);
 
 		// Add to listview
 		SFileInfo infFile;
@@ -68,7 +68,7 @@ BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
 
 		// Get filename
 		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), i);
+		_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName().GetString(), i);
 
 		// Add to listview
 		SFileInfo infFile;
@@ -171,7 +171,7 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 
 			// Get filename
 			TCHAR szFileName[_MAX_FNAME];
-			_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName(), ctFile++);
+			_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName().GetString(), ctFile++);
 
 			// Add to listview
 			SFileInfo infFile;
@@ -265,7 +265,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 
 				// Get filename
 				TCHAR szFileName[_MAX_FNAME];
-				_stprintf(szFileName, _T("%s_%06u.png"), pclArc->GetArcName(), ctFile++);
+				_stprintf(szFileName, _T("%s_%06u.png"), pclArc->GetArcName().GetString(), ctFile++);
 
 				// Add file to listview
 				SFileInfo infFile;
