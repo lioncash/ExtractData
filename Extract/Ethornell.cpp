@@ -411,7 +411,7 @@ void	CEthornell::DecompDSC(
 	//
 
 	DWORD dwSize = *(DWORD*) &pbtSrc[24];
-	DWORD dwSrc;
+	DWORD dwSrc = 0;
 
 	dwCount = 0;
 
