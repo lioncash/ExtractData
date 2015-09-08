@@ -66,15 +66,15 @@ void CAhx::Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len)
 	wav.Write(&wav_buf[0]);
 }
 
-int bit_alloc_table[32] = { 4,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 };
-int offset_table[5][16] = {
+static int bit_alloc_table[32] = { 4,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 };
+static int offset_table[5][16] = {
 	{ 0 },
 	{ 0 },
-	{ 0, 1,  3, 4,                                         },
-	{ 0, 1,  3, 4, 5, 6,  7, 8,                            },
-	{ 0, 1,  2, 3, 4, 5,  6, 7,  8,  9, 10, 11, 12, 13, 14 }
+	{ 0, 1, 3, 4,                                      },
+	{ 0, 1, 3, 4, 5, 6, 7, 8,                          },
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }
 };
-struct quantclass {
+static struct quantclass {
 	int nlevels;
 	int bits;
 } const qc_table[17] = {
@@ -96,7 +96,7 @@ struct quantclass {
 	{ 32767,  15},
 	{ 65535,  16}
 };
-int intwinbase[257] = {
+static int intwinbase[257] = {
      0,    -1,    -1,    -1,    -1,    -1,    -1,    -2,    -2,    -2,    -2,    -3,    -3,    -4,    -4,    -5,
     -5,    -6,    -7,    -7,    -8,    -9,   -10,   -11,   -13,   -14,   -16,   -17,   -19,   -21,   -24,   -26,
    -29,   -31,   -35,   -38,   -41,   -45,   -49,   -53,   -58,   -63,   -68,   -73,   -79,   -85,   -91,   -97,
@@ -115,7 +115,9 @@ int intwinbase[257] = {
  64019, 65290, 66494, 67629, 68692, 69679, 70590, 71420, 72169, 72835, 73415, 73908, 74313, 74630, 74856, 74992,
  75038
 };
-double costable[5][16], decwin[512 + 32];
+
+static double costable[5][16];
+static double decwin[512 + 32];
 
 int CAhx::getbits(LPBYTE& src, int& bit_data, int& bit_rest, int bits)
 {
@@ -465,7 +467,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 				else if (sum <= -32767)
 					*dst_p++ = -32767;
 				else
-					*dst_p++ = sum;
+					*dst_p++ = static_cast<short>(sum);
 
 				win += 16;
 			}
@@ -484,7 +486,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 			else if (sum <= -32767)
 				*dst_p++ = -32767;
 			else
-				*dst_p++ = sum;
+				*dst_p++ = static_cast<short>(sum);
 
 			win += -16 + (phase | 1) * 2;
 
@@ -512,7 +514,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 				else if (sum <= -32767)
 					*dst_p++ = -32767;
 				else
-					*dst_p++ = sum;
+					*dst_p++ = static_cast<short>(sum);
 
 				win -= 16;
 			}
