@@ -60,7 +60,7 @@ bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 /// Continue to search for files
 bool YCFileFind::FindNextFile()
 {
-	return ::FindNextFile(m_hFind, &m_stwfdFindData);
+	return ::FindNextFile(m_hFind, &m_stwfdFindData) != FALSE;
 }
 
 /// Close the search file operation
@@ -103,7 +103,7 @@ YCString YCFileFind::GetFileTitle()
 /// Check whether or not the found 'file' is a directory
 bool YCFileFind::IsDirectory()
 {
-	return (m_stwfdFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+	return (m_stwfdFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 }
 
 /// Examines the marker of the current directory and its parent directory
