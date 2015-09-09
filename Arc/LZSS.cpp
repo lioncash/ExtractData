@@ -2,12 +2,10 @@
 #include "../Image.h"
 #include "LZSS.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CLZSS::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -20,15 +18,13 @@ BOOL CLZSS::Decode(CArcFile* pclArc)
 	return Decomp(pclArc, 4096, 4078, 3);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Extract the file
-//
-// Parameters:
-//   - pclArc         - Archive
-//   - dwDictSize     - Dictionary size
-//   - dwDicPtr       - Initial address to the dictionary position (dictionary pointer)
-//   - dwLengthOffset - Length offset
-
+/// Extract the file
+///
+/// @param pclArc         Archive
+/// @param dwDictSize     Dictionary size
+/// @param dwDicPtr       Initial address to the dictionary position (dictionary pointer)
+/// @param dwLengthOffset Length offset
+///
 BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -63,22 +59,20 @@ BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLe
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Extract from memory
-//
-// Parameters:
-//   - pvDst          - Destination
-//   - dwDstSize      - Destination size
-//   - pvSrc          - Compressed data
-//   - dwSrcSize      - Compressed data size
-//   - dwDictSize     - Dictionary size
-//   - dwDicPtr       - Initial address to the dictionary position (dictionary pointer)
-//   - dwLengthOffset - Length offset
-
+/// Extract from memory
+///
+/// @param pvDst          Destination
+/// @param dwDstSize      Destination size
+/// @param pvSrc          Compressed data
+/// @param dwSrcSize      Compressed data size
+/// @param dwDictSize     Dictionary size
+/// @param dwDicPtr       Initial address to the dictionary position (dictionary pointer)
+/// @param dwLengthOffset Length offset
+///
 BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
-	BYTE*       pbtDst = (BYTE*) pvDst;
-	const BYTE* pbtSrc = (const BYTE*) pvSrc;
+	BYTE*       pbtDst = static_cast<BYTE*>(pvDst);
+	const BYTE* pbtSrc = static_cast<const BYTE*>(pvSrc);
 
 	// Allocate dictionary buffer
 	YCMemory<BYTE> clmbtDic(dwDicSize);
@@ -87,10 +81,10 @@ BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcS
 	// Decompression
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
-	BYTE  btFlags;
+	BYTE  btFlags = 0;
 	DWORD dwBitCount = 0;
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
 	{
 		if (dwBitCount == 0)
 		{
