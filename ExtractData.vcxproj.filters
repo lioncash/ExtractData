@@ -400,9 +400,6 @@
     <ClCompile Include="ProgressBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SearchBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Reg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -438,6 +435,9 @@
     </ClCompile>
     <ClCompile Include="Sound\Ogg.cpp">
       <Filter>Source Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchBase.cpp">
+      <Filter>Source Files\Search</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -493,9 +493,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="res\ResExtractData.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SearchBase.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
@@ -872,6 +869,9 @@
     </ClInclude>
     <ClInclude Include="WinMain.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SearchBase.h">
+      <Filter>Source Files\Search</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
