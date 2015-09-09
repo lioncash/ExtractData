@@ -1,18 +1,14 @@
 #include "stdafx.h"
 #include "YCLocalMemory.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCLocalMemory::YCLocalMemory()
 {
 	m_hMemory = nullptr;
 	m_pvMemory = nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
-
+/// Destructor
 YCLocalMemory::~YCLocalMemory()
 {
 	// Free memory
@@ -20,13 +16,11 @@ YCLocalMemory::~YCLocalMemory()
 	Free();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Allocation of memory
-//
-// Parameters:
-//   - uFlags - Flags
-//   - uBytes - Bytes to allocate
-
+/// Allocation of memory
+///
+/// @param uFlags Flags
+/// @param uBytes Bytes to allocate
+///
 bool YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 {
 	m_hMemory = ::LocalAlloc(uFlags, uBytes);
@@ -37,9 +31,7 @@ bool YCLocalMemory::Alloc(UINT uFlags, UINT uBytes)
 	return (m_hMemory != nullptr);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Release Memory
-
+/// Release Memory
 bool YCLocalMemory::Free()
 {
 	Unlock();
@@ -55,9 +47,7 @@ bool YCLocalMemory::Free()
 	return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Lock Memory
-
+/// Lock Memory
 void* YCLocalMemory::Lock()
 {
 	m_pvMemory = ::LocalLock(m_hMemory);
@@ -65,9 +55,7 @@ void* YCLocalMemory::Lock()
 	return m_pvMemory;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Unlock Memory
-
+/// Unlock Memory
 bool YCLocalMemory::Unlock()
 {
 	if (m_pvMemory != nullptr)
@@ -79,9 +67,7 @@ bool YCLocalMemory::Unlock()
 	return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Memory Size
-
+/// Get Memory Size
 UINT YCLocalMemory::GetSize()
 {
 	if (m_hMemory == nullptr)
@@ -90,17 +76,13 @@ UINT YCLocalMemory::GetSize()
 	return ::LocalSize(m_hMemory);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Memory Handle
-
+/// Get Memory Handle
 HLOCAL& YCLocalMemory::GetHandle()
 {
 	return m_hMemory;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Memory Pointer
-
+/// Get Memory Pointer
 void* YCLocalMemory::GetPtr()
 {
 	return m_pvMemory;

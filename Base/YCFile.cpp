@@ -1,30 +1,23 @@
-
 #include "stdafx.h"
 #include "YCFile.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCFile::YCFile()
 {
 	m_hFile = INVALID_HANDLE_VALUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
-
+/// Destructor
 YCFile::~YCFile()
 {
 	Close();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Specifies the mode to open the file with
-//
-// Parameters:
-//   - pszPathToFile - File path
-//   - uOpenFlags    - Mode
-
+/// Specifies the mode to open the file with
+///
+/// @param pszPathToFile File path
+/// @param uOpenFlags    Mode
+///
 BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
@@ -127,9 +120,7 @@ BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	return (m_hFile != INVALID_HANDLE_VALUE);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Close File
-
+/// Close File
 void YCFile::Close()
 {
 	if (m_hFile != INVALID_HANDLE_VALUE)
@@ -139,13 +130,11 @@ void YCFile::Close()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Read File
-//
-// Parameters:
-//   - pvBuffer   - Buffer
-//   - dwReadSize - Number of bytes to read.
-
+/// Read File
+///
+/// @param pvBuffer   Buffer
+/// @param dwReadSize Number of bytes to read.
+///
 DWORD YCFile::Read(void* pvBuffer, DWORD dwReadSize)
 {
 	DWORD dwResult;
@@ -158,13 +147,11 @@ DWORD YCFile::Read(void* pvBuffer, DWORD dwReadSize)
 	return dwResult;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Write File
-//
-// Parameters:
-//   - pvBuffer    - Buffer
-//   - dwWriteSize - Number of bytes to write.
-
+/// Write File
+///
+/// @param pvBuffer    Buffer
+/// @param dwWriteSize Number of bytes to write.
+///
 DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 {
 	DWORD dwResult;
@@ -177,13 +164,11 @@ DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 	return dwResult;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer
-//
-// Parameters:
-//   - n64Offset  - Number of bytes to move
-//   - dwSeekMode - Seek mode
-
+/// Move the file pointer
+///
+/// @param n64Offset  Number of bytes to move
+/// @param dwSeekMode Seek mode
+///
 UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 {
 	switch (dwSeekMode)
@@ -216,53 +201,43 @@ UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 		stliWork.QuadPart = -1;
 	}
 
-	return (UINT64) (stliWork.QuadPart);
+	return static_cast<UINT64>(stliWork.QuadPart);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Move file relative to the start of the file
-//
-// Parameters
-//   - n64Offset - Number of bytes to seek
-
+// /Move file relative to the start of the file
+///
+/// @param n64Offset Number of bytes to seek
+///
 UINT64 YCFile::SeekHed(INT64 n64Offset)
 {
 	return Seek(n64Offset, begin);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer relative to the end of the file
-//
-// Parameters
-//   - n64Offset - Number of bytes to seek
-
+/// Move the file pointer relative to the end of the file
+///
+/// @param n64Offset - Number of bytes to seek
+///
 UINT64 YCFile::SeekEnd(INT64 n64Offset)
 {
 	return Seek(-n64Offset, end);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer relative to its current position
-//
-// Parameters:
-//   - n64Offset - Number of bytes to seek
-
+/// Move the file pointer relative to its current position
+///
+/// @param n64Offset Number of bytes to seek
+///
 UINT64 YCFile::SeekCur(INT64 n64Offset)
 {
 	return Seek(n64Offset, current);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get the current file pointer position
-
+/// Get the current file pointer position
 UINT64 YCFile::GetPosition()
 {
 	return SeekCur(0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the length of the file
-
+/// Gets the length of the file
 UINT64 YCFile::GetLength()
 {
 	UINT64 u64CurrentOffset = GetPosition();
@@ -273,25 +248,19 @@ UINT64 YCFile::GetLength()
 	return u64EndOffset;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the file path
-
+/// Gets the file path
 YCString YCFile::GetFilePath()
 {
 	return m_clsPathToFile;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the file name
-
+/// Gets the file name
 YCString YCFile::GetFileName()
 {
 	return m_clsFileName;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Retrieves the file's extension
-
+/// Retrieves the file's extension
 YCString YCFile::GetFileExt()
 {
 	return m_clsFileExt;

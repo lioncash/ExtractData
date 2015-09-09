@@ -1,25 +1,24 @@
 #include "stdafx.h"
 #include "YCUtil.h"
-/*
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set File Format
 
-YCString YCUtil::SetFileFormat(
-	const YCString&		rfcstFileName					// Filename
-	)
+/*
+/// Set File Format
+///
+/// @param rfcstFileName Filename
+///
+YCString YCUtil::SetFileFormat(const YCString& rfcstFileName)
 {
 	// Retrieves the extension
+	LPCTSTR pszFileExt = PathFindExtension(rfcstFileName);
 
-	LPCTSTR pszFileExt = PathFindExtension( rfcstFileName );
-
-	if( pszFileExt == NULL )
+	if (pszFileExt == NULL)
 	{
 		// Extension does not exist
 
 		return _T("");
 	}
 
-	if( lstrlen( pszFileExt ) < 2 )
+	if (lstrlen( pszFileExt ) < 2)
 	{
 		// Extension is not only "."
 
@@ -27,56 +26,52 @@ YCString YCUtil::SetFileFormat(
 	}
 
 	// Converted to uppercase extension
-
 	TCHAR szFileFormat[256];
-
-	lstrcpy( szFileFormat, &pszFileExt[1] );
-	CharUpper( szFileFormat );
+	lstrcpy(szFileFormat, &pszFileExt[1]);
+	CharUpper(szFileFormat);
 
 	return szFileFormat;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Separates digits by a comma 
-
-YCString YCUtil::SetCommaFormat(
-	DWORD				dwSize,							// Number
-	DWORD				dwDigit							// Separate digit
-	)
+/// Separates digits by a comma 
+///
+/// @param dwSize  Number
+/// @param dwDigit Separate digit
+///
+YCString YCUtil::SetCommaFormat(DWORD dwSize, DWORD dwDigit)
 {
 	YCString cstSize;
-
-	cstSize.Format( _T("%d"), dwSize );
+	cstSize.Format(_T("%d"), dwSize);
 
 	int nLength = cstSize.length();
 
 	int comma_num = (nLength - 1) / dwDigit;
 	int comma_pos = nLength % dwDigit;
 
-	if( comma_pos == 0 )
+	if (comma_pos == 0)
 	{
 		comma_pos = dwDigit;
 	}
-	if( comma_num == 0 )
+
+	if (comma_num == 0)
 	{
 		comma_pos = 0;
 	}
 
-	for( int i = 0 ; i < comma_num ; i++ )
+	for (int i = 0; i < comma_num; i++)
 	{
-		cstSize.insert( comma_pos + dwDigit * i + i, _T(",") );
+		cstSize.insert(comma_pos + dwDigit * i + i, _T(","));
 	}
 
 	return cstSize;
 }
 */
-//////////////////////////////////////////////////////////////////////////////////////////
-// Creates the lowest level directory you want to create
-//
-// Parameters:
-//   - pszPathToFile - File path
-//   - bFileName     - Contains a file name or file path
 
+/// Creates the lowest level directory you want to create
+///
+/// @param pszPathToFile File path
+/// @param bFileName     Contains a file name or file path
+///
 void YCUtil::CreateDirectory(LPCTSTR pszPathToFile, BOOL bFileName)
 {
 	std::vector<YCString> vcDirPathList;
@@ -106,9 +101,7 @@ void YCUtil::CreateDirectory(LPCTSTR pszPathToFile, BOOL bFileName)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Replace forward slashes with backward slashes
-
+/// Replace forward slashes with backward slashes
 void YCUtil::ReplaceSlashToBackslash(LPSTR pszFileName)
 {
 	while (*pszFileName != '\0')
@@ -131,9 +124,7 @@ void YCUtil::ReplaceSlashToBackslash(LPSTR pszFileName)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Replace forward slashes with backward slashes
-
+/// Replace forward slashes with backward slashes
 void YCUtil::ReplaceSlashToBackslash(LPWSTR pwszFileName)
 {
 	for (; *pwszFileName != L'\0'; pwszFileName++)
@@ -147,9 +138,7 @@ void YCUtil::ReplaceSlashToBackslash(LPWSTR pwszFileName)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Convert Endian (4byte)
-
+/// Convert Endian (4byte)
 DWORD YCUtil::ConvEndian(DWORD dwSrc)
 {
 #if defined(_MSC_VER)
@@ -159,17 +148,13 @@ DWORD YCUtil::ConvEndian(DWORD dwSrc)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Convert Endian (4byte)
-
+/// Convert Endian (4 byte)
 void YCUtil::ConvEndian(LPDWORD pdwDst)
 {
 	*pdwDst = ConvEndian(*pdwDst);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Convert Endian (2byte)
-
+/// Convert Endian (2 byte)
 WORD YCUtil::ConvEndian(WORD wSrc)
 {
 #if defined(_MSC_VER)
@@ -179,24 +164,20 @@ WORD YCUtil::ConvEndian(WORD wSrc)
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Convert Endian (2byte)
-
+/// Convert Endian (2 byte)
 void YCUtil::ConvEndian(LPWORD pwDst)
 {
 	*pwDst = ConvEndian(*pwDst);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Compares the contents of memory
-//
-// Remark: Wildcard compatible version of the standard memcmp() function
-//
-// Parameters:
-//   - pvData1 - Comparison data 1
-//   - pvData2 - Comparison data 2
-//   - dwSize  - Number of elements to compare
-
+/// Compares the contents of memory
+///
+/// @param pvData1 Comparison data 1
+/// @param pvData2 Comparison data 2
+/// @param dwSize  Number of elements to compare
+///
+/// @remark Wildcard compatible version of the standard memcmp() function
+///
 BOOL YCUtil::CompareMemory(const void* pvData1, const void* pvData2, DWORD dwSize)
 {
 	BYTE* pbtData1 = (BYTE*)pvData1;

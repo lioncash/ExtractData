@@ -1,10 +1,7 @@
-
 #include "stdafx.h"
 #include "YCIni.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCIni::YCIni(LPCTSTR pszPathToIni)
 {
 	// Gets the execution path of the file
@@ -18,20 +15,16 @@ YCIni::YCIni(LPCTSTR pszPathToIni)
 // m_clsPathToIni = pszPathToIni;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set a section name
-
+/// Set a section name
 void YCIni::SetSection(LPCTSTR pszSection)
 {
 	m_clsSection = pszSection;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set a section name
-//
-// Parameters:
-//   - uID - String ID
-
+/// Set a section name
+///
+/// @param uID String ID
+///
 void YCIni::SetSection(UINT uID)
 {
 	TCHAR szSection[256];
@@ -41,54 +34,44 @@ void YCIni::SetSection(UINT uID)
 	SetSection(szSection);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set key name
-
+/// Set key name
 void YCIni::SetKey(LPCTSTR pszKey)
 {
 	m_clsKey = pszKey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets a string
-//
-// Parameters:
-//   - pszDst     - Storage location for the string
-//   - dwDstSize  - Buffer size
-//   - pszDefault - Default value
-
+/// Gets a string
+///
+/// @param pszDst     Storage location for the string
+/// @param dwDstSize  Buffer size
+/// @param pszDefault Default value
+///
 void YCIni::ReadStr(LPTSTR pszDst, DWORD dwDstSize, LPCTSTR pszDefault)
 {
 	::GetPrivateProfileString(m_clsSection, m_clsKey, pszDefault, pszDst, dwDstSize, m_clsPathToIni);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets a string
-//
-// Parameters:
-//   - rfclsDst     - Storage location for the string
-//   - rfclsDefault - Default value
-
+/// Gets a string
+///
+/// @param rfclsDst     Storage location for the string
+/// @param rfclsDefault Default value
+///
 void YCIni::ReadStr(YCString& rfclsDst, const YCString& rfclsDefault)
 {
 	TCHAR szDst[1024];
 
-	ReadStr(szDst, _countof( szDst ), rfclsDefault);
+	ReadStr(szDst, _countof(szDst), rfclsDefault);
 
 	rfclsDst = szDst;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Sets the string
-
+/// Sets the string
 void YCIni::WriteStr(LPCTSTR pszStr)
 {
 	::WritePrivateProfileString(m_clsSection, m_clsKey, pszStr, m_clsPathToIni);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Delete section
-
+/// Delete section
 bool YCIni::DeleteSection(LPCTSTR pszSection)
 {
 	if (pszSection == nullptr)

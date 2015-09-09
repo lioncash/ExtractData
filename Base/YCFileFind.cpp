@@ -2,27 +2,22 @@
 #include "stdafx.h"
 #include "YCFileFind.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCFileFind::YCFileFind()
 {
 	m_hFind = INVALID_HANDLE_VALUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
+/// Destructor
 YCFileFind::~YCFileFind()
 {
 	Close();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Start a file search
-//
-// Parameters:
-//   - pszPathToFile - File path
-
+/// Start a file search
+///
+/// @param pszPathToFile File path
+///
 bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
 {
 	// Save directory path
@@ -37,13 +32,11 @@ bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFile)
 	return (m_hFind != INVALID_HANDLE_VALUE);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Start a file search
-//
-// Parameters:
-//   - pszPathToFolder - Directory path
-//   - pszFileName     - Filename (can be a wildcard)
-
+/// Start a file search
+///
+/// @param pszPathToFolder Directory path
+/// @param pszFileName     Filename (can be a wildcard)
+///
 bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 {
 	// Save directory path
@@ -64,17 +57,13 @@ bool YCFileFind::FindFirstFile(LPCTSTR pszPathToFolder, LPCTSTR pszFileName)
 	return (m_hFind != INVALID_HANDLE_VALUE);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Continue to search for files
-
+/// Continue to search for files
 bool YCFileFind::FindNextFile()
 {
 	return ::FindNextFile(m_hFind, &m_stwfdFindData);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Close the search file operation
-
+/// Close the search file operation
 void YCFileFind::Close()
 {
 	if (m_hFind != INVALID_HANDLE_VALUE)
@@ -84,17 +73,13 @@ void YCFileFind::Close()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the name of the found file
-
+/// Gets the name of the found file
 YCString YCFileFind::GetFileName()
 {
 	return m_stwfdFindData.cFileName;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the file path of the found file
-
+/// Gets the file path of the found file
 YCString YCFileFind::GetFilePath()
 {
 	TCHAR szPathToFile[_MAX_PATH];
@@ -104,9 +89,7 @@ YCString YCFileFind::GetFilePath()
 	return szPathToFile;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the title of the found file
-
+/// Gets the title of the found file
 YCString YCFileFind::GetFileTitle()
 {
 	TCHAR szFileTitle[_MAX_FNAME];
@@ -117,17 +100,13 @@ YCString YCFileFind::GetFileTitle()
 	return szFileTitle;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check whether or not the found 'file' is a directory
-
+/// Check whether or not the found 'file' is a directory
 bool YCFileFind::IsDirectory()
 {
 	return (m_stwfdFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Examines the marker of the current directory and its parent directory
-
+/// Examines the marker of the current directory and its parent directory
 bool YCFileFind::IsDots()
 {
 	return ((lstrcmp(m_stwfdFindData.cFileName, _T(".")) == 0) || (lstrcmp(m_stwfdFindData.cFileName, _T("..")) == 0));

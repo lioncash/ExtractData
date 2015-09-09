@@ -2,9 +2,7 @@
 #include "File.h"
 #include "MD5.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 CMD5::CMD5()
 {
 	m_anTable[ 1] = 0xD76AA478;
@@ -73,9 +71,7 @@ CMD5::CMD5()
 	m_anTable[64] = 0xEB86D391;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculate MD5 Value
-
+/// Calculate MD5 Value
 SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
 {
 	// Open file
@@ -107,23 +103,21 @@ SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Calculate MD5 Value
-//
-// Remark: If bAlignment assumes that the input data is aligned on 64 bytes
-//         then the efficiency is not good
-//
-// Parameters:
-//   - pvSrc         - Input Data
-//   - dwSrcSize     - Input data size
-//   - pdwInitialize - Initialization
-//   - bAlignment    - Request alignment
-
+/// Calculate MD5 Value
+///
+/// @param pvSrc         Input Data
+/// @param dwSrcSize     Input data size
+/// @param pdwInitialize Initialization
+/// @param bAlignment    Request alignment
+///
+/// Remark: If bAlignment assumes that the input data is aligned on 64 bytes
+///         then the efficiency is not good
+///
 SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize, BOOL bAlignment)
 {
-	const DWORD* pdwSrc = (const DWORD*) pvSrc;
+	const DWORD* pdwSrc = static_cast<const DWORD*>(pvSrc);
 
 	// Alignment
-
 	YCMemory<BYTE> clmbtSrc;
 
 	if (bAlignment)
@@ -136,7 +130,7 @@ SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitial
 		// Append padding
 		AppendPadding(&clmbtSrc[0], dwSrcSize, dwPadding);
 
-		pdwSrc = (const DWORD*) &clmbtSrc[0];
+		pdwSrc = reinterpret_cast<const DWORD*>(&clmbtSrc[0]);
 	}
 
 	// Set initial value
@@ -252,76 +246,58 @@ SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitial
 	return m_stmd5Value;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 DWORD CMD5::CalculateSub1(DWORD dwX, DWORD dwY, DWORD dwZ)
 {
 	return ((dwX & dwY) | (~dwX & dwZ));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
-
+/// Calculation Processing
 DWORD CMD5::CalculateSub2(DWORD dwX, DWORD dwY, DWORD dwZ)
 {
 	return ((dwX & dwZ) | (dwY & ~dwZ));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//	Calculation Processing
-
+/// Calculation Processing
 DWORD CMD5::CalculateSub3(DWORD dwX, DWORD dwY, DWORD dwZ)
 {
 	return (dwX ^ dwY ^ dwZ);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 DWORD CMD5::CalculateSub4(DWORD dwX, DWORD dwY, DWORD dwZ)
 {
 	return (dwY ^ (dwX | ~dwZ));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 void CMD5::CalculateSub5(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
 {
 	dwA = dwB + RotateLeft(dwA + CalculateSub1(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 void CMD5::CalculateSub6(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
 {
 	dwA = dwB + RotateLeft(dwA + CalculateSub2(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 void CMD5::CalculateSub7(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
 {
 	dwA = dwB + RotateLeft(dwA + CalculateSub3(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculation Processing
-
+/// Calculation Processing
 void CMD5::CalculateSub8(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
 {
 	dwA = dwB + RotateLeft(dwA + CalculateSub4(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Calculate Padding
-//
-// Parameters:
-//   - dwSize - Size
-
+/// Calculate Padding
+///
+/// @param dwSize Size
+///
 DWORD CMD5::CalculatePadding(DWORD dwSize)
 {
 	// Get padding
@@ -337,44 +313,39 @@ DWORD CMD5::CalculatePadding(DWORD dwSize)
 	return dwPadding;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Append Padding
-//
-// Parameters:
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input Data Size
-//   - dwPadding - Padding
-
+/// Append Padding
+///
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input Data Size
+/// @param dwPadding Padding
+///
 void CMD5::AppendPadding(void* pvSrc, DWORD dwSrcSize, DWORD dwPadding)
 {
-	BYTE* pbtSrc = (BYTE*) pvSrc;
+	BYTE* pbtSrc = static_cast<BYTE*>(pvSrc);
 
 	// Append padding
 	pbtSrc[dwSrcSize] = 0x80;
 	ZeroMemory(&pbtSrc[dwSrcSize + 1], (dwPadding - 9));
 
 	// Additional data size (in bits)
-	*(UINT64*) &pbtSrc[dwSrcSize + dwPadding - 8] = (UINT64) dwSrcSize * 8;
+	UINT64 bitsize = static_cast<UINT64>(dwSrcSize) * 8;
+	std::memcpy(&pbtSrc[dwSrcSize + dwPadding - 8], &bitsize, sizeof(UINT64));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Circular Rotate Left
-
+/// Circular Rotate Left
 DWORD CMD5::RotateLeft(DWORD dwA, DWORD dwS)
 {
 	return ((dwA << dwS) | (dwA >> (32 - dwS)));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// MD5 value converted to a string of decimal digits
-//
-// Parameters:
-//   - pszDstOfMD5 - Storage location of the string.
-//   - dwMD5       - MD5 value
-
+/// MD5 value converted to a string of decimal digits
+///
+/// @param pszDstOfMD5 Storage location of the string.
+/// @param dwMD5       MD5 value
+///
 void CMD5::ValueToStr(LPSTR pszDstOfMD5, DWORD dwMD5)
 {
-	static const char acHex[] =
+	static const char acHex[16] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};
@@ -388,16 +359,14 @@ void CMD5::ValueToStr(LPSTR pszDstOfMD5, DWORD dwMD5)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// MD5 value converted to a string of decimal digits
-//
-// Parameters:
-//   - pszDstOfMD5 - Storage location of the string
-//   - pdwMD5      - MD5 value
-
+/// MD5 value converted to a string of decimal digits
+///
+/// @param pszDstOfMD5 Storage location of the string
+/// @param pdwMD5      MD5 value
+///
 void CMD5::MD5ToStrings(LPSTR pszDstOfMD5, const DWORD* pdwMD5)
 {
-	static const char acHex[] =
+	static const char acHex[16] =
 	{
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 	};

@@ -1,28 +1,22 @@
 #include "stdafx.h"
 #include "YCLibrary.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCLibrary::YCLibrary()
 {
 	m_hModule = nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
-
+/// Destructor
 YCLibrary::~YCLibrary()
 {
 	Free();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Load the specified module
-//
-// Parameters:
-//   - pszPathToFile - Load module name
-
+/// Load the specified module
+///
+/// @param pszPathToFile Load module name
+///
 bool YCLibrary::Load(LPCTSTR pszPathToFile)
 {
 	m_hModule = ::LoadLibrary(pszPathToFile);
@@ -30,9 +24,7 @@ bool YCLibrary::Load(LPCTSTR pszPathToFile)
 	return (m_hModule != nullptr);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Release the loaded module
-
+/// Release the loaded module
 void YCLibrary::Free()
 {
 	if (m_hModule != nullptr)
@@ -42,12 +34,10 @@ void YCLibrary::Free()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets the function address
-//
-// Parameters:
-//   - pszProcName - Name of the function
-
+/// Gets the function address
+///
+/// @param pszProcName Name of the function
+///
 FARPROC YCLibrary::GetProcAddress(LPCTSTR pszProcName)
 {
 	if (m_hModule == nullptr)

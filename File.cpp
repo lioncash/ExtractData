@@ -48,13 +48,13 @@ void CFile::Close()
 DWORD CFile::Read(LPVOID buf, DWORD size)
 {
 	DWORD dwReadSize;
-	ReadFile(m_hFile, buf, size, &dwReadSize, NULL);
+	ReadFile(m_hFile, buf, size, &dwReadSize, nullptr);
 	return dwReadSize;
 }
 
 DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 {
-	LPBYTE pbyBuf = (LPBYTE)buf;
+	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
 	LPBYTE pbyBufEnd = pbyBuf + dwBufSize;
 	DWORD dwTotalReadSize = 0;
 
@@ -100,7 +100,7 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 DWORD CFile::Write(LPCVOID buf, DWORD size)
 {
 	DWORD dwWriteSize;
-	WriteFile(m_hFile, buf, size, &dwWriteSize, NULL);
+	WriteFile(m_hFile, buf, size, &dwWriteSize, nullptr);
 	return dwWriteSize;
 }
 
@@ -144,14 +144,7 @@ QWORD CFile::Seek(INT64 offset, DWORD SeekMode)
 	if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		li.QuadPart = -1;
 
-	return (QWORD)(li.QuadPart);
-/*
-	LARGE_INTEGER li_offset;
-	li_offset.QuadPart = offset;
-	LARGE_INTEGER new_fp;
-	SetFilePointerEx(m_hFile, li_offset, &new_fp, SeekMode);
-	return (QWORD)(new_fp.QuadPart);
-*/
+	return static_cast<QWORD>(li.QuadPart);
 }
 
 QWORD CFile::SeekHed(INT64 offset)
@@ -172,23 +165,11 @@ QWORD CFile::SeekCur(INT64 offset)
 QWORD CFile::GetFilePointer()
 {
 	return Seek(0, FILE_CURRENT);
-/*
-	LARGE_INTEGER zero;
-	zero.QuadPart = 0;
-	LARGE_INTEGER offset;
-	SetFilePointerEx(m_hFile, zero, &offset, FILE_CURRENT);
-	return (QWORD)(offset.QuadPart);
-*/
 }
 
 QWORD CFile::GetFileSize()
 {
-	LARGE_INTEGER li;
-	li.LowPart = ::GetFileSize(m_hFile, &(DWORD&)li.HighPart);
-	return (QWORD)(li.QuadPart);
-/*
-	LARGE_INTEGER FileSize;
-	GetFileSizeEx(m_hFile, &FileSize);
-	return (QWORD)(FileSize.QuadPart);
-*/
+	LARGE_INTEGER li = {};
+	li.LowPart = ::GetFileSize(m_hFile, &reinterpret_cast<DWORD&>(li.HighPart));
+	return static_cast<QWORD>(li.QuadPart);
 }

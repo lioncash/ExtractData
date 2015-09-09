@@ -1,16 +1,13 @@
-
 #include "stdafx.h"
 #include "YCFileFindSx.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// File Search
-//
-// Parameters:
-//   - rfvcPathToDstFile     - Storage location
-//   - pszPathToTargetFolder - Directory to search for
-//   - pszTargetFileName     - Target filename (can be a wildcard)
-//   - bSearchSubDirectory   - Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
-
+/// File Search
+///
+/// @param rfvcPathToDstFile     Storage location
+/// @param pszPathToTargetFolder Directory to search for
+/// @param pszTargetFileName     Target filename (can be a wildcard)
+/// @param bSearchSubDirectory   Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
+///
 bool YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName, bool bSearchSubDirectory)
 {
 	bool bReturn = false;

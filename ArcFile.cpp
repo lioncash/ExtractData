@@ -6,9 +6,7 @@
 #include "MD5.h"
 #include "ArcFile.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 CArcFile::CArcFile()
 {
 	m_dwArcsID = -1;
@@ -22,17 +20,13 @@ CArcFile::CArcFile()
 	m_bWork = FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
-
+/// Destructor
 CArcFile::~CArcFile()
 {
 	Close();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-
+/// Mount
 BOOL CArcFile::Mount()
 {
 	CStandard clStandard;
@@ -40,9 +34,7 @@ BOOL CArcFile::Mount()
 	return clStandard.Mount(this);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-
+/// Decode
 BOOL CArcFile::Decode()
 {
 	CStandard clStandard;
@@ -50,9 +42,7 @@ BOOL CArcFile::Decode()
 	return clStandard.Decode(this);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Extract
-
+/// Extract
 BOOL CArcFile::Extract()
 {
 	CStandard clStandard;
@@ -66,15 +56,13 @@ BOOL CArcFile::Extract()
 //
 ////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Open archive file
-//
-// Parameters:
-//   - pszPathToArc - Path to the archive file
-
+/// Open archive file
+///
+/// @param pszPathToArc Path to the archive file
+///
 BOOL CArcFile::Open(LPCTSTR pszPathToArc)
 {
-	HANDLE hArc = CreateFile(pszPathToArc, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hArc = CreateFile(pszPathToArc, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hArc == INVALID_HANDLE_VALUE)
 	{
 		CError error;
@@ -122,7 +110,7 @@ DWORD CArcFile::Read(LPVOID buf, DWORD size)
 	return dwReadSize;
 }
 
-BYTE *CArcFile::ReadHed()
+BYTE* CArcFile::ReadHed()
 {
 	Read(m_pHeader, sizeof(m_pHeader));
 	return m_pHeader;
@@ -137,14 +125,7 @@ QWORD CArcFile::Seek(INT64 offset, DWORD SeekMode)
 	if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		li.QuadPart = -1;
 
-	return (QWORD)(li.QuadPart);
-/*
-	LARGE_INTEGER li_offset;
-	li_offset.QuadPart = offset;
-	LARGE_INTEGER new_fp;
-	SetFilePointerEx(m_hArcs[m_dwArcsID], li_offset, &new_fp, SeekMode);
-	return (QWORD)(new_fp.QuadPart);
-*/
+	return static_cast<QWORD>(li.QuadPart);
 }
 
 QWORD CArcFile::SeekHed(INT64 offset)
@@ -165,25 +146,13 @@ QWORD CArcFile::SeekCur(INT64 offset)
 QWORD CArcFile::GetArcPointer()
 {
 	return Seek(0, FILE_CURRENT);
-/*
-	LARGE_INTEGER zero;
-	zero.QuadPart = 0;
-	LARGE_INTEGER offset;
-	SetFilePointerEx(m_hArcs[m_dwArcsID], zero, &offset, FILE_CURRENT);
-	return (QWORD)(offset.QuadPart);
-*/
 }
 
 QWORD CArcFile::GetArcSize()
 {
-	LARGE_INTEGER li;
-	li.LowPart = GetFileSize(m_hArcs[m_dwArcsID], &(DWORD&)li.HighPart);
-	return (QWORD)(li.QuadPart);
-/*
-	LARGE_INTEGER ArcSize;
-	GetFileSizeEx(m_hArcs[m_dwArcsID], &ArcSize);
-	return (QWORD)(ArcSize.QuadPart);
-*/
+	LARGE_INTEGER li = {};
+	li.LowPart = GetFileSize(m_hArcs[m_dwArcsID], &reinterpret_cast<DWORD&>(li.HighPart));
+	return static_cast<QWORD>(li.QuadPart);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -193,11 +162,10 @@ QWORD CArcFile::GetArcSize()
 ////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Open File
-//
-// Parameters:
-//   - pszReFileExt - Extension after rename
-
+/// Open File
+///
+/// @param pszReFileExt Extension after rename
+///
 BOOL CArcFile::OpenFile(LPCTSTR pszReFileExt)
 {
 	BOOL bReturn = FALSE;
@@ -225,7 +193,7 @@ BOOL CArcFile::OpenFile(LPCTSTR pszReFileExt)
 
 		clError.Message(m_pProg->GetHandle(), _T("Failed to write to %s"), m_clsPathToFile);
 
-		throw (int) -1;
+		throw -1;
 	}
 
 	// Prepare simple decoding
@@ -262,24 +230,12 @@ void CArcFile::CloseFile()
 
 		::DeleteFile(m_clfOutput.GetFilePath());
 	}
-/*
-	if( m_hFile != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(m_hFile);
-		m_hFile = INVALID_HANDLE_VALUE;
-		if ((m_pProg->OnCancel() == TRUE) && (m_clsPathToFile != _T("")))
-			DeleteFile(m_clsPathToFile);
-	}
-	if (m_clsPathToFile != _T(""))
-		m_clsPathToFile = _T("");
-*/
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Simple initialization of the decryption key
-//
-// Remark: Obtains the decryption key from a file
-
+/// Simple initialization of the decryption key
+///
+/// @remark Obtains the decryption key from a file
+///
 DWORD CArcFile::InitDecrypt()
 {
 	m_deckey = 0;
@@ -307,11 +263,10 @@ DWORD CArcFile::InitDecrypt()
 	return InitDecrypt(abtHeader);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Simple initialization of the decryption key
-//
-// Remark: Gets the decryption key from pvData
-
+/// Simple initialization of the decryption key
+///
+/// @remark Gets the decryption key from pvData
+///
 DWORD CArcFile::InitDecrypt(const void* pvData)
 {
 	m_deckey = 0;
@@ -322,7 +277,7 @@ DWORD CArcFile::InitDecrypt(const void* pvData)
 	}
 
 	SFileInfo*  pstFileInfo = GetOpenFileInfo();
-	const BYTE* pbtData = (const BYTE*) pvData;
+	const BYTE* pbtData = static_cast<const BYTE*>(pvData);
 
 	if (pstFileInfo->format == _T("OGG"))
 	{
@@ -367,18 +322,16 @@ DWORD CArcFile::InitDecrypt(const void* pvData)
 	return m_deckey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Simple initialization for the decryption key
-//
-// Note: Text-only data
-//
-// Parameters:
-//   - pvText     - Text Data
-//   - dwTextSize - Text data size
-
+/// Simple initialization for the decryption key
+///
+/// Note: Text-only data
+///
+/// @param pvText     Text Data
+/// @param dwTextSize Text data size
+///
 DWORD CArcFile::InitDecryptForText(const void* pvText, DWORD dwTextSize)
 {
-	const BYTE* pbtText = (const BYTE*) pvText;
+	const BYTE* pbtText = static_cast<const BYTE*>(pvText);
 
 	m_deckey = *(WORD*) &pbtText[dwTextSize - 2] ^ 0x0A0D;
 	m_deckey = (m_deckey << 16) | m_deckey;
@@ -392,15 +345,13 @@ void CArcFile::Decrypt(LPVOID buf, DWORD size)
 	if (m_deckey == 0)
 		return;
 
-	LPBYTE pbyBuf = (LPBYTE)buf;
+	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
 
 	for (DWORD i = 0; i < size; i += 4)
 		*(LPDWORD)&pbyBuf[i] ^= m_deckey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Write File
-
+/// Write File
 DWORD CArcFile::WriteFile(const void* pvBuffer, DWORD dwWriteSize, DWORD dwSizeOrg)
 {
 	DWORD dwResult = m_clfOutput.Write(pvBuffer, dwWriteSize);
@@ -428,34 +379,7 @@ DWORD CArcFile::WriteFile(const void* pvBuffer, DWORD dwWriteSize, DWORD dwSizeO
 		// Other causes
 		clError.Message(m_pProg->GetHandle(), _T("Failed to write %s"), m_clsPathToFile);
 	}
-/*
-	if( !::WriteFile(m_hFile, buf, size, &dwWriteSize, NULL) )
-	{
-		// Write failure
 
-		CError clError;
-
-		// Check disk space
-
-		ULARGE_INTEGER stuiFreeBytesAvailable;
-		ULARGE_INTEGER stuiTotalNumberOfBytes;
-		ULARGE_INTEGER stuiTotalNumberOfFreeBytes;
-
-		if( ::GetDiskFreeSpaceEx( m_clsPathToFile, &stuiFreeBytesAvailable, &stuiTotalNumberOfBytes, &stuiTotalNumberOfFreeBytes ) )
-		{
-			if( stuiTotalNumberOfFreeBytes.QuadPart < size )
-			{
-
-				clError.Message( m_pProg->GetHandle(), _T("Failed to write %s \n Not enough disk space"), m_clsPathToFile );
-				return dwWriteSize;
-			}
-		}
-
-		// Other causes
-
-		clError.Message( m_pProg->GetHandle(), _T("Failed to write %s"), m_clsPathToFile );
-	}
-*/
 	// Progress update
 
 	if (dwSizeOrg != 0xFFFFFFFF)
@@ -509,12 +433,10 @@ void CArcFile::SetBufSize(LPDWORD BufSize, DWORD WriteSize, DWORD FileSize)
 		*BufSize = FileSize - WriteSize;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Additional file information
-//
-// Parameters:
-//   - rfstFileInfo - File info to be added.
-
+/// Additional file information
+///
+/// @param rfstFileInfo File info to be added.
+///
 void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo)
 {
 	if (rfstFileInfo.format == _T(""))
@@ -536,13 +458,11 @@ void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo)
 	m_ctEnt++;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Additional file information
-//
-// Parameters:
-//   - rfstFileInfo - File info to be added.
-//   - dwFile       - File number
-//   - pszFileExt   - Extension
+/// Additional file information
+///
+/// @param rfstFileInfo File info to be added.
+/// @param dwFile       File number
+/// @param pszFileExt   Extension
 
 void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo, DWORD& dwFile, LPCTSTR pszFileExt)
 {
@@ -581,7 +501,7 @@ YCString CArcFile::SetFileFormat(const YCString& sFilePath)
 	return FileFormat;
 }
 
-// Function that separates every three digits in the filesize by commas
+/// Function that separates every three digits in the filesize by commas
 YCString CArcFile::SetCommaFormat(DWORD dwSize)
 {
 	TCHAR buf[256];
@@ -604,7 +524,7 @@ YCString CArcFile::SetCommaFormat(DWORD dwSize)
 	return sSize;
 }
 
-// Function to create the directories leading up to the lowest level you want to create
+/// Function to create the directories leading up to the lowest level you want to create
 void CArcFile::MakeDirectory(LPCTSTR pFilePath)
 {
 	std::vector<YCString> sDirPathList;
@@ -622,9 +542,6 @@ void CArcFile::MakeDirectory(LPCTSTR pFilePath)
 		CreateDirectory(sDirPathList[i], nullptr);
 	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//
 
 void CArcFile::ReplaceBackslash(LPTSTR pszPath)
 {
@@ -648,12 +565,10 @@ void CArcFile::ReplaceBackslash(LPTSTR pszPath)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Create output filename
-//
-// Parameters:
-//   - pszRenameFileExt - Extension after rename
-
+/// Create output filename
+///
+/// @param pszRenameFileExt Extension after rename
+///
 YCString CArcFile::CreateFileName(LPCTSTR pszRenameFileExt)
 {
 	// Get filename
@@ -759,15 +674,13 @@ BOOL CArcFile::CheckDir(LPCTSTR pDirName)
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Return information to the appropriate file from the file name
-//
-// Note: Linear search
-//
-// Parameters:
-//   - pszFileName      - Target file name
-//   - bCmpFileNameOnly - Whether or not to compare just the file names
-
+/// Return information to the appropriate file from the file name
+///
+/// @param pszFileName      Target file name
+/// @param bCmpFileNameOnly Whether or not to compare just the file names
+///
+/// @remark Linear search
+///
 SFileInfo* CArcFile::GetFileInfo(LPCTSTR pszFileName, BOOL bCmpFileNameOnly)
 {
 	if (bCmpFileNameOnly)
@@ -797,14 +710,12 @@ SFileInfo* CArcFile::GetFileInfo(LPCTSTR pszFileName, BOOL bCmpFileNameOnly)
 	return nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Return information to the appropriate file from the file name
-//
-// Note: Binary Search
-//
-// Parameters:
-//   - pszFileName - Target file name
-
+/// Return information to the appropriate file from the file name
+///
+/// @param pszFileName Target file name
+///
+/// @remark Binary Search
+///
 const SFileInfo* CArcFile::GetFileInfoForBinarySearch(LPCTSTR pszFileName)
 {
 	// Information is stored in files that are sorted by file name
@@ -842,25 +753,21 @@ void CArcFile::ClearMD5()
 	m_vtstmd5File.clear();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Comparison function for sorting
-//
-// Parameters:
-//   - rstfiTarget1 - Left 
-//   - rstfiTarget2 - Right
-
+/// Comparison function for sorting
+///
+/// @param rstfiTarget1 Left 
+/// @param rstfiTarget2 Right
+///
 BOOL CArcFile::CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2)
 {
 	return (lstrcmpi(rstfiTarget1.name, rstfiTarget2.name) < 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Binary Search
-//
-// Parameters:
-//   - rvcFileInfo - File info list
-//   - pszFileName - Target filename
-
+/// Binary Search
+///
+/// @param rvcFileInfo File info list
+/// @param pszFileName Target filename
+///
 SFileInfo* CArcFile::SearchForFileInfo(std::vector<SFileInfo>& rvcFileInfo, LPCTSTR pszFileName)
 {
 	int nLow = 0;

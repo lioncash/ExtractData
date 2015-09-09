@@ -1,29 +1,23 @@
 #include "stdafx.h"
 #include "YCStdioFile.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 YCStdioFile::YCStdioFile()
 {
 	m_pStream = nullptr;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Destructor
-
+/// Destructor
 YCStdioFile::~YCStdioFile()
 {
 	Close();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mode to open the file in
-//
-// Parameters:
-//   - pszPathToFile - File path
-//   - uOpenFlags    - Mode
-
+/// Mode to open the file in
+///
+/// @param pszPathToFile File path
+/// @param uOpenFlags    Mode
+///
 BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
@@ -140,9 +134,7 @@ BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	return (m_pStream != nullptr);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Close File
-
+/// Close File
 void YCStdioFile::Close()
 {
 	if (m_pStream != nullptr)
@@ -152,50 +144,42 @@ void YCStdioFile::Close()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Read File
-//
-// Parameters:
-//   - pvBuffer   - Buffer
-//   - dwReadSize - Read size
-
+/// Read File
+///
+/// @param pvBuffer   Buffer
+/// @param dwReadSize Read size
+///
 DWORD YCStdioFile::Read(void* pvBuffer, DWORD dwReadSize)
 {
 	return fread(pvBuffer, 1, dwReadSize, m_pStream);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Write File
-//
-// Parameters:
-//   - pvBuffer    - Buffer
-//   - dwWriteSize - Write size
-
+/// Write File
+///
+/// @param pvBuffer    Buffer
+/// @param dwWriteSize Write size
+///
 DWORD YCStdioFile::Write(const void* pvBuffer, DWORD dwWriteSize)
 {
 	return fwrite(pvBuffer, 1, dwWriteSize, m_pStream);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Read a file line
-//
-// Parameters:
-//   - pszBuffer    - Buffer
-//   - dwBufferSize - Buffer size
-
+/// Read a file line
+///
+/// @param pszBuffer    Buffer
+/// @param dwBufferSize Buffer size
+///
 LPTSTR YCStdioFile::ReadString(LPTSTR pszBuffer, DWORD dwBufferSize)
 {
 	return _fgetts( pszBuffer, dwBufferSize, m_pStream );
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Read a file line
-//
-// Remark: Gets rid of the newline at the end
-//
-// Parameters:
-//   - rfclsBuffer - Buffer
-
+/// Read a file line
+///
+/// @param rfclsBuffer Buffer
+///
+/// @remark Gets rid of the newline at the end
+///
 BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 {
 	BOOL  bReturn = FALSE;
@@ -227,21 +211,17 @@ BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 	return bReturn;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Writes a line into the file
-
+/// Writes a line into the file
 void YCStdioFile::WriteString(LPCTSTR pszBuffer)
 {
 	_fputts(pszBuffer, m_pStream);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Move the file pointer (Seek)
-//
-// Parameters:
-//   - n64Offset  - Number of bytes to seek
-//   - dwSeekMode - Seek mode
-
+/// Move the file pointer (Seek)
+///
+/// @param n64Offset  Number of bytes to seek
+/// @param dwSeekMode Seek mode
+///
 UINT64 YCStdioFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 {
 	switch (dwSeekMode)
@@ -264,7 +244,7 @@ UINT64 YCStdioFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
 
 	if (_fseeki64(m_pStream, n64Offset, dwSeekMode))
 	{
-		return (UINT64)_ftelli64(m_pStream);
+		return static_cast<UINT64>(_ftelli64(m_pStream));
 	}
 
 	return 0;

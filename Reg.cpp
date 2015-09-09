@@ -35,7 +35,7 @@ BOOL CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
 	if (RegQueryValueEx(hkResult, pKeyName, nullptr, nullptr, data, &cbData) != 0)
 		return FALSE;
 
-	Value = (LPTSTR)data;
+	Value = reinterpret_cast<LPTSTR>(data);
 
 	RegCloseKey(hkResult);
 
