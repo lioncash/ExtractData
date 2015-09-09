@@ -26,9 +26,9 @@ public:
 	void InitFot(const LPVOID pattern, DWORD size);
 
 	LPBYTE  GetHed()           { return m_pattern[0].pattern; }
-	DWORD   GetHedSize()       { return m_pattern[0].size; }
+	DWORD   GetHedSize() const { return m_pattern[0].size; }
 	LPBYTE  GetFot()           { return m_pattern[1].pattern; }
-	DWORD   GetFotSize()       { return m_pattern[1].size; }
+	DWORD   GetFotSize() const { return m_pattern[1].size; }
 	DWORD&  GetCtFile()        { return m_ctFile; }
 
 	BOOL    CmpHed(LPBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
@@ -39,7 +39,7 @@ public:
 	BOOL    SearchFot(CArcFile* pclArc);
 
 	void    SetOffset(DWORD offset) { m_offset = offset; }
-	DWORD   GetOffset()             { return m_offset; }
+	DWORD   GetOffset() const       { return m_offset; }
 
 	virtual void Mount(CArcFile* pclArc) = 0;
 
