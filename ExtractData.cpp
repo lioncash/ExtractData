@@ -4,9 +4,6 @@
 #include "Dialog/FileDialog.h"
 #include "Dialog/FolderInputDialog.h"
 #include "ArcFile.h"
-//#include "DataBase/DataBase.h"
-//#include "DragDrop/DataObject.h"
-//#include "DragDrop/DropSource.h"
 #include "ExtractData.h"
 
 #define WM_INPUT_FILE  (WM_USER+1)
@@ -30,7 +27,7 @@ CExtractData::CExtractData()
 void CExtractData::Init(HWND hWnd, SOption& option, CMainListView& listview)
 {
 	m_hParentWnd = hWnd;
-	m_hParentInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hParentInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 	m_pOption = &option;
 	m_pListView = &listview;
 }
@@ -56,7 +53,7 @@ void CExtractData::OpenHistory(YCString& clsFilePath)
 
 void CExtractData::OpenDrop(WPARAM wp)
 {
-	HDROP hDrop = (HDROP)wp;
+	HDROP hDrop = reinterpret_cast<HDROP>(wp);
 	UINT uFileNo = DragQueryFile(hDrop, -1, nullptr, 0);
 
 	std::vector<TCHAR> szFileNames(MAX_PATH * uFileNo, 0);
@@ -79,7 +76,7 @@ void CExtractData::OpenDrop(WPARAM wp)
 		memcpy(pszFileName, filename, lstrlen(filename));
 		pszFileName += lstrlen(filename) + 1;
 
-		for (int i = 1; i < (int)uFileNo; i++)
+		for (int i = 1; i < static_cast<int>(uFileNo); i++)
 		{
 			DragQueryFile(hDrop, i, filename, MAX_PATH);
 			memcpy(pszFileName, PathFindFileName(filename), lstrlen(PathFindFileName(filename)));
@@ -119,13 +116,13 @@ void CExtractData::Mount(LPCTSTR c_pclArcNames)
 	Close(); // Close the last opened 
 	m_pclArcNames = c_pclArcNames;
 	m_bInput = TRUE;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 	m_pListView->Show();
 }
 
 UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 {
-	CExtractData* pObj = (CExtractData*)lpParam;
+	CExtractData* pObj = static_cast<CExtractData*>(lpParam);
 
 	try
 	{
@@ -179,7 +176,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 				AllArcSize += pclArc->GetArcSize();
 				rArcList.push_back(pclArc);
-				itr++;
+				++itr;
 			}
 		}
 
@@ -189,10 +186,8 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 		// Reading
 		DWORD dwArcID = 0;
-		//for (std::vector<CArcFile*>::iterator itrArc = rArcList.begin(); itrArc != rArcList.end(); ) {
-		for (size_t i = 0; i < rArcList.size(); i++)
+		for (CArcFile* const pclArc : rArcList)
 		{
-			CArcFile* pclArc = rArcList[i];
 			pclArc->SetArcID(dwArcID);
 			pclArc->SetEnt(rEnt);
 			pclArc->SetProg(prog);
@@ -289,7 +284,7 @@ void CExtractData::SaveDrop()
 	// Set the structure of FORMATETC
 	FORMATETC fmtetc;
 	fmtetc.cfFormat = CF_HDROP;
-	fmtetc.ptd = NULL;
+	fmtetc.ptd = nullptr;
 	fmtetc.dwAspect = DVASPECT_CONTENT;
 	fmtetc.lindex = -1;
 	fmtetc.tymed = TYMED_HGLOBAL;
@@ -298,7 +293,7 @@ void CExtractData::SaveDrop()
 	STGMEDIUM medium;
 	medium.tymed = TYMED_HGLOBAL;
 	medium.hGlobal = GlobalAlloc(GMEM_MOVEABLE, sizeof(DROPFILES) + sFiles.size());
-	medium.pUnkForRelease = NULL;
+	medium.pUnkForRelease = nullptr;
 	LPTSTR p = (LPTSTR)GlobalLock(medium.hGlobal);
 	((DROPFILES*)p)->pFiles = sizeof(DROPFILES);
 	((DROPFILES*)p)->fWide = FALSE;
@@ -326,7 +321,7 @@ void CExtractData::Decode(DWORD ExtractMode, LPCTSTR pSaveDir, BOOL bConvert)
 	m_pSaveDir = pSaveDir;
 	m_bConvert = bConvert;
 	m_bInput = FALSE;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 void CExtractData::DecodeTmp()
@@ -337,12 +332,12 @@ void CExtractData::DecodeTmp()
 	m_pSaveDir = m_pOption->TmpDir;
 	m_bConvert = TRUE;
 	m_bInput = FALSE;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 {
-	CExtractData* pObj = (CExtractData*)lpParam;
+	CExtractData* pObj = static_cast<CExtractData*>(lpParam);
 	CArcFile* pclArc = nullptr;
 
 	try
@@ -367,7 +362,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		else
 		{
 			size_t nItemCount = rArcList[0]->GetFileInfo().size();
-			for (int nItem = 0; nItem < (int)nItemCount; nItem++)
+			for (int nItem = 0; nItem < static_cast<int>(nItemCount); nItem++)
 			{
 				nSelects.push_back(nItem);
 				AllFileSize += rArcList[0]->GetFileInfo(nItem)->sizeOrg;
@@ -441,7 +436,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		//CError error;
 		//error.Message(pObj->m_hWnd, "");
 		// Corresponds to the case where the file was still not closed, even with the exception thrown.
-		//if (pclArc != NULL)
+		//if (pclArc != nullptr)
 		//	pclArc->CloseFile();
 	}
 
@@ -472,7 +467,7 @@ void CExtractData::OpenRelate()
 
 			// Open from file association
 
-			if (::ShellExecute(nullptr, nullptr, clsTmpFilePath, nullptr, nullptr, SW_SHOWNORMAL) == (HINSTANCE)SE_ERR_NOASSOC)
+			if (::ShellExecute(nullptr, nullptr, clsTmpFilePath, nullptr, nullptr, SW_SHOWNORMAL) == reinterpret_cast<HINSTANCE>(SE_ERR_NOASSOC))
 			{
 				// If there is no association with the file, issue a 
 				// dialog to select an application which can open the file
@@ -484,11 +479,11 @@ void CExtractData::OpenRelate()
 
 			// Added to the temporary file list
 
-			for (std::set<YCString>::iterator itr = sTmpFilePathList.begin() ; itr != sTmpFilePathList.end() ; itr++)
+			for (const YCString& str : sTmpFilePathList)
 			{
-				if (*itr != _T(""))
+				if (str != _T(""))
 				{
-					m_ssTmpFile.insert(*itr);
+					m_ssTmpFile.insert(str);
 				}
 			}
 
@@ -516,8 +511,7 @@ void CExtractData::DeleteTmpFile()
 			if (!DeleteFile(szTmp))
 			{
 				// Fails to remove it
-
-				itr++;
+				++itr;
 				continue;
 			}
 		}
@@ -550,7 +544,7 @@ void CExtractData::LoadTmpFileList()
 		return;
 	}
 
-	while (1)
+	while (true)
 	{
 		char buf[MAX_PATH];
 
@@ -577,9 +571,9 @@ void CExtractData::SaveTmpFileList()
 		return;
 	}
 
-	for (std::set<YCString>::iterator itr = m_ssTmpFile.begin(); itr != m_ssTmpFile.end(); itr++)
+	for (const YCString& str : m_ssTmpFile)
 	{
-		clfTmpFileList.WriteLine(*itr);
+		clfTmpFileList.WriteLine(str);
 		clfTmpFileList.Write("\r\n", 2);
 	}
 
@@ -631,7 +625,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INPUT_FILE:
 		{
 			// Information Acquisition Start
-			hThread = (HANDLE)_beginthreadex(nullptr, 0, MountThread, this, 0, &thId);
+			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MountThread, this, 0, &thId));
 			//hThread = CreateThread(NULL, 0, MountThread, this, 0, &thId);
 		}
 		return FALSE;
@@ -639,7 +633,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_OUTPUT_FILE:
 		{
 			// Start extraction process
-			hThread = (HANDLE)_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thId);
+			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thId));
 			//hThread = CreateThread(NULL, 0, DecodeThread, this, 0, &thId);
 		}
 		return FALSE;
