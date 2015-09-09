@@ -6,15 +6,15 @@
 
 CToolBar::CToolBar()
 {
-	m_hWnd = NULL;
-	m_hInst = NULL;
-	m_hToolBar = NULL;
+	m_hWnd = nullptr;
+	m_hInst = nullptr;
+	m_hToolBar = nullptr;
 }
 
 void CToolBar::Init(HWND hWnd)
 {
 	m_hWnd = hWnd;
-	m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 	LoadIni();
 }
 
@@ -23,15 +23,15 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 {
 	Init(hWnd);
 
-	HBITMAP hBitmap = (HBITMAP) LoadImage(m_hInst, MAKEINTRESOURCE(BmpID), IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT);
+	HBITMAP hBitmap = static_cast<HBITMAP>(LoadImage(m_hInst, MAKEINTRESOURCE(BmpID), IMAGE_BITMAP, 0, 0, LR_LOADMAP3DCOLORS | LR_LOADTRANSPARENT));
 
 	HWND hToolBar = CreateToolbarEx(
 		m_hWnd,
 		WS_CHILD | WS_VISIBLE | CCS_NORESIZE | TBSTYLE_TOOLTIPS,
 		ID_TOOLBAR,
 		ctIcon,     // Number of images
-		NULL,
-		(UINT_PTR)hBitmap,
+		nullptr,
+		reinterpret_cast<UINT_PTR>(hBitmap),
 		tbButton,
 		ctIcon,     // Number of buttons
 		0,          // Width of the button
@@ -45,21 +45,21 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 	// Flat
 	LONG ToolType = GetWindowLong(hToolBar, GWL_STYLE) | TBSTYLE_FLAT;
 	SetWindowLong(hToolBar, GWL_STYLE, ToolType);
-	InvalidateRect(hToolBar, NULL, TRUE);
-	SendMessage(hToolBar, TB_SETEXTENDEDSTYLE, 0, (LPARAM)TBSTYLE_EX_DRAWDDARROWS);
+	InvalidateRect(hToolBar, nullptr, TRUE);
+	SendMessage(hToolBar, TB_SETEXTENDEDSTYLE, 0, static_cast<LPARAM>(TBSTYLE_EX_DRAWDDARROWS));
 
 	HWND hToolTip = CreateWindowEx(0, //Extended window style
 		TOOLTIPS_CLASS, // Class name
-		NULL,           // Window name
+		nullptr,        // Window name
 		TTS_ALWAYSTIP,  // Window style
 		CW_USEDEFAULT,  // X Coordinate
 		CW_USEDEFAULT,  // Y Coordinare
 		CW_USEDEFAULT,  // Width
 		CW_USEDEFAULT,  // Height
 		m_hWnd,         // Handle of parent window
-		NULL,           // Menu handle
+		nullptr,        // Menu handle
 		m_hInst,        // Instance handle
-		NULL);          // WM_CREATE Data
+		nullptr);       // WM_CREATE Data
 
 	TOOLINFO ti;
 	ti.cbSize = sizeof(TOOLINFO);
@@ -69,13 +69,13 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 
 	for (int i = 0; i < ctIcon; i++)
 	{
-		SendMessage(hToolBar, TB_GETITEMRECT, i, (LPARAM)&ti.rect);
+		SendMessage(hToolBar, TB_GETITEMRECT, i, reinterpret_cast<LPARAM>(&ti.rect));
 		ti.uId = tbButton[i].idCommand;
-		ti.lpszText = (LPTSTR)tbButton[i].idCommand;
-		SendMessage(hToolTip, TTM_ADDTOOL, 0, (LPARAM)&ti);
+		ti.lpszText = reinterpret_cast<LPTSTR>(tbButton[i].idCommand);
+		SendMessage(hToolTip, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 	}
 
-	SendMessage(hToolBar, TB_SETTOOLTIPS, (WPARAM)hToolTip, 0);
+	SendMessage(hToolBar, TB_SETTOOLTIPS, reinterpret_cast<WPARAM>(hToolTip), 0);
 
 	return hToolBar;
 }

@@ -4,8 +4,8 @@
 
 void CVersionInfo::DoModal(HWND hWnd)
 {
-	HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-	DialogBoxParam(hInst, _T("MYVERSION"), hWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
+	DialogBoxParam(hInst, _T("MYVERSION"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 // Version info dialog

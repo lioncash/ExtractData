@@ -19,12 +19,12 @@ CProgBar::~CProgBar()
 void CProgBar::Init(HWND hDlg, QWORD AllFileSize)
 {
 	m_hDlg = hDlg;
-	m_hInst = (HINSTANCE)GetWindowLongPtr(hDlg, GWLP_HINSTANCE);
+	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hDlg, GWLP_HINSTANCE));
 	m_AllFileSize = AllFileSize;
 	m_hDlgItem_percent = GetDlgItem(hDlg, IDC_PERCENT);
 	m_hDlgItem_bar = GetDlgItem(hDlg, IDC_PROGBAR1);
 	m_hDlgItem_archive = GetDlgItem(hDlg, IDC_EXTFILENAME);
-	SendMessage(m_hDlgItem_bar, PBM_SETRANGE, (WPARAM)0, MAKELPARAM(0, 100));
+	SendMessage(m_hDlgItem_bar, PBM_SETRANGE, static_cast<WPARAM>(0), MAKELPARAM(0, 100));
 	// Show 0%
 	UpdatePercent(0);
 }
@@ -44,7 +44,7 @@ void CProgBar::UpdatePercent(QWORD BufSize)
 {
 	LPQWORD pProgSize = &m_ProgSize;
 	*pProgSize += BufSize;
-	int percent = (double)(*pProgSize) / m_AllFileSize * 100;
+	int percent = static_cast<double>(*pProgSize) / m_AllFileSize * 100;
 	
 	if (percent > m_percent)
 	{

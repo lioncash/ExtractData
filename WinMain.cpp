@@ -103,7 +103,7 @@ int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, i
 	}
 
 	OleUninitialize();
-	return (int)msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
 
 // Window class registration
@@ -112,13 +112,13 @@ ATOM CWinMain::InitApp()
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc   = (WNDPROC)CWindowBase::WndStaticProc; // Procedure name
+	wc.lpfnWndProc   = static_cast<WNDPROC>(CWindowBase::WndStaticProc); // Procedure name
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = m_hInst;  // Instance
 	wc.hIcon         = LoadIcon(m_hInst, MAKEINTRESOURCE(IDI_ICON_APP));
 	wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE+1);
+	wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE+1);
 	wc.lpszMenuName  = _T("MAINMENU"); // Menu name
 	wc.lpszClassName = WINDOWCLASS_NAME;
 	wc.hIconSm       = LoadIcon(m_hInst, MAKEINTRESOURCE(IDI_ICON_APP));
@@ -140,7 +140,7 @@ BOOL CWinMain::InitInstance()
 		nullptr,                // When creating the parent window handle, the parent is NULL
 		nullptr,                // When creating the menu handle, the handle is NULL
 		m_hInst,                // Instance handle
-		(LPVOID)this);
+		static_cast<LPVOID>(this));
 	if (!m_hWnd)
 		return FALSE;
 
@@ -353,7 +353,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Toolbar
 			if (wp == ID_TOOLBAR)
 			{
-				LPNMTOOLBAR pNM = (LPNMTOOLBAR)lp;
+				LPNMTOOLBAR pNM = reinterpret_cast<LPNMTOOLBAR>(lp);
 				switch (pNM->hdr.code)
 				{
 					// File History
@@ -366,7 +366,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// List view
 			if (wp == idsMainList)
 			{
-				LPNMLISTVIEW pNM = (LPNMLISTVIEW)lp;
+				LPNMLISTVIEW pNM = reinterpret_cast<LPNMLISTVIEW>(lp);
 				switch (pNM->hdr.code)
 				{
 				// Sort
@@ -375,17 +375,17 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					break;
 				// Show Tooltips
 				case LVN_GETINFOTIP:
-					listview.ShowTip((LPNMLVGETINFOTIP)lp);
+					listview.ShowTip(reinterpret_cast<LPNMLVGETINFOTIP>(lp));
 					break;
 				// View
 				case LVN_GETDISPINFO:
-					listview.Show((NMLVDISPINFO*)lp);
+					listview.Show(reinterpret_cast<NMLVDISPINFO*>(lp));
 					break;
 				// D&D (Drag & Drop)
 				case LVN_BEGINDRAG:
 					//extract.SaveDrop();
 					LRESULT             lResult;
-					listview.OnBeginDrag((NMHDR*)lp, &lResult);
+					listview.OnBeginDrag(reinterpret_cast<NMHDR*>(lp), &lResult);
 					break;
 				// Playback / Viewing by double-clicking
 				case NM_DBLCLK:

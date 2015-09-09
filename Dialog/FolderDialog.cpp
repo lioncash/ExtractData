@@ -4,19 +4,18 @@
 
 BOOL CFolderDialog::DoModal(HWND hWnd, LPCTSTR lpszTitle, LPTSTR pDir)
 {
-	BROWSEINFO bi;
-	ZeroMemory(&bi, sizeof(BROWSEINFO));
+	BROWSEINFO bi = {};
 	bi.hwndOwner = hWnd;
-	bi.lpfn = (BFFCALLBACK)BrowseCallBackProc;
+	bi.lpfn = reinterpret_cast<BFFCALLBACK>(BrowseCallBackProc);
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
-	bi.lParam = (LPARAM)pDir;
+	bi.lParam = reinterpret_cast<LPARAM>(pDir);
 	bi.lpszTitle = lpszTitle;
 
 	LPITEMIDLIST pItemID = SHBrowseForFolder(&bi);
-	if (pItemID == NULL)
+	if (pItemID == nullptr)
 		return FALSE;
 
-	LPMALLOC pMalloc = NULL;
+	LPMALLOC pMalloc = nullptr;
 	if (SHGetMalloc(&pMalloc) == E_FAIL)
 	{
 		CError error;
@@ -37,7 +36,7 @@ LRESULT CALLBACK CFolderDialog::BrowseCallBackProc(HWND hWnd, UINT uMsg, LPARAM 
 	switch (uMsg)
 	{
 		case BFFM_INITIALIZED:
-			SendMessage(hWnd, BFFM_SETSELECTION, (WPARAM)TRUE, lpData);
+			SendMessage(hWnd, BFFM_SETSELECTION, static_cast<WPARAM>(TRUE), lpData);
 			break;
 	}
 

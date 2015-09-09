@@ -7,11 +7,11 @@ SORTPARAM* CListView::m_pSort;
 
 CListView::CListView()
 {
-	m_hWnd = NULL;
-	m_hList = NULL;
-	m_hInst = NULL;
-	m_hImage = NULL;
-	m_pOption = NULL;
+	m_hWnd = nullptr;
+	m_hList = nullptr;
+	m_hInst = nullptr;
+	m_hImage = nullptr;
+	m_pOption = nullptr;
 }
 
 CListView::~CListView()
@@ -22,7 +22,7 @@ CListView::~CListView()
 void CListView::Init(HWND hWnd, SOption& option)
 {
 	m_hWnd = hWnd;
-	m_hInst = (HINSTANCE) GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 	m_pOption = &option;
 }
 
@@ -36,9 +36,9 @@ HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, in
 		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA,
 		x, y, cx, cy,
 		m_hWnd,
-		(HMENU)uID,
+		reinterpret_cast<HMENU>(uID),
 		m_hInst,
-		NULL);
+		nullptr);
 	m_hList = hList;
 
 	// Set style
@@ -92,7 +92,7 @@ void CListView::Sort(int column)
 	m_sort.direct ^= 1;
 	m_pSort = &m_sort;
 	OnSort();
-	InvalidateRect(m_hList, NULL, FALSE);
+	InvalidateRect(m_hList, nullptr, FALSE);
 }
 
 void CListView::Enable(BOOL flag)
@@ -111,7 +111,6 @@ void CListView::SaveIni()
 	for (int i = 0 ; i < nColumns ; i++)
 	{
 		TCHAR szColumn[256];
-
 		_stprintf(szColumn, _T("Column%d"), i);
 
 		clIni.SetKey(szColumn);
@@ -124,7 +123,7 @@ void CListView::Close()
 	if (m_hImage)
 	{
 		ImageList_Destroy(m_hImage);
-		m_hImage = NULL;
+		m_hImage = nullptr;
 	}
 }
 

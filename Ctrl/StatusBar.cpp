@@ -8,10 +8,10 @@
 
 CStatusBar::CStatusBar()
 {
-	m_hWnd = NULL;
-	m_hSBWnd = NULL;
-	m_pOption = NULL;
-	m_pListView = NULL;
+	m_hWnd = nullptr;
+	m_hSBWnd = nullptr;
+	m_pOption = nullptr;
+	m_pListView = nullptr;
 }
 
 void CStatusBar::Init(HWND hWnd, SOption& option, CMainListView& listview)
@@ -28,14 +28,14 @@ HWND CStatusBar::Create(HWND hWnd, SOption& option, CMainListView& listview)
 
 	HWND hSBWnd = CreateStatusWindow(
 		WS_CHILD | WS_VISIBLE | CCS_BOTTOM,
-		NULL,
+		nullptr,
 		m_hWnd,
 		ID_STATUS);
 	m_hSBWnd = hSBWnd;
 
 	int sb_size[SBSIZE];
 	memset(sb_size, 0, sizeof(sb_size));
-	SendMessage(hSBWnd, SB_SETPARTS, SBSIZE, (LPARAM)sb_size);
+	SendMessage(hSBWnd, SB_SETPARTS, SBSIZE, reinterpret_cast<LPARAM>(sb_size));
 
 	SetCount();
 
@@ -47,7 +47,7 @@ void CStatusBar::SetCount()
 {
 	TCHAR szFileCount[256];
 	_stprintf(szFileCount, _T("Files %d"), m_pListView->GetCount());
-	SendMessage(m_hSBWnd, SB_SETTEXT, 0 | 0, (WPARAM)szFileCount);
+	SendMessage(m_hSBWnd, SB_SETTEXT, 0 | 0, reinterpret_cast<WPARAM>(szFileCount));
 }
 
 void CStatusBar::SetWindowPos(int cx)
@@ -55,6 +55,6 @@ void CStatusBar::SetWindowPos(int cx)
 	int sb_size[SBSIZE];
 	sb_size[1] = cx;
 	sb_size[0] = cx / 2;
-	SendMessage(m_hSBWnd, SB_SETPARTS, SBSIZE, (LPARAM)sb_size);
+	SendMessage(m_hSBWnd, SB_SETPARTS, SBSIZE, reinterpret_cast<LPARAM>(sb_size));
 	SendMessage(m_hSBWnd, WM_SIZE, 0, 0); 
 }

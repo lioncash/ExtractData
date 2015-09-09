@@ -4,7 +4,7 @@
 HWND CUpDown::Create(HWND hWnd, HWND hBuddy, int nPos, UINT ID, int nUpper, int nLower, int x, int y, int cx, int cy)
 {
 	m_hWnd = hWnd;
-	m_hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 	m_ID = ID;
 
 	m_hCtrl = CreateUpDownControl(

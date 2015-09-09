@@ -30,7 +30,7 @@ void CEditBox::GetText(LPDWORD pText, BOOL bHex)
 {
 	TCHAR szText[256];
 	GetWindowText(GetCtrlHandle(), szText, _countof(szText));
-	*pText = (lstrcmp(szText, _T("")) == 0) ? 0 : (bHex == FALSE) ? _tstoi(szText) : _tcstol(szText, NULL, 16);
+	*pText = (lstrcmp(szText, _T("")) == 0) ? 0 : (bHex == FALSE) ? _tstoi(szText) : _tcstol(szText, nullptr, 16);
 }
 
 void CEditBox::SetText(LPCTSTR pText)
@@ -40,5 +40,5 @@ void CEditBox::SetText(LPCTSTR pText)
 
 void CEditBox::SetLimit(int length)
 {
-	SendMessage(GetCtrlHandle(), EM_SETLIMITTEXT, (WPARAM)length, 0);
+	SendMessage(GetCtrlHandle(), EM_SETLIMITTEXT, static_cast<WPARAM>(length), 0);
 }

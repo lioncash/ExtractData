@@ -9,8 +9,8 @@
 INT_PTR CFolderInputDialog::DoModal(HWND hWnd, LPTSTR pSaveDir)
 {
 	m_pSaveDir = pSaveDir;
-	HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-	INT_PTR ret = DialogBoxParam(hInst, _T("FOLDER_INPUT_DLG"), hWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
+	INT_PTR ret = DialogBoxParam(hInst, _T("FOLDER_INPUT_DLG"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 	return (ret);
 }
 
@@ -50,7 +50,7 @@ LRESULT CFolderInputDialog::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_DROPFILES:
 		{
 			TCHAR szSaveDir[_MAX_DIR];
-			HDROP hDrop = (HDROP)wp;
+			HDROP hDrop = reinterpret_cast<HDROP>(wp);
 			DragQueryFile(hDrop, 0, szSaveDir, sizeof(szSaveDir));
 			EditDir.SetText(szSaveDir);
 			return FALSE;

@@ -20,8 +20,8 @@ HWND CMainToolBar::Create(HWND hWnd)
 	HWND hToolBar = CToolBar::Create(hWnd, tbButton, IDI_MAIN_TOOLBAR, 16, ARRAYSIZE(tbButton));
 
 	TBBUTTON tbSpace = {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0};
-	SendMessage(hToolBar, TB_INSERTBUTTON, 0, (LPARAM)&tbSpace);
-	SendMessage(hToolBar, TB_INSERTBUTTON, 4, (LPARAM)&tbSpace);
+	SendMessage(hToolBar, TB_INSERTBUTTON, 0, reinterpret_cast<LPARAM>(&tbSpace));
+	SendMessage(hToolBar, TB_INSERTBUTTON, 4, reinterpret_cast<LPARAM>(&tbSpace));
 
 	return hToolBar;
 }
@@ -29,8 +29,8 @@ HWND CMainToolBar::Create(HWND hWnd)
 void CMainToolBar::CreateMenuHistory(int iItem)
 {
 	RECT rc;
-	SendMessage(GetCtrlHandle(), TB_GETRECT, (WPARAM)iItem, (LPARAM)&rc);
-	MapWindowPoints(GetCtrlHandle(), HWND_DESKTOP, (LPPOINT)&rc, 2);
+	SendMessage(GetCtrlHandle(), TB_GETRECT, static_cast<WPARAM>(iItem), reinterpret_cast<LPARAM>(&rc));
+	MapWindowPoints(GetCtrlHandle(), HWND_DESKTOP, reinterpret_cast<LPPOINT>(&rc), 2);
 
 	TPMPARAMS tpm;
 	tpm.cbSize = sizeof(TPMPARAMS);
@@ -63,7 +63,7 @@ void CMainToolBar::CreateMenuHistory(int iItem)
 	{
 		mii.fMask = MIIM_TYPE | MIIM_ID;
 
-		for (int i = 0; i < (int)m_vcOpenHistoryList.size(); i++)
+		for (int i = 0; i < static_cast<int>(m_vcOpenHistoryList.size()); i++)
 		{
 			mii.wID = ID_TOOLBAR_OPEN_HISTORY + i;
 			mii.dwTypeData = m_vcOpenHistoryList[i].GetBuffer( 0 );
@@ -82,7 +82,7 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 	{
 		CArcFile* pclArc = *itrArc;
 		// Turn off if there is any history
-		for (std::vector<YCString>::iterator itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); itrStr++)
+		for (std::vector<YCString>::iterator itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); ++itrStr)
 		{
 			if (pclArc->GetArcPath() == *itrStr)
 			{
@@ -104,7 +104,7 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 		}
 		else
 		{
-			itrArc++;
+			++itrArc;
 		}
 	}
 

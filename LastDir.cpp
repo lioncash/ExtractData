@@ -2,17 +2,13 @@
 #include "Common.h"
 #include "LastDir.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
+/// Constructor
 CLastDir::CLastDir()
 {
 	LoadIni();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Load ini file
-
+/// Load ini file
 void CLastDir::LoadIni()
 {
 	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
@@ -25,9 +21,7 @@ void CLastDir::LoadIni()
 	clIni.ReadStr(m_szSave, sizeof(m_szSave), _T(""));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Save ini file
-
+/// Save ini file
 void CLastDir::SaveIni()
 {
 	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
@@ -40,17 +34,13 @@ void CLastDir::SaveIni()
 	clIni.WriteStr(m_szSave);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get the last opened folder
-
+/// Get the last opened folder
 LPTSTR  CLastDir::GetOpen()
 {
 	return m_szOpen;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get the last folder where something was saved to it
-
+/// Get the last folder where something was saved to it
 LPTSTR  CLastDir::GetSave()
 {
 	return m_szSave;

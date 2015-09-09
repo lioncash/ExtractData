@@ -218,5 +218,5 @@ void CMainListView::Clear()
 
 void CMainListView::OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+	NM_LISTVIEW* pNMListView = reinterpret_cast<NM_LISTVIEW*>(pNMHDR);
 }

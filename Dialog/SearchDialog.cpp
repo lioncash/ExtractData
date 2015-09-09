@@ -6,8 +6,8 @@
 int CSearchDialog::DoModal(HWND hWnd, LPCTSTR pclArcPath)
 {
 	m_pclArcPath = pclArcPath;
-	HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
-	INT_PTR ret = DialogBoxParam(hInst, _T("SEARCHDLG"), hWnd, (DLGPROC)WndStaticProc, (LPARAM)this);
+	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
+	INT_PTR ret = DialogBoxParam(hInst, _T("SEARCHDLG"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 	return (ret);
 }
 

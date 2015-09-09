@@ -3,18 +3,19 @@
 
 CFont::CFont()
 {
-	m_hFont = NULL;
+	m_hFont = nullptr;
 }
 
 CFont::~CFont()
 {
-	if (m_hFont) DeleteObject(m_hFont);
+	if (m_hFont)
+		DeleteObject(m_hFont);
 }
 
 // Function to set the font
 HFONT CFont::Create()
 {
-	if (m_hFont == NULL)
+	if (m_hFont == nullptr)
 	{
 		m_hFont = CreateFont(
 			13, // 0 if default font height (in logical units)
@@ -36,5 +37,5 @@ HFONT CFont::Create()
 		);
 	}
 
-	return (m_hFont);
+	return m_hFont;
 }
