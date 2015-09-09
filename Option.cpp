@@ -13,7 +13,7 @@
 #include "SusieListView.h"
 #include "Option.h"
 
-typedef int (WINAPI* ConfigurationDlgProc)(HWND, int);
+using ConfigurationDlgProc = int (WINAPI*)(HWND, int);
 
 SOption COption::m_option;
 SOption COption::m_option_tmp;
@@ -96,7 +96,7 @@ void COption::LoadIni()
 
 	// Set the PNG compression level
 	clIni.SetKey(_T("CmplvPng"));
-	clIni.ReadDec(&pOption->CmplvPng, (DWORD)1);
+	clIni.ReadDec(&pOption->CmplvPng, 1UL);
 
 	// Set whether or not to do alpha blending
 	clIni.SetKey(_T("AlphaBlend"));
@@ -129,7 +129,7 @@ void COption::LoadIni()
 
 	// Buffer size
 	clIni.SetKey(_T("BufSize"));
-	clIni.ReadDec(&pOption->BufSize, (DWORD)64);
+	clIni.ReadDec(&pOption->BufSize, 64UL);
 
 	// Temporary folder
 	TCHAR szTmpDir[_MAX_DIR];
@@ -179,106 +179,106 @@ void COption::SaveIni()
 {
 	SOption& pOption = m_option;
 
-	YCIni clIni( SBL_STR_INI_EXTRACTDATA );
+	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
 
-	clIni.SetSection( _T("Option") );
+	clIni.SetSection(_T("Option"));
 
 	// List background color
-	clIni.SetKey( _T("ListBkColor") );
-	clIni.WriteHex( pOption.ListBkColor, 6 );
+	clIni.SetKey(_T("ListBkColor"));
+	clIni.WriteHex(pOption.ListBkColor, 6);
 
 	// List text color
-	clIni.SetKey( _T("ListTextColor") );
-	clIni.WriteHex( pOption.ListTextColor, 6 );
+	clIni.SetKey(_T("ListTextColor"));
+	clIni.WriteHex(pOption.ListTextColor, 6);
 
 	// Increase the accuracy of an OGG search
-	clIni.SetKey( _T("HighSearchOgg") );
-	clIni.WriteDec( pOption.bHighSearchOgg );
+	clIni.SetKey(_T("HighSearchOgg"));
+	clIni.WriteDec(pOption.bHighSearchOgg);
 
 	// Each folder to extract
-	clIni.SetKey( _T("ExtFolder") );
-	clIni.WriteDec( pOption.bCreateFolder );
+	clIni.SetKey(_T("ExtFolder"));
+	clIni.WriteDec(pOption.bCreateFolder);
 
 	// Fix CRC of OGG files on extraction
-	clIni.SetKey( _T("OggCRC") );
-	clIni.WriteDec( pOption.bFixOgg );
+	clIni.SetKey(_T("OggCRC"));
+	clIni.WriteDec(pOption.bFixOgg);
 
 	// To enable simple decoding
-	clIni.SetKey( _T("EasyDecrypt") );
-	clIni.WriteDec( pOption.bEasyDecrypt );
+	clIni.SetKey(_T("EasyDecrypt"));
+	clIni.WriteDec(pOption.bEasyDecrypt);
 
 	// Set whether or not to change the extension of scripts
-	// clIni.SetKey( _T("RenameScriptExt") );
-	// clIni.WriteDec( pOption.bRenameScriptExt );
+	// clIni.SetKey(_T("RenameScriptExt"));
+	// clIni.WriteDec(pOption.bRenameScriptExt);
 
 	// Output image format
-	clIni.SetKey( _T("DstBMP") );
-	clIni.WriteDec(pOption.bDstBMP );
-	clIni.SetKey( _T("DstPNG") );
-	clIni.WriteDec( pOption.bDstPNG );
+	clIni.SetKey(_T("DstBMP"));
+	clIni.WriteDec(pOption.bDstBMP);
+	clIni.SetKey(_T("DstPNG"));
+	clIni.WriteDec(pOption.bDstPNG);
 
 	// PNG Compression level
-	clIni.SetKey( _T("CmplvPng") );
-	clIni.WriteDec( pOption.CmplvPng );
+	clIni.SetKey(_T("CmplvPng"));
+	clIni.WriteDec(pOption.CmplvPng);
 
 	// Alpha blending
-	clIni.SetKey( _T("AlphaBlend") );
-	clIni.WriteDec( pOption.bAlphaBlend );
+	clIni.SetKey(_T("AlphaBlend"));
+	clIni.WriteDec(pOption.bAlphaBlend);
 
 	// Set whether or not to use fast alpha blending
-	clIni.SetKey( _T("FastAlphaBlend") );
-	clIni.WriteDec( pOption.bFastAlphaBlend );
+	clIni.SetKey(_T("FastAlphaBlend"));
+	clIni.WriteDec(pOption.bFastAlphaBlend);
 
 	// Background color alpha blending
-	clIni.SetKey( _T("BG_RGB") );
-	clIni.WriteHex( pOption.BgRGB, 6 );
+	clIni.SetKey(_T("BG_RGB"));
+	clIni.WriteHex(pOption.BgRGB, 6);
 
 	// Destination
-	clIni.SetKey( _T("SaveMethodSel") );
-	clIni.WriteDec( pOption.bSaveSel );
-	clIni.SetKey( _T("SaveMethodSrc") );
-	clIni.WriteDec( pOption.bSaveSrc );
-	clIni.SetKey( _T("SaveMethodDir") );
-	clIni.WriteDec( pOption.bSaveDir );
+	clIni.SetKey(_T("SaveMethodSel"));
+	clIni.WriteDec(pOption.bSaveSel);
+	clIni.SetKey(_T("SaveMethodSrc"));
+	clIni.WriteDec(pOption.bSaveSrc);
+	clIni.SetKey(_T("SaveMethodDir"));
+	clIni.WriteDec(pOption.bSaveDir);
 
 	// Fixed output folder
-	clIni.SetKey( _T("SaveDir") );
-	clIni.WriteStr( pOption.SaveDir );
+	clIni.SetKey(_T("SaveDir"));
+	clIni.WriteStr(pOption.SaveDir);
 
 	// Buffer size
-	clIni.SetKey( _T("BufSize") );
-	clIni.WriteDec( pOption.BufSize );
+	clIni.SetKey(_T("BufSize"));
+	clIni.WriteDec(pOption.BufSize);
 
 	// Temporary folder
-	clIni.SetKey( _T("TmpDir") );
-	clIni.WriteStr( pOption.TmpDir );
+	clIni.SetKey(_T("TmpDir"));
+	clIni.WriteStr(pOption.TmpDir);
 
 	// Susie Settings
-	clIni.SetSection( _T("Susie") );
+	clIni.SetSection(_T("Susie"));
 
 	// Use Susie plugins
-	clIni.SetKey( _T("SusieUse") );
-	clIni.WriteDec( pOption.bSusieUse );
+	clIni.SetKey(_T("SusieUse"));
+	clIni.WriteDec(pOption.bSusieUse);
 
 	// Susie Folder
-	clIni.SetKey( _T("SusieDir") );
-	clIni.WriteStr( pOption.SusieDir );
+	clIni.SetKey(_T("SusieDir"));
+	clIni.WriteStr(pOption.SusieDir);
 
 	// Give Susie plugins priority on decoding
-	clIni.SetKey( _T("SusieFirst") );
-	clIni.WriteDec( pOption.bSusieFirst );
+	clIni.SetKey(_T("SusieFirst"));
+	clIni.WriteDec(pOption.bSusieFirst);
 
 	// Set of files to search
-	clIni.SetSection( _T("Search") );
+	clIni.SetSection(_T("Search"));
 
-	for( size_t i = 0 ; i < m_SearchFiles.size() ; i++ )
+	for (size_t i = 0; i < m_SearchFiles.size(); i++)
 	{
-		clIni.SetKey( m_SearchFiles[i] );
-		clIni.WriteDec( pOption.bSearch[i] );
+		clIni.SetKey(m_SearchFiles[i]);
+		clIni.WriteDec(pOption.bSearch[i]);
 	}
 
 	// Save Susie plugin settings ON/OFF
-	if( m_option.bSusieUse )
+	if (m_option.bSusieUse)
 	{
 		CSusie susie;
 		susie.SaveSpi();
@@ -293,24 +293,24 @@ void COption::DoModal(HWND hWnd)
 HWND COption::CreateProp(HWND hWnd)
 {
 	m_hParentWnd = hWnd;
-	HINSTANCE hInst = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
+	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 
 	PROPSHEETPAGE psp;
 	HPROPSHEETPAGE hpsp[3];
 	psp.dwSize = sizeof(PROPSHEETPAGE);
 	psp.dwFlags = PSP_USETITLE;
 	psp.hInstance = hInst;
-	psp.lParam = (LPARAM)this;
+	psp.lParam = reinterpret_cast<LPARAM>(this);
 	psp.pszTemplate = _T("OPTION");
 
 	psp.pszTitle = _T("Basic Settings");
-	psp.pfnDlgProc = (DLGPROC)StdProc;
+	psp.pfnDlgProc = reinterpret_cast<DLGPROC>(StdProc);
 	hpsp[0] = CreatePropertySheetPage(&psp);
 	psp.pszTitle = _T("Extraction Settings");
-	psp.pfnDlgProc = (DLGPROC)ExtractProc;
+	psp.pfnDlgProc = reinterpret_cast<DLGPROC>(ExtractProc);
 	hpsp[1] = CreatePropertySheetPage(&psp);
 	psp.pszTitle = _T("Susie Plugins");
-	psp.pfnDlgProc = (DLGPROC)SusieProc;
+	psp.pfnDlgProc = reinterpret_cast<DLGPROC>(SusieProc);
 	hpsp[2] = CreatePropertySheetPage(&psp);
 
 	PROPSHEETHEADER psh;
@@ -322,9 +322,9 @@ HWND COption::CreateProp(HWND hWnd)
 	psh.nPages = 3;
 	psh.phpage = hpsp;
 	psh.pszCaption = _T("ExtractData");
-	psh.pfnCallback = (PFNPROPSHEETCALLBACK)PropSheetProc;
+	psh.pfnCallback = static_cast<PFNPROPSHEETCALLBACK>(PropSheetProc);
 
-	return (HWND)PropertySheet(&psh);
+	return reinterpret_cast<HWND>(PropertySheet(&psh));
 }
 
 int COption::PropSheetProc(HWND hWnd, UINT msg, LPARAM lParam)
@@ -347,8 +347,6 @@ int COption::PropSheetProc(HWND hWnd, UINT msg, LPARAM lParam)
 
 LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	COption* pThis = (COption*)lp;
-
 	static SOption* pOption = &m_option_tmp;
 
 	// Listview settings
@@ -459,7 +457,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = (LPNMHDR)lp;
+			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
 			switch (pHdr->code)
 			{
 				// Apply/OK, Tabbing
@@ -485,9 +483,6 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	COption* pThis = (COption*)lp;
-
-	static CError error;
 	static CFolderDialog FolderDlg;
 	static SOption* pOption = &m_option_tmp;
 
@@ -653,7 +648,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = (LPNMHDR)lp;
+			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
 			switch (pHdr->code)
 			{
 				// OK/Apply, Tabbing
@@ -694,9 +689,6 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	COption* pThis = (COption*)lp;
-
-	static CError error;
 	static CFolderDialog FolderDlg;
 	static SOption* pOption = &m_option_tmp;
 
@@ -809,7 +801,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				SSusieInfo* pstSusieInfo = SusieListView.GetFocusSusieInfo();
 
 				// Get ConfigurationDlg()
-				ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc)pstSusieInfo->cllPlugin.GetProcAddress(_T("ConfigurationDlg"));
+				ConfigurationDlgProc ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(pstSusieInfo->cllPlugin.GetProcAddress(_T("ConfigurationDlg")));
 
 				if (ConfigurationDlg == nullptr)
 					break;
@@ -830,7 +822,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = (LPNMHDR)lp;
+			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
 
 			switch (pHdr->code)
 			{
@@ -870,19 +862,19 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// List view
 			if (wp == idsSusieList)
 			{
-				LPNMLISTVIEW plv = (LPNMLISTVIEW)lp;
+				LPNMLISTVIEW plv = reinterpret_cast<LPNMLISTVIEW>(lp);
 				switch (plv->hdr.code)
 				{
 					// Custom draw
 					case NM_CUSTOMDRAW:
-						return SusieListView.CustomDraw((LPNMLVCUSTOMDRAW)lp);
+						return SusieListView.CustomDraw(reinterpret_cast<LPNMLVCUSTOMDRAW>(lp));
 					// Show tool tip
 					case LVN_GETINFOTIP:
-						SusieListView.ShowTip((LPNMLVGETINFOTIP)lp);
+						SusieListView.ShowTip(reinterpret_cast<LPNMLVGETINFOTIP>(lp));
 						break;
 					// View
 					case LVN_GETDISPINFO:
-						SusieListView.Show((NMLVDISPINFO*)lp);
+						SusieListView.Show(reinterpret_cast<NMLVDISPINFO*>(lp));
 						break;
 				}
 			}
@@ -903,7 +895,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		// Right-click menu (Context menu)
 		case WM_CONTEXTMENU:
 		{
-			if (wp == (WPARAM)SusieListView.GetHandle())
+			if (wp == reinterpret_cast<WPARAM>(SusieListView.GetHandle()))
 				SusieListView.CreateMenu(lp);
 			break;
 		}
