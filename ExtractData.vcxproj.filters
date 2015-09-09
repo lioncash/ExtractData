@@ -441,437 +441,437 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Arc\LZSS.h">
-      <Filter>Header Files\Arc</Filter>
-    </ClInclude>
-    <ClInclude Include="Arc\Zlib.h">
-      <Filter>Header Files\Arc</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCUtil.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCString.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCStdioFile.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCMultiFile.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCMemory.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCLocalMemory.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCLibrary.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCIni.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCFileFindSx.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCFileFind.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCFile.h">
-      <Filter>Header Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="bzip2\bzlib.h">
-      <Filter>Header Files\bzip2</Filter>
-    </ClInclude>
-    <ClInclude Include="bzip2\bzlib_private.h">
-      <Filter>Header Files\bzip2</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Button.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\CheckBox.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Color.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\CtrlBase.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\EditBox.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Font.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\GroupBox.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\ListView.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Label.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\RadioBtn.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\StatusBar.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\ToolBar.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\UpDown.h">
-      <Filter>Header Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FileDialog.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FolderDialog.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FolderInputDialog.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\SearchDialog.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\VersionInfo.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\ExistsDialog.h">
-      <Filter>Header Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Ahx.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Alcot.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\AOS.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Aselia.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Baldr.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Axl.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Circus.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\CircusPak.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Cyc.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Ethornell.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\EntisGLS.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Himauri.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\InnocentGrey.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Izumo.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Katakoi.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\LostChild.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Majiro.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\MeltyBlood.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Navel.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Nitro.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Nscr.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Oyatu.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Pajamas.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Retouch.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Standard.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Spitan.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\SummerDays.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TH2.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TaskForce.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TrH.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\VA.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Will.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Windmill.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Ykc.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Yuris.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\QLIE.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\Cmv.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\Cpz.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\JBP1.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\PB2A.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\PB.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\cpz\PB3B.h">
-      <Filter>Header Files\Extract\cpz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\FateFD.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Braban.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Fate.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Hachukano.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\FlyingShine.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Himesyo.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Krkr.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Natsupochi.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\SisMiko.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Specialite.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Tengu.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Tlg.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\TokiPaku.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\krkr\Yotsunoha.h">
-      <Filter>Header Files\Extract\krkr</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\ef_ffd.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\ef_first.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\ef_latter.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\ef_sfm.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\ef_trial.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\BSFre.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\AngelType.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\Haruoto.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\HaruotoFD.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\Paz.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\paz\WindRP.h">
-      <Filter>Header Files\Extract\paz</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TCD\TCD2.h">
-      <Filter>Header Files\Extract\TCD</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TCD\TCD3.h">
-      <Filter>Header Files\Extract\TCD</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\TCD\TCDBase.h">
-      <Filter>Header Files\Extract\TCD</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\Bmp.h">
-      <Filter>Header Files\Image</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\Png.h">
-      <Filter>Header Files\Image</Filter>
-    </ClInclude>
-    <ClInclude Include="Image\ImageBase.h">
-      <Filter>Header Files\Image</Filter>
-    </ClInclude>
-    <ClInclude Include="Extract\Clannad.h">
-      <Filter>Header Files\Extract</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\AhxSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\BmpSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\JpgSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\MidSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\MpgSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\OggSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\PngSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\WavSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
-    <ClInclude Include="Search\WmvSearch.h">
-      <Filter>Header Files\Search</Filter>
-    </ClInclude>
     <ClInclude Include="ArcFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Error.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Extract.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ExtractBase.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ExtractData.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="File.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="FindFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="LastDir.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MainListView.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MainToolBar.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MD5.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Mzx.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Option.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ProgressBar.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Reg.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="res\ResExtractData.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SearchBase.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Susie.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SusieListView.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="WindowBase.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="WinMain.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Arc\Zlib.h">
+      <Filter>Source Files\Arc</Filter>
+    </ClInclude>
+    <ClInclude Include="Arc\LZSS.h">
+      <Filter>Source Files\Arc</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCFile.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCFileFind.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCFileFindSx.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCIni.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCLibrary.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCLocalMemory.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCMemory.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCMultiFile.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCStdioFile.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCString.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\YCUtil.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="bzip2\bzlib.h">
+      <Filter>Source Files\bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="bzip2\bzlib_private.h">
+      <Filter>Source Files\bzip2</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\Button.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\CheckBox.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\Color.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\CtrlBase.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\EditBox.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\Font.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\GroupBox.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\Label.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\ListView.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\RadioBtn.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\StatusBar.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\ToolBar.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Ctrl\UpDown.h">
+      <Filter>Source Files\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\VersionInfo.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\SearchDialog.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\FolderInputDialog.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\FolderDialog.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\FileDialog.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Dialog\ExistsDialog.h">
+      <Filter>Source Files\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Ahx.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Alcot.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\AOS.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Aselia.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Axl.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Baldr.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Circus.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\CircusPak.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Clannad.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Cyc.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\EntisGLS.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Ethornell.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Himauri.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\InnocentGrey.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Izumo.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Katakoi.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\LostChild.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Majiro.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\MeltyBlood.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Navel.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Nitro.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Nscr.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Oyatu.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Pajamas.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\QLIE.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Retouch.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Spitan.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Standard.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\SummerDays.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TaskForce.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TH2.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TrH.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\VA.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Will.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Windmill.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Ykc.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\Yuris.h">
+      <Filter>Source Files\Extract</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\PB3B.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\PB2A.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\PB.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\JBP1.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\Cpz.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\cpz\Cmv.h">
+      <Filter>Source Files\Extract\cpz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Braban.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Fate.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\FateFD.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\FlyingShine.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Hachukano.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Himesyo.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Krkr.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Natsupochi.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\SisMiko.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Specialite.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Tengu.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Tlg.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\TokiPaku.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\krkr\Yotsunoha.h">
+      <Filter>Source Files\Extract\krkr</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\AngelType.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\BSFre.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\ef_ffd.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\ef_first.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\ef_latter.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\ef_sfm.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\ef_trial.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\Haruoto.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\HaruotoFD.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\Paz.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\paz\WindRP.h">
+      <Filter>Source Files\Extract\paz</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TCD\TCD2.h">
+      <Filter>Source Files\Extract\TCD</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TCD\TCD3.h">
+      <Filter>Source Files\Extract\TCD</Filter>
+    </ClInclude>
+    <ClInclude Include="Extract\TCD\TCDBase.h">
+      <Filter>Source Files\Extract\TCD</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\Bmp.h">
+      <Filter>Source Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\ImageBase.h">
+      <Filter>Source Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\Png.h">
+      <Filter>Source Files\Image</Filter>
     </ClInclude>
     <ClInclude Include="Image\Tga.h">
-      <Filter>Header Files\Image</Filter>
+      <Filter>Source Files\Image</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\AhxSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\BmpSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\JpgSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\MidSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\MpgSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\OggSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\PngSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\WavSearch.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="Search\WmvSearch.h">
+      <Filter>Source Files\Search</Filter>
     </ClInclude>
     <ClInclude Include="Sound\Ogg.h">
-      <Filter>Header Files\Sound</Filter>
+      <Filter>Source Files\Sound</Filter>
     </ClInclude>
     <ClInclude Include="Sound\Wav.h">
-      <Filter>Header Files\Sound</Filter>
+      <Filter>Source Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="WinMain.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -882,63 +882,29 @@
     <Filter Include="Source Files\Arc">
       <UniqueIdentifier>{f7cf0723-a64a-42de-a89f-369bcd0d34fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{7de7aad2-8a59-4b4c-b27d-4e67af9a01fd}</UniqueIdentifier>
-      <Extensions>.h</Extensions>
-    </Filter>
-    <Filter Include="Header Files\Arc">
-      <UniqueIdentifier>{c9ebe9ba-9c01-45be-be54-5de3a0a82d3a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Base">
-      <UniqueIdentifier>{8f7558ec-52ef-448b-905b-f15e1a9deb2e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Base">
       <UniqueIdentifier>{38479b4f-f147-439c-92f1-74101e969455}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\bzip2">
       <UniqueIdentifier>{4e234f12-a0cc-4c35-9b6f-6792964ae638}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\bzip2">
-      <UniqueIdentifier>{2b20dfd4-a367-49ef-9e8d-a5ecaf7baf57}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Ctrl">
       <UniqueIdentifier>{5336c4e4-cc91-414a-9b91-e58bc782f620}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Ctrl">
-      <UniqueIdentifier>{f7990cf4-83da-4681-87ed-393085982eba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Dialog">
       <UniqueIdentifier>{026b3257-f8be-46f9-bfc7-0f0cc563aeba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Dialog">
-      <UniqueIdentifier>{65340811-2613-457e-b9cd-7880501bedaf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Extract">
       <UniqueIdentifier>{f2073de1-6a38-42c4-90cc-2b848b015967}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Extract">
-      <UniqueIdentifier>{28ccbd2d-d2c9-4832-a041-b179c4fc3732}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Extract\cpz">
-      <UniqueIdentifier>{5ba62984-8ce9-4fb1-8253-77d923903c2b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Extract\cpz">
       <UniqueIdentifier>{86a8dca2-5373-4235-aabe-b3e939efd1a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Extract\krkr">
-      <UniqueIdentifier>{4e447687-f783-487d-8472-468f306ac696}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Extract\krkr">
       <UniqueIdentifier>{e962e4d2-eef4-4626-acd2-d8e3a4599db8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Extract\paz">
-      <UniqueIdentifier>{02904f16-c854-42be-b856-7469690f1115}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Extract\paz">
       <UniqueIdentifier>{916512fb-37c7-42d8-822b-9c30c5744712}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Extract\TCD">
-      <UniqueIdentifier>{9891ad28-1a8c-4acc-9752-721c05672b71}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Extract\TCD">
       <UniqueIdentifier>{2d57657b-75d8-4f08-8dfd-390c6d8fa918}</UniqueIdentifier>
@@ -946,20 +912,11 @@
     <Filter Include="Source Files\Image">
       <UniqueIdentifier>{8ac85c07-d2c3-46e5-88d1-824efc7d5709}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Image">
-      <UniqueIdentifier>{5b8e8d2c-5c99-4a18-946a-f984d7bafa98}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Search">
       <UniqueIdentifier>{7e10a0ba-9adf-4a9c-9354-b35e8007659b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Search">
-      <UniqueIdentifier>{3d3362cd-b834-47ea-ba5a-ff510cc7f78b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{a8f18501-330f-4763-aaec-10ec02182531}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Sound">
-      <UniqueIdentifier>{4f63b2cf-7a0c-4e56-8be2-9d3068d11d3d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Sound">
       <UniqueIdentifier>{919131f4-31b3-4632-a42c-1879f145d1a5}</UniqueIdentifier>
