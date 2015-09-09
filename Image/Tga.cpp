@@ -3,18 +3,16 @@
 #include "../Image.h"
 #include "Tga.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-//
-// Parameters:
-//   - pclArc            - Archive
-//   - pvSrc             - TGA data
-//   - dwSrcSize         - TGA data size
-//   - rfclsFileLastName - End of the filename
-//
+/// Decoding
+///
+/// @param pclArc            Archive
+/// @param pvSrc             TGA data
+/// @param dwSrcSize         TGA data size
+/// @param rfclsFileLastName End of the filename
+///
 BOOL CTga::Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName)
 {
-	const BYTE*       pbtSrc = (const BYTE*)pvSrc;
+	const BYTE*       pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
 	const STGAHeader* psttgahSrc = (STGAHeader*)pvSrc;
 
 	pbtSrc += sizeof(STGAHeader);
@@ -43,13 +41,13 @@ BOOL CTga::Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YC
 
 	if (psttgahSrc->btDepth == 0)
 	{
-		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, 32, NULL, 0, rfclsFileLastName);
+		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, 32, nullptr, 0, rfclsFileLastName);
 		clImage.WriteReverse(pbtSrc, dwSrcSize);
 		clImage.Close();
 	}
 	else
 	{
-		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, psttgahSrc->btDepth, NULL, 0, rfclsFileLastName);
+		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, psttgahSrc->btDepth, nullptr, 0, rfclsFileLastName);
 		clImage.Write(pbtSrc, dwSrcSize);
 		clImage.Close();
 	}
@@ -57,19 +55,17 @@ BOOL CTga::Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YC
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression of compressed TGAs
-//
-// Parameters:
-//   - pvDst     - Storage location
-//   - dwDstSize - Storage location size
-//   - pvSrc     - Compressed TGA data
-//   - dwSrcSize - Compressed TGA data size
-//
+/// Decompression of compressed TGAs
+///
+/// @param pvDst     Storage location
+/// @param dwDstSize Storage location size
+/// @param pvSrc     Compressed TGA data
+/// @param dwSrcSize Compressed TGA data size
+///
 BOOL CTga::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
-	BYTE*             pbtDst = (BYTE*)pvDst;
-	const BYTE*       pbtSrc = (const BYTE*)pvSrc;
+	BYTE*             pbtDst = reinterpret_cast<BYTE*>(pvDst);
+	const BYTE*       pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
 	const STGAHeader* psttgahSrc = (STGAHeader*)pvSrc;
 
 	pbtSrc += sizeof(STGAHeader);
@@ -91,25 +87,23 @@ BOOL CTga::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSi
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RLE Decompression
-//
-// Parameters:
-//   - pvDst     - Storage location
-//   - dwDstSize - Storage location size
-//   - pvSrc     - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - wBpp      - Number of bits
-//
+/// RLE Decompression
+///
+/// @param pvDst     Storage location
+/// @param dwDstSize Storage location size
+/// @param pvSrc     Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param wBpp      Number of bits
+///
 BOOL CTga::DecompRLE(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, BYTE wBpp)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	const BYTE* pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
+	BYTE*       pbtDst = reinterpret_cast<BYTE*>(pvDst);
 	DWORD       dwSrcPtr = 0;
 	DWORD       dwDstPtr = 0;
 	WORD        wByteCount = (wBpp >> 3);
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
 	{
 		DWORD dwLength = pbtSrc[dwSrcPtr++];
 

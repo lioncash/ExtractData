@@ -2,28 +2,22 @@
 #include "../ExtractBase.h"
 #include "Bmp.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CBmp::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".bmp")) != 0)
-	{
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialization
-//
-// Parameters:
-//   - rfclsFileName - Filename
-
+/// Initialization
+///
+/// @param rfclsFileName Filename
+///
 BOOL CBmp::OnInit(const YCString& rfclsFileName)
 {
 	// Set file header
@@ -67,12 +61,10 @@ BOOL CBmp::OnInit(const YCString& rfclsFileName)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Output BMP Header
-//
-// Parameters:
-//   - rfclsFileName - Filename
-
+/// Output BMP Header
+///
+/// @param rfclsFileName Filename
+///
 void CBmp::WriteHed(const YCString& rfclsFileName)
 {
 	CArcFile* pclArc = m_pclArc;
@@ -89,21 +81,19 @@ void CBmp::WriteHed(const YCString& rfclsFileName)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Create Palette
-//
-// Parameters:
-//   - pvSrcPallet     - Source (referenced) palette
-//   - dwSrcPalletSize - Source (referencec) palette size
-
+/// Create Palette
+///
+/// @param pvSrcPallet     Source (referenced) palette
+/// @param dwSrcPalletSize Source (referencec) palette size
+///
 BOOL CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 {
 	RGBQUAD*    pstPallet = m_astPallet;
-	const BYTE* pbtSrcPallet = (const BYTE*)pvSrcPallet;
+	const BYTE* pbtSrcPallet = reinterpret_cast<const BYTE*>(pvSrcPallet);
 
 	ZeroMemory(m_astPallet, sizeof(m_astPallet));
 
-	if (pbtSrcPallet == NULL)
+	if (pbtSrcPallet == nullptr)
 	{
 		// Use default palette (Grayscale)
 
@@ -160,9 +150,7 @@ BOOL CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Write 1 Line
-
+/// Write 1 Lin
 void CBmp::WriteLine(const void* pvBuffer)
 {
 	// Output
@@ -173,7 +161,7 @@ void CBmp::WriteLine(const void* pvBuffer)
 	{
 		// Output from buffer
 
-		const BYTE* pbtBuffer = (const BYTE*)pvBuffer;
+		const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
 
 		m_pclArc->WriteFile(&pbtBuffer[m_lLine], (m_lPitch - m_lLine), 0);
 	}
