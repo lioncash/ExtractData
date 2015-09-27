@@ -12,6 +12,7 @@
 #include    <math.h>
 #include    <process.h>
 #include    <algorithm>
+#include    <array>
 #include    <set>
 #include    <map>
 //#include  <string>
