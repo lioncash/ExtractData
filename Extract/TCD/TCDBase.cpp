@@ -536,15 +536,7 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 				dwShift += 8;
 
-				_asm
-				{
-					push ecx
-
-						mov ecx, dwShift
-						rol dwData, cl
-
-						pop ecx
-				}
+				dwData = BitUtils::RotateLeft(dwData, dwShift);
 
 				dwKeyPtr = (dwData & 0xFF);
 				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
@@ -553,15 +545,7 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 				btPrevKey1 = abtKey1[dwKeyPtr];
 				pbtDst[dwDstPtr++] += btPrevKey1;
 
-				_asm
-				{
-					push ecx
-
-						mov ecx, dwShift
-						rol dwData, cl
-
-						pop ecx
-				}
+				dwData = BitUtils::RotateLeft(dwData, dwShift);
 
 				dwKeyPtr = (dwData & 0xFF);
 				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
@@ -569,14 +553,7 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 				pbtDst[dwDstPtr++] += btPrevKey1 + abtKey1[dwKeyPtr];
 
-				_asm
-				{
-					push ecx
-						mov ecx, dwShift
-						rol dwData, cl
-
-						pop ecx
-				}
+				dwData = BitUtils::RotateLeft(dwData, dwShift);
 
 				dwKeyPtr = (dwData & 0xFF);
 				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
