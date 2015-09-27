@@ -1,7 +1,8 @@
-#include "stdafx.h"
-#include "../../Image.h"
-#include "../../Sound/Ogg.h"
-#include "TCDBase.h"
+#include "StdAfx.h"
+#include "Image.h"
+#include "Sound/Ogg.h"
+#include "Extract/TCD/TCDBase.h"
+#include "Utils/BitUtils.h"
 
 /// Mount
 ///
@@ -600,18 +601,11 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 ///
 BOOL CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
 {
-	BYTE* pbtData = (BYTE*)pvData;
+	BYTE* const pbtData = static_cast<BYTE*>(pvData);
 
 	for (DWORD i = 0; i < dwDataSize; i++)
 	{
-		BYTE btData = pbtData[i];
-
-		_asm
-		{
-			ror btData, 1
-		}
-
-		pbtData[i] = btData;
+		pbtData[i] = BitUtils::RotateRight(pbtData[i], 1);
 	}
 
 	return TRUE;
