@@ -9,19 +9,19 @@
 ///////////////////////////////////////////////////////////////////////////
 BOOL CCyc::Mount(CArcFile* pclArc)
 {
-	if (MountGpk(pclArc) == TRUE)
+	if (MountGpk(pclArc))
 		return TRUE;
-	if (MountVpk(pclArc) == TRUE)
+	if (MountVpk(pclArc))
 		return TRUE;
-	if (MountDwq(pclArc) == TRUE)
+	if (MountDwq(pclArc))
 		return TRUE;
-	if (MountWgq(pclArc) == TRUE)
+	if (MountWgq(pclArc))
 		return TRUE;
-	if (MountVaw(pclArc) == TRUE)
+	if (MountVaw(pclArc))
 		return TRUE;
-	if (MountXtx(pclArc) == TRUE)
+	if (MountXtx(pclArc))
 		return TRUE;
-	if (MountFxf(pclArc) == TRUE)
+	if (MountFxf(pclArc))
 		return TRUE;
 
 	return FALSE;
@@ -184,15 +184,15 @@ BOOL CCyc::MountFxf(CArcFile* pclArc)
 ///////////////////////////////////////////////////////////////////////////
 BOOL CCyc::Decode(CArcFile* pclArc)
 {
-	if (DecodeDwq(pclArc) == TRUE)
+	if (DecodeDwq(pclArc))
 		return TRUE;
-	if (DecodeWgq(pclArc) == TRUE)
+	if (DecodeWgq(pclArc))
 		return TRUE;
-	if (DecodeVaw(pclArc) == TRUE)
+	if (DecodeVaw(pclArc))
 		return TRUE;
-	if (DecodeXtx(pclArc) == TRUE)
+	if (DecodeXtx(pclArc))
 		return TRUE;
-	if (DecodeFxf(pclArc) == TRUE)
+	if (DecodeFxf(pclArc))
 		return TRUE;
 
 	return FALSE;
