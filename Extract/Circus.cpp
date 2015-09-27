@@ -1060,9 +1060,7 @@ BOOL CCircus::DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 	char  cData;
 	DWORD dwChannel = 0;
-	DWORD adwTable[6];
-
-	ZeroMemory(adwTable, sizeof(adwTable));
+	DWORD adwTable[6] = {};
 
 	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
 	{
