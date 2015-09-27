@@ -263,12 +263,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 		powtable[i] = pow(2.0, (3 - i) / 3.0);
 	}
 
-	double sbsamples[36][32];
-	for (int i = 0; i < 36; i++)
-	{
-		for (int sb = 0; sb < 32; sb++)
-			sbsamples[i][sb] = 0.0;
-	}
+	double sbsamples[36][32] = {};
 
 	//for (int i = 0; i < 16; i++)
 	//	costable[0][i] = 0.5 / cos(M_PI * ((double) i * 2.0 + 1.0) / 64.0);
