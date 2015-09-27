@@ -481,30 +481,9 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		DWORD dwData = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 0];
 		DWORD dwKeyPtr = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 1];
 
-		_asm
-		{
-			push  ecx
-				push  edx
-				push  ebx
-				push  esi
-
-				mov   edx, dwData
-				mov   esi, dwKeyPtr
-				mov   ecx, dwShift
-				xor   ebx, ebx
-
-				bswap edx
-				shld  edx, esi, cl
-				shld  ebx, edx, 5
-
-				mov   dwData, edx
-				mov   dwKeyPtr, ebx
-
-				pop   esi
-				pop   ebx
-				pop   edx
-				pop   ecx
-		}
+		dwData = BitUtils::Swap32(dwData); 
+		dwData = (dwData << dwShift) | (dwKeyPtr >> (32 - dwShift));
+		dwKeyPtr = (dwData >> 27);
 
 		if (dwKeyPtr > 0x1B)
 		{
