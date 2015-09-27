@@ -3,7 +3,7 @@
 #include "Arc/Zlib.h"
 #include "Extract/Circus.h"
 #include "Sound/Wav.h"
-#include "Utils/Utils.h"
+#include "Utils/ArrayUtils.h"
 
 /// Mounting
 ///
@@ -1023,7 +1023,7 @@ BOOL CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 	WORD wLow = 0;
 	WORD wHigh = 1;
 
-	for (size_t i = 0; i < Utils::ArraySize(awTable); i += 2)
+	for (size_t i = 0; i < ArrayUtils::ArraySize(awTable); i += 2)
 	{
 		awTable[i + 0] = wLow--;
 		awTable[i + 1] = wHigh++;

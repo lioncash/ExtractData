@@ -876,10 +876,10 @@
     <ClInclude Include="SearchBase.h">
       <Filter>Source Files\Search</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Utils.h">
+    <ClInclude Include="Utils\BitUtils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\BitUtils.h">
+    <ClInclude Include="Utils\ArrayUtils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>

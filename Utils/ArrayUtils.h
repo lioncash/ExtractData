@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Utils
+namespace ArrayUtils
 {
 
 template <typename T, size_t N>
