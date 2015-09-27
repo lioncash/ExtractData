@@ -40,7 +40,9 @@ unsigned long long Swap64(unsigned long long value)
 
 unsigned int RotateLeft(const unsigned int value, int shift)
 {
-	if ((shift &= sizeof(value) * CHAR_BIT - 1) == 0)
+	shift &= sizeof(value) * CHAR_BIT - 1;
+
+	if (shift == 0)
 		return value;
 
 	return (value << shift) | (value >> (sizeof(value) * CHAR_BIT - shift));
@@ -48,7 +50,9 @@ unsigned int RotateLeft(const unsigned int value, int shift)
 
 unsigned int RotateRight(const unsigned int value, int shift)
 {
-	if ((shift &= sizeof(value) * CHAR_BIT - 1) == 0)
+	shift &= sizeof(value) * CHAR_BIT - 1;
+
+	if (shift == 0)
 		return value;
 
 	return (value >> shift) | (value << (sizeof(value) * CHAR_BIT - shift));
