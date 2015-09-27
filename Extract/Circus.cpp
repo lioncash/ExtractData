@@ -1,8 +1,9 @@
 #include "stdafx.h"
-#include "../Arc/Zlib.h"
-#include "../Image.h"
-#include "../Sound/Wav.h"
-#include "Circus.h"
+#include "Image.h"
+#include "Utils.h"
+#include "Arc/Zlib.h"
+#include "Extract/Circus.h"
+#include "Sound/Wav.h"
 
 /// Mounting
 ///
@@ -1022,9 +1023,9 @@ BOOL CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 	WORD wLow = 0;
 	WORD wHigh = 1;
 
-	for (DWORD i = 0; i < _countof(awTable); i += 2)
+	for (size_t i = 0; i < Utils::ArraySize(awTable); i += 2)
 	{
-		awTable[i] = wLow--;
+		awTable[i + 0] = wLow--;
 		awTable[i + 1] = wHigh++;
 	}
 
