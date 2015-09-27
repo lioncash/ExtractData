@@ -439,6 +439,9 @@
     <ClCompile Include="SearchBase.cpp">
       <Filter>Source Files\Search</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\BitUtils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcFile.h">
@@ -873,8 +876,11 @@
     <ClInclude Include="SearchBase.h">
       <Filter>Source Files\Search</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Utils\Utils.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\BitUtils.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -923,6 +929,9 @@
     </Filter>
     <Filter Include="Source Files\Sound">
       <UniqueIdentifier>{919131f4-31b3-4632-a42c-1879f145d1a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{2b56d6c5-3a42-46ca-9112-e01c41f8bd52}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

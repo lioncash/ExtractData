@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Image.h"
-#include "Utils.h"
 #include "Arc/Zlib.h"
 #include "Extract/Circus.h"
 #include "Sound/Wav.h"
+#include "Utils/Utils.h"
 
 /// Mounting
 ///
