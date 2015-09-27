@@ -291,6 +291,7 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="Susie.h" />
     <ClInclude Include="SusieListView.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="WindowBase.h" />
     <ClInclude Include="WinMain.h" />
     <ClInclude Include="Extract\Ahx.h" />
