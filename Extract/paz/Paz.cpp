@@ -2,18 +2,14 @@
 #include "../../Arc/Zlib.h"
 #include "Paz.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CPaz::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".paz"))
-	{
 		return FALSE;
-	}
 
 	// Initialize Mount Key
 	InitMountKey(pclArc);
@@ -91,18 +87,14 @@ BOOL CPaz::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CPaz::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".paz"))
-	{
 		return FALSE;
-	}
 
 	// Initialize decryption key
 	InitDecodeKey(pclArc);
@@ -212,9 +204,7 @@ BOOL CPaz::Decode(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Table
-
+/// Initialize Table
 void CPaz::InitTable()
 {
 	static const DWORD dwTable[1042] =
@@ -292,14 +282,12 @@ void CPaz::InitTable()
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Movie Table
-//
-// return Table size
-//
-// Parameters:
-//   - pvTable - Table
-
+/// Initialize Movie Table
+///
+/// @param pvTable - Table
+///
+/// @return table size
+///
 DWORD CPaz::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtTable = (BYTE*)pvTable;
@@ -313,13 +301,11 @@ DWORD CPaz::InitMovieTable(void* pvTable)
 	return 256;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get base archive file name
-//
-// Parameters:
-//   - pszDst     - Destination
-//   - pszArcName - Archive file name
-
+/// Get base archive file name
+///
+/// @param pszDst     Destination
+/// @param pszArcName Archive file name
+///
 void CPaz::GetBaseArcName(LPTSTR pszDst, LPCTSTR pszArcName)
 {
 	// Remove .paz
@@ -341,13 +327,11 @@ void CPaz::GetBaseArcName(LPTSTR pszDst, LPCTSTR pszArcName)
 	lstrcpy(pszDst, szBaseArcName);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set Key
-//
-// Parameters:
-//   - pclArc     - Archive
-//   - pstKeyInfo - Key info
-
+/// Set Key
+///
+/// @param pclArc     Archive
+/// @param pstKeyInfo Key info
+///
 DWORD CPaz::SetKey(CArcFile* pclArc, const SKeyInfo* pstKeyInfo)
 {
 	TCHAR szBaseArcName[_MAX_FNAME];
@@ -367,9 +351,7 @@ DWORD CPaz::SetKey(CArcFile* pclArc, const SKeyInfo* pstKeyInfo)
 	return -1;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decrypt table 1
-
+/// Decrypt table 1
 void CPaz::DecodeTable1()
 {
 	// Decrypt 72 byte table
@@ -392,9 +374,7 @@ void CPaz::DecodeTable1()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decrypt table 2
-
+/// Decrypt table 2
 void CPaz::DecodeTable2()
 {
 	DWORD* pdwTable = GetTable();
@@ -424,13 +404,11 @@ void CPaz::DecodeTable2()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Data
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode Data
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CPaz::DecodeData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -455,13 +433,11 @@ void CPaz::DecodeData(void* pvTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Movie Data
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode Movie Data
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CPaz::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -473,13 +449,11 @@ void CPaz::DecodeMovieData(void* pvTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode value by table
-//
-// Parameters:
-//   - dwValue - Input data
-//   - pvTable - Table
-
+/// Decode value by table
+///
+/// @param dwValue Input data
+/// @param pvTable Table
+///
 DWORD CPaz::DecodeValueByTable(DWORD dwValue, void* pvTable)
 {
 	DWORD dwResult;
@@ -493,14 +467,12 @@ DWORD CPaz::DecodeValueByTable(DWORD dwValue, void* pvTable)
 	return dwResult;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Value
-//
-// Parameters:
-//   - pdwValue1 - Target data 1
-//   - pdwValue2 - Target data 2
-//   - pvTable   - Table
-
+/// Decode Value
+///
+/// @param pdwValue1 - Target data 1
+/// @param pdwValue2 - Target data 2
+/// @param pvTable   - Table
+///
 void CPaz::DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable)
 {
 	DWORD* pdwTable = (DWORD*)pvTable;
@@ -520,36 +492,28 @@ void CPaz::DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable)
 	*pdwValue2 = pdwTable[16] ^ dwWork1;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Table
-
+/// Get Table
 DWORD* CPaz::GetTable()
 {
 	return m_adwTable;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Movie Table
-
+/// Get Movie Table
 BYTE* CPaz::GetMovieTable()
 {
 	return m_abtMovieTable;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Key
-
+/// Get Key
 BYTE* CPaz::GetKey()
 {
 	return m_abtKey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Movie Buffer Size
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Get Movie Buffer Size
+///
+/// @param pclArc - Archive
+///
 DWORD CPaz::GetMovieBufSize(CArcFile*pclArc)
 {
 	return pclArc->GetBufSize();

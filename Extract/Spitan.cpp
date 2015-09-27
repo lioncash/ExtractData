@@ -4,13 +4,13 @@
 
 BOOL CSpitan::Mount(CArcFile* pclArc)
 {
-	if (MountSound(pclArc) == TRUE)
+	if (MountSound(pclArc))
 		return TRUE;
-	if (MountGraphic1(pclArc) == TRUE)
+	if (MountGraphic1(pclArc))
 		return TRUE;
-	if (MountGraphic2(pclArc) == TRUE)
+	if (MountGraphic2(pclArc))
 		return TRUE;
-	if (MountGraphic3(pclArc) == TRUE)
+	if (MountGraphic3(pclArc))
 		return TRUE;
 	return FALSE;
 }

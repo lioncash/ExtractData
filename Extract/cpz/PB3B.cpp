@@ -3,17 +3,15 @@
 #include "JBP1.h"
 #include "PB3B.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-//
-// Remarks: pvSrc is decoded first
-//
-// Parameters:
-//   - pclArc     - Archive
-//   - pvSrc      - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - pfnDecrypt - Decoding function
-
+/// Decoding
+///
+/// Remarks: pvSrc is decoded first
+///
+/// @param pclArc     Archive
+/// @param pvSrc      Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param pfnDecrypt Decoding function
+///
 BOOL CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT pfnDecrypt)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
@@ -59,13 +57,11 @@ BOOL CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption
-//
-// Parameters:
-//   - pbtTarget - Decoded data
-//   - dwSize    - Decoded data size
-
+/// Decryption
+///
+/// @param pbtTarget Decoded data
+/// @param dwSize    Decoded data size
+///
 void CPB3B::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 {
 	for (int i = 8; i < 52; i += 2)
@@ -79,17 +75,15 @@ void CPB3B::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 1
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 1
+///
+/// @param pclArc     Archive
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
@@ -107,17 +101,15 @@ BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 3
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 3
+///
+/// @param pclArc     Archive
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
@@ -135,17 +127,15 @@ BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 4
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 4
+///
+/// @param pclArc     Archive
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	pclArc->OpenFile();
@@ -154,17 +144,15 @@ BOOL CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 5
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 5
+///
+/// @param pclArc     Archive
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
@@ -183,18 +171,16 @@ BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 6
-//
-// Parameters
-//   - pclArc     - Archive
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits
-//   - pfnDecrypt - Decryption function
-
+/// Decode 6
+///
+/// @param pclArc     Archive
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+/// @param pfnDecrypt Decryption function
+///
 BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp, PB3B_DECRYPT pfnDecrypt)
 {
 	// Ensure output buffer
@@ -234,7 +220,7 @@ BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	const SFileInfo* pstBaseFileInfo = pclArc->GetFileInfo(clsBaseFileName, TRUE);
 
 	// Base image exists
-	if (pstBaseFileInfo != NULL)
+	if (pstBaseFileInfo != nullptr)
 	{
 		DWORD          dwBaseSrcSize = pstBaseFileInfo->sizeCmp;
 		YCMemory<BYTE> clmbtBaseSrc(dwBaseSrcSize);
@@ -266,18 +252,16 @@ BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 1
-//
-// Parameters
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination size
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits per pixel
-
+/// Decompression 1
+///
+/// @param pbtDst     Destination
+/// @param dwDstSize  Destination size
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[44];
@@ -399,18 +383,16 @@ BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 3
-//
-// Parameters
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination size
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits per pixel
-
+/// Decompression 3
+///
+/// @param pbtDst     Destination
+/// @param dwDstSize  Destination size
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Get alpha value
@@ -424,35 +406,31 @@ BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 4
-//
-// Parameters
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination size
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits per pixel
-
+/// Decompression 4
+///
+/// @param pbtDst     Destination
+/// @param dwDstSize  Destination size
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 5
-//
-// Parameters
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination size
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits per pixel
-
+/// Decompression 5
+///
+/// @param pbtDst     Destination
+/// @param dwDstSize  Destination size
+/// @param pbtSrc     Compressed data
+/// @param dwSrcSize  Compressed data size
+/// @param lWidth     Width
+/// @param lHeight    Height
+/// @param wBpp       Number of bits
+///
 BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// LZSS decompression buffer
@@ -494,20 +472,18 @@ BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompress 6
-//
-// Remarks: Assumes that the base image is stored in pbtDst
-//
-// Parameters
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination size
-//   - pbtSrc     - Compressed data
-//   - dwSrcSize  - Compressed data size
-//   - lWidth     - Width
-//   - lHeight    - Height
-//   - wBpp       - Number of bits per pixel
-
+/// Decompress 6
+///
+/// Remarks: Assumes that the base image is stored in pbtDst
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+///
 BOOL CPB3B::Decomp6(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure LZSS decompression buffer

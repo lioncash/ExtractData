@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "Fate.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Determine if decodable
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CFate::OnCheckDecrypt(CArcFile* pclArc)
 {
 	static const char* apszMD5[] =
@@ -26,26 +24,22 @@ BOOL CFate::OnCheckDecrypt(CArcFile* pclArc)
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialization of Decryption Routine
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of Decryption Routine
+///
+/// @param pclArc Archive
+///
 DWORD CFate::OnInitDecrypt(CArcFile* pclArc)
 {
 	return 0x36;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CFate::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	for (DWORD i = 0; i < dwTargetSize; i++)

@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "FateFD.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if it can be decoded
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 {
 	if (pclArc->GetArcName() != _T("video.xp3"))
@@ -17,12 +15,10 @@ BOOL CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 	return CheckTpm("9C5BB86A5BBD1B77A311EC504DB45653");
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decryption Routine
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -73,15 +69,13 @@ DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 	return 0;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CFateFD::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	for (DWORD i = 0; i < dwTargetSize; i++)

@@ -58,10 +58,10 @@ BOOL CYkc::Decode(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
 		return FALSE;
 
-	if (DecodeYKS(pclArc) == TRUE)
+	if (DecodeYKS(pclArc))
 		return TRUE;
 
-	if (DecodeYKG(pclArc) == TRUE)
+	if (DecodeYKG(pclArc))
 		return TRUE;
 
 	return FALSE;

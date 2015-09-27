@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "ef_first.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Dealing with files
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Dealing with files
+///
+/// @param pclArc Archive
+///
 BOOL Cef_first::IsSupported(CArcFile* pclArc)
 {
 	// Get header
@@ -22,18 +20,14 @@ BOOL Cef_first::IsSupported(CArcFile* pclArc)
 	return (memcmp(abtHeader, "ef_first", 8) == 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL Cef_first::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-	{
 		return FALSE;
-	}
 
 	// Skip 32 bytes
 	pclArc->Seek(32, FILE_BEGIN);
@@ -41,28 +35,22 @@ BOOL Cef_first::Mount(CArcFile* pclArc)
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL Cef_first::Decode(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize mount key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize mount key
+///
+/// @param pclArc Archive
+///
 void Cef_first::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -80,12 +68,10 @@ void Cef_first::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize decode key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize decode key
+///
+/// @param pclArc Archive
+///
 void Cef_first::InitDecodeKey(CArcFile* pclArc)
 {
 	m_dwMovieTableID = 0;
@@ -105,14 +91,12 @@ void Cef_first::InitDecodeKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Movie Table
-//
-// return Table size
-//
-// Parameters:
-//   - pvTable - Table
-
+/// Initialize Movie Table
+///
+/// @param pvTable Table
+///
+/// @return table size
+///
 DWORD Cef_first::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtTable = (BYTE*)pvTable;
@@ -130,9 +114,7 @@ DWORD Cef_first::InitMovieTable(void* pvTable)
 	return 65536;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode table 1
-
+/// Decode table 1
 void Cef_first::DecodeTable1()
 {
 	DWORD* pdwTable = GetTable();
@@ -160,13 +142,11 @@ void Cef_first::DecodeTable1()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode movie table
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode movie table
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void Cef_first::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -179,13 +159,11 @@ void Cef_first::DecodeMovieData(void* pvTarget, DWORD dwSize)
 	m_dwMovieTableID = ((m_dwMovieTableID + 1) & 0xFF);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Cipher-specific Decryption
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Cipher-specific Decryption
+///
+/// @parma pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void Cef_first::Decrypt(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -196,12 +174,10 @@ void Cef_first::Decrypt(void* pvTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get movie buffer size
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Get movie buffer size
+///
+/// @param pclArc Archive
+///
 DWORD Cef_first::GetMovieBufSize(CArcFile* pclArc)
 {
 	return 65536;

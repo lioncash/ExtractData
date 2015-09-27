@@ -3,56 +3,42 @@
 #include "../../Sound/Ogg.h"
 #include "TCDBase.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::Mount(CArcFile* pclArc)
 {
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pstFileInfo->format == _T("TCT"))
-	{
 		return DecodeTCT(pclArc);
-	}
 
 	if (pstFileInfo->format == _T("TSF"))
-	{
 		return DecodeTSF(pclArc);
-	}
 
 	if (pstFileInfo->format == _T("SPD"))
-	{
 		return DecodeSPD(pclArc);
-	}
 
 	if (pstFileInfo->format == _T("OGG"))
-	{
 		return DecodeOgg(pclArc);
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode TCT
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode TCT
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::DecodeTCT(CArcFile* pclArc)
 {
 	// TSF Decoding routine
@@ -60,12 +46,10 @@ BOOL CTCDBase::DecodeTCT(CArcFile* pclArc)
 	return DecodeTSF(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode TSF
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode TSF
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::DecodeTSF(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -94,12 +78,10 @@ BOOL CTCDBase::DecodeTSF(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode SPD
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode SPD
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::DecodeSPD(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -186,12 +168,10 @@ BOOL CTCDBase::DecodeSPD(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Ogg Vorbis
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode Ogg Vorbis
+///
+/// @param pclArc Archive
+///
 BOOL CTCDBase::DecodeOgg(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -210,15 +190,13 @@ BOOL CTCDBase::DecodeOgg(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompress LZSS
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-
+/// Decompress LZSS
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+///
 BOOL CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	BYTE* pbtDst = (BYTE*)pvDst;
@@ -270,15 +248,13 @@ BOOL CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode RLE (Type 0)
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-
+/// Decode RLE (Type 0)
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+///
 BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -302,7 +278,7 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 
 		if ((dwDstPtr + (dwLength * 4)) > dwDstSize)
 		{
-			MessageBox(NULL, _T("Output buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
+			MessageBox(nullptr, _T("Output buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 		}
 
 		if (bZero)
@@ -319,7 +295,7 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 		{
 			if ((dwSrcDataPtr + (dwLength * 3)) > dwSrcSize)
 			{
-				MessageBox(NULL, _T("Input buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
+				MessageBox(nullptr, _T("Input buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 			}
 
 			for (DWORD i = 0; i < dwLength; i++)
@@ -339,30 +315,26 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode RLE (Type 2)
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-
+/// Decode RLE (Type 2)
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+///
 BOOL CTCDBase::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompress SPD
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-//   - lWidth    - Image width
-
+/// Decompress SPD
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+/// @param lWidth    Image width
+///
 BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
 {
 	static const BYTE abtKey1[256] = {
@@ -621,13 +593,11 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption
-//
-// Parameters:
-//   - pvData     - Data
-//   - dwDataSize - Data size
-
+/// Decryption
+///
+/// @param pvData     Data
+/// @param dwDataSize Data size
+///
 BOOL CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
 {
 	BYTE* pbtData = (BYTE*)pvData;

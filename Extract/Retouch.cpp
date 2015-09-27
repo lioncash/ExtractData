@@ -3,61 +3,56 @@
 #include "../Image.h"
 #include "Retouch.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
+/// Mounting
+///
+/// @param pclArc Archive
+///
 BOOL CRetouch::Mount(CArcFile* pclArc)
 {
 	if (MountGYU(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// GYU Mounting
 
+/// GYU Mounting
+///
+/// @param pclArc Archive
+///
 BOOL CRetouch::MountGYU(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".gyu"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "GYU\x1A", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
+///
+/// @param pclArc Archive
+///
 BOOL CRetouch::Decode(CArcFile* pclArc)
 {
 	if (DecodeGYU(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// GYU Decoding
-
+/// GYU Decoding
+///
+/// @param pclArc Archive
+///
 BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pstFileInfo->format != _T("GYU"))
-	{
 		return FALSE;
-	}
 
 	// Read header
 	SGYUHeader stGYUHeader;
@@ -169,14 +164,12 @@ BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// GYU Decryption
-//
-// Parameters:
-//   - pvSrc     - Encrypted data
-//   - dwSrcSize - Encrypted data size
-//   - dwKey     - Decryption key
-
+/// GYU Decryption
+///
+/// @param pvSrc     Encrypted data
+/// @param dwSrcSize Encrypted data size
+/// @param dwKey     Decryption key
+///
 BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
@@ -367,15 +360,13 @@ BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// GYU Decompression
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Compressed data
-//   - dwSrcSize - Compressed data size
-
+/// GYU Decompression
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Compressed data
+/// @param dwSrcSize Compressed data size
+///
 BOOL CRetouch::DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	// LZSS Decompression

@@ -1,23 +1,19 @@
 #include "stdafx.h"
 #include "SisMiko.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if it can be decrypted
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CSisMiko::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return pclArc->CheckExe( _T("SisuMiko.exe") );
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decryption Process
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 DWORD CSisMiko::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -41,21 +37,19 @@ DWORD CSisMiko::OnInitDecrypt(CArcFile* pclArc)
 	return ~((dwKey << 16) | (dwKey >> 16));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CSisMiko::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decrypt
-	for( DWORD i = 0 ; i < dwTargetSize ; i += 4 )
+	for (DWORD i = 0; i < dwTargetSize; i += 4)
 	{
-		*(DWORD*) &pbtTarget[i] ^= dwDecryptKey;
+		*(DWORD*)&pbtTarget[i] ^= dwDecryptKey;
 	}
 
 	return dwTargetSize;

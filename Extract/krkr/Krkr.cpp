@@ -7,12 +7,10 @@
 #include "Tlg.h"
 #include "Krkr.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CKrkr::Mount(CArcFile* pclArc)
 {
 	DWORD dwOffset;
@@ -212,20 +210,16 @@ BOOL CKrkr::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CKrkr::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if ((pclArc->GetArcExten() != _T(".xp3")) && (pclArc->GetArcExten() != _T(".exe")))
-	{
 		return FALSE;
-	}
 
 	YCString clsFileExt = PathFindExtension(pstFileInfo->name);
 	clsFileExt.MakeLower();
@@ -389,12 +383,10 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Extraction
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Extraction
+///
+/// @param pclArc Archive
+///
 BOOL CKrkr::Extract(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -430,12 +422,10 @@ BOOL CKrkr::Extract(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set MD5 value for tpm in the archive folder
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Set MD5 value for tpm in the archive folder
+///
+/// @param pclArc Archive
+///
 void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
 {
 	if (pclArc->CheckMD5OfSet())
@@ -465,23 +455,19 @@ void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
 	pclArc->SetMD5OfFlag(TRUE);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Determine if the archive is decodable
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CKrkr::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Verifies that the MD5 value of tpm in the archive folder matches
-//
-// Parameters:
-//   - pszMD5 - MD5
-
+/// Verifies that the MD5 value of tpm in the archive folder matches
+///
+/// @param pszMD5 MD5
+///
 BOOL CKrkr::CheckTpm(const char* pszMD5)
 {
 	// Comparison
@@ -499,12 +485,10 @@ BOOL CKrkr::CheckTpm(const char* pszMD5)
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize decryption process
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 void CKrkr::InitDecrypt(CArcFile* pclArc)
 {
 	m_pclArc = pclArc;
@@ -519,12 +503,10 @@ void CKrkr::InitDecrypt(CArcFile* pclArc)
 	m_dwDecryptKey = OnInitDecrypt(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// By default, use simple decoding
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// By default, use simple decoding
+///
+/// @param pclArc Archive
+///
 DWORD CKrkr::OnInitDecrypt(CArcFile* pclArc)
 {
 	DWORD dwDecryptKey = pclArc->InitDecrypt();
@@ -538,14 +520,12 @@ DWORD CKrkr::OnInitDecrypt(CArcFile* pclArc)
 	return dwDecryptKey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decoded
-//   - dwTargetSize - Decoding size
-//   - dwOffset     - Offset of data to be decoded
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Decoding size
+/// @param dwOffset     Offset of data to be decoded
+///
 DWORD CKrkr::Decrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset)
 {
 	// No decryption requests
@@ -581,17 +561,15 @@ DWORD CKrkr::Decrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// By default, use simple decoding
-//
-// Remark: The dwDecryptKey returns the value from OnInitDecrypt
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// By default, use simple decoding
+///
+/// Remark: The dwDecryptKey returns the value from OnInitDecrypt
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CKrkr::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	m_pclArc->Decrypt(pbtTarget, dwTargetSize);
@@ -599,37 +577,31 @@ DWORD CKrkr::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWOR
 	return dwTargetSize;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set decryption request
-//
-// Parameters:
-//   - bDecrypt - Decryption request
-
+/// Set decryption request
+///
+/// @param bDecrypt Decryption request
+///
 void CKrkr::SetDecryptRequirement(BOOL bDecrypt)
 {
 	m_bDecrypt = bDecrypt;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set decoding size
-//
-// Parameters:
-//   - dwDecryptSize - Decoding size
-
+/// Set decoding size
+///
+/// @param dwDecryptSize - Decoding size
+///
 void CKrkr::SetDecryptSize(DWORD dwDecryptSize)
 {
 	m_dwDecryptSize = dwDecryptSize;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get the offset for the location of the archive within an EXE file.
-//
-// Remark: KiriKiri allows its resources to be stored within an executable
-//
-// Parameters:
-//   - pclArc    - Archive
-//   - pdwOffset - Offset within archive
-
+/// Get the offset for the location of the archive within an EXE file.
+///
+/// Remark: KiriKiri allows its resources to be stored within an executable
+///
+/// @param pclArc    Archive
+/// @param pdwOffset Offset within archive
+///
 BOOL CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
 {
 	// Is not a kirikiri executable

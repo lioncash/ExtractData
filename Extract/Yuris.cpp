@@ -9,14 +9,10 @@
 BOOL CYuris::Mount(CArcFile* pclArc)
 {
 	if (MountYPF(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountYMV(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
@@ -27,14 +23,10 @@ BOOL CYuris::Mount(CArcFile* pclArc)
 BOOL CYuris::MountYPF(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ypf"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "YPF", 3) != 0)
-	{
 		return FALSE;
-	}
 
 	static const BYTE fnameLenTable[256] =
 	{
@@ -188,20 +180,14 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// YMV Mounting
-
+/// YMV Mounting
 BOOL CYuris::MountYMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ymv"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "YSMV", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	pclArc->SeekHed(8);
 
@@ -232,33 +218,23 @@ BOOL CYuris::MountYMV(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
 BOOL CYuris::Decode(CArcFile* pclArc)
 {
 	if (DecodeYMV(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// YMV Decoding
-
+/// YMV Decoding
 BOOL CYuris::DecodeYMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ymv"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "YSMV", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 

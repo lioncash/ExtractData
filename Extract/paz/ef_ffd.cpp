@@ -1,44 +1,34 @@
 #include "stdafx.h"
 #include "ef_ffd.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL Cef_ffd::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ef_ffd.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL Cef_ffd::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ef_ffd.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize mount key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize mount key
+///
+/// @param pclArc Archive
+///
 void Cef_ffd::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -56,12 +46,10 @@ void Cef_ffd::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize decode key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize decode key
+///
+/// @param pclArc Archive
+///
 void Cef_ffd::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =

@@ -2,17 +2,15 @@
 #include "../../ExtractBase.h"
 #include "PB.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompress LZSS
-//
-// Parameters:
-//   - pvDst      - Destination
-//   - dwDstSize  - Destination size
-//   - pvFlags    - Flag data
-//   - dwFlagSize - Flag data size
-//   - pvSrc      - Compressed data
-//   - dwSrcSize  - Compressed data size
-
+/// Decompress LZSS
+///
+/// @param pvDst      Destination
+/// @param dwDstSize  Destination size
+/// @param pvFlags    Flag data
+/// @param dwFlagSize Flag data size
+/// @param pvSrc      Compressed data
+/// @param dwSrcSize  Compressed data size
+///
 BOOL CPB::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvFlags, DWORD dwFlagsSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	// Initialize Dictionary

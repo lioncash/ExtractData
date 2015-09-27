@@ -1,44 +1,34 @@
 #include "stdafx.h"
 #include "HaruotoFD.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CHaruotoFD::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CHaruotoFD::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Mount Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Mount Key
+///
+/// @param pclArc Archive
+///
 void CHaruotoFD::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo	astKeyInfo[] =
@@ -56,12 +46,10 @@ void CHaruotoFD::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decode Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Decode Key
+///
+/// @param pclArc Archive
+///
 void CHaruotoFD::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo	astKeyInfo[] =
@@ -79,9 +67,7 @@ void CHaruotoFD::InitDecodeKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Table 2
-
+/// Decode Table 2
 void CHaruotoFD::DecodeTable2()
 {
 	DWORD* pdwTable = GetTable();
@@ -137,13 +123,11 @@ void CHaruotoFD::DecodeTable2()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Data
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode Data
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CHaruotoFD::DecodeData(void* pvTarget, DWORD dwSize)
 {
 	BYTE*  pbtTarget = (BYTE*)pvTarget;

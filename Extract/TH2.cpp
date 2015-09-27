@@ -5,48 +5,32 @@
 #include "../Image/Tga.h"
 #include "TH2.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
+/// Mounting
 BOOL CTH2::Mount(CArcFile* pclArc)
 {
 	if (MountKCAP(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountLAC(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountDpl(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountWMV(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// KCAP Mounting
-
+/// KCAP Mounting
 BOOL CTH2::MountKCAP(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten().CompareNoCase(_T(".pak")) != 0)
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "KCAP", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	// Get file count
 	DWORD dwFiles;
@@ -99,20 +83,14 @@ BOOL CTH2::MountKCAP(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// LAC Mounting
-
+/// LAC Mounting
 BOOL CTH2::MountLAC(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten().CompareNoCase(_T(".pak")) != 0)
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "LAC", 3) != 0)
-	{
 		return FALSE;
-	}
 
 	// Get file count
 	DWORD dwFiles;
@@ -154,20 +132,14 @@ BOOL CTH2::MountLAC(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Dpl mounting
-
+/// Dpl mounting
 BOOL CTH2::MountDpl(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".a"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "\x1E\xAF", 2) != 0)
-	{
 		return FALSE;
-	}
 
 	// Get file count
 	WORD wFiles;
@@ -207,58 +179,40 @@ BOOL CTH2::MountDpl(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// WMV Mounting
-
+/// WMV Mounting
 BOOL CTH2::MountWMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".wmv"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
-	{
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
 BOOL CTH2::Decode(CArcFile* pclArc)
 {
 	if (DecodeWMV(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeEtc(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// WMV Decoding
-
+/// WMV Decoding
 BOOL CTH2::DecodeWMV(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".wmv"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
-	{
 		return FALSE;
-	}
 
 	// Get buffer
 	DWORD          dwBufferSize = pclArc->GetBufSize();
@@ -274,21 +228,15 @@ BOOL CTH2::DecodeWMV(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding other files
-
+/// Decoding other files
 BOOL CTH2::DecodeEtc(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->title != _T("TH2"))
-	{
 		return FALSE;
-	}
 
 	if ((pstFileInfo->format != _T("LZ")) && (pstFileInfo->format != _T("TGA")))
-	{
 		return FALSE;
-	}
 
 	YCMemory<BYTE> clmDst;
 	DWORD          dwDstSize;

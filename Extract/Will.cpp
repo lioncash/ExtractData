@@ -3,15 +3,11 @@
 #include "../Image.h"
 #include "Will.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
+/// Mounting
 BOOL CWill::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".arc")) != 0)
-	{
 		return FALSE;
-	}
 
 	BOOL bMatch = FALSE;
 
@@ -154,16 +150,12 @@ BOOL CWill::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
 BOOL CWill::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if ((pstFileInfo->format != _T("WIP")) && (pstFileInfo->format != _T("MSK")))
-	{
 		return FALSE;
-	}
 
 	// Read data
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
@@ -326,15 +318,14 @@ BOOL CWill::Decode(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// LZSS Decompression
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination Size
-//   - pvSrc     - Compressed data
-//   - dwSrcSize - Compressed data size
-
+/// LZSS Decompression
+///
+/// Parameters:
+/// @param pvDst     Destination
+/// @param dwDstSize Destination Size
+/// @param pvSrc     Compressed data
+/// @param dwSrcSize Compressed data size
+///
 void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -397,16 +388,16 @@ void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// マスク画像を付加して32bit化する
-//
-// Parameters:
-//   - pbtDst     - Destination
-//   - dwDstSize  - Destination Size
-//   - pbtSrc     - 24-bit data
-//   - dwSrcSize  - 24-bit data size
-//   - pbtMask    - 8-bit data (mask)
-//   - dwMaskSize - 8-bit data size
+/// マスク画像を付加して32bit化する
+///
+/// Parameters:
+/// @param pbtDst     Destination
+/// @param dwDstSize  Destination Size
+/// @param pbtSrc     24-bit data
+/// @param dwSrcSize  24-bit data size
+/// @param pbtMask    8-bit data (mask)
+/// @param dwMaskSize 8-bit data size
+///
 BOOL CWill::AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize)
 {
 	// Make files

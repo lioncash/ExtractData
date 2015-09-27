@@ -3,16 +3,14 @@
 #include "JBP1.h"
 #include "PB2A.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Remark: pvSrc can be used to decrypt the first part
-//
-// Parameters:
-//   - pclArc - Archive
-//   - pvSrc  - Compressed data
-//   - dwSize - Compressed data size
-
+/// Decode
+///
+/// Remark: pvSrc can be used to decrypt the first part
+///
+/// @param pclArc - Archive
+/// @param pvSrc  - Compressed data
+/// @param dwSize - Compressed data size
+///
 BOOL CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
@@ -59,13 +57,11 @@ BOOL CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Decoding
-//
-// Parameters:
-//   - pbtTarget - Data to be decoded
-//   - dwSize    - Data size
-
+///  Decoding
+///
+/// @param pbtTarget Data to be decoded
+/// @param dwSize    Data size
+///
 void CPB2A::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 {
 	for (int i = 8; i < 32; i += 2)
@@ -79,17 +75,15 @@ void CPB2A::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 1
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 1
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+/// @param lHeight   Height
+/// @param wBpp      Number of bits
+///
 BOOL CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
@@ -107,17 +101,15 @@ BOOL CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 2
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 2
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+/// @param lHeight   Height
+/// @param wBpp      Number of bits
+///
 BOOL CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
@@ -135,17 +127,15 @@ BOOL CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 4
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 4
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+/// @param lHeight   Height
+/// @param wBpp      Number of bits
+///
 BOOL CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
@@ -163,17 +153,15 @@ BOOL CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 5
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 5
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+/// @param lHeight   Height
+/// @param wBpp      Number of bits
+///
 BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
@@ -218,17 +206,15 @@ BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode 6
-//
-// Parameters
-//   - pclArc    - Archive
-//   - pbtSrc    - Compressed data
-//   - dwSrcSize - Compressed data size
-//   - lWidth    - Width
-//   - lHeight   - Height
-//   - wBpp      - Number of bits
-
+/// Decode 6
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+/// @param lHeight   Height
+/// @param wBpp      Number of bits
+///
 BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
@@ -273,18 +259,16 @@ BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 1
-//
-// Parameters:
-//   - pbtDst        - Destination
-//   - dwDstSize     - Destination size
-//   - pbtSrc        - Compressed data
-//   - dwSrcSize     - Compressed data size
-//   - lWidth        - Width
-//   - lHeight       - Height
-//   - wBpp          - Number of bits
-
+/// Decompression 1
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+///
 BOOL CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
@@ -349,19 +333,16 @@ BOOL CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 2
-//
-// Parameters:
-//   - pbtDst        - Destination
-//   - dwDstSize     - Destination size
-//   - pbtSrc        - Compressed data
-//   - dwSrcSize     - Compressed data size
-//   - lWidth        - Width
-//   - lHeight       - Height
-//   - wBpp          - Number of bits
-
+/// Decompression 2
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+///
 BOOL CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
@@ -489,18 +470,16 @@ BOOL CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 4
-//
-// Parameters:
-//   - pbtDst        - Destination
-//   - dwDstSize     - Destination size
-//   - pbtSrc        - Compressed data
-//   - dwSrcSize     - Compressed data size
-//   - lWidth        - Width
-//   - lHeight       - Height
-//   - wBpp          - Number of bits
-
+/// Decompression 4
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+///
 BOOL CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Get alpha value
@@ -514,22 +493,20 @@ BOOL CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression 5
-//
-// Remark: if pbtBast is null, then difference compositing is not performed
-//
-// Parameters:
-//   - pbtDst        - Destination
-//   - dwDstSize     - Destination size
-//   - pbtSrc        - Compressed data
-//   - dwSrcSize     - Compressed data size
-//   - lWidth        - Width
-//   - lHeight       - Height
-//   - wBpp          - Number of bits
-//   - pbtBase       - Base image
-//   - dwFrameNumber - Frame number
-
+/// Decompression 5
+///
+/// Remark: if pbtBast is null, then difference compositing is not performed
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+/// @param pbtBase       Base image
+/// @param dwFrameNumber Frame number
+///
 BOOL CPB2A::Decomp5(
 	BYTE*       pbtDst,
 	DWORD       dwDstSize,
@@ -605,7 +582,7 @@ BOOL CPB2A::Decomp5(
 		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
 
 		// Copy base image
-		if (pbtBase != NULL)
+		if (pbtBase != nullptr)
 		{
 			memcpy(pbtDst, pbtBase, dwDstSize);
 		}
@@ -678,22 +655,20 @@ BOOL CPB2A::Decomp5(
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompress 6
-//
-// Remark: If pbtBase is NULL, then difference compositing is not performed
-//
-// Parameters:
-//   - pbtDst        - Destination
-//   - dwDstSize     - Destination size
-//   - pbtSrc        - Compressed data
-//   - dwSrcSize     - Compressed data size
-//   - lWidth        - Width
-//   - lHeight       - Height
-//   - wBpp          - Number of bits
-//   - pbtBase       - Base image
-//   - dwFrameNumber - Frame number
-
+/// Decompress 6
+///
+/// Remark: If pbtBase is NULL, then difference compositing is not performed
+///
+/// @param pbtDst        Destination
+/// @param dwDstSize     Destination size
+/// @param pbtSrc        Compressed data
+/// @param dwSrcSize     Compressed data size
+/// @param lWidth        Width
+/// @param lHeight       Height
+/// @param wBpp          Number of bits
+/// @param pbtBase       Base image
+/// @param dwFrameNumber Frame number
+///
 BOOL CPB2A::Decomp6(
 	BYTE*       pbtDst,
 	DWORD       dwDstSize,
@@ -777,7 +752,7 @@ BOOL CPB2A::Decomp6(
 		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
 
 		// Copy base image
-		if (pbtBase != NULL)
+		if (pbtBase != nullptr)
 		{
 			memcpy(pbtDst, pbtBase, dwDstSize);
 		}

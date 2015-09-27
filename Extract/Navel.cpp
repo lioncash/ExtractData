@@ -6,9 +6,9 @@
 // Function that gets file information from Navel's .pac files
 BOOL CNavel::Mount(CArcFile* pclArc)
 {
-	if (MountPac(pclArc) == TRUE)
+	if (MountPac(pclArc))
 		return TRUE;
-	if (MountWpd(pclArc) == TRUE)
+	if (MountWpd(pclArc))
 		return TRUE;
 
 	return FALSE;

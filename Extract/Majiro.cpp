@@ -25,71 +25,57 @@
 #include "../Image.h"
 #include "Majiro.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
-BOOL CMajiro::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+/// Mounting
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::Mount(CArcFile* pclArc)
 {
-	if( MountArc1( pclArc ) )
-	{
+	if (MountArc1(pclArc))
 		return TRUE;
-	}
 
-	if( MountArc2( pclArc) )
-	{
+	if (MountArc2(pclArc))
 		return TRUE;
-	}
 
-	if( MountMJO( pclArc ) )
-	{
+	if (MountMJO(pclArc))
 		return TRUE;
-	}
 
-	if( MountRC( pclArc ) )
-	{
+	if (MountRC(pclArc))
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting V1 Archives
-
-BOOL CMajiro::MountArc1(
-	CArcFile*			pclArc						// Archive
-	)
+/// Mounting V1 Archives
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::MountArc1(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".arc") )
-	{
+	if (pclArc->GetArcExten() != _T(".arc"))
 		return FALSE;
-	}
 
-	if( memcmp( pclArc->GetHed(), "MajiroArcV1.000", 15 ) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "MajiroArcV1.000", 15) != 0)
 		return FALSE;
-	}
 
 	// Get file count
 	DWORD dwFiles;
-	pclArc->SeekHed( 16 );
-	pclArc->Read( &dwFiles, 4 );
+	pclArc->SeekHed(16);
+	pclArc->Read(&dwFiles, 4);
 
 	// Get the index size of the file entry
 	DWORD dwIndexSizeOfFileEntry;
-	pclArc->Read( &dwIndexSizeOfFileEntry, 4 );
+	pclArc->Read(&dwIndexSizeOfFileEntry, 4);
 	dwIndexSizeOfFileEntry -= 28;
 
 	// Get index size
 	DWORD dwIndexSize;
-	pclArc->Read( &dwIndexSize, 4 );
+	pclArc->Read(&dwIndexSize, 4);
 	dwIndexSize -= 28;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex( dwIndexSize );
-	pclArc->Read( &clmbtIndex[0], dwIndexSize );
+	YCMemory<BYTE> clmbtIndex(dwIndexSize);
+	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
 	// Get the index filename
 	BYTE* pbtFileNameIndex = &clmbtIndex[dwIndexSizeOfFileEntry];
@@ -99,125 +85,120 @@ BOOL CMajiro::MountArc1(
 	std::vector<SFileInfo> vcMaskFileInfo;
 	std::vector<SFileInfo> vcNotMaskFileInfo;
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
+	for (DWORD i = 0; i < dwFiles; i++)
 	{
 		SFileInfo stFileInfo;
 
 		// Get the filename from the filename index
 		TCHAR szFileName[256];
-		lstrcpy( szFileName, (LPCTSTR) pbtFileNameIndex );
+		lstrcpy(szFileName, (LPCTSTR)pbtFileNameIndex);
 		stFileInfo.name = szFileName;
 
 		// Get the starting and ending addresses from the index
-		stFileInfo.start = *(DWORD*) &clmbtIndex[i * 8 + 4];
-		stFileInfo.end = *(DWORD*) &clmbtIndex[i * 8 + 12];
+		stFileInfo.start = *(DWORD*)&clmbtIndex[i * 8 + 4];
+		stFileInfo.end = *(DWORD*)&clmbtIndex[i * 8 + 12];
 
 		// Get filesize
 		stFileInfo.sizeOrg = stFileInfo.end - stFileInfo.start;
 		stFileInfo.sizeCmp = stFileInfo.sizeOrg;
 
 		// Add file information to list
-		if( lstrcmpi( PathFindExtension( stFileInfo.name ), _T(".rc8") ) == 0 )
+		if (lstrcmpi(PathFindExtension(stFileInfo.name), _T(".rc8")) == 0)
 		{
-			if( stFileInfo.name[stFileInfo.name.GetLength() - lstrlen( _T("_.rc8") )] == _T('_') )
+			if (stFileInfo.name[stFileInfo.name.GetLength() - lstrlen(_T("_.rc8"))] == _T('_'))
 			{
-				vcMaskFileInfo.push_back( stFileInfo );
+				vcMaskFileInfo.push_back(stFileInfo);
 			}
 			else
 			{
-				vcNotMaskFileInfo.push_back( stFileInfo );
+				vcNotMaskFileInfo.push_back(stFileInfo);
 			}
 		}
 		else
 		{
-			vcFileInfo.push_back( stFileInfo );
+			vcFileInfo.push_back(stFileInfo);
 		}
 
-		pbtFileNameIndex += lstrlen( szFileName ) + 1;
+		pbtFileNameIndex += lstrlen(szFileName) + 1;
 	}
 
 	// Sort by filename
-	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
+	std::sort(vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo);
 
 	// Get file information from the masked image
-	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcMaskFileInfo.size(); i++)
 	{
 		SFileInfo* pstsiMask = &vcMaskFileInfo[i];
 
 		// Get the name of the file to be created
 		TCHAR szRCTName[_MAX_FNAME];
-		lstrcpy( szRCTName, pstsiMask->name );
-		szRCTName[lstrlen( szRCTName ) - lstrlen( _T("_.rc8") )] = _T('\0');
-		PathRenameExtension( szRCTName, _T(".rct") );
+		lstrcpy(szRCTName, pstsiMask->name);
+		szRCTName[lstrlen(szRCTName) - lstrlen(_T("_.rc8"))] = _T('\0');
+		PathRenameExtension(szRCTName, _T(".rct"));
 
 		// Get the file information to be created
-		SFileInfo* pstsiTarget = pclArc->SearchForFileInfo( vcFileInfo, szRCTName );
-		if( pstsiTarget != NULL )
+		SFileInfo* pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szRCTName);
+		if (pstsiTarget != nullptr)
 		{
 			// Image is masked
-			pstsiTarget->starts.push_back( pstsiMask->start );
-			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
-			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
+			pstsiTarget->starts.push_back(pstsiMask->start);
+			pstsiTarget->sizesCmp.push_back(pstsiMask->sizeCmp);
+			pstsiTarget->sizesOrg.push_back(pstsiMask->sizeOrg);
 
 			// Update progress
-			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
+			pclArc->GetProg()->UpdatePercent(pstsiMask->sizeCmp);
 		}
 		else
 		{
 			// Image is not masked
-			vcNotMaskFileInfo.push_back( *pstsiMask );
+			vcNotMaskFileInfo.push_back(*pstsiMask);
 		}
 	}
 
 	// Add to list view
-	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcFileInfo[i] );
+		pclArc->AddFileInfo(vcFileInfo[i]);
 	}
 
-	for( size_t i = 0 ; i < vcNotMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcNotMaskFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcNotMaskFileInfo[i] );
+		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
 	}
 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting V2 Archives
-
-BOOL CMajiro::MountArc2(
-	CArcFile*			pclArc							// Archive
-	)
+/// Mounting V2 Archives
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::MountArc2(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".arc") )
-	{
+	if (pclArc->GetArcExten() != _T(".arc"))
 		return FALSE;
-	}
 
-	if( memcmp( pclArc->GetHed(), "MajiroArcV2.000", 15 ) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "MajiroArcV2.000", 15) != 0)
 		return FALSE;
-	}
 
 	// Get file count
 	DWORD dwFiles;
-	pclArc->SeekHed( 16 );
-	pclArc->Read( &dwFiles, 4 );
+	pclArc->SeekHed(16);
+	pclArc->Read(&dwFiles, 4);
 
 	// Get the index size of the file entry
 	DWORD dwIndexSizeOfFileEntry;
-	pclArc->Read( &dwIndexSizeOfFileEntry, 4 );
+	pclArc->Read(&dwIndexSizeOfFileEntry, 4);
 	dwIndexSizeOfFileEntry -= 28;
 
 	// Get index size
 	DWORD dwIndexSize;
-	pclArc->Read( &dwIndexSize, 4 );
+	pclArc->Read(&dwIndexSize, 4);
 	dwIndexSize -= 28;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex( dwIndexSize );
-	pclArc->Read( &clmbtIndex[0], dwIndexSize );
+	YCMemory<BYTE> clmbtIndex(dwIndexSize);
+	pclArc->Read(&clmbtIndex[0], dwIndexSize);
 
 	// Get filename index
 	BYTE* pbtFileNameIndex = &clmbtIndex[dwIndexSizeOfFileEntry];
@@ -227,13 +208,13 @@ BOOL CMajiro::MountArc2(
 	std::vector<SFileInfo> vcMaskFileInfo;
 	std::vector<SFileInfo> vcNotMaskFileInfo;
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
+	for (DWORD i = 0; i < dwFiles; i++)
 	{
 		SFileInfo stFileInfo;
 
 		// Get filename from the filename index
 		TCHAR szFileName[256];
-		lstrcpy( szFileName, (LPCTSTR) pbtFileNameIndex );
+		lstrcpy(szFileName, (LPCTSTR)pbtFileNameIndex);
 		stFileInfo.name = szFileName;
 
 		// Get the starting address from the index and filesize
@@ -245,136 +226,122 @@ BOOL CMajiro::MountArc2(
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
 		// Add file information to list
-		if( lstrcmpi( PathFindExtension( stFileInfo.name ), _T(".rc8") ) == 0 )
+		if (lstrcmpi(PathFindExtension(stFileInfo.name), _T(".rc8")) == 0)
 		{
-			if( stFileInfo.name[stFileInfo.name.GetLength() - lstrlen( _T("_.rc8") )] == _T('_') )
+			if (stFileInfo.name[stFileInfo.name.GetLength() - lstrlen(_T("_.rc8"))] == _T('_'))
 			{
-				vcMaskFileInfo.push_back( stFileInfo );
+				vcMaskFileInfo.push_back(stFileInfo);
 			}
 			else
 			{
-				vcNotMaskFileInfo.push_back( stFileInfo );
+				vcNotMaskFileInfo.push_back(stFileInfo);
 			}
 		}
 		else
 		{
-			vcFileInfo.push_back( stFileInfo );
+			vcFileInfo.push_back(stFileInfo);
 		}
 
-		pbtFileNameIndex += lstrlen( szFileName ) + 1;
+		pbtFileNameIndex += lstrlen(szFileName) + 1;
 	}
 
 	// Sort by filename
-	std::sort( vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo );
+	std::sort(vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo);
 
 	// Get file information from the masked image
-	for( size_t i = 0 ; i < vcMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcMaskFileInfo.size(); i++)
 	{
 		SFileInfo* pstsiMask = &vcMaskFileInfo[i];
 
 		// Get the name of the file to be created
 		TCHAR szRCTName[_MAX_FNAME];
-		lstrcpy( szRCTName, pstsiMask->name );
-		szRCTName[lstrlen( szRCTName ) - lstrlen( _T("_.rc8") )] = _T('\0');
-		PathRenameExtension( szRCTName, _T(".rct") );
+		lstrcpy(szRCTName, pstsiMask->name);
+		szRCTName[lstrlen(szRCTName) - lstrlen(_T("_.rc8"))] = _T('\0');
+		PathRenameExtension(szRCTName, _T(".rct"));
 
 		// Get the file information to be created
-		SFileInfo* pstsiTarget = NULL;
-		pstsiTarget = pclArc->SearchForFileInfo( vcFileInfo, szRCTName );
+		SFileInfo* pstsiTarget = nullptr;
+		pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szRCTName);
 
-		if( pstsiTarget != NULL )
+		if (pstsiTarget != nullptr)
 		{
 			// Image is masked
-			pstsiTarget->starts.push_back( pstsiMask->start );
-			pstsiTarget->sizesCmp.push_back( pstsiMask->sizeCmp );
-			pstsiTarget->sizesOrg.push_back( pstsiMask->sizeOrg );
+			pstsiTarget->starts.push_back(pstsiMask->start);
+			pstsiTarget->sizesCmp.push_back(pstsiMask->sizeCmp);
+			pstsiTarget->sizesOrg.push_back(pstsiMask->sizeOrg);
 
 			// Update progress
-			pclArc->GetProg()->UpdatePercent( pstsiMask->sizeCmp );
+			pclArc->GetProg()->UpdatePercent(pstsiMask->sizeCmp);
 		}
 		else
 		{
 			// Image is not masked
-			vcNotMaskFileInfo.push_back( *pstsiMask );
+			vcNotMaskFileInfo.push_back(*pstsiMask);
 		}
 	}
 
 	// Add to list view
-	for( size_t i = 0 ; i < vcFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcFileInfo[i] );
+		pclArc->AddFileInfo(vcFileInfo[i]);
 	}
 
-	for( size_t i = 0 ; i < vcNotMaskFileInfo.size() ; i++ )
+	for (size_t i = 0; i < vcNotMaskFileInfo.size(); i++)
 	{
-		pclArc->AddFileInfo( vcNotMaskFileInfo[i] );
+		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
 	}
 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// MJO Mounting
-
-BOOL CMajiro::MountMJO(
-	CArcFile*			pclArc							// Archive
-	)
+/// MJO Mounting
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::MountMJO(CArcFile* pclArc)
 {
-	if( memcmp( pclArc->GetHed(), "MajiroObjX", 10 ) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "MajiroObjX", 10) != 0)
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RC Mounting
-
-BOOL CMajiro::MountRC(
-	CArcFile*			pclArc							// Archive
-	)
+/// RC Mounting
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::MountRC(CArcFile* pclArc)
 {
-	if( memcmp( pclArc->GetHed(), "六丁", 4 ) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "六丁", 4) != 0)
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
-BOOL CMajiro::Decode(
-	CArcFile*			pclArc							// Archive
-	)
+/// Decoding
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::Decode(CArcFile* pclArc)
 {
-	if( DecodeMJO( pclArc ) )
-	{
+	if (DecodeMJO(pclArc))
 		return TRUE;
-	}
 
-	if( DecodeRC( pclArc ) )
-	{
+	if (DecodeRC(pclArc))
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// MJO Decoding
-
-BOOL CMajiro::DecodeMJO(
-	CArcFile*			pclArc							// Archive
-	)
+/// MJO Decoding
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::DecodeMJO(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( pstFileInfo->format != _T("MJO") )
-	{
+	if (pstFileInfo->format != _T("MJO"))
 		return FALSE;
-	}
 
 	// Decoding table
 
@@ -416,21 +383,21 @@ BOOL CMajiro::DecodeMJO(
 
 	// Skip
 	DWORD dwOffset;
-	pclArc->SeekCur( 24 );
-	pclArc->Read( &dwOffset, 4 );
+	pclArc->SeekCur(24);
+	pclArc->Read(&dwOffset, 4);
 	dwOffset *= 8;
 
 	// Get the output size
 	DWORD dwDstSize;
-	pclArc->SeekCur( dwOffset );
-	pclArc->Read( &dwDstSize, 4 );
+	pclArc->SeekCur(dwOffset);
+	pclArc->Read(&dwDstSize, 4);
 
 	// Read
-	YCMemory<BYTE> clmbtDst( dwDstSize + 3 );
-	pclArc->Read( &clmbtDst[0], dwDstSize );
+	YCMemory<BYTE> clmbtDst(dwDstSize + 3);
+	pclArc->Read(&clmbtDst[0], dwDstSize);
 
 	// Decode
-	for( DWORD i = 0, j = 0 ; i < dwDstSize ; i += 4 )
+	for (DWORD i = 0, j = 0; i < dwDstSize; i += 4)
 	{
 		*(DWORD*)&clmbtDst[i] ^= dwKeyTable[j++];
 		j &= 255;
@@ -438,28 +405,27 @@ BOOL CMajiro::DecodeMJO(
 
 	// Output
 	pclArc->OpenScriptFile();
-	pclArc->WriteFile( &clmbtDst[0], dwDstSize );
+	pclArc->WriteFile(&clmbtDst[0], dwDstSize);
 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RC Decoding
-
-BOOL CMajiro::DecodeRC(
-	CArcFile*			pclArc							// Archive
-	)
+/// RC Decoding
+///
+/// @param pclArc Archive
+///
+BOOL CMajiro::DecodeRC(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( (pstFileInfo->format != _T("RCT")) && (pstFileInfo->format != _T("RC8")) )
+	if ((pstFileInfo->format != _T("RCT")) && (pstFileInfo->format != _T("RC8")))
 	{
 		return FALSE;
 	}
 
 	// rc8/rct reading
 	DWORD dwSrcSize = pstFileInfo->sizeCmp;
-	YCMemory<BYTE> clmbtSrc( dwSrcSize );
-	pclArc->Read( &clmbtSrc[0], dwSrcSize );
+	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// rc8/rct not supported
 	//if ((memcmp(z_pbuf, "六丁TC00", 8) != 0) && (memcmp(z_pbuf, "六丁8_00", 8) != 0)) {
@@ -469,7 +435,7 @@ BOOL CMajiro::DecodeRC(
 	//    return TRUE;
 	//}
 
-	WORD  wBpp = (memcmp( &clmbtSrc[4], "8_00", 4 ) == 0) ? 8 : 24;
+	WORD  wBpp = (memcmp(&clmbtSrc[4], "8_00", 4) == 0) ? 8 : 24;
 	long  lWidth = *(long*)&clmbtSrc[8];
 	long  lHeight = *(long*)&clmbtSrc[12];
 	DWORD dwSrcSizeOfData = *(DWORD*)&clmbtSrc[16];
@@ -478,28 +444,28 @@ BOOL CMajiro::DecodeRC(
 
 	// Ensure output buffer exists
 	DWORD          dwDstSize = lWidth * lHeight * (wBpp >> 3);
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	YCMemory<BYTE> clmbtDst(dwDstSize);
 	DWORD          dwDstSize2;
 	YCMemory<BYTE> clmbtDst2;
 	BYTE*          pbtDst = &clmbtDst[0];
 
-	if( wBpp == 8 )
+	if (wBpp == 8)
 	{
 		// rc8
 
-		read_bits_8( &clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr + 768], dwSrcSizeOfData, lWidth );
+		read_bits_8(&clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr + 768], dwSrcSizeOfData, lWidth);
 	}
-	else if( memcmp( &clmbtSrc[4], "TC00", 4 ) == 0 )
+	else if (memcmp(&clmbtSrc[4], "TC00", 4) == 0)
 	{
 		// rct
 
-		read_bits_24( &clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr], dwSrcSizeOfData, lWidth );
+		read_bits_24(&clmbtDst[0], dwDstSize, &clmbtSrc[dwSrcPtr], dwSrcSizeOfData, lWidth);
 
 		// マスク画像を付加して32bit化
 		dwDstSize2 = lWidth * lHeight * 4;
-		clmbtDst2.resize( dwDstSize2 );
+		clmbtDst2.resize(dwDstSize2);
 
-		if( AppendMask( pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize ) )
+		if (AppendMask(pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize))
 		{
 			// Successfully appended the mask image
 
@@ -508,38 +474,38 @@ BOOL CMajiro::DecodeRC(
 			pbtDst = &clmbtDst2[0];
 		}
 	}
-	else if( memcmp( &clmbtSrc[4], "TC01", 4 ) == 0 )
+	else if (memcmp(&clmbtSrc[4], "TC01", 4) == 0)
 	{
 		// rct(Difference information)
 
 		// Get the base image file name
 		TCHAR szFileName[_MAX_FNAME];
 		WORD  wFileNameLen = *(WORD*)&clmbtSrc[dwSrcPtr];
-		memcpy( szFileName, &clmbtSrc[dwSrcPtr + 2], wFileNameLen );
+		memcpy(szFileName, &clmbtSrc[dwSrcPtr + 2], wFileNameLen);
 		dwSrcPtr += 2 + wFileNameLen;
 
 		// Get file info for the base image
-		const SFileInfo* pstFileInfoOfBase = pclArc->GetFileInfo( szFileName );
+		const SFileInfo* pstFileInfoOfBase = pclArc->GetFileInfo(szFileName);
 
-		if( pstFileInfoOfBase != NULL )
+		if (pstFileInfoOfBase != nullptr)
 		{
 			// Base image file exists
-			YCMemory<BYTE> clmbtSrcOfBase( pstFileInfoOfBase->sizeCmp );
-			pclArc->SeekHed( pstFileInfoOfBase->start );
-			pclArc->Read( &clmbtSrcOfBase[0], pstFileInfoOfBase->sizeCmp );
-			read_bits_24( &clmbtDst[0], dwDstSize, &clmbtSrcOfBase[20], *(DWORD*)&clmbtSrcOfBase[16], lWidth );
+			YCMemory<BYTE> clmbtSrcOfBase(pstFileInfoOfBase->sizeCmp);
+			pclArc->SeekHed(pstFileInfoOfBase->start);
+			pclArc->Read(&clmbtSrcOfBase[0], pstFileInfoOfBase->sizeCmp);
+			read_bits_24(&clmbtDst[0], dwDstSize, &clmbtSrcOfBase[20], *(DWORD*)&clmbtSrcOfBase[16], lWidth);
 
 			// Decompress the difference image
-			YCMemory<BYTE> clmbtDstOfdiff( dwDstSize );
-			read_bits_24( &clmbtDstOfdiff[0], dwDstSize, &clmbtSrc[dwSrcPtr], dwSrcSizeOfData, lWidth );
+			YCMemory<BYTE> clmbtDstOfdiff(dwDstSize);
+			read_bits_24(&clmbtDstOfdiff[0], dwDstSize, &clmbtSrc[dwSrcPtr], dwSrcSizeOfData, lWidth);
 
 			// Synthesize the difference between the difference image and the base image
-			for( DWORD i = 0 ; i < dwDstSize ; i += 3 )
+			for (DWORD i = 0; i < dwDstSize; i += 3)
 			{
-				if( memcmp( &clmbtDstOfdiff[i], "\x00\x00\xFF", 3 ) != 0 )
+				if (memcmp(&clmbtDstOfdiff[i], "\x00\x00\xFF", 3) != 0)
 				{
 					// Red part is determined to be the transparent color in the difference image
-					memcpy( &clmbtDst[i], &clmbtDstOfdiff[i], 3 );
+					memcpy(&clmbtDst[i], &clmbtDstOfdiff[i], 3);
 				}
 			}
 		}
@@ -547,9 +513,9 @@ BOOL CMajiro::DecodeRC(
 		// マスク画像を付加して32bit化
 
 		dwDstSize2 = lWidth * lHeight * 4;
-		clmbtDst2.resize( dwDstSize2 );
+		clmbtDst2.resize(dwDstSize2);
 
-		if( AppendMask( pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize ) )
+		if (AppendMask(pclArc, &clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize))
 		{
 			// Success in adding the mask image
 
@@ -561,46 +527,45 @@ BOOL CMajiro::DecodeRC(
 	else
 	{
 		pclArc->OpenFile();
-		pclArc->WriteFile( &clmbtSrc[0], dwSrcSize );
+		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 
 		return TRUE;
 	}
 
 	// Output
 	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp, &clmbtSrc[dwSrcPtr], 768 );
-	clImage.WriteReverse( pbtDst, dwDstSize );
+	clImage.Init(pclArc, lWidth, lHeight, wBpp, &clmbtSrc[dwSrcPtr], 768);
+	clImage.WriteReverse(pbtDst, dwDstSize);
 
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RCT Extraction
-
-void CMajiro::read_bits_24(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination size
-	const BYTE*			pbtSrc,							// Compressed Data
-	DWORD				dwSrcSize,						// Compressed Data Size
-	long				lWidth							// Width
-	)
+/// RCT Extraction
+///
+/// @param pbtDst    Destination
+/// @param dwDstSize Destination size
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+///
+void CMajiro::read_bits_24(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth)
 {
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
 
-	memcpy( pbtDst, pbtSrc, 3 );
+	memcpy(pbtDst, pbtSrc, 3);
 
 	dwSrcPtr += 3;
 	dwDstPtr += 3;
 
-	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
 	{
 		BYTE btCode = pbtSrc[dwSrcPtr++];
 
-		if( btCode <= 0x7F )
+		if (btCode <= 0x7F)
 		{
 			DWORD dwLength;
-			if( btCode == 0x7F )
+			if (btCode == 0x7F)
 			{
 				dwLength = *(WORD*)&pbtSrc[dwSrcPtr] + 128;
 				dwSrcPtr += 2;
@@ -612,17 +577,17 @@ void CMajiro::read_bits_24(
 
 			dwLength *= 3;
 
-			if( (dwSrcPtr + dwLength) > dwSrcSize )
+			if ((dwSrcPtr + dwLength) > dwSrcSize)
 			{
 				dwLength = (dwSrcSize - dwSrcPtr);
 			}
 
-			if( (dwDstPtr + dwLength ) > dwDstSize )
+			if ((dwDstPtr + dwLength) > dwDstSize)
 			{
 				dwLength = (dwDstSize - dwDstPtr);
 			}
 
-			memcpy( &pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength );
+			memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength);
 
 			dwSrcPtr += dwLength;
 			dwDstPtr += dwLength;
@@ -630,7 +595,7 @@ void CMajiro::read_bits_24(
 		else
 		{
 			DWORD dwLength = btCode & 0x03;
-			if( dwLength == 3 )
+			if (dwLength == 3)
 			{
 				dwLength = *(WORD*)&pbtSrc[dwSrcPtr] + 4;
 				dwSrcPtr += 2;
@@ -641,19 +606,19 @@ void CMajiro::read_bits_24(
 			}
 
 			DWORD dwBack = (btCode >> 2) - 32;
-			if( dwBack < 6 )
+			if (dwBack < 6)
 			{
 				dwBack++;
 			}
-			else if( dwBack <= 12 )
+			else if (dwBack <= 12)
 			{
 				dwBack = lWidth + dwBack - 9;
 			}
-			else if( dwBack <= 19 )
+			else if (dwBack <= 19)
 			{
 				dwBack = lWidth * 2 + dwBack - 16;
 			}
-			else if( dwBack <= 26 )
+			else if (dwBack <= 26)
 			{
 				dwBack = lWidth * 3 + dwBack - 23;
 			}
@@ -665,12 +630,12 @@ void CMajiro::read_bits_24(
 			dwLength *= 3;
 			dwBack *= 3;
 
-			if( (dwDstPtr + dwLength ) > dwDstSize )
+			if ((dwDstPtr + dwLength) > dwDstSize)
 			{
 				dwLength = (dwDstSize - dwDstPtr);
 			}
 
-			for( DWORD i = 0 ; i < dwLength ; i++ )
+			for (DWORD i = 0; i < dwLength; i++)
 			{
 				pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
 			}
@@ -680,30 +645,29 @@ void CMajiro::read_bits_24(
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RC8 Extraction
-
-void CMajiro::read_bits_8(
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination Size
-	const BYTE*			pbtSrc,							// Compressed Data
-	DWORD				dwSrcSize,						// Compressed Data Size
-	long				lWidth							// Width
-	)
+/// RC8 Extraction
+///
+/// @param pbtDst    Destination
+/// @param dwDstSize Destination size
+/// @param pbtSrc    Compressed data
+/// @param dwSrcSize Compressed data size
+/// @param lWidth    Width
+///
+void CMajiro::read_bits_8(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth)
 {
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
 
 	pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
 
-	while( (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) )
+	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
 	{
 		BYTE btCode = pbtSrc[dwSrcPtr++];
-		if( btCode <= 0x7F )
+		if (btCode <= 0x7F)
 		{
 			DWORD dwLength;
 
-			if( btCode == 0x7F )
+			if (btCode == 0x7F)
 			{
 				dwLength = *(WORD*)&pbtSrc[dwSrcPtr] + 128;
 				dwSrcPtr += 2;
@@ -713,17 +677,17 @@ void CMajiro::read_bits_8(
 				dwLength = btCode + 1;
 			}
 
-			if( (dwSrcPtr + dwLength) > dwSrcSize )
+			if ((dwSrcPtr + dwLength) > dwSrcSize)
 			{
 				dwLength = (dwSrcSize - dwSrcPtr);
 			}
 
-			if( (dwDstPtr + dwLength) > dwDstSize )
+			if ((dwDstPtr + dwLength) > dwDstSize)
 			{
 				dwLength = (dwDstSize - dwDstPtr);
 			}
 
-			memcpy( &pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength );
+			memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength);
 
 			dwSrcPtr += dwLength;
 			dwDstPtr += dwLength;
@@ -731,7 +695,7 @@ void CMajiro::read_bits_8(
 		else
 		{
 			DWORD dwLength = btCode & 0x07;
-			if( dwLength == 7 )
+			if (dwLength == 7)
 			{
 				dwLength = *(WORD*)&pbtSrc[dwSrcPtr] + 10;
 				dwSrcPtr += 2;
@@ -742,11 +706,11 @@ void CMajiro::read_bits_8(
 			}
 
 			DWORD dwBack = (btCode >> 3) - 16;
-			if( dwBack < 4 )
+			if (dwBack < 4)
 			{
 				dwBack++;
 			}
-			else if( dwBack <= 10 )
+			else if (dwBack <= 10)
 			{
 				dwBack = lWidth + dwBack - 7;
 			}
@@ -755,12 +719,12 @@ void CMajiro::read_bits_8(
 				dwBack = lWidth * 2 + dwBack - 13;
 			}
 
-			if( (dwDstPtr + dwLength) > dwDstSize )
+			if ((dwDstPtr + dwLength) > dwDstSize)
 			{
 				dwLength = (dwDstSize - dwDstPtr);
 			}
 
-			for( DWORD i = 0 ; i < dwLength ; i++ )
+			for (DWORD i = 0; i < dwLength; i++)
 			{
 				pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
 			}
@@ -770,19 +734,18 @@ void CMajiro::read_bits_8(
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//	マスク画像を付加して32bit化する
-
-BOOL	CMajiro::AppendMask(
-	CArcFile*			pclArc,							// Archive
-	BYTE*				pbtDst,							// Destination
-	DWORD				dwDstSize,						// Destination Size
-	const BYTE*			pbtSrc,							// 24bit Data
-	DWORD				dwSrcSize						// Data Size
-	)
+/// マスク画像を付加して32bit化する
+///
+/// @param pclArc    Archive
+/// @param pbtDst    Destination
+/// @param dwDstSize Destination size
+/// @param pbtSrc    24-bit data
+/// @param dwSrcSize Data size
+///
+BOOL CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if( pstFileInfo->starts.empty() )
+	if (pstFileInfo->starts.empty())
 	{
 		// Mask image doesn't exist.
 
@@ -791,26 +754,26 @@ BOOL	CMajiro::AppendMask(
 
 	// Read image mask
 	DWORD          dwSrcSizeOfMask = pstFileInfo->sizesCmp[0];
-	YCMemory<BYTE> clmbtSrcOfMask( dwSrcSizeOfMask );
-	pclArc->SeekHed( pstFileInfo->starts[0] );
-	pclArc->Read( &clmbtSrcOfMask[0], dwSrcSizeOfMask );
+	YCMemory<BYTE> clmbtSrcOfMask(dwSrcSizeOfMask);
+	pclArc->SeekHed(pstFileInfo->starts[0]);
+	pclArc->Read(&clmbtSrcOfMask[0], dwSrcSizeOfMask);
 
 	// Get header information
-	SRCHeader* pstrchMask = (SRCHeader*) &clmbtSrcOfMask[0];
+	SRCHeader* pstrchMask = (SRCHeader*)&clmbtSrcOfMask[0];
 
 	// Decompress masked image
 	DWORD          dwDstSizeOfMask = pstrchMask->lWidth * pstrchMask->lHeight;
-	YCMemory<BYTE> clmbtDstOfMask( dwDstSizeOfMask );
-	read_bits_8( &clmbtDstOfMask[0], dwDstSizeOfMask, &clmbtSrcOfMask[20 + 768], pstrchMask->dwDataSize, pstrchMask->lWidth );
+	YCMemory<BYTE> clmbtDstOfMask(dwDstSizeOfMask);
+	read_bits_8(&clmbtDstOfMask[0], dwDstSizeOfMask, &clmbtSrcOfMask[20 + 768], pstrchMask->dwDataSize, pstrchMask->lWidth);
 
 	// Make file
 	DWORD dwSrcPtr = 0;
 	DWORD dwMaskPtr = 0;
 	DWORD dwDstPtr = 0;
 
-	while( (dwSrcPtr < dwSrcSize) && (dwMaskPtr < dwDstSizeOfMask) && (dwDstPtr < dwDstSize) )
+	while (dwSrcPtr < dwSrcSize && dwMaskPtr < dwDstSizeOfMask && dwDstPtr < dwDstSize)
 	{
-		memcpy( &pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], 3 );
+		memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], 3);
 
 		pbtDst[dwDstPtr + 3] = ~clmbtDstOfMask[dwMaskPtr];
 

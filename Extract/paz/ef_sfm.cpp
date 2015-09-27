@@ -1,29 +1,23 @@
 #include "stdafx.h"
 #include "ef_sfm.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if files are supported
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Check if files are supported
+///
+/// @param pclArc Archive
+///
 BOOL CEFsfm::IsSupported(CArcFile* pclArc)
 {
 	return (memcmp(pclArc->GetHed(), "ef_sfm", 6) == 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CEFsfm::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-	{
 		return FALSE;
-	}
 
 	// Skip 32 bytes
 	pclArc->SeekHed(32);
@@ -31,25 +25,22 @@ BOOL CEFsfm::Mount(CArcFile* pclArc)
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CEFsfm::Decode(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Mount Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Mount Key
+///
+/// @param pclArc Archive
+///
 void CEFsfm::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -67,12 +58,10 @@ void CEFsfm::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decode Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Decode Key
+///
+/// @param pclArc Archive
+///
 void CEFsfm::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -92,12 +81,10 @@ void CEFsfm::InitDecodeKey(CArcFile* pclArc)
 	m_dwMovieTableID = 0;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Movie Table
-//
-// Parameters:
-//   - pvTable - Table
-
+/// Initialize Movie Table
+///
+/// @param pvTable Table
+///
 DWORD CEFsfm::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtTable = (BYTE*)pvTable;
@@ -113,13 +100,11 @@ DWORD CEFsfm::InitMovieTable(void* pvTable)
 	return 65536;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Movie Data
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode Movie Data
+///
+/// @param pvTarget - Data to be decoded
+/// @param dwSize   - Decoding size
+///
 void CEFsfm::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -132,12 +117,10 @@ void CEFsfm::DecodeMovieData(void* pvTarget, DWORD dwSize)
 	m_dwMovieTableID = ((m_dwMovieTableID + 1) & 0xFF);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get Movie Buffer Size
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Get Movie Buffer Size
+///
+/// @param pclArc - Archive
+///
 DWORD CEFsfm::GetMovieBufSize(CArcFile* pclArc)
 {
 	return 65536;

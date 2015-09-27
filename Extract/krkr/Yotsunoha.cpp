@@ -1,23 +1,19 @@
 #include "stdafx.h"
 #include "Yotsunoha.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if it can be decrypted
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CYotsunoha::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("AAF0A99EAF4018CB1AA5E0D9065C2239");
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decryption Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 DWORD CYotsunoha::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -26,15 +22,13 @@ DWORD CYotsunoha::OnInitDecrypt(CArcFile* pclArc)
 	return (((pstFileInfo->key >> 8) & 0xFF) ^ (pstFileInfo->key & 0xFF));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Decryption Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CYotsunoha::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decryption

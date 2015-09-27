@@ -1,44 +1,34 @@
 #include "stdafx.h"
 #include "AngelType.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CAngelType::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CAngelType::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize mount key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize mount key
+///
+/// @param pclArc - Archive
+///
 void CAngelType::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -56,12 +46,10 @@ void CAngelType::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize decode key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize decode key
+///
+/// @param pclArc Archive
+///
 void CAngelType::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =

@@ -3,23 +3,17 @@
 #include "../../Sound/Ogg.h"
 #include "TCD3.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CTCD3::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".TCD"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "TCD3", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	pclArc->SeekHed(4);
 
@@ -119,15 +113,13 @@ BOOL CTCD3::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RLE Decompression (Type 2)
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-
+/// RLE Decompression (Type 2)
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+///
 BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -151,7 +143,7 @@ BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 
 		if ((dwDstPtr + (wLength * 4)) > dwDstSize)
 		{
-			MessageBox(NULL, _T("The output buffer to decompress RLE2 is too small."), _T("Error"), 0);
+			MessageBox(nullptr, _T("The output buffer to decompress RLE2 is too small."), _T("Error"), 0);
 		}
 
 		switch (wType)
@@ -169,7 +161,7 @@ BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 		case 1:  // Alpha value 0xFF
 			if ((dwSrcDataPtr + (wLength * 3)) > dwSrcSize)
 			{
-				MessageBox(NULL, _T("Input buffer to decompress RLE2 is too small."), _T("Error"), 0);
+				MessageBox(nullptr, _T("Input buffer to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
 			for (DWORD i = 0; i < wLength; i++)
@@ -186,12 +178,12 @@ BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 		default: // Alpha values obtained from header
 			if ((dwSrcDataPtr + (wLength * 3)) > dwSrcSize)
 			{
-				MessageBox(NULL, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
+				MessageBox(nullptr, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
 			if ((dwSrcHeaderPtr + wLength) > dwOffset)
 			{
-				MessageBox(NULL, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
+				MessageBox(nullptr, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
 			for (DWORD i = 0; i < wLength; i++)

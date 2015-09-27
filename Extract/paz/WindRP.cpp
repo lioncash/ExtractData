@@ -1,44 +1,34 @@
 #include "stdafx.h"
 #include "WindRP.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CWindRP::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("WindRP.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CWindRP::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("WindRP.exe")))
-	{
 		return FALSE;
-	}
 
 	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Mount Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Mount Key
+///
+/// @param pclArc Archive
+///
 void CWindRP::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -56,12 +46,10 @@ void CWindRP::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decode Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Decode Key
+///
+/// @param pclArc Archive
+///
 void CWindRP::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =

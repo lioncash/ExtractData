@@ -1,23 +1,19 @@
 #include "stdafx.h"
 #include "Hachukano.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if it can be decoded
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CHachukano::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return pclArc->CheckExe(_T("hachukano.exe"));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decryption Process
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 DWORD CHachukano::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -42,15 +38,13 @@ DWORD CHachukano::OnInitDecrypt(CArcFile* pclArc)
 	return (pstFileInfo->key ^ 0x03020100);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CHachukano::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decrypt

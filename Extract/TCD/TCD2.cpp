@@ -3,23 +3,17 @@
 #include "../../Sound/Ogg.h"
 #include "TCD2.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CTCD2::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".TCD"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "TCD2", 4) != 0)
-	{
 		return FALSE;
-	}
 
 	pclArc->SeekHed(4);
 
@@ -123,15 +117,13 @@ BOOL CTCD2::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// RLE Decompression (Type 2)
-//
-// Parameters:
-//   - pvDst     - Destination
-//   - dwDstSize - Destination size
-//   - pvSrc     - Input data
-//   - dwSrcSize - Input data size
-
+/// RLE Decompression (Type 2)
+///
+/// @param pvDst     Destination
+/// @param dwDstSize Destination size
+/// @param pvSrc     Input data
+/// @param dwSrcSize Input data size
+///
 BOOL CTCD2::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;

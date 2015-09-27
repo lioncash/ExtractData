@@ -4,12 +4,10 @@
 #include "JBP1.h"
 #include "Cmv.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CCmv::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".cmv"))

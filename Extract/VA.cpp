@@ -5,11 +5,11 @@
 
 BOOL CVA::Mount(CArcFile* pclArc)
 {
-	if (MountNwa(pclArc) == TRUE)
+	if (MountNwa(pclArc))
 		return TRUE;
-	if (MountNwk(pclArc) == TRUE)
+	if (MountNwk(pclArc))
 		return TRUE;
-	if (MountOvk(pclArc) == TRUE)
+	if (MountOvk(pclArc))
 		return TRUE;
 	return FALSE;
 }
@@ -148,7 +148,7 @@ inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
 
 BOOL CVA::Decode(CArcFile* pclArc)
 {
-	if (DecodeNwa(pclArc) == TRUE)
+	if (DecodeNwa(pclArc))
 		return TRUE;
 
 	return FALSE;

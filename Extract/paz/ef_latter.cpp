@@ -1,12 +1,10 @@
 #include "stdafx.h"
 #include "ef_latter.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if files are supported
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Check if files are supported
+///
+/// @param pclArc Archive
+///
 BOOL CEFLatter::IsSupported(CArcFile* pclArc)
 {
 	// Get header
@@ -21,18 +19,14 @@ BOOL CEFLatter::IsSupported(CArcFile* pclArc)
 	return (memcmp(abtHeader, "ef_latter", 9) == 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Mount
+///
+/// @param pclArc Archive
+///
 BOOL CEFLatter::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-	{
 		return FALSE;
-	}
 
 	// Skip 32 bytes
 	pclArc->SeekHed(32);
@@ -40,28 +34,22 @@ BOOL CEFLatter::Mount(CArcFile* pclArc)
 	return CPaz::Mount(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Decode
+///
+/// @param pclArc Archive
+///
 BOOL CEFLatter::Decode(CArcFile* pclArc)
 {
-	if( !IsSupported( pclArc) )
-	{
+	if (!IsSupported(pclArc))
 		return FALSE;
-	}
 
-	return CPaz::Decode( pclArc );
+	return CPaz::Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Mount Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Mount Key
+///
+/// @param pclArc Archive
+///
 void CEFLatter::InitMountKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -79,12 +67,10 @@ void CEFLatter::InitMountKey(CArcFile* pclArc)
 	SetKey(pclArc, astKeyInfo);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decode Key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialize Decode Key
+///
+/// @param pclArc Archive
+///
 void CEFLatter::InitDecodeKey(CArcFile* pclArc)
 {
 	static const SKeyInfo astKeyInfo[] =
@@ -104,14 +90,12 @@ void CEFLatter::InitDecodeKey(CArcFile* pclArc)
 	SetDecryptKey2(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Movie Table
-//
-// return Table size
-//
-// Parameters:
-//   pvTable - Table
-
+/// Initialize Movie Table
+///
+/// @param pvTable table
+///
+/// @return table size
+///
 DWORD CEFLatter::InitMovieTable(void* pvTable)
 {
 	BYTE* pbtMovieTable = GetMovieTable();
@@ -121,12 +105,10 @@ DWORD CEFLatter::InitMovieTable(void* pvTable)
 	return 256;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set decryption key
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Set decryption key
+///
+/// @param pclArc Archive
+///
 void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 {
 	BYTE btWork;
@@ -269,13 +251,11 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decryption
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CEFLatter::Decrypt(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
@@ -286,13 +266,11 @@ void CEFLatter::Decrypt(void* pvTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decryption
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CEFLatter::Decrypt2(void* pvTarget, DWORD dwSize)
 {
 	BYTE btWork;
@@ -322,13 +300,11 @@ void CEFLatter::Decrypt2(void* pvTarget, DWORD dwSize)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode Movie Data
-//
-// Parameters:
-//   - pvTarget - Data to be decoded
-//   - dwSize   - Decoding size
-
+/// Decode Movie Data
+///
+/// @param pvTarget Data to be decoded
+/// @param dwSize   Decoding size
+///
 void CEFLatter::DecodeMovieData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;

@@ -1,24 +1,20 @@
 #include "stdafx.h"
 #include "TokiPaku.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Check if it can be decoded
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Determine if decryption is possible
+///
+/// @param pclArc Archive
+///
 BOOL CTokiPaku::OnCheckDecrypt(CArcFile* pclArc)
 {
 //	return CheckTpm( "510BE09DF50DB143E90D3837D416FD0F" );
 	return CheckTpm( "A9D18BCE341E20D25DB4DBFAAE7FBF5B" );
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Initialize Decryption Process
-//
-// Parameters:
-//   - pclArc - Archive
-
+/// Initialization of the decryption process
+///
+/// @param pclArc Archive
+///
 DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
@@ -48,15 +44,13 @@ DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
 	return dwDecryptKey;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decryption Process
-//
-// Parameters:
-//   - pbtTarget    - Data to be decrypted
-//   - dwTargetSize - Decryption size
-//   - dwOffset     - Offset of data to be decoded
-//   - dwDecryptKey - Decryption key
-
+/// Decryption Process
+///
+/// @param pbtTarget    Data to be decoded
+/// @param dwTargetSize Data size
+/// @param dwOffset     Location of data to be decoded
+/// @param dwDecryptKey Decryption key
+///
 DWORD CTokiPaku::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
 {
 	// Decrypt

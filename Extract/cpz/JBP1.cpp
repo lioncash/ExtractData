@@ -2,9 +2,7 @@
 #include "../../ExtractBase.h"
 #include "JBP1.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decompression
-
+/// Decompression
 void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtAlpha, DWORD dwAlphaSize)
 {
 	static const BYTE original_order[64] =
@@ -305,9 +303,6 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 	//}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//
-
 void CJBP1::DCT(BYTE* arg1, BYTE* arg2)
 {
 	long a, b, c, d;
@@ -443,9 +438,6 @@ void CJBP1::DCT(BYTE* arg1, BYTE* arg2)
 	} while (i > 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//
-
 int CJBP1::GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_remain)
 {
 	int i = 0;
@@ -486,9 +478,6 @@ int CJBP1::GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_
 
 	return i;
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//
 
 int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 {
@@ -555,9 +544,7 @@ int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 	return	 size;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// YCbCr => RGB
-
+/// YCbCr => RGB
 void CJBP1::YCC2RGB(BYTE* dc, BYTE* ac, short* Y, short* CbCr, int line)
 {
 	BYTE*       tbl;

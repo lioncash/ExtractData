@@ -155,28 +155,28 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 	{
 		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
 		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
-		
+
 		// Output size
 		DWORD dstSize = pInfFile->sizeOrg - 54;
-		
+
 		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != dstSize)
 			dstSize -= 2;
-		
+
 		// Output
 		CImage image;
 		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
 		image.Write(&pBuf[fHed->bfOffBits], dstSize);
 	}
-	else if( pInfFile->format == _T("B") )
+	else if (pInfFile->format == _T("B"))
 	{
 		// *.b file
 
-		if( !DecodeB( pclArc, pBuf, pInfFile->sizeOrg ) )
+		if (!DecodeB(pclArc, pBuf, pInfFile->sizeOrg))
 		{
 			// Unsupported
 
 			pclArc->OpenFile();
-			pclArc->WriteFile( pBuf, pInfFile->sizeOrg );
+			pclArc->WriteFile(pBuf, pInfFile->sizeOrg);
 		}
 	}
 	else
@@ -188,44 +188,39 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// *.b file decompressing
-
-BOOL CQLIE::DecodeB(
-	CArcFile*			pclArc,							// Archive
-	BYTE*				pbtSrc,							// .b file
-	DWORD				dwSrcSize						// .b file size
-	)
+/// *.b file decompressing
+///
+/// @param pclArc    Archive
+/// @param pbtSrc    .b file
+/// @param dwSrcSize .b file size
+///
+BOOL CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
 {
-	if( memcmp( &pbtSrc[0], "ABMP7", 5 ) == 0 )
+	if (memcmp(&pbtSrc[0], "ABMP7", 5) == 0)
 	{
 		// ABMP7
-
-		return DecodeABMP7( pclArc, pbtSrc, dwSrcSize );
+		return DecodeABMP7(pclArc, pbtSrc, dwSrcSize);
 	}
 
-	if( memcmp( &pbtSrc[0], "abmp", 4 ) == 0 )
+	if (memcmp(&pbtSrc[0], "abmp", 4) == 0)
 	{
 		// abmp10
-
-		return DecodeABMP10( pclArc, pbtSrc, dwSrcSize );
+		return DecodeABMP10(pclArc, pbtSrc, dwSrcSize);
 	}
 
 	// Not supported
-
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// ABMP7 Decompressing
-
-BOOL CQLIE::DecodeABMP7(
-	CArcFile*			pclArc,							// Archive
-	BYTE*				pbtSrc,							// .b file
-	DWORD				dwSrcSize,						// .b file size
-	DWORD*				pdwSrcIndex,					// .b file index (You'll need to add the minutes after the recursive call)
-	const YCString&		clsBFileName					// .b filename for now 	(Filename will change with each recursive call)
-	)
+/// ABMP7 Decompressing
+///
+/// @param pclArc       Archive
+/// @param pbtSrc       .b file
+/// @param dwSrcSize    .b file size
+/// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
+/// @param clsBFileName Current .b file name (Will change with each recursive call)
+///
+BOOL CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
 {
 	DWORD dwSrcIndex = 0;
 
@@ -344,16 +339,15 @@ BOOL CQLIE::DecodeABMP7(
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// abmp10~12 Decompression
-
-BOOL CQLIE::DecodeABMP10(
-	CArcFile*			pclArc,							// Archive
-	BYTE*				pbtSrc,							// .b file
-	DWORD				dwSrcSize,						// .b file size
-	DWORD*				pdwSrcIndex,					// Entire .b file index (You'll need to add the minutes after the recursive call)
-	const YCString&		clsBFileName					// Current .b file name (Will change with each recursive call)
-	)
+/// abmp10~12 Decompression
+///
+/// @param pclArc       Archive
+/// @param pbtSrc       .b file
+/// @param dwSrcSize    .b file size
+/// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
+/// @param clsBFileName Current .b file name (Will change with each recursive call)
+///
+BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
 {
 	static DWORD dwDstFiles;
 	static std::vector<SFileNameInfo> vtFileNameList;
@@ -367,13 +361,13 @@ BOOL CQLIE::DecodeABMP10(
 
 	DWORD dwSrcIndex = 0;
 
-	if( (dwSrcIndex + 16) > dwSrcSize )
+	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
 		// Exit
 		return FALSE;
 	}
 
-	if( memcmp( &pbtSrc[dwSrcIndex], "abmp", 4 ) != 0 )
+	if (memcmp(&pbtSrc[dwSrcIndex], "abmp", 4) != 0)
 	{
 		// Unsupported
 		return FALSE;
@@ -381,7 +375,7 @@ BOOL CQLIE::DecodeABMP10(
 
 	dwSrcIndex += 16;
 
-	if( memcmp( &pbtSrc[dwSrcIndex], "abdata", 6 ) != 0 )
+	if (memcmp(&pbtSrc[dwSrcIndex], "abdata", 6) != 0)
 	{
 		// Unsupported
 		return FALSE;
@@ -390,32 +384,31 @@ BOOL CQLIE::DecodeABMP10(
 	dwSrcIndex += 16;
 
 	// Get the amount of data we can skip
-	DWORD dwUnKnownDataSize = *(DWORD*) &pbtSrc[dwSrcIndex];
+	DWORD dwUnKnownDataSize = *(DWORD*)&pbtSrc[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Skip the unnecessary data
 	dwSrcIndex += dwUnKnownDataSize;
 
-	while( dwSrcIndex < dwSrcSize )
+	while (dwSrcIndex < dwSrcSize)
 	{
-		if( (dwSrcIndex + 16) > dwSrcSize )
+		if ((dwSrcIndex + 16) > dwSrcSize)
 		{
 			// Exit
 			break;
 		}
 
-		if( memcmp( &pbtSrc[dwSrcIndex], "abimage", 7 ) == 0 )
+		if (memcmp(&pbtSrc[dwSrcIndex], "abimage", 7) == 0)
 		{
 			// abimage10
 		}
-		else if( memcmp( &pbtSrc[dwSrcIndex], "absound", 7 ) == 0 )
+		else if (memcmp(&pbtSrc[dwSrcIndex], "absound", 7) == 0)
 		{
 			// absound10
 		}
 		else
 		{
 			// Unsupported
-
 			return FALSE;
 		}
 
@@ -425,9 +418,9 @@ BOOL CQLIE::DecodeABMP10(
 		DWORD dwFiles = pbtSrc[dwSrcIndex];
 		dwSrcIndex += 1;
 
-		for( DWORD i = 0 ; i < dwFiles ; i++ )
+		for (DWORD i = 0; i < dwFiles; i++)
 		{
-			if( (dwSrcIndex + 16) > dwSrcSize )
+			if ((dwSrcIndex + 16) > dwSrcSize)
 			{
 				// Exit
 				break;
@@ -435,52 +428,47 @@ BOOL CQLIE::DecodeABMP10(
 
 			DWORD dwDatVersion;
 
-			if( memcmp( &pbtSrc[dwSrcIndex], "abimgdat10", 10 ) == 0 )
+			if (memcmp(&pbtSrc[dwSrcIndex], "abimgdat10", 10) == 0)
 			{
 				// abimgdat10
-
 				dwDatVersion = ABIMGDAT10;
 			}
-			else if( memcmp( &pbtSrc[dwSrcIndex], "abimgdat11", 10 ) == 0 )
+			else if (memcmp(&pbtSrc[dwSrcIndex], "abimgdat11", 10) == 0)
 			{
 				// abimgdat11
-
 				dwDatVersion = ABIMGDAT11;
 			}
-			else if( memcmp( &pbtSrc[dwSrcIndex], "absnddat10", 10 ) == 0 )
+			else if (memcmp(&pbtSrc[dwSrcIndex], "absnddat10", 10) == 0)
 			{
 				// absnddat10
-
 				dwDatVersion = ABSNDDAT10;
 			}
-			else if( memcmp( &pbtSrc[dwSrcIndex], "absnddat11", 10 ) == 0 )
+			else if (memcmp(&pbtSrc[dwSrcIndex], "absnddat11", 10) == 0)
 			{
 				// absnddat11
-
 				dwDatVersion = ABSNDDAT11;
 			}
 			else
 			{
 				// Unsupported
-
 				return FALSE;
 			}
 
 			dwSrcIndex += 16;
 
 			// Get the length of the filename
-			DWORD dwFileNameLength = *(WORD*) &pbtSrc[dwSrcIndex];
+			DWORD dwFileNameLength = *(WORD*)&pbtSrc[dwSrcIndex];
 			dwSrcIndex += 2;
 
 			// Get the filename
-			YCString clsFileName( (char*) &pbtSrc[dwSrcIndex], dwFileNameLength );
+			YCString clsFileName((char*)&pbtSrc[dwSrcIndex], dwFileNameLength);
 			dwSrcIndex += dwFileNameLength;
 
 			// Skip unknown data
 
-			if( (dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11) )
+			if ((dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11))
 			{
-				WORD wLength = *(WORD*) &pbtSrc[dwSrcIndex];
+				WORD wLength = *(WORD*)&pbtSrc[dwSrcIndex];
 
 				dwSrcIndex += 2 + wLength;
 			}
@@ -488,10 +476,10 @@ BOOL CQLIE::DecodeABMP10(
 			dwSrcIndex += 1;
 
 			// Get file size
-			DWORD dwFileSize = *(DWORD*) &pbtSrc[dwSrcIndex];
+			DWORD dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
 			dwSrcIndex += 4;
 
-			if( dwFileSize == 0 )
+			if (dwFileSize == 0)
 			{
 				// File size is 0
 
@@ -499,15 +487,15 @@ BOOL CQLIE::DecodeABMP10(
 			}
 
 			// Get the file extension
-			YCString clsFileExt = GetExtension( &pbtSrc[dwSrcIndex] );
+			YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
 
-			if( clsFileExt == _T(".b") )
+			if (clsFileExt == _T(".b"))
 			{
 				// abmp10
 
 				YCString clsWork;
 
-				if( clsFileName == _T("") )
+				if (clsFileName == _T(""))
 				{
 					clsWork = clsBFileName;
 				}
@@ -516,19 +504,19 @@ BOOL CQLIE::DecodeABMP10(
 					clsWork = clsBFileName + _T("_") + clsFileName;
 				}
 
-				DecodeABMP10( pclArc, &pbtSrc[dwSrcIndex], dwFileSize, &dwSrcIndex, clsWork );
+				DecodeABMP10(pclArc, &pbtSrc[dwSrcIndex], dwFileSize, &dwSrcIndex, clsWork);
 
 				continue;
 			}
 
 			// Replace '/' with '_' (Taking into account double-byte characters)
-			clsFileName.Replace( _T('/'), _T('_') );
+			clsFileName.Replace(_T('/'), _T('_'));
 
 			// Erase illegal chars
-			EraseNotUsePathWord( clsFileName );
+			EraseNotUsePathWord(clsFileName);
 
 			// Rename extension
-			clsFileName.RenameExtension( clsFileExt ); // Renaming because there may be a psd file with the same extension
+			clsFileName.RenameExtension(clsFileExt); // Renaming because there may be a psd file with the same extension
 
 			// Write the .b extension
 			TCHAR szWork[_MAX_FNAME];
@@ -546,9 +534,9 @@ BOOL CQLIE::DecodeABMP10(
 
 			// Check to see if the same filename doesn't exist
 
-			for( size_t uIndex = 0 ; uIndex < vtFileNameList.size() ; uIndex++ )
+			for (size_t uIndex = 0; uIndex < vtFileNameList.size(); uIndex++)
 			{
-				if( vtFileNameList[uIndex].clsFileName == szWork )
+				if (vtFileNameList[uIndex].clsFileName == szWork)
 				{
 					// Same filename
 
@@ -559,11 +547,11 @@ BOOL CQLIE::DecodeABMP10(
 					TCHAR szWork2[256];
 					_stprintf(szWork2, _T("_%d%s"), vtFileNameList[uIndex].dwCount, clsFileName.GetFileExt().GetString());
 
-					PathRenameExtension( szWork, szWork2 );
+					PathRenameExtension(szWork, szWork2);
 
 					// Reset the loop counter to ensure the same file does not exist now.
 
-					uIndex = (size_t) -1;
+					uIndex = (size_t)-1;
 				}
 			}
 
@@ -573,25 +561,25 @@ BOOL CQLIE::DecodeABMP10(
 			stFileNameInfo.clsFileName = szWork;
 			stFileNameInfo.dwCount = 1;
 
-			vtFileNameList.push_back( stFileNameInfo );
+			vtFileNameList.push_back(stFileNameInfo);
 
 			// Output
 
-			if( clsFileExt == _T(".bmp") )
+			if (clsFileExt == _T(".bmp"))
 			{
 				// BITMAP
 
 				CImage clImage;
-				clImage.Init( pclArc, &pbtSrc[dwSrcIndex], szWork );
-				clImage.Write( dwFileSize );
+				clImage.Init(pclArc, &pbtSrc[dwSrcIndex], szWork);
+				clImage.Write(dwFileSize);
 				clImage.Close();
 			}
 			else
 			{
 				// Other
 
-				pclArc->OpenFile( szWork );
-				pclArc->WriteFile( &pbtSrc[dwSrcIndex], dwFileSize );
+				pclArc->OpenFile(szWork);
+				pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
 				pclArc->CloseFile();
 			}
 
@@ -609,7 +597,7 @@ BOOL CQLIE::DecodeABMP10(
 	}
 	else
 	{
-		if( dwDstFiles == 0 )
+		if (dwDstFiles == 0)
 		{
 			// No output files
 
@@ -620,70 +608,62 @@ BOOL CQLIE::DecodeABMP10(
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Getting the file extension
-
-YCString CQLIE::GetExtension(
-	BYTE*				pbtSrc							// Input buffer
-	)
+/// Getting the file extension
+///
+/// @param pbtSrc Input buffer
+///
+YCString CQLIE::GetExtension(BYTE* pbtSrc)
 {
-	YCString			clsFileExt;
+	YCString clsFileExt;
 
-	if( memcmp( &pbtSrc[0], "\x89PNG", 4 ) == 0 )
+	if (memcmp(&pbtSrc[0], "\x89PNG", 4) == 0)
 	{
 		// PNG
-
 		clsFileExt = _T(".png");
 	}
-	else if( memcmp( &pbtSrc[0], "\xFF\xD8\xFF\xE0", 4 ) == 0 )
+	else if (memcmp(&pbtSrc[0], "\xFF\xD8\xFF\xE0", 4) == 0)
 	{
 		// JPEG
-
 		clsFileExt = _T(".jpg");
 	}
-	else if( memcmp( &pbtSrc[0], "BM", 2 ) == 0 )
+	else if (memcmp(&pbtSrc[0], "BM", 2) == 0)
 	{
 		// BITMAP
-
 		clsFileExt = _T(".bmp");
 	}
-	else if( memcmp( &pbtSrc[0], "OggS", 4 ) == 0 )
+	else if (memcmp(&pbtSrc[0], "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
-
 		clsFileExt = _T(".ogg");
 	}
-	else if( memcmp( &pbtSrc[0], "RIFF", 4 ) == 0 )
+	else if (memcmp(&pbtSrc[0], "RIFF", 4) == 0)
 	{
 		// WAVE
-
 		clsFileExt = _T(".wav");
 	}
-	else if( memcmp( &pbtSrc[0], "abmp", 4 ) == 0 )
+	else if (memcmp(&pbtSrc[0], "abmp", 4) == 0)
 	{
 		// abmp10
-
 		clsFileExt = _T(".b");
 	}
 
-	return	clsFileExt;
+	return clsFileExt;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Erase path characters
-
-void CQLIE::EraseNotUsePathWord(
-	YCString&				clsPath							// Path
-	)
+/// Erase path characters
+///
+/// @param clsPath Path
+///
+void CQLIE::EraseNotUsePathWord(YCString& clsPath)
 {
 	static const TCHAR	aszNotUsePathWord[] =
 	{
 		_T(':'), _T(','), _T(';'), _T('*'), _T('?'), _T('\"'), _T('<'), _T('>'), _T('|')
 	};
 
-	for( DWORD dwIndex = 0 ; dwIndex < _countof( aszNotUsePathWord ) ; dwIndex++ )
+	for (DWORD dwIndex = 0; dwIndex < _countof(aszNotUsePathWord); dwIndex++)
 	{
-		clsPath.Remove( aszNotUsePathWord[dwIndex] );
+		clsPath.Remove(aszNotUsePathWord[dwIndex]);
 	}
 }
 

@@ -19,30 +19,30 @@ short TVPTLG6GolombCompressed[TVP_TLG6_GOLOMB_N_COUNT][9] = {
 };
 char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT*2*128][TVP_TLG6_GOLOMB_N_COUNT];
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Mount
 
-BOOL CTlg::Mount(
-	CArcFile*			pclArc							// Archive
-	)
+/// Mount
+///
+/// @param pclArc Archive
+///
+BOOL CTlg::Mount(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".tlg") )
+	if (pclArc->GetArcExten() != _T(".tlg"))
 	{
 		return FALSE;
 	}
 
 	BYTE* pbtHeader = pclArc->GetHed();
 
-	if( memcmp( pbtHeader, "TLG0.0\x00sds\x1a", 11 ) == 0 )
+	if (memcmp(pbtHeader, "TLG0.0\x00sds\x1a", 11) == 0)
 	{
 		pbtHeader += 15;
 	}
 
-	if( memcmp( pbtHeader, "TLG5.0\x00raw\x1a", 11 ) == 0 )
+	if (memcmp(pbtHeader, "TLG5.0\x00raw\x1a", 11) == 0)
 	{
 		// OK
 	}
-	else if( memcmp( pbtHeader, "TLG6.0\x00raw\x1a", 11 ) == 0 )
+	else if (memcmp(pbtHeader, "TLG6.0\x00raw\x1a", 11) == 0)
 	{
 		// OK
 	}
@@ -53,7 +53,7 @@ BOOL CTlg::Mount(
 		return FALSE;
 	}
 
-	return	pclArc->Mount();
+	return pclArc->Mount();
 }
 
 BOOL CTlg::Decode(CArcFile* pclArc)
@@ -95,7 +95,7 @@ BOOL CTlg::Decode(CArcFile* pclArc, LPBYTE src)
 		pclArc->OpenFile();
 		pclArc->WriteFile( src, pclArc->GetOpenFileInfo()->sizeCmp );
 
-		return	TRUE;
+		return TRUE;
 	}
 
 	return FALSE;

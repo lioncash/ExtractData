@@ -7,9 +7,7 @@
 #include "../Sound/Ogg.h"
 #include "Standard.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
+/// Mounting
 BOOL CStandard::Mount(CArcFile* pclArc)
 {
 	// Get file info
@@ -25,42 +23,28 @@ BOOL CStandard::Mount(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
 BOOL CStandard::Decode(CArcFile* pclArc)
 {
 	if (DecodeLZSS(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeZlib(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeAhx(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeImage(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeOgg(pclArc))
-	{
 		return TRUE;
-	}
 
 	return Extract(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// LZSS Decoding
-
+/// LZSS Decoding
 BOOL CStandard::DecodeLZSS(CArcFile* pclArc)
 {
 	CLZSS clLZSS;
@@ -68,9 +52,7 @@ BOOL CStandard::DecodeLZSS(CArcFile* pclArc)
 	return clLZSS.Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// zlib Decoding
-
+/// zlib Decoding
 BOOL CStandard::DecodeZlib(CArcFile* pclArc)
 {
 	CZlib clZlib;
@@ -78,9 +60,7 @@ BOOL CStandard::DecodeZlib(CArcFile* pclArc)
 	return clZlib.Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// AHX Decoding
-
+/// AHX Decoding
 BOOL CStandard::DecodeAhx(CArcFile* pclArc)
 {
 	CAhx clAHX;
@@ -88,9 +68,7 @@ BOOL CStandard::DecodeAhx(CArcFile* pclArc)
 	return clAHX.Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Image Decoding
-
+/// Image Decoding
 BOOL CStandard::DecodeImage(CArcFile* pclArc)
 {
 	CImage clImage;
@@ -98,9 +76,7 @@ BOOL CStandard::DecodeImage(CArcFile* pclArc)
 	return clImage.Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Ogg Vorbis Decoding
-
+/// Ogg Vorbis Decoding
 BOOL CStandard::DecodeOgg(CArcFile* pclArc)
 {
 	COgg clOgg;
@@ -108,9 +84,7 @@ BOOL CStandard::DecodeOgg(CArcFile* pclArc)
 	return clOgg.Decode(pclArc);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Extraction
-
+/// Extraction
 BOOL CStandard::Extract(CArcFile* pclArc)
 {
 	pclArc->OpenFile();

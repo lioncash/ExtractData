@@ -6,23 +6,23 @@
 
 BOOL CNitro::Mount(CArcFile* pclArc)
 {
-	if (MountPak1(pclArc) == TRUE)
+	if (MountPak1(pclArc))
 		return TRUE;
-	if (MountPak2(pclArc) == TRUE)
+	if (MountPak2(pclArc))
 		return TRUE;
-	if (MountPak3(pclArc) == TRUE)
+	if (MountPak3(pclArc))
 		return TRUE;
-	if (MountPak4(pclArc) == TRUE)
+	if (MountPak4(pclArc))
 		return TRUE;
-	if (MountPK2(pclArc) == TRUE)
+	if (MountPK2(pclArc))
 		return TRUE;
-	if (MountN3Pk(pclArc) == TRUE)
+	if (MountN3Pk(pclArc))
 		return TRUE;
-//	if (MountPck(pclArc) == TRUE)
+//	if (MountPck(pclArc))
 //		return TRUE;
-	if (MountNpp(pclArc) == TRUE)
+	if (MountNpp(pclArc))
 		return TRUE;
-//	if (MountNpa(pclArc) == TRUE)
+//	if (MountNpa(pclArc))
 //		return TRUE;
 	return FALSE;
 }
@@ -91,88 +91,83 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//	Function to get file information from Demonbane .pak files
-
-BOOL CNitro::MountPak2(
-	CArcFile*			pclArc							// Archive
-	)
+/// Function to get file information from Demonbane .pak files
+///
+/// @param pclArc Archive
+///
+BOOL CNitro::MountPak2(CArcFile* pclArc)
 {
-	if( pclArc->GetArcExten() != _T(".pak") )
-	{
+	if (pclArc->GetArcExten() != _T(".pak"))
 		return FALSE;
-	}
 
-	if( memcmp( pclArc->GetHed(), "\x02\0\0\0", 4) != 0 )
-	{
+	if (memcmp(pclArc->GetHed(), "\x02\0\0\0", 4) != 0)
 		return FALSE;
-	}
 
 	// Get file count
 	DWORD dwFiles;
-	pclArc->SeekHed( 4 );
-	pclArc->Read( &dwFiles, 4 );
+	pclArc->SeekHed(4);
+	pclArc->Read(&dwFiles, 4);
 
 	// Get index size
 	DWORD dwIndexSize;
-	pclArc->Read( &dwIndexSize, 4 );
+	pclArc->Read(&dwIndexSize, 4);
 
 	// Get compressed index size
 	DWORD dwIndexCompSize;
-	pclArc->Read( &dwIndexCompSize, 4 );
+	pclArc->Read(&dwIndexCompSize, 4);
 
 	// Ensure buffers exist
-	YCMemory<BYTE> clmCompIndex( dwIndexCompSize );
-	YCMemory<BYTE> clmIndex( dwIndexSize );
+	YCMemory<BYTE> clmCompIndex(dwIndexCompSize);
+	YCMemory<BYTE> clmIndex(dwIndexSize);
 
 	// Get compressed index
-	pclArc->SeekHed( 0x114 );
-	pclArc->Read( &clmCompIndex[0], dwIndexCompSize );
+	pclArc->SeekHed(0x114);
+	pclArc->Read(&clmCompIndex[0], dwIndexCompSize);
 
 	// Get index
 	CZlib clZlib;
-	clZlib.Decompress( &clmIndex[0], &dwIndexSize, &clmCompIndex[0], dwIndexCompSize );
+	clZlib.Decompress(&clmIndex[0], &dwIndexSize, &clmCompIndex[0], dwIndexCompSize);
 
 	DWORD dwIndexPtr = 0;
 	DWORD dwOffset = 0x114 + dwIndexCompSize;
 
-	for( DWORD i = 0 ; i < dwFiles ; i++ )
+	for (DWORD i = 0; i < dwFiles; i++)
 	{
 		SFileInfo stFileInfo;
 
 		// Get filename
 		char szFileName[_MAX_FNAME];
-		DWORD dwFileNameLength = *(DWORD*) &clmIndex[dwIndexPtr + 0];
+		DWORD dwFileNameLength = *(DWORD*)&clmIndex[dwIndexPtr + 0];
 
-		memcpy( szFileName, &clmIndex[dwIndexPtr + 4], dwFileNameLength );
+		memcpy(szFileName, &clmIndex[dwIndexPtr + 4], dwFileNameLength);
 		szFileName[dwFileNameLength] = '\0';
 
 		dwIndexPtr += 4 + dwFileNameLength;
 
 		// Get flags
-		DWORD dwFlags = *(DWORD*) &clmIndex[dwIndexPtr + 12];
+		DWORD dwFlags = *(DWORD*)&clmIndex[dwIndexPtr + 12];
 
 		// Add to listview
 		stFileInfo.name = szFileName;
-		stFileInfo.start = *(DWORD*) &clmIndex[dwIndexPtr + 0] + dwOffset;
-		stFileInfo.sizeOrg = *(DWORD*) &clmIndex[dwIndexPtr + 4];
-		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[dwIndexPtr + 16];
+		stFileInfo.start = *(DWORD*)&clmIndex[dwIndexPtr + 0] + dwOffset;
+		stFileInfo.sizeOrg = *(DWORD*)&clmIndex[dwIndexPtr + 4];
+		stFileInfo.sizeCmp = *(DWORD*)&clmIndex[dwIndexPtr + 16];
 
-		if( stFileInfo.sizeCmp == 0 )
+		if (stFileInfo.sizeCmp == 0)
 		{
 			stFileInfo.sizeCmp = stFileInfo.sizeOrg;
 		}
 
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
-		if( dwFlags != 0 )
+		if (dwFlags != 0)
 		{
 			stFileInfo.format = _T("zlib");
 		}
 
 		stFileInfo.title = _T("Pak2");
 
-		pclArc->AddFileInfo( stFileInfo );
+		pclArc->AddFileInfo(stFileInfo);
 
 		dwIndexPtr += 20;
 	}
@@ -658,17 +653,17 @@ BOOL CNitro::MountNpa(CArcFile* pclArc)
 
 BOOL CNitro::Decode(CArcFile* pclArc)
 {
-	if (DecodePak1(pclArc) == TRUE)
+	if (DecodePak1(pclArc))
 		return TRUE;
-	if (DecodePak3(pclArc) == TRUE)
+	if (DecodePak3(pclArc))
 		return TRUE;
-	if (DecodePak4(pclArc) == TRUE)
+	if (DecodePak4(pclArc))
 		return TRUE;
-	if (DecodePK2(pclArc) == TRUE)
+	if (DecodePK2(pclArc))
 		return TRUE;
-	if (DecodeN3Pk(pclArc) == TRUE)
+	if (DecodeN3Pk(pclArc))
 		return TRUE;
-//	if (DecodeNpa(pclArc) == TRUE)
+//	if (DecodeNpa(pclArc))
 //		return TRUE;
 	return FALSE;
 }
@@ -973,9 +968,9 @@ BOOL CNitro::DecodeNpa(CArcFile* pclArc)
 
 void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
 {
-	YCString clsFileExt = PathFindExtension( pInfFile->name );
+	YCString clsFileExt = PathFindExtension(pInfFile->name);
 
-	if( pInfFile->format == _T("zlib") )
+	if (pInfFile->format == _T("zlib"))
 	{
 		// No decoding
 
@@ -990,14 +985,14 @@ void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	DWORD dwTargetPtr = 0;
 
-	for( DWORD i = offset ; i < (size / 4) ; i++ )
+	for (DWORD i = offset; i < (size / 4); i++)
 	{
-		*(DWORD*) &data[dwTargetPtr] ^= pInfFile->key;
+		*(DWORD*)&data[dwTargetPtr] ^= pInfFile->key;
 
 		dwTargetPtr += 4;
 	}
 
-	for( DWORD i = offset ; i < (size & 3) ; i++ )
+	for (DWORD i = offset; i < (size & 3); i++)
 	{
 		data[dwTargetPtr++] ^= (pInfFile->key >> (i * 8)) & 0xFF;
 	}
@@ -1005,9 +1000,9 @@ void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
 {
-	YCString clsFileExt = PathFindExtension( pInfFile->name );
+	YCString clsFileExt = PathFindExtension(pInfFile->name);
 
-	if( pInfFile->format != _T("zlib") )
+	if (pInfFile->format != _T("zlib"))
 	{
 		// Decoding up to 1024 bytes from the beginning
 
@@ -1018,14 +1013,14 @@ void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	DWORD dwTargetPtr = 0;
 
-	for( DWORD i = offset ; i < (size / 4) ; i++ )
+	for (DWORD i = offset; i < (size / 4); i++)
 	{
-		*(DWORD*) &data[dwTargetPtr] ^= pInfFile->key;
+		*(DWORD*)&data[dwTargetPtr] ^= pInfFile->key;
 
 		dwTargetPtr += 4;
 	}
 
-	for( DWORD i = offset ; i < (size & 3) ; i++ )
+	for (DWORD i = offset; i < (size & 3); i++)
 	{
 		data[dwTargetPtr++] ^= (pInfFile->key >> (i * 8)) & 0xFF;
 	}
@@ -1069,28 +1064,22 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 		0x2E, 0x7A, 0x66, 0xB3, 0xB8, 0x4A, 0x61, 0xC4, 0x02, 0x1B, 0x68, 0x5D, 0x94, 0x2B, 0x6F, 0x2A, 0x37, 0xBE, 0x0B, 0xB4, 0xA1, 0x8E, 0x0C, 0xC3, 0x1B, 0xDF, 0x05, 0x5A, 0x8D, 0xEF, 0x02, 0x2D
 	};
 
-	switch( pInfFile->type )
+	switch (pInfFile->type)
 	{
-	case 1:
-		// Decode all sizes
-
-		for( DWORD i = 0 ; i < size ; i++ )
+	case 1: // Decode all sizes
+		for (DWORD i = 0; i < size; i++)
 		{
 			data[i] ^= abtKey[byKey++];
 		}
-
 		break;
 
-	case 2:
-		// Decoding up to 1024 bytes from the beginning
-
+	case 2: // Decoding up to 1024 bytes from the beginning
 		size = (size < 1024) ? size : 1024;
 
-		for( DWORD i = offset, j = 0 ; i < size ; i++, j++ )
+		for (DWORD i = offset, j = 0; i < size; i++, j++)
 		{
 			data[j] ^= abtKey[byKey++];
 		}
-
 		break;
 	}
 }
@@ -1115,7 +1104,7 @@ void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFi
 	size = (size < 4096) ? size : 4096;
 
 	// Decoding
-	for( DWORD i = offset, j = 0 ; i < size ; i++, j++ )
+	for (DWORD i = offset, j = 0; i < size; i++, j++)
 	{
 		data[j] = abtKey[data[j]] - btKey;
 	}

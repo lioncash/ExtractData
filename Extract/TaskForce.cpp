@@ -4,43 +4,29 @@
 #include "../Image/Tga.h"
 #include "TaskForce.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
+/// Mounting
 BOOL CTaskForce::Mount(CArcFile* pclArc)
 {
 	if (MountDat(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountTlz(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (MountBma(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// dat mounting
-
+/// dat mounting
 BOOL CTaskForce::MountDat(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".dat"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "tskforce", 8) != 0)
-	{
 		return FALSE;
-	}
 
 	pclArc->SeekHed(8);
 
@@ -77,78 +63,53 @@ BOOL CTaskForce::MountDat(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// tlz mounting
-
+/// tlz mounting
 BOOL CTaskForce::MountTlz(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "tlz", 3) != 0)
-	{
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// bma mounting
-
+/// bma mounting
 BOOL CTaskForce::MountBma(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".tsz"))
-	{
 		return FALSE;
-	}
 
 	if (memcmp(pclArc->GetHed(), "bma", 3) != 0)
-	{
 		return FALSE;
-	}
 
 	return pclArc->Mount();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decoding
-
+/// Decoding
 BOOL CTaskForce::Decode(CArcFile* pclArc)
 {
 	if (DecodeTlz(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeBma(pclArc))
-	{
 		return TRUE;
-	}
 
 	if (DecodeTGA(pclArc))
-	{
 		return TRUE;
-	}
 
 	return FALSE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// tlz decoding
-
+/// tlz decoding
 BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if ((pstFileInfo->name.GetFileExt() != _T(".tsk")) && (pstFileInfo->name.GetFileExt() != _T(".tfz")))
-	{
 		return FALSE;
-	}
 
 	// Read header
-
 	BYTE abtHeader[24];
 	pclArc->Read(abtHeader, sizeof(abtHeader));
 	if (memcmp(abtHeader, "tlz", 3) != 0)
@@ -180,16 +141,12 @@ BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// BMA decoding
-
+/// BMA decoding
 BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->name.GetFileExt() != _T(".tsz"))
-	{
 		return FALSE;
-	}
 
 	// Read header
 	BYTE abtHeader[24];
@@ -226,16 +183,12 @@ BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
 	return TRUE;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// TGA Decoding
-
+/// TGA Decoding
 BOOL CTaskForce::DecodeTGA(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->name.GetFileExt() != _T(".tga"))
-	{
 		return FALSE;
-	}
 
 	// Read data
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;

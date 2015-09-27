@@ -7,10 +7,10 @@
 
 BOOL CKatakoi::Mount(CArcFile* pclArc)
 {
-	if (MountIar(pclArc) == TRUE)
+	if (MountIar(pclArc))
 		return TRUE;
 
-	if (MountWar(pclArc) == TRUE)
+	if (MountWar(pclArc))
 		return TRUE;
 
 	return FALSE;
@@ -343,10 +343,10 @@ BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 
 BOOL CKatakoi::Decode(CArcFile* pclArc)
 {
-	if (DecodeIar(pclArc) == TRUE)
+	if (DecodeIar(pclArc))
 		return TRUE;
 
-	if (DecodeWar(pclArc) == TRUE)
+	if (DecodeWar(pclArc))
 		return TRUE;
 
 	return FALSE;
