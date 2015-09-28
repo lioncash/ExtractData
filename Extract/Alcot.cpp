@@ -3,6 +3,7 @@
 #include "../Arc/Zlib.h"
 #include "../Image.h"
 #include "Alcot.h"
+#include "Utils/ArrayUtils.h"
 
 BOOL CAlcot::Mount(CArcFile* pclArc)
 {
@@ -312,7 +313,7 @@ void CAlcot::Decrypt(LPBYTE src, DWORD srcSize, DWORD dstSize)
 	//                        Kurobane, Kurobane DVD,  TOY‚Â‚ß,   Trip trial,   Trip,       Ramune
 	static const DWORD x[] = {0xF44387F3, 0xE1B2097A, 0xD153D863, 0xF389842D, 0x1DE71CB9, 0x99E15CB4};
 
-	for (int i = 0; i < ARRAYSIZE(x); i++)
+	for (size_t i = 0; i < ArrayUtils::ArraySize(x); i++)
 	{
 		DWORD key = dstSize ^ x[i];
 		key ^= ((key << 0x0C) | key) << 0x0B;
