@@ -265,7 +265,7 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 
 				// Get filename
 				TCHAR szFileName[_MAX_FNAME];
-				_stprintf(szFileName, _T("%s_%06u.png"), pclArc->GetArcName().GetString(), ctFile++);
+				_stprintf(szFileName, _T("%s_%06zu.png"), pclArc->GetArcName().GetString(), ctFile++);
 
 				// Add file to listview
 				SFileInfo infFile;

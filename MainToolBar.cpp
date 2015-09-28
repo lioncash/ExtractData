@@ -141,7 +141,7 @@ void CMainToolBar::SaveIni()
 	for (size_t i = 0; i < m_vcOpenHistoryList.size(); i++)
 	{
 		TCHAR szKey[256];
-		_stprintf(szKey, _T("File%u"), i);
+		_stprintf(szKey, _T("File%zu"), i);
 		clIni.SetKey(szKey);
 		clIni.WriteStr(m_vcOpenHistoryList[i]);
 	}
