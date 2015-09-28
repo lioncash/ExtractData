@@ -75,8 +75,7 @@ BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcS
 	const BYTE* pbtSrc = static_cast<const BYTE*>(pvSrc);
 
 	// Allocate dictionary buffer
-	YCMemory<BYTE> clmbtDic(dwDicSize);
-	ZeroMemory(&clmbtDic[0], dwDicSize);
+	std::vector<BYTE> clmbtDic(dwDicSize);
 
 	// Decompression
 	DWORD dwSrcPtr = 0;
