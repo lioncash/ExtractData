@@ -48,7 +48,4 @@ protected:
 
     CBmp m_clBMP;
     CPng m_clPNG;
-
-    void WriteLine(const BYTE* pbtBuffer);
-    void WriteLine32to24(const BYTE* pbtBuffer, const BYTE* pbtBuffer24);
 };
