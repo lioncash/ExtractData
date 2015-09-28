@@ -319,15 +319,12 @@ BOOL CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dw
 BOOL CAOS::DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	// Construct huffman table
-	DWORD adwTableOfBit0[511];
-	DWORD adwTableOfBit1[511];
+	DWORD adwTableOfBit0[511] = {};
+	DWORD adwTableOfBit1[511] = {};
 	DWORD dwSrcPtr = 0;
 	DWORD dwTablePtr = 256;
 	DWORD dwCurrentSrc = 0;
 	DWORD dwBitShift = 0;
-
-	ZeroMemory(adwTableOfBit0, sizeof(adwTableOfBit0));
-	ZeroMemory(adwTableOfBit1, sizeof(adwTableOfBit1));
 
 	dwTablePtr = CreateHuffmanTable(adwTableOfBit0, adwTableOfBit1, pbtSrc, &dwSrcPtr, &dwTablePtr, &dwCurrentSrc, &dwBitShift);
 

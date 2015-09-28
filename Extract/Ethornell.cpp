@@ -195,7 +195,7 @@ BOOL CEthornell::DecodeStd(CArcFile* pclArc)
 	pclArc->Read(&dwOffset, 4);
 
 	// Check file header
-	BYTE abtHeader[4];
+	BYTE abtHeader[4] = {};
 	if ((pclArc->GetArcPointer() + dwOffset) < pclArc->GetArcSize())
 	{
 		// Seek possible file offset value
@@ -206,7 +206,6 @@ BOOL CEthornell::DecodeStd(CArcFile* pclArc)
 	{
 		// Cannot find a file offset value (Not an offset value)
 		dwOffset = 0;
-		ZeroMemory(abtHeader, sizeof(abtHeader));
 	}
 
 	// Output
@@ -284,17 +283,13 @@ void CEthornell::DecompDSC(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DW
 	DWORD dwSrcPtr = 32;
 	DWORD dwDstPtr = 0;
 
-	DWORD adwBuffer[512 + 1];
-	DWORD adwBuffer2[1024];
-	BYTE  abtBuffer3[0x3FF0];
+	DWORD adwBuffer[512 + 1] = {};
+	DWORD adwBuffer2[1024] = {};
+	BYTE  abtBuffer3[0x3FF0] = {};
 
 	DWORD dwCount;
 	DWORD dwWork;
 	BYTE  btWork;
-
-	ZeroMemory(adwBuffer, sizeof(adwBuffer));
-	ZeroMemory(adwBuffer2, sizeof(adwBuffer2));
-	ZeroMemory(abtBuffer3, sizeof(abtBuffer3));
 
 	// 
 
@@ -691,8 +686,7 @@ void CEthornell::DecryptBGType1(BYTE* pbtDst, BYTE* pbtSrc, long lWidth, long lH
 	}
 
 	// Initialization of variables
-	BYTE abtPrev[4];
-	ZeroMemory(abtPrev, sizeof(abtPrev));
+	BYTE abtPrev[4] = {};
 
 	// Decryption
 	BYTE* pbtDst2 = pbtDst;
