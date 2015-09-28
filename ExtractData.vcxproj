@@ -264,7 +264,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="Base\YCMultiFile.cpp" />
     <ClCompile Include="Base\YCStdioFile.cpp" />
     <ClCompile Include="Base\YCString.cpp" />
-    <ClCompile Include="Base\YCUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcFile.h" />
@@ -412,7 +411,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="Base\YCMultiFile.h" />
     <ClInclude Include="Base\YCStdioFile.h" />
     <ClInclude Include="Base\YCString.h" />
-    <ClInclude Include="Base\YCUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\ExtractData.rc" />

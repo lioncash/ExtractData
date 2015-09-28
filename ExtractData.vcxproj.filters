@@ -7,9 +7,6 @@
     <ClCompile Include="Arc\Zlib.cpp">
       <Filter>Source Files\Arc</Filter>
     </ClCompile>
-    <ClCompile Include="Base\YCUtil.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
     <ClCompile Include="Base\YCString.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
@@ -544,9 +541,6 @@
       <Filter>Source Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="Base\YCString.h">
-      <Filter>Source Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCUtil.h">
       <Filter>Source Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="bzip2\bzlib.h">
