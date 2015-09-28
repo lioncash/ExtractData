@@ -66,17 +66,19 @@ BOOL CTga::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSi
 {
 	BYTE*             pbtDst = reinterpret_cast<BYTE*>(pvDst);
 	const BYTE*       pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
-	const STGAHeader* psttgahSrc = (STGAHeader*)pvSrc;
+
+	STGAHeader tga_header;
+	std::memcpy(&tga_header, pvSrc, sizeof(STGAHeader));
 
 	pbtSrc += sizeof(STGAHeader);
 	dwSrcSize -= sizeof(STGAHeader);
 
 	// Decompression
-	switch (psttgahSrc->btDepth)
+	switch (tga_header.btDepth)
 	{
 	case 9:
 	case 10: // RLE
-		DecompRLE(pbtDst, dwDstSize, pbtSrc, dwSrcSize, psttgahSrc->btDepth);
+		DecompRLE(pbtDst, dwDstSize, pbtSrc, dwSrcSize, tga_header.btDepth);
 		break;
 
 	default: // No Compression
