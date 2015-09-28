@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../SearchBase.h"
 #include "AhxSearch.h"
+#include "Utils/BitUtils.h"
 
 CAhxSearch::CAhxSearch()
 {
@@ -18,8 +19,7 @@ void CAhxSearch::Mount(CArcFile* pclArc)
 	// Get file ssize
 	pclArc->Seek(GetHedSize() + 2, FILE_CURRENT);
 	pclArc->Read(&infFile.sizeOrg, 4);
-	pclArc->ConvEndian(&infFile.sizeOrg);
-	infFile.sizeOrg <<= 1;
+	infFile.sizeOrg = BitUtils::Swap32(infFile.sizeOrg) << 1;
 	pclArc->GetProg()->UpdatePercent(4);
 
 	// Search footer

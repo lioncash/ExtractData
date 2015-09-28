@@ -84,7 +84,7 @@ BOOL CClannad::Decode(CArcFile* pclArc)
 	ahx.Decode(pclArc, &ahx_buf[0], ahx_buf_len);
 
 /*
-	DWORD wav_buf_len = pclArc->ConvEndian(*(LPDWORD)&ahx_buf[12]) * 2;
+	DWORD wav_buf_len = BitUtils::Swap32(*(LPDWORD)&ahx_buf[12]) * 2;
 	YCMemory<BYTE> wav_buf(wav_buf_len + 1152 * 2); // margen = layer-2 frame size
 	CAhx ahx;
 	wav_buf_len = ahx.Decompress(&wav_buf[0], &ahx_buf[0], ahx_buf_len);
@@ -92,7 +92,7 @@ BOOL CClannad::Decode(CArcFile* pclArc)
 	// Output
 	pclArc->OpenFile();
 	CWav wav;
-	wav.WriteHed(pclArc, wav_buf_len, pclArc->ConvEndian(*(LPDWORD)&ahx_buf[8]), 1, 16);
+	wav.WriteHed(pclArc, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), 1, 16);
 	pclArc->WriteFile(&wav_buf[0], wav_buf_len);
 */
 	return TRUE;

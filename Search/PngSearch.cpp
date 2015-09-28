@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../SearchBase.h"
 #include "PngSearch.h"
+#include "Utils/BitUtils.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -29,19 +30,14 @@ void CPngSearch::Mount(CArcFile* pclArc)
 	{
 		// Get chunk length
 		DWORD dwLength;
-
 		if (pclArc->Read(&dwLength, 4) == 0)
-		{
 			return;
-		}
 
-		pclArc->ConvEndian(&dwLength);
+		dwLength = BitUtils::Swap32(dwLength);
 
 		// Get chunk name
 		if (pclArc->Read(abtChunkName, 4) == 0)
-		{
 			return;
-		}
 
 		// Advance the file pointer to chunk length + CRC segments
 		// if( (dwLength + 4) > pclArc->GetArcSize() )

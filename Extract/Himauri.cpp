@@ -3,6 +3,7 @@
 #include "../Image.h"
 #include "../Image/Tga.h"
 #include "Himauri.h"
+#include "Utils/BitUtils.h"
 
 /// Mount
 ///
@@ -134,7 +135,7 @@ BOOL CHimauri::MountHim5(CArcFile* pclArc)
 			SFileInfo stFileInfo;
 
 			stFileInfo.name = szFileName;
-			stFileInfo.start = pclArc->ConvEndian(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + 1]);
+			stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + 1]);
 
 			// Get the exit address
 
@@ -146,12 +147,12 @@ BOOL CHimauri::MountHim5(CArcFile* pclArc)
 				}
 				else
 				{
-					stFileInfo.end = pclArc->ConvEndian(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 2]);
+					stFileInfo.end = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 2]);
 				}
 			}
 			else
 			{
-				stFileInfo.end = pclArc->ConvEndian(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 1]);
+				stFileInfo.end = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 1]);
 			}
 
 			stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;

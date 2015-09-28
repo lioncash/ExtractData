@@ -622,34 +622,6 @@ YCString CArcFile::CreateFileName(LPCTSTR pszRenameFileExt)
 	return m_clsPathToFile;
 }
 
-DWORD CArcFile::ConvEndian(DWORD value)
-{
-#if defined(_MSC_VER)
-	return _byteswap_ulong(value);
-#else
-	return ((value & 0x000000FF) << 24) | (value & 0x0000FF00) << 8) | ((value & 0x00FF0000) >> 8) | ((value & 0xFF000000) >> 24);
-#endif
-}
-
-WORD CArcFile::ConvEndian(WORD value)
-{
-#if defined(_MSC_VER)
-	return _byteswap_ushort(value);
-#else
-	return (value << 8) | (value >> 8);
-#endif
-}
-
-void CArcFile::ConvEndian(LPDWORD value)
-{
-	*value = ConvEndian(*value);
-}
-
-void CArcFile::ConvEndian(LPWORD value)
-{
-	*value = ConvEndian(*value);
-}
-
 BOOL CArcFile::CheckExe(LPCTSTR pExeName)
 {
 	// Gets the path to the executable file

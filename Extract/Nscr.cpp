@@ -4,6 +4,7 @@
 #include "../Image.h"
 #include "Standard.h"
 #include "Nscr.h"
+#include "Utils/BitUtils.h"
 
 /// Mounting
 ///
@@ -51,13 +52,12 @@ BOOL CNscr::MountNsa(CArcFile* pclArc)
 		dwFiles <<= 16;
 	}
 
-	pclArc->ConvEndian(&dwFiles);
+	dwFiles = BitUtils::Swap32(dwFiles);
 
 	// Get offset
 	DWORD dwOffset;
-
 	pclArc->Read(&dwOffset, 4);
-	pclArc->ConvEndian(&dwOffset);
+	dwOffset = BitUtils::Swap32(dwOffset);
 
 	if (memcmp(pclArc->GetHed(), "\0\0", 2) == 0)
 	{
@@ -87,9 +87,9 @@ BOOL CNscr::MountNsa(CArcFile* pclArc)
 		SFileInfo stFileInfo;
 
 		stFileInfo.name = szFileName;
-		stFileInfo.start = pclArc->ConvEndian(*(DWORD*)&clmbtIndex[dwIndexPtr + 1]) + dwOffset;
-		stFileInfo.sizeCmp = pclArc->ConvEndian(*(DWORD*)&clmbtIndex[dwIndexPtr + 5]);
-		stFileInfo.sizeOrg = pclArc->ConvEndian(*(DWORD*)&clmbtIndex[dwIndexPtr + 9]);
+		stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 1]) + dwOffset;
+		stFileInfo.sizeCmp = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 5]);
+		stFileInfo.sizeOrg = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 9]);
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
 		switch (btType)
@@ -123,12 +123,12 @@ BOOL CNscr::MountSar(CArcFile* pclArc)
 	// Get file count
 	WORD dwFiles;
 	pclArc->Read(&dwFiles, 2);
-	pclArc->ConvEndian(&dwFiles);
+	dwFiles = BitUtils::Swap16(dwFiles);
 
 	// Get offset
 	DWORD dwOffset;
 	pclArc->Read(&dwOffset, 4);
-	pclArc->ConvEndian(&dwOffset);
+	dwOffset = BitUtils::Swap32(dwOffset);
 
 	// Get index size
 	DWORD dwIndexSize = dwOffset - 6;
@@ -149,8 +149,8 @@ BOOL CNscr::MountSar(CArcFile* pclArc)
 		// Add to listview
 		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
-		stFileInfo.start = pclArc->ConvEndian(*(DWORD*)&clmbtIndex[dwIndexPtr + 0]) + dwOffset;
-		stFileInfo.sizeOrg = pclArc->ConvEndian(*(DWORD*)&clmbtIndex[dwIndexPtr + 4]);
+		stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 0]) + dwOffset;
+		stFileInfo.sizeOrg = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 4]);
 		stFileInfo.sizeCmp = stFileInfo.sizeOrg;
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 
@@ -258,7 +258,7 @@ BOOL CNscr::DecodeNBZ(CArcFile* pclArc)
 	// Get file size
 	DWORD dwDstSize;
 	pclArc->Read(&dwDstSize, 4);
-	pclArc->ConvEndian(&dwDstSize);
+	dwDstSize = BitUtils::Swap32(dwDstSize);
 
 	DWORD dwSrcSize = (pstFileInfo->sizeCmp - 4);
 
@@ -349,12 +349,12 @@ BOOL CNscr::DecodeSPB(CArcFile* pclArc)
 	// Get the width
 	WORD wWidth;
 	pclArc->Read(&wWidth, 2);
-	pclArc->ConvEndian(&wWidth);
+	wWidth = BitUtils::Swap16(wWidth);
 
 	// Get the height
 	WORD wHeight;
 	pclArc->Read(&wHeight, 2);
-	pclArc->ConvEndian(&wHeight);
+	wHeight = BitUtils::Swap16(wHeight);
 
 	// Parameters for the image
 	DWORD dwColorSize = (wWidth * wHeight);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "../SearchBase.h"
 #include "JpgSearch.h"
+#include "Utils/BitUtils.h"
 
 CJpgSearch::CJpgSearch()
 {
@@ -31,10 +32,10 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 			break;
 
 		// Get the size of the data area
-		WORD length;
-		if (pclArc->Read(&length, 2) == 0)
+		unsigned short length;
+		if (pclArc->Read(&length, sizeof(unsigned short)) == 0)
 			return;
-		pclArc->ConvEndian(&length);
+		length = BitUtils::Swap16(length);
 
 		// Advance to the next data area
 		pclArc->Seek(length - 2, FILE_CURRENT);

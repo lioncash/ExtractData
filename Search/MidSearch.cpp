@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MidSearch.h"
+#include "Utils/BitUtils.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -20,14 +21,14 @@ void CMidSearch::Mount(CArcFile* pclArc)
 	stFileInfo.start = pclArc->GetArcPointer();
 
 	// Get the number of tracks
-	WORD wTracks;
+	unsigned short wTracks;
 	pclArc->SeekCur((GetHedSize() + 2));
-	pclArc->Read(&wTracks, 2);
-	pclArc->ConvEndian(&wTracks);
+	pclArc->Read(&wTracks, sizeof(unsigned short));
+	wTracks = BitUtils::Swap16(wTracks);
 	pclArc->SeekCur(2);
 
 	// Get end positions
-	for (WORD wCnt = 0; wCnt < wTracks; wCnt++)
+	for (unsigned short wCnt = 0; wCnt < wTracks; wCnt++)
 	{
 		BYTE abtMark[4];
 		pclArc->Read(abtMark, 4);
@@ -39,9 +40,9 @@ void CMidSearch::Mount(CArcFile* pclArc)
 		}
 
 		// Get track size
-		DWORD dwTrackSize;
-		pclArc->Read(&dwTrackSize, 4);
-		pclArc->ConvEndian(&dwTrackSize);
+		unsigned int dwTrackSize;
+		pclArc->Read(&dwTrackSize, sizeof(unsigned int));
+		dwTrackSize = BitUtils::Swap32(dwTrackSize);
 
 		// Advance to next track
 		pclArc->SeekCur(dwTrackSize);

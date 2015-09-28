@@ -138,38 +138,6 @@ void YCUtil::ReplaceSlashToBackslash(LPWSTR pwszFileName)
 	}
 }
 
-/// Convert Endian (4byte)
-DWORD YCUtil::ConvEndian(DWORD dwSrc)
-{
-#if defined(_MSC_VER)
-	return _byteswap_ulong(dwSrc);
-#else
-	return ((dwSrc & 0x000000FF) << 24) | (dwSrc & 0x0000FF00) << 8) | ((dwSrc & 0x00FF0000) >> 8) | ((dwSrc & 0xFF000000) >> 24);
-#endif
-}
-
-/// Convert Endian (4 byte)
-void YCUtil::ConvEndian(LPDWORD pdwDst)
-{
-	*pdwDst = ConvEndian(*pdwDst);
-}
-
-/// Convert Endian (2 byte)
-WORD YCUtil::ConvEndian(WORD wSrc)
-{
-#if defined(_MSC_VER)
-	return _byteswap_ushort(wSrc);
-#else
-	return (value << 8) | (value >> 8);
-#endif
-}
-
-/// Convert Endian (2 byte)
-void YCUtil::ConvEndian(LPWORD pwDst)
-{
-	*pwDst = ConvEndian(*pwDst);
-}
-
 /// Compares the contents of memory
 ///
 /// @param pvData1 Comparison data 1

@@ -99,12 +99,6 @@ public:
 	void      ReplaceBackslash(LPTSTR pFileName);
 	void      MakeDirectory(LPCTSTR wFileName);
 
-	// Endian Conversion
-	DWORD     ConvEndian(DWORD value);
-	WORD      ConvEndian(WORD value);
-	void      ConvEndian(LPDWORD value);
-	void      ConvEndian(LPWORD value);
-
 	BOOL      CheckExe(LPCTSTR pExeName);
 	BOOL      CheckDir(LPCTSTR pDirName);
 
