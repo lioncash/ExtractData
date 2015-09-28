@@ -66,14 +66,12 @@ BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 	}
 
 	// Read pallet
-	BYTE  abtPallet[1024];
+	BYTE  abtPallet[1024] = {};
 	DWORD dwPalletSize = (stGYUHeader.dwPallets * 4);
-	ZeroMemory(abtPallet, sizeof(abtPallet));
 	if (dwPalletSize > 0)
 	{
 		// Palette exists
-		BYTE abtBlackPallet[1024];
-		ZeroMemory(abtBlackPallet, sizeof(abtBlackPallet));
+		BYTE abtBlackPallet[1024] = {};
 		pclArc->Read(abtPallet, dwPalletSize);
 
 		if (memcmp(abtPallet, abtBlackPallet, dwPalletSize) == 0)

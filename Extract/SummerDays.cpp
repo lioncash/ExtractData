@@ -29,8 +29,7 @@ BOOL CSummerDays::Mount(CArcFile* pclArc)
 	pclArc->Read(&count, 2);
 	DWORD ctTotal = (ctHeader > 1) ? ctHeader + count - 1 : count;
 
-	TCHAR pcPath[MAX_PATH];
-	ZeroMemory(pcPath, sizeof(pcPath));
+	TCHAR pcPath[MAX_PATH] = {};
 	for (DWORD i = 0; i < ctTotal; i++)
 	{
 		if (_sub(pclArc, pcPath) == FALSE)
