@@ -20,8 +20,6 @@ struct VH
 class COgg final : public CExtractBase
 {
 public:
-	COgg();
-
 	BOOL Mount(CArcFile* pclArc) override;
 	BOOL Decode(CArcFile* pclArc) override;
 	void Decode(CArcFile* pclArc, LPBYTE buf);
@@ -46,5 +44,5 @@ private:
 	DWORD m_SegmentSize;
 	DWORD m_PageSize;
 
-	DWORD m_pCRCTable[256];
+	static const std::array<DWORD, 256> m_pCRCTable;
 };
