@@ -102,10 +102,6 @@ void COption::LoadIni()
 	clIni.SetKey(_T("AlphaBlend"));
 	clIni.ReadDec(&pOption->bAlphaBlend, FALSE);
 
-	// Set whether or not to do fast alpha blending
-	clIni.SetKey(_T("FastAlphaBlend"));
-	clIni.ReadDec(&pOption->bFastAlphaBlend, FALSE);
-
 	// Set the background color of the alpha blending
 	clIni.SetKey(_T("BG_RGB"));
 	clIni.ReadStr(pOption->szBgRGB, sizeof(pOption->szBgRGB), _T("FFFFFF"));
@@ -224,10 +220,6 @@ void COption::SaveIni()
 	// Alpha blending
 	clIni.SetKey(_T("AlphaBlend"));
 	clIni.WriteDec(pOption.bAlphaBlend);
-
-	// Set whether or not to use fast alpha blending
-	clIni.SetKey(_T("FastAlphaBlend"));
-	clIni.WriteDec(pOption.bFastAlphaBlend);
 
 	// Background color alpha blending
 	clIni.SetKey(_T("BG_RGB"));
@@ -502,7 +494,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	static int ExtractCheckNum = _countof( ExtractCheckText );
 	static std::vector<CCheckBox> ExtractCheck( ExtractCheckNum );
-	static CCheckBox ExtractCheckAlpha, ExtractCheckFastAlpha;
+	static CCheckBox ExtractCheckAlpha;
 	static CLabel ExtractLabelImage, ExtractLabelPng, ExtractLabelAlpha, ExtractLabelSave, ExtractLabelBuf, ExtractLabelTmp;
 	static CRadioBtn ExtractRadioImage, ExtractRadioSave;
 	static CUpDown ExtractUpDownPng;
@@ -547,10 +539,6 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			ExtractEditAlpha.Create(hWnd, pOption->szBgRGB, ID++, x + xx * 2 + 100, y_Image - 4, 100, 22);
 			ExtractEditAlpha.SetLimit(6);
 			ExtractEditAlpha.Enable(pOption->bAlphaBlend);
-
-			ExtractCheckFastAlpha.Create(hWnd, _T("Faster processing"), ID++, x + xx * 2 - 15, y_Image += 20, 120, 20);
-			ExtractCheckFastAlpha.SetCheck(pOption->bFastAlphaBlend);
-			ExtractCheckFastAlpha.Enable(pOption->bAlphaBlend);
 
 			//
 
@@ -597,7 +585,6 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			if (LOWORD(wp) == ExtractCheckAlpha.GetID())
 			{
 				ExtractEditAlpha.Enable(ExtractCheckAlpha.GetCheck());
-				ExtractCheckFastAlpha.Enable( ExtractCheckAlpha.GetCheck() );
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
@@ -663,7 +650,6 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					ExtractEditPng.GetText(&pOption->CmplvPng, FALSE);
 					//
 					pOption->bAlphaBlend = ExtractCheckAlpha.GetCheck();
-					pOption->bFastAlphaBlend = ExtractCheckFastAlpha.GetCheck();
 					ExtractEditAlpha.GetText(&pOption->BgRGB, TRUE);
 					_stprintf(pOption->szBgRGB, _T("%06x"), pOption->BgRGB);
 					//

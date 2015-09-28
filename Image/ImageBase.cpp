@@ -348,250 +348,33 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 	const BYTE* pbtBG = m_abtBG;
 	long        lWidth = m_lWidth;
 
-	if (m_pclArc->GetOpt()->bFastAlphaBlend)
+	for (long lX = 0; lX < lWidth; lX++)
 	{
-		// High-speed alpha blending processing requests
-
-		// eax  Counter
-		// edi  Destination
-		// esi  Input Source
-		//
-		// mm0  Input Data 1
-		// mm1  Input Data 2
-		// mm2  Alpha value of input data 1
-		// mm3  Alpha value of input data 2
-		// mm4  Work
-		// mm5  00FF00FF 00FF00FF
-		// mm6  Background color
-		// mm7  Do unpacking (00000000 00000000)
-
-		_asm
+		switch (pbtBuffer32[3])
 		{
-			mov         edi, pvBuffer24
-			mov         esi, pvBuffer32
-
-			// Initializing for unpacking
-			pxor        mm7, mm7
-
-			// Get background color
-			mov         eax, pbtBG
-			movd        mm6, [eax]
-			punpcklbw   mm6, mm7
-
-			// 
-
-			mov         eax, 0x01000100
-			movd        mm5, eax
-			punpckldq   mm5, mm5
-
-			// Main loop
-			mov         eax, lWidth
-			shr         eax, 1         // 2 pixels to be processed
-
-		loop2000:
-
-			// Get 8 bytes (2 pixels)
-			movq        mm0, [esi]
-			movq        mm1, mm0
-
-			add         esi, 8
-
-			// Get alpha value
-			/*
-			movq        mm2, mm0
-			psrld       mm2, 24
-
-			movq        mm3, mm2
-
-			punpcklwd   mm2, mm2
-			punpckldq   mm2, mm2
-
-			punpckhwd   mm3, mm3
-			punpckldq   mm3, mm3
-			*/
-			//-- Input Data 1 -------------------------------------------------------------------------
-
-			// Unpack
-			punpcklbw   mm0, mm7
-
-			// Get alpha value
-			movq        mm2, mm0
-			psrlq       mm2, 48
-
-			movd        edx, mm2
-			test        edx, edx
-			jnz         pass3200        // Alpha value is not 0
-
-			// Alpha value is 0
-
-			movq        mm0, mm6
-			jmp         pass3800
-
-			// Alpha value is 1~255
-		pass3200 :
-
-			cmp         edx, 0xFF
-			jne         pass3400        // Alpha value is not 255
-
-			// Alpha value is 255
-			jmp         pass3800
-
-			// Alpha value is 1~254
-		pass3400 :
-
-			punpcklwd   mm2, mm2
-			punpckldq   mm2, mm2
-
-			// RGB~A
-			pmullw      mm0, mm2
-
-			// Background x (0xFF - A)
-			movq        mm4, mm5
-			psubw       mm4, mm2
-			pmullw      mm4, mm6
-
-			// 256 divided by sum
-			paddw       mm0, mm4
-			psrlw       mm0, 8
-
-			pass3800:
-
-			// Summarized in lower 32bit
-			packuswb    mm0, mm7
-
-			// Store
-			movd[edi], mm0
-
-			//-- Input data 2 -------------------------------------------------------------------------
-
-			// Unpack 
-			punpckhbw   mm1, mm7
-
-			// Get alpha value
-			movq        mm3, mm1
-			psrlq       mm3, 48
-
-			movd        edx, mm3
-			test        edx, edx
-			jnz         pass4200        // Alpha value is not 0
-
-			// Alpha value is 0
-			movq        mm1, mm6
-			jmp         pass4800
-
-				// Alpha value is 1~255
-			pass4200 :
-
-			cmp         edx, 0xFF
-			jne         pass4400        // Alpha value is not 255
-
-			// Alpha value is 255
-			jmp         pass4800
-
-		pass4400:
-
-			punpcklwd   mm3, mm3
-			punpckldq   mm3, mm3
-
-			// RGB x A
-			pmullw      mm1, mm3
-
-			// Background x (0xFF - A)
-			movq        mm4, mm5
-			psubw       mm4, mm3
-			pmullw      mm4, mm6
-
-			// 256 divided by the sum
-			paddw       mm1, mm4
-			psrlw       mm1, 8
-
-			pass4800:
-
-			// Summarized in the lower 32bit
-			packuswb    mm1, mm7
-
-			// Store
-			movd[edi + 3], mm1
-			//movntq      [edi], mm1
-			add         edi, 6
-
-			//----------------------------------------------------------------------------------------
-
-			// Advance to next pixel
-			dec         eax
-			jnz         loop2000        // Continuity
-
-			// One pixel remaining in processing
-			mov         eax, lWidth
-			and         eax, 1
-			jz          pass9900        // No outstanding pixels
-
-			// Get 4 bytes (1 Pixel)
-			movd        mm0, [esi]
-
-			// Unpack
-			punpcklbw   mm0, mm7
-
-			// Get alpha value
-			movq        mm2, mm0
-			psrlq       mm2, 48
-			punpcklwd   mm2, mm2
-			punpckldq   mm2, mm2
-
-			// RGB x A
-			pmullw      mm0, mm2
-
-			// Background x (0xFF - A)
-			movq        mm4, mm5
-			psubw       mm4, mm2
-			pmullw      mm4, mm6
-
-			// 256 divided by the sum
-			paddw       mm0, mm4
-			psrlw       mm0, 8
-
-			// Summarized in the lower 32 bits
-			packuswb    mm0, mm7
-
-			// Store
-			movd[edi], mm0
-
-			// Exit
-		pass9900:
-
-			emms
-		}
-	}
-	else
-	{
-		for (long lX = 0; lX < lWidth; lX++)
-		{
-			switch (pbtBuffer32[3])
+		case 0x00: // Alpha value is 0
+			for (int i = 0; i < 3; i++)
 			{
-			case 0x00: // Alpha value is 0
-				for (int i = 0; i < 3; i++)
-				{
-					*pbtBuffer24++ = pbtBG[i];
-				}
-				break;
-
-			case 0xFF: // Alpha value is 255
-				for (int i = 0; i < 3; i++)
-				{
-					*pbtBuffer24++ = pbtBuffer32[i];
-				}
-				break;
-
-			default: // Other
-				for (int i = 0; i < 3; i++)
-				{
-					*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + pbtBG[i] * (255 - pbtBuffer32[3])) / 255;
-					// *pbtBuffer24++ = (pbtBuffer32[i] - pbtBG[i]) * pbtBuffer32[3] / 255 + pbtBG[i];
-				}
+				*pbtBuffer24++ = pbtBG[i];
 			}
+			break;
 
-			pbtBuffer32 += 4;
+		case 0xFF: // Alpha value is 255
+			for (int i = 0; i < 3; i++)
+			{
+				*pbtBuffer24++ = pbtBuffer32[i];
+			}
+			break;
+
+		default: // Other
+			for (int i = 0; i < 3; i++)
+			{
+				*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + pbtBG[i] * (255 - pbtBuffer32[3])) / 255;
+				// *pbtBuffer24++ = (pbtBuffer32[i] - pbtBG[i]) * pbtBuffer32[3] / 255 + pbtBG[i];
+			}
 		}
+
+		pbtBuffer32 += 4;
 	}
 }
 

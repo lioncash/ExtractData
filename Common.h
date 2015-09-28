@@ -53,7 +53,6 @@ struct SOption
 	BOOL                bDstPNG;                        // PNG Output
 	DWORD               CmplvPng;                       // PNG Compression Level
 	BOOL                bAlphaBlend;                    // Include/don't include alpha in the output image
-	BOOL                bFastAlphaBlend;                // Speed up the alpha blending process
 	DWORD               BgRGB;                          // Background color
 	TCHAR               szBgRGB[7];                     // Background color
 
