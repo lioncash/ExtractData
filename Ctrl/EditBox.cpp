@@ -11,7 +11,7 @@ HWND CEditBox::Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x, int y, int c
 HWND CEditBox::Create(HWND hWnd, DWORD dwCaption, UINT ID, int x, int y, int cx, int cy)
 {
 	TCHAR Caption[256];
-	_stprintf(Caption, _T("%d"), dwCaption);
+	_stprintf(Caption, _T("%u"), dwCaption);
 	return Create(hWnd, Caption, ID, x, y, cx, cy);
 }
 
