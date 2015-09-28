@@ -26,12 +26,12 @@ public:
 	UINT64 SeekCur(INT64 n64Offset);
 
 	UINT64 GetArcPointer();
-	UINT64 GetArcSize();
+	UINT64 GetArcSize() const;
 
 	// Output file operations
-	YCString CreateFileName(LPCTSTR pszReFileExt = NULL);
+	YCString CreateFileName(LPCTSTR pszReFileExt = nullptr);
 
-	BOOL OpenFile(LPCTSTR pszReFileExt = NULL);
+	BOOL OpenFile(LPCTSTR pszReFileExt = nullptr);
 	BOOL OpenScriptFile();
 	void CloseFile();
 
@@ -68,8 +68,8 @@ public:
 	void        SetNextArc()              { m_dwArcsID++; }
 	HANDLE      GetArcHandle()            { return m_hArcs[m_dwArcsID]; }
 	void        SetArcsID(DWORD dwArcsID) { m_dwArcsID = dwArcsID; }
-	DWORD       GetArcsID()               { return m_dwArcsID; }
-	size_t      GetArcCount()             { return m_hArcs.size(); }
+	DWORD       GetArcsID() const         { return m_dwArcsID; }
+	size_t      GetArcCount() const       { return m_hArcs.size(); }
 	YCString&   GetArcPath()              { return m_pclArcPaths[m_dwArcsID]; }
 	YCString&   GetArcName()              { return m_pclArcNames[m_dwArcsID]; }
 	YCString&   GetArcExten()             { return m_pclArcExtens[m_dwArcsID]; }
@@ -79,20 +79,20 @@ public:
 
 	SFileInfo*              GetFileInfo(DWORD num)    { return &(*m_pEnt)[num]; }
 	SFileInfo*              GetFileInfo(PCTSTR pszFileName, BOOL bCmpFileNameOnly = FALSE);
-	const SFileInfo*        GetFileInfoForBinarySearch( LPCTSTR pszFileName );
-	std::vector<SFileInfo>& GetFileInfo()             { return *m_pEnt; }
-	SFileInfo*              GetOpenFileInfo()         { return m_pInfFile; }
-	DWORD                   GetOpenFileInfoNum()      { return m_dwInfFileNum; }
+	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR pszFileName);
+	std::vector<SFileInfo>& GetFileInfo()              { return *m_pEnt; }
+	SFileInfo*              GetOpenFileInfo()          { return m_pInfFile; }
+	DWORD                   GetOpenFileInfoNum() const { return m_dwInfFileNum; }
 
-	DWORD     GetArcID()                { return m_dwArcID; }
-	size_t    GetStartEnt()             { return m_nStartEnt; }
-	size_t    GetCtEnt()                { return m_ctEnt; }
+	DWORD     GetArcID() const          { return m_dwArcID; }
+	size_t    GetStartEnt() const       { return m_nStartEnt; }
+	size_t    GetCtEnt() const          { return m_ctEnt; }
 	CProgBar* GetProg()                 { return m_pProg; }
 	SOption*  GetOpt()                  { return m_pOption; }
 
-	BOOL      GetState()                { return m_bState; }
+	BOOL      GetState() const          { return m_bState; }
 
-	DWORD     GetBufSize();
+	DWORD     GetBufSize() const;
 	void      SetBufSize(LPDWORD BufSize, DWORD WriteSize);
 	void      SetBufSize(LPDWORD BufSize, DWORD WriteSize, DWORD FileSize);
 
@@ -104,7 +104,7 @@ public:
 
 	// Susie plugin mounting
 	void      SetMountSusie() { m_bMountWasSusie = TRUE; }
-	BOOL      GetMountSusie() { return m_bMountWasSusie; }
+	BOOL      GetMountSusie() const { return m_bMountWasSusie; }
 
 	// MD5 value setting
 	void      SetMD5(SMD5 stmd5File);
@@ -113,10 +113,10 @@ public:
 	void      SetMD5OfFlag(BOOL bSetMD5) { m_bSetMD5 = bSetMD5; }
 
 	// Get MD5 value
-	std::vector<SMD5> GetMD5() { return m_vtstmd5File; }
+	std::vector<SMD5> GetMD5() const { return m_vtstmd5File; }
 
 	// Check if MD5 value is set
-	BOOL CheckMD5OfSet() { return m_bSetMD5; }
+	BOOL CheckMD5OfSet() const { return m_bSetMD5; }
 
 	// Clear MD5 value
 	void ClearMD5();
@@ -125,7 +125,7 @@ public:
 	void SetFlag(BOOL bFlag) { m_bWork = bFlag; }
 
 	// Workload capture flag
-	BOOL GetFlag() { return m_bWork; }
+	BOOL GetFlag() const { return m_bWork; }
 
 	// Comparison function for sorting
 	static BOOL CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2);

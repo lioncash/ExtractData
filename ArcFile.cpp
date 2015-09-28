@@ -148,7 +148,7 @@ QWORD CArcFile::GetArcPointer()
 	return Seek(0, FILE_CURRENT);
 }
 
-QWORD CArcFile::GetArcSize()
+QWORD CArcFile::GetArcSize() const
 {
 	LARGE_INTEGER li = {};
 	li.LowPart = GetFileSize(m_hArcs[m_dwArcsID], &reinterpret_cast<DWORD&>(li.HighPart));
@@ -417,7 +417,7 @@ void CArcFile::ReadWrite(DWORD FileSize)
 	}
 }
 
-DWORD CArcFile::GetBufSize()
+DWORD CArcFile::GetBufSize() const
 {
 	return (m_pOption->BufSize << 10);
 }
