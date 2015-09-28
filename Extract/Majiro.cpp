@@ -759,12 +759,13 @@ BOOL CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const 
 	pclArc->Read(&clmbtSrcOfMask[0], dwSrcSizeOfMask);
 
 	// Get header information
-	SRCHeader* pstrchMask = (SRCHeader*)&clmbtSrcOfMask[0];
+	SRCHeader strchMask;
+	std::memcpy(&strchMask, &clmbtSrcOfMask[0], sizeof(SRCHeader));
 
 	// Decompress masked image
-	DWORD          dwDstSizeOfMask = pstrchMask->lWidth * pstrchMask->lHeight;
+	DWORD          dwDstSizeOfMask = strchMask.lWidth * strchMask.lHeight;
 	YCMemory<BYTE> clmbtDstOfMask(dwDstSizeOfMask);
-	read_bits_8(&clmbtDstOfMask[0], dwDstSizeOfMask, &clmbtSrcOfMask[20 + 768], pstrchMask->dwDataSize, pstrchMask->lWidth);
+	read_bits_8(&clmbtDstOfMask[0], dwDstSizeOfMask, &clmbtSrcOfMask[20 + 768], strchMask.dwDataSize, strchMask.lWidth);
 
 	// Make file
 	DWORD dwSrcPtr = 0;
