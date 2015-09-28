@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "YCIni.h"
+#include "Utils/ArrayUtils.h"
 
 /// Constructor
 YCIni::YCIni(LPCTSTR pszPathToIni)
 {
 	// Gets the execution path of the file
 	TCHAR szPathToExecuteFolder[MAX_PATH];
-	::GetModuleFileName(nullptr, szPathToExecuteFolder, _countof(szPathToExecuteFolder));
+	::GetModuleFileName(nullptr, szPathToExecuteFolder, ArrayUtils::ArraySize(szPathToExecuteFolder));
 	::PathRemoveFileSpec(szPathToExecuteFolder);
 
 	// Get INI file path
@@ -29,7 +30,7 @@ void YCIni::SetSection(UINT uID)
 {
 	TCHAR szSection[256];
 
-	::LoadString(::GetModuleHandle(nullptr), uID, szSection, _countof(szSection));
+	::LoadString(::GetModuleHandle(nullptr), uID, szSection, ArrayUtils::ArraySize(szSection));
 
 	SetSection(szSection);
 }
@@ -60,7 +61,7 @@ void YCIni::ReadStr(YCString& rfclsDst, const YCString& rfclsDefault)
 {
 	TCHAR szDst[1024];
 
-	ReadStr(szDst, _countof(szDst), rfclsDefault);
+	ReadStr(szDst, ArrayUtils::ArraySize(szDst), rfclsDefault);
 
 	rfclsDst = szDst;
 }

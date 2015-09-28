@@ -2,6 +2,7 @@
 #include "../ExtractBase.h"
 #include "../Image.h"
 #include "Will.h"
+#include "Utils/ArrayUtils.h"
 
 /// Mounting
 BOOL CWill::Mount(CArcFile* pclArc)
@@ -16,7 +17,7 @@ BOOL CWill::Mount(CArcFile* pclArc)
 		"OGG", "WSC", "ANM", "MSK", "WIP", "TBL", "SCR"
 	};
 
-	for (DWORD i = 0; i < _countof(apszHeader); i++)
+	for (DWORD i = 0; i < ArrayUtils::ArraySize(apszHeader); i++)
 	{
 		if (memcmp(&pclArc->GetHed()[4], apszHeader[i], 4) == 0)
 		{

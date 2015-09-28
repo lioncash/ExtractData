@@ -8,6 +8,7 @@
 #include "Ctrl/RadioBtn.h"
 #include "Ctrl/UpDown.h"
 #include "Dialog/FolderDialog.h"
+#include "Utils/ArrayUtils.h"
 #include "Reg.h"
 #include "Susie.h"
 #include "SusieListView.h"
@@ -131,8 +132,8 @@ void COption::LoadIni()
 	TCHAR szTmpDir[_MAX_DIR];
 	TCHAR szTmpDirLong[_MAX_DIR];
 
-	::GetTempPath(_countof(szTmpDir), szTmpDir);
-	::GetLongPathName(szTmpDir, szTmpDirLong, 256);
+	::GetTempPath(ArrayUtils::ArraySize(szTmpDir), szTmpDir);
+	::GetLongPathName(szTmpDir, szTmpDirLong, ArrayUtils::ArraySize(szTmpDirLong));
 	PathAppend(szTmpDirLong, _T("ExtractData"));
 
 	clIni.SetKey(_T("TmpDir"));
@@ -480,20 +481,17 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	// Extraction Settings
 
-	static YCString ExtractCheckText[] =
-	{
+	static const std::array<YCString, 3> ExtractCheckText = {{
 		_T("Extract each folder"),
 		_T("Fix the CRC of OGG files upon extraction"),
 		_T("Enable simple decoding")
-	};
+	}};
 
-	static BOOL* ExtractCheckFlag[] =
-	{
+	static const std::array<BOOL*, 4> ExtractCheckFlag = {{
 		&pOption->bCreateFolder, &pOption->bFixOgg, &pOption->bEasyDecrypt, &pOption->bRenameScriptExt
-	};
+	}};
 
-	static int ExtractCheckNum = _countof( ExtractCheckText );
-	static std::vector<CCheckBox> ExtractCheck( ExtractCheckNum );
+	static std::vector<CCheckBox> ExtractCheck(ExtractCheckText.size());
 	static CCheckBox ExtractCheckAlpha;
 	static CLabel ExtractLabelImage, ExtractLabelPng, ExtractLabelAlpha, ExtractLabelSave, ExtractLabelBuf, ExtractLabelTmp;
 	static CRadioBtn ExtractRadioImage, ExtractRadioSave;
@@ -511,7 +509,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			// Extraction Settings
 
-			for (int i = 0; i < ExtractCheckNum; i++)
+			for (size_t i = 0; i < ExtractCheckText.size(); i++)
 			{
 				ExtractCheck[i].Create(hWnd, ExtractCheckText[i], ID++, x, y += 20, 230, 20);
 				ExtractCheck[i].SetCheck(*ExtractCheckFlag[i]);
@@ -575,7 +573,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_COMMAND:
 			// Checkbox
-			if (LOWORD(wp) >= ExtractCheck[0].GetID() && LOWORD(wp) <= ExtractCheck[ExtractCheckNum-1].GetID())
+			if (LOWORD(wp) >= ExtractCheck.front().GetID() && LOWORD(wp) <= ExtractCheck.back().GetID())
 			{
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;

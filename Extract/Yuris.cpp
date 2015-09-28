@@ -2,6 +2,7 @@
 #include "../ExtractBase.h"
 #include "../Arc/Zlib.h"
 #include "Yuris.h"
+#include "Utils/ArrayUtils.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
@@ -77,7 +78,7 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 	DWORD dwFileInfoLength = 0;
 	BYTE  btKey1 = 0;
 
-	for (int i = 0; i < _countof(adwFileInfoLength); i++)
+	for (int i = 0; i < ArrayUtils::ArraySize(adwFileInfoLength); i++)
 	{
 		DWORD dwCnt = 0;
 		DWORD dwIndex = 0;
@@ -120,7 +121,7 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 					continue;
 				}
 
-				for (int k = 0; k < _countof(abtNotUseWord); k++)
+				for (int k = 0; k < ArrayUtils::ArraySize(abtNotUseWord); k++)
 				{
 					if (szFileName[j] == abtNotUseWord[k])
 					{

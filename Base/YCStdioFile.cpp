@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "YCStdioFile.h"
+#include "Utils/ArrayUtils.h"
 
 /// Constructor
 YCStdioFile::YCStdioFile()
@@ -189,7 +190,7 @@ BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 
 	while (true)
 	{
-		if (ReadString(szBuffer, _countof(szBuffer)) == nullptr)
+		if (ReadString(szBuffer, ArrayUtils::ArraySize(szBuffer)) == nullptr)
 		{
 			// Read until the end
 

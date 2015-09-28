@@ -7,21 +7,12 @@
 ///
 BOOL CFate::OnCheckDecrypt(CArcFile* pclArc)
 {
-	static const char* apszMD5[] =
-	{
+	static const std::array<const char*, 2> apszMD5 = {{
 		"4BE5F676CE80429B3245DA9E721FE23B",
 		"7570E3AFA14F221268DCC48CAEE1277F",
-	};
+	}};
 
-	for (DWORD i = 0; i < _countof(apszMD5); i++)
-	{
-		if (CheckTpm(apszMD5[i]))
-		{
-			return TRUE;
-		}
-	}
-
-	return FALSE;
+	return std::any_of(apszMD5.begin(), apszMD5.end(), [this](const char* str) { return CheckTpm(str); });
 }
 
 /// Initialization of Decryption Routine

@@ -656,14 +656,14 @@ YCString CQLIE::GetExtension(BYTE* pbtSrc)
 ///
 void CQLIE::EraseNotUsePathWord(YCString& clsPath)
 {
-	static const TCHAR	aszNotUsePathWord[] =
+	static const TCHAR aszNotUsePathWord[] =
 	{
 		_T(':'), _T(','), _T(';'), _T('*'), _T('?'), _T('\"'), _T('<'), _T('>'), _T('|')
 	};
 
-	for (DWORD dwIndex = 0; dwIndex < _countof(aszNotUsePathWord); dwIndex++)
+	for (const TCHAR& c : aszNotUsePathWord)
 	{
-		clsPath.Remove(aszNotUsePathWord[dwIndex]);
+		clsPath.Remove(c);
 	}
 }
 

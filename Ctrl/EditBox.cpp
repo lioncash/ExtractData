@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "EditBox.h"
+#include "Utils/ArrayUtils.h"
 
 HWND CEditBox::Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x, int y, int cx, int cy)
 {
@@ -22,14 +23,14 @@ void CEditBox::GetText(LPTSTR pText, int len)
 void CEditBox::GetText(YCString& pText)
 {
 	TCHAR szText[256];
-	GetWindowText(GetCtrlHandle(), szText, _countof(szText));
+	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
 	pText = szText;
 }
 
 void CEditBox::GetText(LPDWORD pText, BOOL bHex)
 {
 	TCHAR szText[256];
-	GetWindowText(GetCtrlHandle(), szText, _countof(szText));
+	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
 	*pText = (lstrcmp(szText, _T("")) == 0) ? 0 : (bHex == FALSE) ? _tstoi(szText) : _tcstol(szText, nullptr, 16);
 }
 
