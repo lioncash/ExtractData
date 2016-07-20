@@ -22,8 +22,8 @@ public:
 	void Init();
 	void Init(SOption* pOption);
 	virtual void OnInit(SOption* pOption) {} // Virtual function for when you want to do something during initialization
-	void InitHed(const LPVOID pattern, DWORD size);
-	void InitFot(const LPVOID pattern, DWORD size);
+	void InitHed(LPCVOID pattern, DWORD size);
+	void InitFot(LPCVOID pattern, DWORD size);
 
 	LPBYTE  GetHed()           { return m_pattern[0].pattern; }
 	DWORD   GetHedSize() const { return m_pattern[0].size; }
@@ -31,11 +31,11 @@ public:
 	DWORD   GetFotSize() const { return m_pattern[1].size; }
 	DWORD&  GetCtFile()        { return m_ctFile; }
 
-	BOOL    CmpHed(LPBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
-	BOOL    CmpFot(LPBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
+	BOOL    CmpHed(LPCBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
+	BOOL    CmpFot(LPCBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
 
-	BOOL    CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size) const;
-	BOOL    Search(CArcFile* pclArc, const LPBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
+	BOOL    CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const;
+	BOOL    Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
 	BOOL    SearchFot(CArcFile* pclArc);
 
 	void    SetOffset(DWORD offset) { m_offset = offset; }
@@ -47,5 +47,5 @@ private:
 	HF m_pattern[2];
 	DWORD m_offset;
 	DWORD m_ctFile;
-	void InitPattern(const LPVOID pattern, DWORD size, DWORD num);
+	void InitPattern(LPCVOID pattern, DWORD size, DWORD num);
 };

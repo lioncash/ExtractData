@@ -29,7 +29,7 @@ void CSearchBase::Init(SOption* pOption)
 	OnInit(pOption);
 }
 
-void CSearchBase::InitPattern(const LPVOID pattern, DWORD size, DWORD num)
+void CSearchBase::InitPattern(LPCVOID pattern, DWORD size, DWORD num)
 {
 	//m_pattern[num].pattern = new BYTE[size];
 	memcpy(m_pattern[num].pattern, pattern, size);
@@ -37,17 +37,17 @@ void CSearchBase::InitPattern(const LPVOID pattern, DWORD size, DWORD num)
 }
 
 // Enter the header
-void CSearchBase::InitHed(const LPVOID pattern, DWORD size)
+void CSearchBase::InitHed(LPCVOID pattern, DWORD size)
 {
 	InitPattern(pattern, size, 0);
 }
 // Enter the footer
-void CSearchBase::InitFot(const LPVOID pattern, DWORD size)
+void CSearchBase::InitFot(LPCVOID pattern, DWORD size)
 {
 	InitPattern(pattern, size, 1);
 }
 
-inline BOOL CSearchBase::CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size) const
+inline BOOL CSearchBase::CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const
 {
 	return std::equal(data, data + size, pattern, [](BYTE data_byte, BYTE pattern_byte) {
 		return pattern_byte == '*' || data_byte == pattern_byte;
@@ -60,7 +60,7 @@ inline DWORD CSearchBase::CreateDecKey(LPBYTE buf)
 	return (m_deckey);
 }
 */
-BOOL CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize, DWORD dwSearchSize)
+BOOL CSearchBase::Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize)
 {/*
 	if (pclArc->GetOpt()->bEasyDecrypt == TRUE)
 	{
