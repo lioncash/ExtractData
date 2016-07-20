@@ -441,8 +441,7 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
 				BYTE len = *src++;
 
 				// RLE Decompression
-				for (BYTE k = 0; k < len; k++)
-					*pdataWidth++ = data;
+				std::fill(pdataWidth, pdataWidth + len, data);
 
 				// Proceed with decompressed length
 				j += len;
@@ -465,10 +464,7 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
 
 		// Output the decoded data to the output buffer.
 		pdataWidth = &dataWidth[0];
-		for (int j = 0; j < width; j++)
-		{
-			*dst++ = *pdataWidth++;
-		}
+		std::copy(pdataWidth, pdataWidth + width, dst);
 	}
 }
 
@@ -484,9 +480,7 @@ void CCyc::RGBtoBGR(LPBYTE buf, LONG width, LONG height)
 		// Replace the R and B
 		for (int x = 0; x < lwidth; x += 3)
 		{
-			BYTE tmp = buf[0];
-			buf[0] = buf[2];
-			buf[2] = tmp;
+			std::swap(buf[0], buf[2]);
 			buf += 3;
 		}
 
