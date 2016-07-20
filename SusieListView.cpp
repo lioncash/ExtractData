@@ -200,9 +200,9 @@ void CSusieListView::SetCheckAll(BOOL flag)
 	CSusie susie;
 	std::vector<SSusieInfo>& SusieInfos = susie.GetSusieTmp();
 
-	for (size_t i = 0; i < SusieInfos.size(); i++)
+	for (auto& info : SusieInfos)
 	{
-		SusieInfos[i].bValidity = flag;
+		info.bValidity = flag;
 	}
 
 	RECT rc;
