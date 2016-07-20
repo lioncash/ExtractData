@@ -11,5 +11,5 @@ public:
 
 private:
 	int getbits(LPBYTE& src, int& bit_data, int& bit_rest, int bits);
-	void dct(double* src, double* dst0, double* dst1);
+	void dct(const double* src, double* dst0, double* dst1);
 };

@@ -135,7 +135,7 @@ int CAhx::getbits(LPBYTE& src, int& bit_data, int& bit_rest, int bits)
 	return (ret);
 }
 
-void CAhx::dct(double* src, double* dst0, double* dst1)
+void CAhx::dct(const double* src, double* dst0, double* dst1)
 {
 	double tmp[2][32];
 
