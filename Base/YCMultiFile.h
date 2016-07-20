@@ -39,7 +39,7 @@ public:
 	size_t GetFileCount();
 
 private:
-	std::vector<YCFile*> m_vtpclFile;
+	std::vector<std::unique_ptr<YCFile>> m_vtpclFile;
 	int m_nCurrentFileID;
 	DWORD m_dwCurrentFileID;
 };

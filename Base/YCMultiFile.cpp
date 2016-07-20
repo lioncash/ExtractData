@@ -32,22 +32,16 @@ BOOL YCMultiFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 ///
 BOOL YCMultiFile::Add(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
-	BOOL    bReturn = FALSE;
-	YCFile* pclFile = new YCFile();
+	BOOL bReturn = FALSE;
+	auto pclFile = std::make_unique<YCFile>();
 
 	if (pclFile->Open(pszPathToFile, uOpenFlags))
 	{
 		// Opened successfully
 
-		m_vtpclFile.push_back(pclFile);
+		m_vtpclFile.push_back(std::move(pclFile));
 
 		bReturn = TRUE;
-	}
-	else
-	{
-		// Failed to open
-
-		delete pclFile;
 	}
 
 	return bReturn;
@@ -56,11 +50,9 @@ BOOL YCMultiFile::Add(LPCTSTR pszPathToFile, UINT uOpenFlags)
 /// Close File
 void YCMultiFile::Close()
 {
-	for (size_t siCnt = 0; siCnt < m_vtpclFile.size(); siCnt++)
+	for (auto& file : m_vtpclFile)
 	{
-		m_vtpclFile[siCnt]->Close();
-
-		delete m_vtpclFile[siCnt];
+		file->Close();
 	}
 
 	m_vtpclFile.clear();
