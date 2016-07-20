@@ -15,19 +15,19 @@ HWND CEditBox::Create(HWND hWnd, DWORD dwCaption, UINT ID, int x, int y, int cx,
 	return Create(hWnd, Caption, ID, x, y, cx, cy);
 }
 
-void CEditBox::GetText(LPTSTR pText, int len)
+void CEditBox::GetText(LPTSTR pText, int len) const
 {
 	GetWindowText(GetCtrlHandle(), pText, len);
 }
 
-void CEditBox::GetText(YCString& pText)
+void CEditBox::GetText(YCString& pText) const
 {
 	TCHAR szText[256];
 	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
 	pText = szText;
 }
 
-void CEditBox::GetText(LPDWORD pText, BOOL bHex)
+void CEditBox::GetText(LPDWORD pText, BOOL bHex) const
 {
 	TCHAR szText[256];
 	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
