@@ -47,15 +47,11 @@ void CSearchBase::InitFot(const LPVOID pattern, DWORD size)
 	InitPattern(pattern, size, 1);
 }
 
-inline BOOL CSearchBase::CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size)
+inline BOOL CSearchBase::CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size) const
 {
-	for (size_t i = 0; i < size; i++)
-	{
-		if ((data[i] != pattern[i]) && (pattern[i] != '*'))
-			return FALSE;
-	}
-
-	return TRUE;
+	return std::equal(data, data + size, pattern, [](BYTE data_byte, BYTE pattern_byte) {
+		return pattern_byte == '*' || data_byte == pattern_byte;
+	});
 }
 /*
 inline DWORD CSearchBase::CreateDecKey(LPBYTE buf)

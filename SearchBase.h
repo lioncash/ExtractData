@@ -34,7 +34,7 @@ public:
 	BOOL    CmpHed(LPBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
 	BOOL    CmpFot(LPBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
 
-	BOOL    CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size);
+	BOOL    CmpMem(const LPBYTE data, const LPBYTE pattern, DWORD size) const;
 	BOOL    Search(CArcFile* pclArc, const LPBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
 	BOOL    SearchFot(CArcFile* pclArc);
 
