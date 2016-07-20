@@ -27,6 +27,9 @@ public:
 	inline DWORD size() const;
 	TYPE at(DWORD dwPos) const;
 
+	inline TYPE* data();
+	inline const TYPE* data() const;
+
 	inline TYPE& operator[](DWORD dwPos);
 	inline const TYPE& operator[](DWORD dwPos) const;
 	inline YCMemory<TYPE>& operator=(const YCMemory<TYPE>& rfclmSrc);
@@ -153,6 +156,27 @@ TYPE YCMemory<TYPE>::at(DWORD dwPos) const
 
 	return m_ptMemory[dwPos];
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Data Access
+//
+
+template<class TYPE>
+TYPE* YCMemory<TYPE>::data()
+{
+	return m_ptMemory;
+}
+
+template<class TYPE>
+const TYPE* YCMemory<TYPE>::data() const
+{
+	return m_ptMemory;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Element Reference
+//
+// Remark: Throw an exception "std :: out_of_range" out of range for the reference
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Access Element
