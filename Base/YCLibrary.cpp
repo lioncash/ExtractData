@@ -38,7 +38,7 @@ void YCLibrary::Free()
 ///
 /// @param pszProcName Name of the function
 ///
-FARPROC YCLibrary::GetProcAddress(LPCTSTR pszProcName)
+FARPROC YCLibrary::GetProcAddress(LPCTSTR pszProcName) const
 {
 	if (m_hModule == nullptr)
 		return nullptr;
