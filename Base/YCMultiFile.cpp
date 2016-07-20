@@ -293,12 +293,12 @@ void YCMultiFile::SetNextFile()
 	}
 }
 
-DWORD YCMultiFile::GetCurrentFileID()
+DWORD YCMultiFile::GetCurrentFileID() const
 {
 	return m_dwCurrentFileID;
 }
 
-size_t YCMultiFile::GetFileCount()
+size_t YCMultiFile::GetFileCount() const
 {
 	return m_vtpclFile.size();
 }

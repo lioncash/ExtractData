@@ -35,8 +35,9 @@ public:
 	void SetFile(DWORD dwFileID);
 	void SetFirstFile();
 	void SetNextFile();
-	DWORD GetCurrentFileID();
-	size_t GetFileCount();
+
+	DWORD GetCurrentFileID() const;
+	size_t GetFileCount() const;
 
 private:
 	std::vector<std::unique_ptr<YCFile>> m_vtpclFile;
