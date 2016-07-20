@@ -282,26 +282,20 @@ void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
 			WORD tmp = *(LPWORD)psrc2;
 			psrc2 += 2;
 
-			WORD length = (tmp >> 0x0D) + 3;
+			const WORD length = (tmp >> 0x0D) + 3;
 			if (length > 0)
 			{
 				WORD offset = (tmp & 0x1FFF) + 1;
 				LPBYTE dst2 = dst - offset;
 
-				for (WORD i = 0; i < length; i++)
-				{
-					*dst++ = *dst2++;
-				}
+				std::copy(dst2, dst2 + length, dst);
 			}
 		}
 		else
 		{
-			WORD length = *psrc3++ + 1;
+			const WORD length = *psrc3++ + 1;
 
-			for (WORD i = 0; i < length; i++)
-			{
-				*dst++ = *psrc3++;
-			}
+			std::copy(psrc3, psrc3 + length, dst);
 		}
 
 		code >>= 1;
