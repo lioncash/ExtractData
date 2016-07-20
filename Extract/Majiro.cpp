@@ -126,13 +126,11 @@ BOOL CMajiro::MountArc1(CArcFile* pclArc)
 	std::sort(vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo);
 
 	// Get file information from the masked image
-	for (size_t i = 0; i < vcMaskFileInfo.size(); i++)
+	for (auto& pstsiMask : vcMaskFileInfo)
 	{
-		SFileInfo* pstsiMask = &vcMaskFileInfo[i];
-
 		// Get the name of the file to be created
 		TCHAR szRCTName[_MAX_FNAME];
-		lstrcpy(szRCTName, pstsiMask->name);
+		lstrcpy(szRCTName, pstsiMask.name);
 		szRCTName[lstrlen(szRCTName) - lstrlen(_T("_.rc8"))] = _T('\0');
 		PathRenameExtension(szRCTName, _T(".rct"));
 
@@ -141,29 +139,29 @@ BOOL CMajiro::MountArc1(CArcFile* pclArc)
 		if (pstsiTarget != nullptr)
 		{
 			// Image is masked
-			pstsiTarget->starts.push_back(pstsiMask->start);
-			pstsiTarget->sizesCmp.push_back(pstsiMask->sizeCmp);
-			pstsiTarget->sizesOrg.push_back(pstsiMask->sizeOrg);
+			pstsiTarget->starts.push_back(pstsiMask.start);
+			pstsiTarget->sizesCmp.push_back(pstsiMask.sizeCmp);
+			pstsiTarget->sizesOrg.push_back(pstsiMask.sizeOrg);
 
 			// Update progress
-			pclArc->GetProg()->UpdatePercent(pstsiMask->sizeCmp);
+			pclArc->GetProg()->UpdatePercent(pstsiMask.sizeCmp);
 		}
 		else
 		{
 			// Image is not masked
-			vcNotMaskFileInfo.push_back(*pstsiMask);
+			vcNotMaskFileInfo.push_back(pstsiMask);
 		}
 	}
 
 	// Add to list view
-	for (size_t i = 0; i < vcFileInfo.size(); i++)
+	for (auto& fileInfo : vcFileInfo)
 	{
-		pclArc->AddFileInfo(vcFileInfo[i]);
+		pclArc->AddFileInfo(fileInfo);
 	}
 
-	for (size_t i = 0; i < vcNotMaskFileInfo.size(); i++)
+	for (auto& notMaskFileInfo : vcNotMaskFileInfo)
 	{
-		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
+		pclArc->AddFileInfo(notMaskFileInfo);
 	}
 
 	return TRUE;
@@ -249,46 +247,43 @@ BOOL CMajiro::MountArc2(CArcFile* pclArc)
 	std::sort(vcFileInfo.begin(), vcFileInfo.end(), CArcFile::CompareForFileInfo);
 
 	// Get file information from the masked image
-	for (size_t i = 0; i < vcMaskFileInfo.size(); i++)
+	for (auto& pstsiMask : vcMaskFileInfo)
 	{
-		SFileInfo* pstsiMask = &vcMaskFileInfo[i];
-
 		// Get the name of the file to be created
 		TCHAR szRCTName[_MAX_FNAME];
-		lstrcpy(szRCTName, pstsiMask->name);
+		lstrcpy(szRCTName, pstsiMask.name);
 		szRCTName[lstrlen(szRCTName) - lstrlen(_T("_.rc8"))] = _T('\0');
 		PathRenameExtension(szRCTName, _T(".rct"));
 
 		// Get the file information to be created
-		SFileInfo* pstsiTarget = nullptr;
-		pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szRCTName);
+		SFileInfo* pstsiTarget = pclArc->SearchForFileInfo(vcFileInfo, szRCTName);
 
 		if (pstsiTarget != nullptr)
 		{
 			// Image is masked
-			pstsiTarget->starts.push_back(pstsiMask->start);
-			pstsiTarget->sizesCmp.push_back(pstsiMask->sizeCmp);
-			pstsiTarget->sizesOrg.push_back(pstsiMask->sizeOrg);
+			pstsiTarget->starts.push_back(pstsiMask.start);
+			pstsiTarget->sizesCmp.push_back(pstsiMask.sizeCmp);
+			pstsiTarget->sizesOrg.push_back(pstsiMask.sizeOrg);
 
 			// Update progress
-			pclArc->GetProg()->UpdatePercent(pstsiMask->sizeCmp);
+			pclArc->GetProg()->UpdatePercent(pstsiMask.sizeCmp);
 		}
 		else
 		{
 			// Image is not masked
-			vcNotMaskFileInfo.push_back(*pstsiMask);
+			vcNotMaskFileInfo.push_back(pstsiMask);
 		}
 	}
 
 	// Add to list view
-	for (size_t i = 0; i < vcFileInfo.size(); i++)
+	for (auto& fileInfo : vcFileInfo)
 	{
-		pclArc->AddFileInfo(vcFileInfo[i]);
+		pclArc->AddFileInfo(fileInfo);
 	}
 
-	for (size_t i = 0; i < vcNotMaskFileInfo.size(); i++)
+	for (auto& notMaskFileInfo : vcNotMaskFileInfo)
 	{
-		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
+		pclArc->AddFileInfo(notMaskFileInfo);
 	}
 
 	return TRUE;
