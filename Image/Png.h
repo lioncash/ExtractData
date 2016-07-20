@@ -21,7 +21,7 @@ public:
 	virtual ~CPng();
 
 	void SetCompressLevel(int nCompressLevel);
-	int  GetCompressLevel();
+	int  GetCompressLevel() const;
 
 	void SetCallback();
 
@@ -43,7 +43,7 @@ private:
 	void OnWriteFinish() override;
 
 	void SetMode(DWORD dwMode);
-	DWORD GetMode();
+	DWORD GetMode() const;
 
 	static inline void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length);
 	static inline void PNGAPI WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);

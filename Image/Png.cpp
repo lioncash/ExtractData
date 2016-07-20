@@ -28,7 +28,7 @@ void CPng::SetCompressLevel(int nCompressLevel)
 ///
 /// @return Compression Level
 ///
-int CPng::GetCompressLevel()
+int CPng::GetCompressLevel() const
 {
 	return m_nCompressLevel;
 }
@@ -49,7 +49,7 @@ void CPng::SetMode(DWORD dwMode)
 ///
 /// @return Mode
 ///
-DWORD CPng::GetMode()
+DWORD CPng::GetMode() const
 {
 	return m_dwMode;
 }
