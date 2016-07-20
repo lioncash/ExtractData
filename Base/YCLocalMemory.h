@@ -16,10 +16,10 @@ public:
 	void* Lock();
 	bool Unlock();
 
-	UINT GetSize();
+	UINT GetSize() const;
 
 	HLOCAL& GetHandle();
-	void* GetPtr();
+	void* GetPtr() const;
 
 protected:
 	HLOCAL m_hMemory;

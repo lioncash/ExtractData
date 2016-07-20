@@ -68,7 +68,7 @@ bool YCLocalMemory::Unlock()
 }
 
 /// Get Memory Size
-UINT YCLocalMemory::GetSize()
+UINT YCLocalMemory::GetSize() const
 {
 	if (m_hMemory == nullptr)
 		return 0;
@@ -83,7 +83,7 @@ HLOCAL& YCLocalMemory::GetHandle()
 }
 
 /// Get Memory Pointer
-void* YCLocalMemory::GetPtr()
+void* YCLocalMemory::GetPtr() const
 {
 	return m_pvMemory;
 }
