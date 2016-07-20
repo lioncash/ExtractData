@@ -462,10 +462,10 @@ void CWinMain::SetQuickMenu(HMENU hMenu)
 		{&stOption.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
 	};
 
-	for (int i = 0; i < ARRAYSIZE(stQuickSet); i++)
+	for (const auto& quickSet : stQuickSet)
 	{
-		UINT uCheck = MF_BYCOMMAND | (*stQuickSet[i].pbOption == TRUE) ? MF_CHECKED : MF_UNCHECKED;
-		CheckMenuItem(hMenu, stQuickSet[i].nID, uCheck);
+		UINT uCheck = MF_BYCOMMAND | (*quickSet.pbOption == TRUE) ? MF_CHECKED : MF_UNCHECKED;
+		CheckMenuItem(hMenu, quickSet.nID, uCheck);
 	}
 }
 
@@ -489,10 +489,10 @@ void CWinMain::SetQuickMenuItem(int nID)
 		{&stOption.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
 	};
 
-	for (int i = 0; i < ARRAYSIZE(stQuickSet); i++)
+	for (auto& quickSet : stQuickSet)
 	{
-		if (stQuickSet[i].nID == nID)
-			*stQuickSet[i].pbOption ^= 1;
+		if (quickSet.nID == nID)
+			*quickSet.pbOption ^= 1;
 	}
 
 	if (nID == IDM_QUICKSET_EXTRACT_DSTPNG)
