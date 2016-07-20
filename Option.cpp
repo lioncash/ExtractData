@@ -162,11 +162,11 @@ void COption::LoadIni()
 	// Set of files to search through
 	clIni.SetSection(_T("Search"));
 
-	for (size_t i = 0; i < m_SearchFiles.size(); i++)
+	for (const auto& searchFile : m_SearchFiles)
 	{
 		BOOL bSearch;
 
-		clIni.SetKey(m_SearchFiles[i]);
+		clIni.SetKey(searchFile);
 		clIni.ReadDec(&bSearch, TRUE);
 
 		pOption->bSearch.push_back(bSearch);
