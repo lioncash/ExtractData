@@ -112,8 +112,8 @@ DWORD CArcFile::Read(LPVOID buf, DWORD size)
 
 BYTE* CArcFile::ReadHed()
 {
-	Read(m_pHeader, sizeof(m_pHeader));
-	return m_pHeader;
+	Read(m_pHeader.data(), m_pHeader.size());
+	return m_pHeader.data();
 }
 
 QWORD CArcFile::Seek(INT64 offset, DWORD SeekMode)

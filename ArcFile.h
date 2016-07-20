@@ -75,7 +75,7 @@ public:
 	YCString&   GetArcExten()             { return m_pclArcExtens[m_dwArcsID]; }
 
 	// Returns previously loaded archive file header
-	LPBYTE GetHed() { return m_pHeader; }
+	LPBYTE GetHed() { return m_pHeader.data(); }
 
 	SFileInfo*              GetFileInfo(DWORD num)    { return &(*m_pEnt)[num]; }
 	SFileInfo*              GetFileInfo(PCTSTR pszFileName, BOOL bCmpFileNameOnly = FALSE);
@@ -151,7 +151,7 @@ private:
 	std::vector<YCString>   m_pclArcNames;
 	std::vector<YCString>   m_pclArcExtens;
 
-	BYTE                    m_pHeader[2048];
+	std::array<BYTE, 2048>  m_pHeader;
 	DWORD                   m_dwArcID;
 	size_t                  m_nStartEnt;    // Starting index of the archive file information
 	size_t                  m_ctEnt;        // Number of archive file information
