@@ -13,8 +13,9 @@
 #include    <process.h>
 #include    <algorithm>
 #include    <array>
-#include    <set>
 #include    <map>
+#include    <memory>
+#include    <set>
 //#include  <string>
 //#include  <valarray>
 #include    <vector>
