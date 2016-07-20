@@ -6,6 +6,8 @@ class CCtrlBase
 {
 public:
 	CCtrlBase();
+	virtual ~CCtrlBase() = default;
+
 	void Init(HWND hWnd, UINT ID);
 
 	virtual HWND Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x = 0, int y = 0, int cx = 0, int cy = 0) = 0;
