@@ -190,27 +190,26 @@ void CMainListView::OnSort()
 
 void CMainListView::Clear()
 {
-	std::vector<SFileInfo>& pEnt = m_ent;
-	if (!pEnt.empty())
-	{
-		// Delete files
-		for (size_t i = 0; i < pEnt.size(); i++)
-		{
-			if (!pEnt[i].sizesOrg.empty())
-			{
-				pEnt[i].sizesOrg.clear();
-				pEnt[i].sizesCmp.clear();
-				pEnt[i].starts.clear();
-				pEnt[i].bCmps.clear();
-			}
-			pEnt[i].sTmpFilePath.clear();
-		}
-		pEnt.clear();
+	if (m_ent.empty())
+		return;
 
-		// Erase all the file information being displayed
-		ListView_DeleteAllItems(m_hList);
-		ListView_SetItemCountEx(m_hList, 0, LVSICF_NOINVALIDATEALL);
+	// Delete files
+	for (auto& fileInfo : m_ent)
+	{
+		if (!fileInfo.sizesOrg.empty())
+		{
+			fileInfo.sizesOrg.clear();
+			fileInfo.sizesCmp.clear();
+			fileInfo.starts.clear();
+			fileInfo.bCmps.clear();
+		}
+		fileInfo.sTmpFilePath.clear();
 	}
+	m_ent.clear();
+
+	// Erase all the file information being displayed
+	ListView_DeleteAllItems(m_hList);
+	ListView_SetItemCountEx(m_hList, 0, LVSICF_NOINVALIDATEALL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
