@@ -1,10 +1,12 @@
 #include "stdafx.h"
+#include "ArcFile.h"
+#include "ExtractData.h"
+#include "ProgressBar.h"
 #include "Common.h"
 #include "Dialog/ExistsDialog.h"
 #include "Dialog/FileDialog.h"
 #include "Dialog/FolderInputDialog.h"
-#include "ArcFile.h"
-#include "ExtractData.h"
+#include "res/ResExtractData.h"
 
 #define WM_INPUT_FILE  (WM_USER+1)
 #define WM_OUTPUT_FILE (WM_USER+2)

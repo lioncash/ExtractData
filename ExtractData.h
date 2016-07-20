@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Common.h"
-#include "res/ResExtractData.h"
 #include "MainListView.h"
-#include "ProgressBar.h"
 #include "Extract.h"
 #include "WindowBase.h"
 
