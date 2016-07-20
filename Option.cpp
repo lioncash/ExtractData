@@ -2,6 +2,7 @@
 #include "res/ResExtractData.h"
 #include "Common.h"
 #include "Ctrl/Button.h"
+#include "Ctrl/CheckBox.h"
 #include "Ctrl/EditBox.h"
 #include "Ctrl/Label.h"
 #include "Ctrl/GroupBox.h"

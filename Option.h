@@ -3,7 +3,6 @@
 #include "Common.h"
 #include "MainListView.h"
 #include "MainToolBar.h"
-#include "Ctrl/CheckBox.h"
 #include "WindowBase.h"
 
 class COption : public CWindowBase
