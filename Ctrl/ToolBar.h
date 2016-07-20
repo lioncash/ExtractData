@@ -4,6 +4,7 @@ class CToolBar
 {
 public:
 	CToolBar();
+	virtual ~CToolBar() = default;
 
 	void Init(HWND hWnd);
 	HWND Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, int ctIcon);
