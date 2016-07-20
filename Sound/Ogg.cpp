@@ -188,7 +188,7 @@ DWORD COgg::ReadHed(LPBYTE buf)
 	return m_PageSize;
 }
 
-DWORD COgg::GetSegSize(VH& vheader)
+DWORD COgg::GetSegSize(const VH& vheader) const
 {
 	DWORD SegmentSize = 0;
 	for (BYTE i = 0; i < vheader.page_segments; i++)
@@ -197,17 +197,15 @@ DWORD COgg::GetSegSize(VH& vheader)
 	return SegmentSize;
 }
 
-DWORD COgg::GetPageSize(VH& vheader)
+DWORD COgg::GetPageSize(const VH& vheader) const
 {
 	// Get page size
-	DWORD PageSize = 27 + vheader.page_segments + GetSegSize(vheader);
-	return PageSize;
+	return 27U + vheader.page_segments + GetSegSize(vheader);
 }
 
-DWORD COgg::GetPageSize(VH& vheader, DWORD SegmentSize)
+DWORD COgg::GetPageSize(const VH& vheader, DWORD SegmentSize) const
 {
-	DWORD PageSize = 27 + vheader.page_segments + SegmentSize;
-	return PageSize;
+	return 27U + vheader.page_segments + SegmentSize;
 }
 
 void COgg::NextPage()
