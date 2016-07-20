@@ -103,42 +103,6 @@ void CImageBase::SetBackColorWhenAlphaBlend(COLORREF crBackColor)
 	m_unpBackColorWhenAlphaBlend.crPixel = crBackColor;
 }
 
-/// Get width
-long CImageBase::GetWidth()
-{
-	return m_lWidth;
-}
-
-/// Get height
-long CImageBase::GetHeight()
-{
-	return m_lHeight;
-}
-
-/// Get number of bits
-WORD CImageBase::GetBitCount()
-{
-	return m_wBpp;
-}
-
-/// Get the number of alpha bits
-WORD CImageBase::GetBitCountWithAlpha()
-{
-	return m_wBppWithAlpha;
-}
-
-/// Get Pitch
-long CImageBase::GetPitch()
-{
-	return m_lPitch;
-}
-
-/// Get the pitch with alpha
-long CImageBase::GetPitchWithAlpha()
-{
-	return m_lPitchWithAlpha;
-}
-
 /// Compression
 ///
 /// @param pszPathToDst Destination file path
@@ -405,7 +369,7 @@ void CImageBase::Write(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
 		for (long lY = 0; lY < m_lHeight; lY++)
 		{
 			WriteLineWithAlphaBlend(&clmbtBuffer24[0], pbtBuffer);
-			pbtBuffer += GetPitchWithAlpha();
+			pbtBuffer += m_lPitchWithAlpha;
 		}
 	}
 	else
@@ -454,11 +418,11 @@ void CImageBase::WriteReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bPr
 		// Ensure a buffer for 24-bit
 
 		YCMemory<BYTE> clmbtBuffer24(m_lPitch + 2);
-		pbtBuffer += GetPitchWithAlpha() * m_lHeight;
+		pbtBuffer += m_lPitchWithAlpha * m_lHeight;
 
 		for (long lY = 0; lY < m_lHeight; lY++)
 		{
-			pbtBuffer -= GetPitchWithAlpha();
+			pbtBuffer -= m_lPitchWithAlpha;
 			WriteLineWithAlphaBlend(&clmbtBuffer24[0], pbtBuffer);
 		}
 	}

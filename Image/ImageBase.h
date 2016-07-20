@@ -51,13 +51,6 @@ public:
 	void WriteFinish();
 
 protected:
-	inline long GetWidth();
-	inline long GetHeight();
-	inline WORD GetBitCount();
-	inline WORD GetBitCountWithAlpha();
-	inline long GetPitch();
-	inline long GetPitchWithAlpha();
-
 	static long CalculatePitch( long lWidth, WORD wBpp );
 
 	CArcFile* m_pclArc;
