@@ -212,8 +212,5 @@ void YCMemory<TYPE>::alloc(DWORD dwCount)
 template<class TYPE>
 void YCMemory<TYPE>::fill(const TYPE& rftValue)
 {
-	for (DWORD i = 0; i < size(); i++)
-	{
-		m_ptMemory[i] = rftValue;
-	}
+	std::fill(m_ptMemory, m_ptMemory + m_dwMemoryCount, rftValue);
 }
