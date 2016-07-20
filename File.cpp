@@ -106,7 +106,7 @@ DWORD CFile::Write(LPCVOID buf, DWORD size)
 
 void CFile::WriteLine(LPCVOID buf)
 {
-	LPBYTE pbyBuf = (LPBYTE)buf;
+	LPCBYTE pbyBuf = static_cast<LPCBYTE>(buf);
 
 	while (true)
 	{
