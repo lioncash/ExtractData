@@ -12,7 +12,7 @@ public:
 		Button_SetCheck(GetCtrlHandle(), flag);
 	}
 
-	BOOL GetCheck()
+	BOOL GetCheck() const
 	{
 		return Button_GetCheck(GetCtrlHandle());
 	}
