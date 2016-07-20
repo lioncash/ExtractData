@@ -364,7 +364,7 @@ BOOL CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 		// Other palette sizes
 		else
 		{
-			for (int i = 0; i < dwSrcPalletSize / 4; i++)
+			for (size_t i = 0; i < dwSrcPalletSize / 4; i++)
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
 				pstPallet[i].green = *pbtSrcPallet++;
