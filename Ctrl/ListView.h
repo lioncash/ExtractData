@@ -34,12 +34,12 @@ public:
 	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(m_hList, x, y, cx, cy, TRUE); }
 	void Update();
 
-	UINT GetCountSel() { return ListView_GetSelectedCount(m_hList); }
-	INT  GetCount()    { return ListView_GetItemCount(m_hList); }
-	HWND GetHandle()   { return m_hList; }
+	UINT GetCountSel() const { return ListView_GetSelectedCount(m_hList); }
+	INT  GetCount()    const { return ListView_GetItemCount(m_hList); }
+	HWND GetHandle()   const { return m_hList; }
 
-	int GetNextItem(int nItem) { return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED); }
-	int GetFocusItem()         { return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED); }
+	int GetNextItem(int nItem) const { return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED); }
+	int GetFocusItem()         const { return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED); }
 
 protected:
 	HWND m_hWnd;
