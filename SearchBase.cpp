@@ -47,7 +47,7 @@ void CSearchBase::InitFot(LPCVOID pattern, DWORD size)
 	InitPattern(pattern, size, 1);
 }
 
-inline BOOL CSearchBase::CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const
+inline bool CSearchBase::CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const
 {
 	return std::equal(data, data + size, pattern, [](BYTE data_byte, BYTE pattern_byte) {
 		return pattern_byte == '*' || data_byte == pattern_byte;
@@ -60,7 +60,7 @@ inline DWORD CSearchBase::CreateDecKey(LPBYTE buf)
 	return (m_deckey);
 }
 */
-BOOL CSearchBase::Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize)
+bool CSearchBase::Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize)
 {/*
 	if (pclArc->GetOpt()->bEasyDecrypt == TRUE)
 	{
@@ -70,10 +70,10 @@ BOOL CSearchBase::Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD 
 			// Search while decoding
 			for (int i = 0; i < GetHedSize; i += 4)
 			DWORD deckey = *(LPDWORD)&buf[offset] ^ dwHeader;
-			if (CmpHed(&buf[offset] ^ deckey) == TRUE)
+			if (CmpHed(&buf[offset] ^ deckey))
 			{
 				SetOffset(offset);
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -81,55 +81,55 @@ BOOL CSearchBase::Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD 
 	{*/
 		for (int offset = 0; offset <= (int)dwSearchSize; offset++)
 		{
-			if (CmpHed(&buf[offset]) == TRUE)
+			if (CmpHed(&buf[offset]))
 			{
 				SetOffset(offset);
-				return TRUE;
+				return true;
 			}
 		}
 //	}
-	return FALSE;
+	return false;
 /*
 	for (int i = 0; i <= (int)dwSearchSize; i++)
 	{
-		if (CmpHed(&buf[i]) == TRUE)
+		if (CmpHed(&buf[i]))
 		{
 			// dwReadSize - i back to first position, while moving through the header
 			pclArc->Seek(-((int)dwReadSize-i), FILE_CURRENT);
 			pclArc->GetProg()->UpdatePercent(i);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 */
 }
 /*
-BOOL CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize)
+bool CSearchBase::Search(CArcFile* pclArc, LPBYTE buf, DWORD dwReadSize)
 {
 	LPBYTE hed2 = GetHed2();
 	for (int i = 0; i < (int)dwReadSize; i++)
 	{
-		if (CmpHed(&buf[i]) == TRUE)
+		if (CmpHed(&buf[i]))
 		{
 			//if (hed2 != nullptr)
 			{
 			//  pclArc->Seek(-(BUFSIZE-i), FILE_CURRENT);
-			//  if (CmpHed2(&buf[i]) == TRUE)
+			//  if (CmpHed2(&buf[i]))
 				{
 					pclArc->Seek(-(BUFSIZE-i), FILE_CURRENT);
 					pclArc->GetProg()->UpdatePercent(i);
-					return TRUE;
+					return true;
 				}
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 */
-BOOL CSearchBase::SearchFot(CArcFile* pclArc)
+bool CSearchBase::SearchFot(CArcFile* pclArc)
 {
 	DWORD FotSize = GetFotSize();
-	while (1)
+	while (true)
 	{
 		BYTE buf[BUFSIZE];
 		DWORD dwReadSize = pclArc->Read(buf, BUFSIZE);
@@ -143,16 +143,16 @@ BOOL CSearchBase::SearchFot(CArcFile* pclArc)
 		DWORD dwSearchSize = dwReadSize - FotSize;
 		for (int i = 0; i <= (int)dwSearchSize; i++)
 		{
-			if (CmpFot(&buf[i]) == TRUE)
+			if (CmpFot(&buf[i]))
 			{
 				// dwReadSize - i -- Moves back to position found by i, has moved to the footer file and proceeds from the FotSize
 				pclArc->Seek(-((int)dwReadSize-i - (int)FotSize), FILE_CURRENT);
 				pclArc->GetProg()->UpdatePercent(i+FotSize);
-				return TRUE;
+				return true;
 			}
 		}
 		pclArc->GetProg()->UpdatePercent(dwSearchSize);
 		pclArc->Seek(-((int)FotSize-1), FILE_CURRENT);
 	}
-	return FALSE;
+	return false;
 }

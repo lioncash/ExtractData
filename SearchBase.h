@@ -31,12 +31,12 @@ public:
 	DWORD   GetFotSize() const { return m_pattern[1].size; }
 	DWORD&  GetCtFile()        { return m_ctFile; }
 
-	BOOL    CmpHed(LPCBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
-	BOOL    CmpFot(LPCBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
+	bool    CmpHed(LPCBYTE buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
+	bool    CmpFot(LPCBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
 
-	BOOL    CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const;
-	BOOL    Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
-	BOOL    SearchFot(CArcFile* pclArc);
+	bool    CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const;
+	bool    Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
+	bool    SearchFot(CArcFile* pclArc);
 
 	void    SetOffset(DWORD offset) { m_offset = offset; }
 	DWORD   GetOffset() const       { return m_offset; }
