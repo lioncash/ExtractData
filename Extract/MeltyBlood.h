@@ -6,5 +6,6 @@ public:
 	BOOL Mount(CArcFile* pclArc) override;
 	BOOL Decode(CArcFile* pclArc) override;
 
+private:
 	void Decrypt(CArcFile* pclArc);
 };
