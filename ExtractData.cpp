@@ -550,7 +550,7 @@ void CExtractData::LoadTmpFileList()
 	{
 		char buf[MAX_PATH];
 
-		if (clfTmpFileList.ReadLine(buf, sizeof(buf), TRUE) == 0)
+		if (clfTmpFileList.ReadLine(buf, sizeof(buf), true) == 0)
 			break;
 
 		m_ssTmpFile.insert(buf);

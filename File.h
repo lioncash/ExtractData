@@ -15,11 +15,11 @@ public:
 	virtual ~CFile();
 
 	virtual HANDLE Open(LPCTSTR pFileName, DWORD Mode);
-	virtual BOOL OpenForRead(LPCTSTR pszFileName);
-	virtual BOOL OpenForWrite(LPCTSTR pszFileName);
+	virtual bool OpenForRead(LPCTSTR pszFileName);
+	virtual bool OpenForWrite(LPCTSTR pszFileName);
 	virtual void Close();
 	virtual DWORD Read(LPVOID buf, DWORD size);
-	virtual DWORD ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode = FALSE);
+	virtual DWORD ReadLine(LPVOID buf, DWORD dwBufSize, bool delete_line_code = false);
 	virtual DWORD Write(LPCVOID buf, DWORD size);
 	virtual void WriteLine(LPCVOID buf);
 	virtual QWORD Seek(INT64 offset, DWORD SeekMode);

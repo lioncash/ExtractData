@@ -26,14 +26,14 @@ HANDLE CFile::Open(LPCTSTR pFileName, DWORD Mode)
 	return m_hFile;
 }
 
-BOOL CFile::OpenForRead(LPCTSTR pszFileName)
+bool CFile::OpenForRead(LPCTSTR pszFileName)
 {
-	return (Open(pszFileName, FILE_READ) != INVALID_HANDLE_VALUE);
+	return Open(pszFileName, FILE_READ) != INVALID_HANDLE_VALUE;
 }
 
-BOOL CFile::OpenForWrite(LPCTSTR pszFileName)
+bool CFile::OpenForWrite(LPCTSTR pszFileName)
 {
-	return (Open(pszFileName, FILE_WRITE) != INVALID_HANDLE_VALUE);
+	return Open(pszFileName, FILE_WRITE) != INVALID_HANDLE_VALUE;
 }
 
 void CFile::Close()
@@ -52,7 +52,7 @@ DWORD CFile::Read(LPVOID buf, DWORD size)
 	return dwReadSize;
 }
 
-DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
+DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, bool delete_line_code)
 {
 	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
 	LPBYTE pbyBufEnd = pbyBuf + dwBufSize;
@@ -68,7 +68,7 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, BOOL bDeleteLineCode)
 		{
 			// Reached newline character
 
-			if (bDeleteLineCode)
+			if (delete_line_code)
 			{
 				// Remove carriage return character
 				if (*(pbyBuf - 1) == '\r')
