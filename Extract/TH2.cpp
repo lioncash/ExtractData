@@ -24,13 +24,13 @@ BOOL CTH2::Mount(CArcFile* pclArc)
 }
 
 /// KCAP Mounting
-BOOL CTH2::MountKCAP(CArcFile* pclArc)
+bool CTH2::MountKCAP(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten().CompareNoCase(_T(".pak")) != 0)
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "KCAP", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -80,17 +80,17 @@ BOOL CTH2::MountKCAP(CArcFile* pclArc)
 		dwIndexPtr += 36;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// LAC Mounting
-BOOL CTH2::MountLAC(CArcFile* pclArc)
+bool CTH2::MountLAC(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten().CompareNoCase(_T(".pak")) != 0)
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "LAC", 3) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -129,17 +129,17 @@ BOOL CTH2::MountLAC(CArcFile* pclArc)
 		dwIndexPtr += 40;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Dpl mounting
-BOOL CTH2::MountDpl(CArcFile* pclArc)
+bool CTH2::MountDpl(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".a"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "\x1E\xAF", 2) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	WORD wFiles;
@@ -176,17 +176,17 @@ BOOL CTH2::MountDpl(CArcFile* pclArc)
 		dwIndexPtr += 32;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// WMV Mounting
-BOOL CTH2::MountWMV(CArcFile* pclArc)
+bool CTH2::MountWMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".wmv"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -204,15 +204,15 @@ BOOL CTH2::Decode(CArcFile* pclArc)
 }
 
 /// WMV Decoding
-BOOL CTH2::DecodeWMV(CArcFile* pclArc)
+bool CTH2::DecodeWMV(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".wmv"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
-		return FALSE;
+		return false;
 
 	// Get buffer
 	DWORD          dwBufferSize = pclArc->GetBufSize();
@@ -225,18 +225,18 @@ BOOL CTH2::DecodeWMV(CArcFile* pclArc)
 	pclArc->ReadWrite((pstFileInfo->sizeCmp - 8));
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding other files
-BOOL CTH2::DecodeEtc(CArcFile* pclArc)
+bool CTH2::DecodeEtc(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->title != _T("TH2"))
-		return FALSE;
+		return false;
 
 	if ((pstFileInfo->format != _T("LZ")) && (pstFileInfo->format != _T("TGA")))
-		return FALSE;
+		return false;
 
 	YCMemory<BYTE> clmDst;
 	DWORD          dwDstSize;
@@ -291,5 +291,5 @@ BOOL CTH2::DecodeEtc(CArcFile* pclArc)
 		pclArc->WriteFile(&clmDst[0], dwDstSize);
 	}
 
-	return TRUE;
+	return true;
 }

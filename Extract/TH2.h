@@ -7,11 +7,11 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL MountKCAP(CArcFile* pclArc);
-	BOOL MountLAC(CArcFile* pclArc);
-	BOOL MountDpl(CArcFile* pclArc);
-	BOOL MountWMV(CArcFile* pclArc);
+	bool MountKCAP(CArcFile* pclArc);
+	bool MountLAC(CArcFile* pclArc);
+	bool MountDpl(CArcFile* pclArc);
+	bool MountWMV(CArcFile* pclArc);
 
-	BOOL DecodeWMV(CArcFile* pclArc);
-	BOOL DecodeEtc(CArcFile* pclArc);
+	bool DecodeWMV(CArcFile* pclArc);
+	bool DecodeEtc(CArcFile* pclArc);
 };
