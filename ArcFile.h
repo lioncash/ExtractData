@@ -20,14 +20,14 @@ public:
 	void Close();
 
 	DWORD Read(void* pvBuffer, DWORD dwReadSize);
-	DWORD ReadS8(int8_t* out);
-	DWORD ReadS16(int16_t* out);
-	DWORD ReadS32(int32_t* out);
-	DWORD ReadS64(int64_t* out);
-	DWORD ReadU8(uint8_t* out);
-	DWORD ReadU16(uint16_t* out);
-	DWORD ReadU32(uint32_t* out);
-	DWORD ReadU64(uint64_t* out);
+	bool ReadS8(int8_t* out);
+	bool ReadS16(int16_t* out);
+	bool ReadS32(int32_t* out);
+	bool ReadS64(int64_t* out);
+	bool ReadU8(uint8_t* out);
+	bool ReadU16(uint16_t* out);
+	bool ReadU32(uint32_t* out);
+	bool ReadU64(uint64_t* out);
 	BYTE* ReadHed();
 
 	UINT64 Seek(INT64 n64Offset, DWORD dwSeekMode);
