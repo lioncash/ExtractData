@@ -50,13 +50,13 @@ BOOL CMajiro::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::MountArc1(CArcFile* pclArc)
+bool CMajiro::MountArc1(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".arc"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "MajiroArcV1.000", 15) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -164,20 +164,20 @@ BOOL CMajiro::MountArc1(CArcFile* pclArc)
 		pclArc->AddFileInfo(notMaskFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Mounting V2 Archives
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::MountArc2(CArcFile* pclArc)
+bool CMajiro::MountArc2(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".arc"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "MajiroArcV2.000", 15) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -286,17 +286,17 @@ BOOL CMajiro::MountArc2(CArcFile* pclArc)
 		pclArc->AddFileInfo(notMaskFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// MJO Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::MountMJO(CArcFile* pclArc)
+bool CMajiro::MountMJO(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "MajiroObjX", 10) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -305,10 +305,10 @@ BOOL CMajiro::MountMJO(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::MountRC(CArcFile* pclArc)
+bool CMajiro::MountRC(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "˜Z’š", 4) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -332,11 +332,11 @@ BOOL CMajiro::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::DecodeMJO(CArcFile* pclArc)
+bool CMajiro::DecodeMJO(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("MJO"))
-		return FALSE;
+		return false;
 
 	// Decoding table
 
@@ -402,19 +402,19 @@ BOOL CMajiro::DecodeMJO(CArcFile* pclArc)
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// RC Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::DecodeRC(CArcFile* pclArc)
+bool CMajiro::DecodeRC(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if ((pstFileInfo->format != _T("RCT")) && (pstFileInfo->format != _T("RC8")))
 	{
-		return FALSE;
+		return false;
 	}
 
 	// rc8/rct reading
@@ -524,7 +524,7 @@ BOOL CMajiro::DecodeRC(CArcFile* pclArc)
 		pclArc->OpenFile();
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 
-		return TRUE;
+		return true;
 	}
 
 	// Output
@@ -532,7 +532,7 @@ BOOL CMajiro::DecodeRC(CArcFile* pclArc)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp, &clmbtSrc[dwSrcPtr], 768);
 	clImage.WriteReverse(pbtDst, dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// RCT Extraction
@@ -737,14 +737,14 @@ void CMajiro::read_bits_8(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWO
 /// @param pbtSrc    24-bit data
 /// @param dwSrcSize Data size
 ///
-BOOL CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+bool CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->starts.empty())
 	{
 		// Mask image doesn't exist.
 
-		return FALSE;
+		return false;
 	}
 
 	// Read image mask
@@ -778,5 +778,5 @@ BOOL CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const 
 		dwDstPtr += 4;
 	}
 
-	return TRUE;
+	return true;
 }

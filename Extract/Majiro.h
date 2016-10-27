@@ -3,6 +3,10 @@
 class CMajiro final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	struct SRCHeader
 	{
 		char  szIdentifier[8];
@@ -11,20 +15,16 @@ public:
 		DWORD dwDataSize;
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool MountArc1(CArcFile* pclArc);
+	bool MountArc2(CArcFile* pclArc);
+	bool MountMJO(CArcFile* pclArc);
+	bool MountRC(CArcFile* pclArc);
 
-private:
-	BOOL MountArc1(CArcFile* pclArc);
-	BOOL MountArc2(CArcFile* pclArc);
-	BOOL MountMJO(CArcFile* pclArc);
-	BOOL MountRC(CArcFile* pclArc);
-
-	BOOL DecodeMJO(CArcFile* pclArc);
-	BOOL DecodeRC(CArcFile* pclArc);
+	bool DecodeMJO(CArcFile* pclArc);
+	bool DecodeRC(CArcFile* pclArc);
 
 	void read_bits_24(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth);
 	void read_bits_8(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth);
 
-	BOOL AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
+	bool AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
 };
