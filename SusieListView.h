@@ -12,8 +12,8 @@ public:
 	BOOL CustomDraw(LPNMLVCUSTOMDRAW plvcd);
 	void CreateMenu(LPARAM lp);
 
-	BOOL SetCheck();
-	void SetCheckAll(BOOL flag);
+	bool SetCheck();
+	void SetCheckAll(bool flag);
 
 	SSusieInfo* GetFocusSusieInfo() { return &m_SusieInfo; }
 

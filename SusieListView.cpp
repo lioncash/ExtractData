@@ -162,7 +162,7 @@ void CSusieListView::CreateMenu(LPARAM lp)
 	DestroyMenu(rMenu);
 }
 
-BOOL CSusieListView::SetCheck()
+bool CSusieListView::SetCheck()
 {
 	// Get mouse cursor position on the list view
 	LVHITTESTINFO htInfo;
@@ -175,7 +175,7 @@ BOOL CSusieListView::SetCheck()
 
 	// Make sure we do not get a non-zero or -1 (out of range) item number
 	if (htInfo.iItem == -1 || htInfo.iSubItem != 0)
-		return FALSE;
+		return false;
 
 	// Obtain the coordinates of the checkbox area
 	RECT rc;
@@ -189,13 +189,13 @@ BOOL CSusieListView::SetCheck()
 		CSusie susie;
 		susie.GetSusieTmp()[htInfo.iItem].bValidity ^= 1;
 		InvalidateRect(m_hList, &rc, FALSE);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-void CSusieListView::SetCheckAll(BOOL flag)
+void CSusieListView::SetCheckAll(bool flag)
 {
 	CSusie susie;
 	std::vector<SSusieInfo>& SusieInfos = susie.GetSusieTmp();

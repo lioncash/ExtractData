@@ -767,7 +767,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// All ON
 			if (LOWORD(wp) == SusieBtn[0].GetID())
 			{
-				SusieListView.SetCheckAll(1);
+				SusieListView.SetCheckAll(true);
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
@@ -775,7 +775,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// All OFF
 			if (LOWORD(wp) == SusieBtn[1].GetID())
 			{
-				SusieListView.SetCheckAll(0);
+				SusieListView.SetCheckAll(false);
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
@@ -838,7 +838,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				case NM_DBLCLK:
 					if (pHdr->idFrom == idsSusieList)
 					{
-						if (SusieListView.SetCheck() == TRUE)
+						if (SusieListView.SetCheck())
 							PropSheet_Changed(::GetParent(hWnd), hWnd);
 						break;
 					}
