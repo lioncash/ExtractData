@@ -27,12 +27,12 @@ BOOL CNitro::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CNitro::MountPak1(CArcFile* pclArc)
+bool CNitro::MountPak1(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pak"))
-		return FALSE;
+		return false;
 	if (memcmp(pclArc->GetHed(), "\x01\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -88,20 +88,20 @@ BOOL CNitro::MountPak1(CArcFile* pclArc)
 		pclArc->AddFileInfo(infFile);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Function to get file information from Demonbane .pak files
 ///
 /// @param pclArc Archive
 ///
-BOOL CNitro::MountPak2(CArcFile* pclArc)
+bool CNitro::MountPak2(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pak"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "\x02\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -172,15 +172,15 @@ BOOL CNitro::MountPak2(CArcFile* pclArc)
 		dwIndexPtr += 20;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::MountPak3(CArcFile* pclArc)
+bool CNitro::MountPak3(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pak"))
-		return FALSE;
+		return false;
 	if (memcmp(pclArc->GetHed(), "\x03\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Read signature
 	BYTE sig[256];
@@ -260,16 +260,16 @@ BOOL CNitro::MountPak3(CArcFile* pclArc)
 		FileEnd_prev = infFile.end - offset;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Function to get file information from Demonbane .pak files.
-BOOL CNitro::MountPak4(CArcFile* pclArc)
+bool CNitro::MountPak4(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pak"))
-		return FALSE;
+		return false;
 	if (memcmp(pclArc->GetHed(), "\x04\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Read signature
 	BYTE sig[256];
@@ -347,13 +347,13 @@ BOOL CNitro::MountPak4(CArcFile* pclArc)
 		FileEnd_prev = infFile.end - offset;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::MountPK2(CArcFile* pclArc)
+bool CNitro::MountPK2(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".PK2")) || (memcmp(pclArc->GetHed(), "ARCV", 4) != 0))
-		return FALSE;
+		return false;
 
 	pclArc->Seek(4, FILE_BEGIN);
 
@@ -422,13 +422,13 @@ BOOL CNitro::MountPK2(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::MountN3Pk(CArcFile* pclArc)
+bool CNitro::MountN3Pk(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".pak")) || (memcmp(pclArc->GetHed(), "N3Pk", 4) != 0))
-		return FALSE;
+		return false;
 
 	pclArc->Seek(4, FILE_BEGIN);
 
@@ -468,13 +468,13 @@ BOOL CNitro::MountN3Pk(CArcFile* pclArc)
 		pbyIndex += 152;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::MountPck(CArcFile* pclArc)
+bool CNitro::MountPck(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".pck")) || (memcmp(&pclArc->GetHed()[12], "\x00\x00\x00\x00", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -529,15 +529,15 @@ BOOL CNitro::MountPck(CArcFile* pclArc)
 		pbyOffsetIndex += 12;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // “VŽgƒm“ñ’ðŒe
 // This: http://www.nitroplus.co.jp/pc/lineup/into_07/
-BOOL CNitro::MountNpp(CArcFile* pclArc)
+bool CNitro::MountNpp(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".npp")) || (memcmp(pclArc->GetHed(), "nitP", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -576,13 +576,13 @@ BOOL CNitro::MountNpp(CArcFile* pclArc)
 		pIndex += 144;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::MountNpa(CArcFile* pclArc)
+bool CNitro::MountNpa(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".npa")) || (memcmp(pclArc->GetHed(), "NPA\x01", 4) != 0))
-		return FALSE;
+		return false;
 
 	pclArc->Seek(25, FILE_BEGIN);
 
@@ -648,7 +648,7 @@ BOOL CNitro::MountNpa(CArcFile* pclArc)
 		i++;
 	}
 
-	return TRUE;
+	return true;
 }
 
 BOOL CNitro::Decode(CArcFile* pclArc)
@@ -668,14 +668,14 @@ BOOL CNitro::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CNitro::DecodePak1(CArcFile* pclArc)
+bool CNitro::DecodePak1(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->title != _T("Pak1") && pInfFile->title != _T("Pak2"))
-		return FALSE;
+		return false;
 	if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) != 0)
-		return FALSE;
+		return false;
 
 	// Create output file
 	pclArc->OpenScriptFile();
@@ -703,15 +703,15 @@ BOOL CNitro::DecodePak1(CArcFile* pclArc)
 		pclArc->ReadWrite();
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::DecodePak3(CArcFile* pclArc)
+bool CNitro::DecodePak3(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->title != _T("Pak3"))
-		return FALSE;
+		return false;
 
 	if (pInfFile->format == _T("BMP"))
 	{
@@ -769,15 +769,15 @@ BOOL CNitro::DecodePak3(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::DecodePak4(CArcFile* pclArc)
+bool CNitro::DecodePak4(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->title != _T("Pak4"))
-		return FALSE;
+		return false;
 
 	if (pInfFile->format == _T("BMP"))
 	{
@@ -835,19 +835,19 @@ BOOL CNitro::DecodePak4(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::DecodePK2(CArcFile* pclArc)
+bool CNitro::DecodePK2(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".PK2")) || (memcmp(pclArc->GetHed(), "ARCV", 4) != 0))
-		return FALSE;
+		return false;
 
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 	YCString sFileExt = PathFindExtension(pInfFile->name);
 
 	if (sFileExt != _T(".nps") && sFileExt != _T(".ini") && sFileExt != _T(".h") && sFileExt != _T(".txt"))
-		return FALSE;
+		return false;
 
 	// Get file size
 	DWORD dwSizeOrg;
@@ -877,13 +877,13 @@ BOOL CNitro::DecodePK2(CArcFile* pclArc)
 
 	pclArc->WriteFile(&vbyBufOrg[0], dwSizeOrg);
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::DecodeN3Pk(CArcFile* pclArc)
+bool CNitro::DecodeN3Pk(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".pak")) || (memcmp(pclArc->GetHed(), "N3Pk", 4) != 0))
-		return FALSE;
+		return false;
 
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 	YCString sFileExt = PathFindExtension(pInfFile->name);
@@ -910,13 +910,13 @@ BOOL CNitro::DecodeN3Pk(CArcFile* pclArc)
 		pclArc->WriteFile(&vbyBuf[0], dwBufSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNitro::DecodeNpa(CArcFile* pclArc)
+bool CNitro::DecodeNpa(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".npa")) || (memcmp(pclArc->GetHed(), "NPA\x01", 4) != 0))
-		return FALSE;
+		return false;
 
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 	YCString sFileExt = PathFindExtension(pInfFile->name);
@@ -963,7 +963,7 @@ BOOL CNitro::DecodeNpa(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
