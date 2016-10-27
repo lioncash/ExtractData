@@ -14,10 +14,10 @@ BOOL CNavel::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CNavel::MountPac(CArcFile* pclArc)
+bool CNavel::MountPac(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".pac")) || (memcmp(pclArc->GetHed(), "CAPF", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Get index size
 	DWORD index_size;
@@ -53,13 +53,13 @@ BOOL CNavel::MountPac(CArcFile* pclArc)
 		pIndex += 40;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CNavel::MountWpd(CArcFile* pclArc)
+bool CNavel::MountWpd(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".WPD")) || (memcmp(pclArc->GetHed(), " DPW", 4) != 0))
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }

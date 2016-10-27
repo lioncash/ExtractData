@@ -4,8 +4,6 @@ class CNavel final : public CExtractBase
 {
 public:
 	BOOL Mount(CArcFile* pclArc) override;
-	BOOL MountPac(CArcFile* pclArc);
-	BOOL MountWpd(CArcFile* pclArc);
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
@@ -26,4 +24,7 @@ private:
 		WORD    bits;       // Number of bits per sample (bit/sample)
 		DWORD   dummy3;     // Unknown
 	};
+
+	bool MountPac(CArcFile* pclArc);
+	bool MountWpd(CArcFile* pclArc);
 };
