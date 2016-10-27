@@ -18,14 +18,14 @@ YCFile::~YCFile()
 /// @param pszPathToFile File path
 /// @param uOpenFlags    Mode
 ///
-BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
+bool YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
 
 	// Path is too long
 	if (lstrlen(pszPathToFile) > MAX_PATH)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Access method
@@ -117,7 +117,7 @@ BOOL YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
 
-	return (m_hFile != INVALID_HANDLE_VALUE);
+	return m_hFile != INVALID_HANDLE_VALUE;
 }
 
 /// Close File

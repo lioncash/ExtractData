@@ -38,7 +38,7 @@ public:
 	YCFile();
 	virtual ~YCFile();
 
-	virtual BOOL Open(LPCTSTR pszPathToFile, UINT uOpenFlags);
+	virtual bool Open(LPCTSTR pszPathToFile, UINT uOpenFlags);
 
 	virtual void Close();
 

@@ -12,7 +12,7 @@ public:
 	YCStdioFile();
 	virtual ~YCStdioFile();
 
-	BOOL Open(LPCTSTR pszPathToFile, UINT uOpenFlags) override;
+	bool Open(LPCTSTR pszPathToFile, UINT uOpenFlags) override;
 	void Close() override;
 
 	DWORD Read(void* pvBuffer, DWORD dwReadSize) override;

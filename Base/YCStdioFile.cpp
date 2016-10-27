@@ -19,7 +19,7 @@ YCStdioFile::~YCStdioFile()
 /// @param pszPathToFile File path
 /// @param uOpenFlags    Mode
 ///
-BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
+bool YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 {
 	Close();
 
@@ -27,7 +27,7 @@ BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	{
 		// Path is too long
 
-		return FALSE;
+		return false;
 	}
 
 	// Accessing Mode
@@ -132,7 +132,7 @@ BOOL YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
 	m_clsFileName = m_clsPathToFile.GetFileName();
 	m_clsFileExt = m_clsPathToFile.GetFileExt();
 
-	return (m_pStream != nullptr);
+	return m_pStream != nullptr;
 }
 
 /// Close File
