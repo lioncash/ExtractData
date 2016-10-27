@@ -3,6 +3,10 @@
 class CQLIE final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	enum
 	{
 		ABIMGDAT10 = 0x00000000,
@@ -11,19 +15,15 @@ public:
 		ABSNDDAT11,
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
-
-private:
 	struct SFileNameInfo
 	{
 		YCString clsFileName; // Filename
 		DWORD    dwCount;     // Number of times
 	};
 
-	BOOL DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize);
-	BOOL DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
-	BOOL DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	bool DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize);
+	bool DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	bool DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
 
 	void Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize);
 

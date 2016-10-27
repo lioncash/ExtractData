@@ -194,7 +194,7 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 /// @param pbtSrc    .b file
 /// @param dwSrcSize .b file size
 ///
-BOOL CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
+bool CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	if (memcmp(&pbtSrc[0], "ABMP7", 5) == 0)
 	{
@@ -209,7 +209,7 @@ BOOL CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
 	}
 
 	// Not supported
-	return FALSE;
+	return false;
 }
 
 /// ABMP7 Decompressing
@@ -220,20 +220,20 @@ BOOL CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
 /// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
 /// @param clsBFileName Current .b file name (Will change with each recursive call)
 ///
-BOOL CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
 {
 	DWORD dwSrcIndex = 0;
 
 	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
 		// Exit
-		return FALSE;
+		return false;
 	}
 
 	if (memcmp(&pbtSrc[dwSrcIndex], "ABMP7", 5) != 0)
 	{
 		// Unsupported
-		return FALSE;
+		return false;
 	}
 
 	dwSrcIndex += 12;
@@ -336,7 +336,7 @@ BOOL CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 		dwSrcIndex += dwFileSize;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// abmp10~12 Decompression
@@ -347,7 +347,7 @@ BOOL CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 /// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
 /// @param clsBFileName Current .b file name (Will change with each recursive call)
 ///
-BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
 {
 	static DWORD dwDstFiles;
 	static std::vector<SFileNameInfo> vtFileNameList;
@@ -364,13 +364,13 @@ BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
 		// Exit
-		return FALSE;
+		return false;
 	}
 
 	if (memcmp(&pbtSrc[dwSrcIndex], "abmp", 4) != 0)
 	{
 		// Unsupported
-		return FALSE;
+		return false;
 	}
 
 	dwSrcIndex += 16;
@@ -378,7 +378,7 @@ BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 	if (memcmp(&pbtSrc[dwSrcIndex], "abdata", 6) != 0)
 	{
 		// Unsupported
-		return FALSE;
+		return false;
 	}
 
 	dwSrcIndex += 16;
@@ -409,7 +409,7 @@ BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 		else
 		{
 			// Unsupported
-			return FALSE;
+			return false;
 		}
 
 		dwSrcIndex += 16;
@@ -451,7 +451,7 @@ BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 			else
 			{
 				// Unsupported
-				return FALSE;
+				return false;
 			}
 
 			dwSrcIndex += 16;
@@ -601,11 +601,11 @@ BOOL CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 		{
 			// No output files
 
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Getting the file extension
