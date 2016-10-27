@@ -27,16 +27,16 @@ public:
 
 	void Close();
 
-	BOOL Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize);
-	BOOL Compress(LPCTSTR pszPathToDst, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
-	BOOL Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize);
-	BOOL Compress(void* pvDst, DWORD dwDstSize, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
+	bool Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize);
+	bool Compress(LPCTSTR pszPathToDst, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
+	bool Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize);
+	bool Compress(void* pvDst, DWORD dwDstSize, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
 
-	BOOL Decompress();
+	bool Decompress();
 
 private:
-	BOOL OnInit(const YCString& rfclsFileName) override;
-	BOOL OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
+	bool OnInit(const YCString& rfclsFileName) override;
+	bool OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
 
 	void WriteLine(const void* pvBuffer) override;
 	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;

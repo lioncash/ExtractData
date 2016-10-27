@@ -4,8 +4,6 @@
 /// Constructor
 CImageBase::CImageBase()
 {
-	m_bAlphaBlendRequirement = FALSE;
-	m_bOutputDummyFromBuffer = FALSE;
 }
 
 /// Destructor
@@ -23,7 +21,7 @@ CImageBase::~CImageBase()
 /// @param dwPalletSize  Palette size
 /// @param rfclsFileName File name
 ///
-BOOL CImageBase::Init(
+bool CImageBase::Init(
 	CArcFile*       pclArc,
 	long            lWidth,
 	long            lHeight,
@@ -50,7 +48,7 @@ BOOL CImageBase::Init(
 		if (pclArc->GetOpt()->bAlphaBlend)
 		{
 			// Alpha-blending is enabled
-			m_bAlphaBlendRequirement = TRUE;
+			m_bAlphaBlendRequirement = true;
 			wBpp = 24;
 
 			for (int i = 0; i < 3; i++)
@@ -80,7 +78,7 @@ BOOL CImageBase::Init(
 ///
 /// @param bValidityOfAlphaBlend Check validity of alpha-blending
 ///
-void CImageBase::SetValidityOfAlphaBlend(BOOL bValidityOfAlphaBlend)
+void CImageBase::SetValidityOfAlphaBlend(bool bValidityOfAlphaBlend)
 {
 	m_bValidityOfAlphaBlend = bValidityOfAlphaBlend;
 }
@@ -89,7 +87,7 @@ void CImageBase::SetValidityOfAlphaBlend(BOOL bValidityOfAlphaBlend)
 ///
 /// @return Check validity of alpha blending
 ///
-BOOL CImageBase::GetValidityOfAlphaBlend()
+bool CImageBase::GetValidityOfAlphaBlend() const
 {
 	return m_bValidityOfAlphaBlend;
 }
@@ -109,9 +107,9 @@ void CImageBase::SetBackColorWhenAlphaBlend(COLORREF crBackColor)
 /// @param pvBMP        Bitmap data
 /// @param dwBMPSize    Bitmap data size
 ///
-BOOL CImageBase::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
+bool CImageBase::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
 {
-	return TRUE;
+	return true;
 }
 
 /// Compression
@@ -126,7 +124,7 @@ BOOL CImageBase::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSi
 /// @param lHeight      Height
 /// @param wBpp         Number of bits
 ///
-BOOL CImageBase::Compress(
+bool CImageBase::Compress(
 	LPCTSTR     pszPathToDst,
 	const void* pvDIB,
 	DWORD       dwDIBSize,
@@ -190,7 +188,7 @@ BOOL CImageBase::Compress(
 
 	OnWriteFinish();
 */
-	return TRUE;
+	return true;
 }
 
 /// Compression
@@ -200,9 +198,9 @@ BOOL CImageBase::Compress(
 /// @param pvBMP     Bitmap data
 /// @param dwBMPSize Bitmap data size
 ///
-BOOL CImageBase::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize)
+bool CImageBase::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize)
 {
-	return TRUE;
+	return true;
 }
 
 /// Compression
@@ -218,7 +216,7 @@ BOOL CImageBase::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD
 /// @param lHeight      Height
 /// @param wBpp         Number of bits
 ///
-BOOL CImageBase::Compress(
+bool CImageBase::Compress(
 	void*       pvDst,
 	DWORD       dwDstSize,
 	const void* pvDIB,
@@ -285,7 +283,7 @@ BOOL CImageBase::Compress(
 
 	OnWriteFinish();*/
 
-	return TRUE;
+	return true;
 }
 
 /// Receive alpha-blending requests
@@ -294,7 +292,7 @@ BOOL CImageBase::Compress(
 ///
 /// @remark If TRUE, then alpha-blending is enabled
 ///
-BOOL CImageBase::IsRequireAlphaBlend()
+bool CImageBase::IsRequireAlphaBlend() const
 {
 	return m_bAlphaBlendRequirement;
 }
@@ -346,14 +344,14 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
-/// @param bProgress    Request progress bar status
+/// @param progress    Request progress bar status
 ///
-void CImageBase::Write(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::Write(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
 
 	// Don't update progressbar (No multiple outputs)
-	if (!bProgress)
+	if (!progress)
 	{
 		m_dwRowSize = 0;
 		m_dwRowSizeOfRemainder = 0;
@@ -380,7 +378,7 @@ void CImageBase::Write(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
 		{
 			// Read dummy data from the buffer
 
-			m_bOutputDummyFromBuffer = TRUE;
+			m_bOutputDummyFromBuffer = true;
 			lLine = m_lPitch;
 		}
 
@@ -398,14 +396,14 @@ void CImageBase::Write(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
-/// @param bProgress    Request progress bar status
+/// @param progress    Request progress bar status
 ///
-void CImageBase::WriteReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::WriteReverse(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
 
 	// Don't update the progressbar (No multiple outputs)
-	if (!bProgress)
+	if (!progress)
 	{
 		m_dwRowSize = 0;
 		m_dwRowSizeOfRemainder = 0;
@@ -434,7 +432,7 @@ void CImageBase::WriteReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bPr
 		{
 			// Read dummy data from the buffer
 
-			m_bOutputDummyFromBuffer = TRUE;
+			m_bOutputDummyFromBuffer = true;
 			lLine = m_lPitch;
 		}
 
@@ -456,7 +454,7 @@ void CImageBase::WriteReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bPr
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
 ///
-BOOL CImageBase::ComposeBGRA(void* pvDst, const void* pvBuffer, DWORD dwBufferSize)
+bool CImageBase::ComposeBGRA(void* pvDst, const void* pvBuffer, DWORD dwBufferSize)
 {
 	BYTE*       pbtDst = reinterpret_cast<BYTE*>(pvDst);
 	const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
@@ -485,19 +483,19 @@ BOOL CImageBase::ComposeBGRA(void* pvDst, const void* pvBuffer, DWORD dwBufferSi
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /// Synthesize BGRA Output
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
-/// @param bProgress    Request progress bar status
+/// @param progress    Request progress bar status
 ///
-void CImageBase::WriteCompoBGRA(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::WriteCompoBGRA(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	// Allocation of memory for storing data during synthesis
 	YCMemory<BYTE> clmbtDst(dwBufferSize);
@@ -505,11 +503,11 @@ void CImageBase::WriteCompoBGRA(const void* pvBuffer, DWORD dwBufferSize, BOOL b
 	// Synthesize
 	if (ComposeBGRA(&clmbtDst[0], pvBuffer, dwBufferSize))
 	{
-		Write(&clmbtDst[0], dwBufferSize, bProgress);
+		Write(&clmbtDst[0], dwBufferSize, progress);
 	}
 	else // Synthesis Failed
 	{
-		Write(pvBuffer, dwBufferSize, bProgress);
+		Write(pvBuffer, dwBufferSize, progress);
 	}
 }
 
@@ -517,9 +515,9 @@ void CImageBase::WriteCompoBGRA(const void* pvBuffer, DWORD dwBufferSize, BOOL b
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
-/// @param bProgress    Request progress bar status
+/// @param progress    Request progress bar status
 ///
-void CImageBase::WriteCompoBGRAReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::WriteCompoBGRAReverse(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	// Allocate memory for storage during synthesis
 	YCMemory<BYTE> clmbtDst(dwBufferSize);
@@ -527,11 +525,11 @@ void CImageBase::WriteCompoBGRAReverse(const void* pvBuffer, DWORD dwBufferSize,
 	// Synthesize
 	if (ComposeBGRA(&clmbtDst[0], pvBuffer, dwBufferSize))
 	{
-		WriteReverse(&clmbtDst[0], dwBufferSize, bProgress);
+		WriteReverse(&clmbtDst[0], dwBufferSize, progress);
 	}
 	else // Synthesis Failed
 	{
-		WriteReverse(pvBuffer, dwBufferSize, bProgress);
+		WriteReverse(pvBuffer, dwBufferSize, progress);
 	}
 }
 
@@ -542,7 +540,7 @@ void CImageBase::WriteCompoBGRAReverse(const void* pvBuffer, DWORD dwBufferSize,
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data Size
 ///
-BOOL CImageBase::ComposeRGBA(void* pvDst, const void* pvBuffer, DWORD dwBufferSize)
+bool CImageBase::ComposeRGBA(void* pvDst, const void* pvBuffer, DWORD dwBufferSize)
 {
 	BYTE*       pbtDst = reinterpret_cast<BYTE*>(pvDst);
 	const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
@@ -576,19 +574,19 @@ BOOL CImageBase::ComposeRGBA(void* pvDst, const void* pvBuffer, DWORD dwBufferSi
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 /// Synthesize RGBA Output
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data size
-/// @param bProgress    Synthesize BGRA output
+/// @param progress    Synthesize BGRA output
 ///
-void CImageBase::WriteCompoRGBA(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::WriteCompoRGBA(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	// Allocation of memory for storage during RGBA synthesis
 	YCMemory<BYTE> clmbtDst(dwBufferSize);
@@ -596,11 +594,11 @@ void CImageBase::WriteCompoRGBA(const void* pvBuffer, DWORD dwBufferSize, BOOL b
 	// Synthesize
 	if (ComposeRGBA(&clmbtDst[0], pvBuffer, dwBufferSize))
 	{
-		Write(&clmbtDst[0], dwBufferSize, bProgress);
+		Write(&clmbtDst[0], dwBufferSize, progress);
 	}
 	else // Synthesis failed
 	{
-		Write(pvBuffer, dwBufferSize, bProgress);
+		Write(pvBuffer, dwBufferSize, progress);
 	}
 }
 
@@ -609,9 +607,9 @@ void CImageBase::WriteCompoRGBA(const void* pvBuffer, DWORD dwBufferSize, BOOL b
 ///
 /// @param pvBuffer     Data
 /// @param dwBufferSize Data size
-/// @param bProgress    Request progress bar status
+/// @param progress    Request progress bar status
 ///
-void CImageBase::WriteCompoRGBAReverse(const void* pvBuffer, DWORD dwBufferSize, BOOL bProgress)
+void CImageBase::WriteCompoRGBAReverse(const void* pvBuffer, DWORD dwBufferSize, bool progress)
 {
 	// Allocate memory for storage during RGBA synthesis
 	YCMemory<BYTE> clmbtDst(dwBufferSize);
@@ -619,11 +617,11 @@ void CImageBase::WriteCompoRGBAReverse(const void* pvBuffer, DWORD dwBufferSize,
 	// Synthesize
 	if (ComposeRGBA(&clmbtDst[0], pvBuffer, dwBufferSize))
 	{
-		WriteReverse(&clmbtDst[0], dwBufferSize, bProgress);
+		WriteReverse(&clmbtDst[0], dwBufferSize, progress);
 	}
 	else // Synthesis failed
 	{
-		WriteReverse(pvBuffer, dwBufferSize, bProgress);
+		WriteReverse(pvBuffer, dwBufferSize, progress);
 	}
 }
 

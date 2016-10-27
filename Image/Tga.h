@@ -17,10 +17,10 @@ public:
 		BYTE btParam;
 	};
 
-	BOOL Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
+	bool Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
 
-	BOOL Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
+	bool Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
 
 private:
-	BOOL DecompRLE(void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp);
+	bool DecompRLE(void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp);
 };

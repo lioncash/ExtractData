@@ -6,10 +6,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CBmp::Mount(CArcFile* pclArc)
+bool CBmp::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".bmp")) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -18,7 +18,7 @@ BOOL CBmp::Mount(CArcFile* pclArc)
 ///
 /// @param rfclsFileName Filename
 ///
-BOOL CBmp::OnInit(const YCString& rfclsFileName)
+bool CBmp::OnInit(const YCString& rfclsFileName)
 {
 	// Set file header
 
@@ -58,7 +58,7 @@ BOOL CBmp::OnInit(const YCString& rfclsFileName)
 	// Output BMP header
 	WriteHed(rfclsFileName);
 
-	return TRUE;
+	return true;
 }
 
 /// Output BMP Header
@@ -86,7 +86,7 @@ void CBmp::WriteHed(const YCString& rfclsFileName)
 /// @param pvSrcPallet     Source (referenced) palette
 /// @param dwSrcPalletSize Source (referencec) palette size
 ///
-BOOL CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
+bool CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 {
 	RGBQUAD*    pstPallet = m_astPallet;
 	const BYTE* pbtSrcPallet = reinterpret_cast<const BYTE*>(pvSrcPallet);
@@ -147,7 +147,7 @@ BOOL CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Write 1 Lin

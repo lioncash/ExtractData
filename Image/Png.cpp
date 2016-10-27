@@ -100,9 +100,9 @@ void CPng::Close()
 /// @param pvBMP        Bitmap data
 /// @param dwBMPSize    Bitmap data size
 
-BOOL CPng::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
+bool CPng::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
 {
-	return TRUE;
+	return true;
 }
 
 /// Convert from DIB to PNG
@@ -117,7 +117,7 @@ BOOL CPng::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
 /// @param lHeight      Height
 /// @param wBpp         Number of bits
 ///
-BOOL CPng::Compress(
+bool CPng::Compress(
 	LPCTSTR     pszPathToDst,
 	const void* pvDIB,
 	DWORD       dwDIBSize,
@@ -129,7 +129,7 @@ BOOL CPng::Compress(
 	WORD        wBpp
 	)
 {
-	return TRUE;
+	return true;
 }
 
 /// Convert from BMP to PNG
@@ -139,9 +139,9 @@ BOOL CPng::Compress(
 /// @param pvBMP     Bitmap data
 /// @param dwBMPSize Bitmap data size
 ///
-BOOL CPng::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize)
+bool CPng::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize)
 {
-	return TRUE;
+	return true;
 }
 
 /// Converted from DIB to PNG
@@ -156,7 +156,7 @@ BOOL CPng::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMP
 /// @param lHeight      Height
 /// @param wBpp         Number of bits
 ///
-BOOL CPng::Compress(
+bool CPng::Compress(
 	void*       pvDst,
 	DWORD       dwDstSize,
 	const void* pvDIB,
@@ -252,17 +252,17 @@ BOOL CPng::Compress(
 		}
 	}
 */
-	return TRUE;
+	return true;
 }
 
 /// Convert to DIB
-BOOL CPng::Decompress()
+bool CPng::Decompress()
 {
-	return TRUE;
+	return true;
 }
 
 /// Initialization
-BOOL CPng::OnInit(const YCString& rfclsFileName)
+bool CPng::OnInit(const YCString& rfclsFileName)
 {
 	int nColorType;
 
@@ -281,18 +281,18 @@ BOOL CPng::OnInit(const YCString& rfclsFileName)
 		break;
 
 	default: // Other
-		return FALSE;
+		return false;
 	}
 
 	m_png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (m_png_ptr == nullptr)
-		return FALSE;
+		return false;
 
 	m_info_ptr = png_create_info_struct(m_png_ptr);
 	if (m_info_ptr == nullptr)
 	{
 		png_destroy_write_struct(&m_png_ptr, nullptr);
-		return FALSE;
+		return false;
 	}
 
 	png_set_write_fn(m_png_ptr, m_pclArc, WritePNG, nullptr);
@@ -313,7 +313,7 @@ BOOL CPng::OnInit(const YCString& rfclsFileName)
 	// Output header
 	png_write_info(m_png_ptr, m_info_ptr);
 
-	return TRUE;
+	return true;
 }
 
 /// Create Palette
@@ -321,7 +321,7 @@ BOOL CPng::OnInit(const YCString& rfclsFileName)
 /// @param pvSrcPallet     Reference palette
 /// @param dwSrcPalletSize Reference palette size
 ///
-BOOL CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
+bool CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 {
 	png_colorp  pstPallet = m_astPallet;
 	const BYTE* pbtSrcPallet = reinterpret_cast<const BYTE*>(pvSrcPallet);
@@ -374,7 +374,7 @@ BOOL CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Write 1 Line
