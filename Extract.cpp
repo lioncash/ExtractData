@@ -220,17 +220,12 @@ bool CExtract::Mount(CArcFile* pclArc)
 		}
 
 		// Mount the archive file
-
-		std::vector<CExtractBase*>& Class = m_Class;
-		std::set<CExtractBase*>& DecodeClass = m_DecodeClass;
-
-		for (size_t i = 0; i < Class.size(); i++)
+		for (auto* decoder : m_Class)
 		{
 			// Set the class to use to decode the archive
-
-			if (Class[i]->Mount(pclArc))
+			if (decoder->Mount(pclArc))
 			{
-				DecodeClass.insert(Class[i]);
+				m_DecodeClass.insert(decoder);
 				return true;
 			}
 		}
@@ -238,23 +233,17 @@ bool CExtract::Mount(CArcFile* pclArc)
 	else
 	{
 		// Mount the archive file
-
-		std::vector<CExtractBase*>& Class = m_Class;
-		std::set<CExtractBase*>& DecodeClass = m_DecodeClass;
-
-		for (size_t i = 0; i < Class.size(); i++)
+		for (auto* decoder : m_Class)
 		{
 			// Set the class to use to decode the archive
-
-			if (Class[i]->Mount(pclArc))
+			if (decoder->Mount(pclArc))
 			{
-				DecodeClass.insert(Class[i]);
+				m_DecodeClass.insert(decoder);
 				return true;
 			}
 		}
 
 		// Mount the archive file using the Susie plug-in
-
 		if (pclArc->GetOpt()->bSusieUse)
 		{
 			CSusie clSusie;
@@ -434,21 +423,21 @@ bool CExtract::Search(CArcFile* pclArc)
 		{
 			if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize))
 			{
-				offsets.insert(std::map<int, int>::value_type(Class[i]->GetOffset(), i));
+				offsets.emplace(static_cast<int>(Class[i]->GetOffset()), i);
 				ret = true;
 			}
 		}
 
 		if (ret)
 		{
-			for (std::map<int, int>::iterator itr = offsets.begin(); itr != offsets.end(); itr++)
+			for (const auto& entry : offsets)
 			{
 				// dwReadSize - offset, back to the first position found, has moved to the header file
-				pclArc->Seek(-((int)dwReadSize - itr->first), FILE_CURRENT);
-				pProg->UpdatePercent(itr->first);
+				pclArc->Seek(-((int)dwReadSize - entry.first), FILE_CURRENT);
+				pProg->UpdatePercent(entry.first);
 
 				// Mount if the offset is less
-				Class[itr->second]->Mount(pclArc);
+				Class[entry.second]->Mount(pclArc);
 
 				// TODO: I want to do this without the break.
 				break;
@@ -544,17 +533,11 @@ bool CExtract::Decode(CArcFile* pclArc, bool convert)
 			if (convert)
 			{
 				// Conversion request
-
-				std::set<CExtractBase*>& Class = m_DecodeClass;
-
-				for (std::set<CExtractBase*>::iterator itr = Class.begin(); itr != Class.end(); itr++)
+				for (auto* decoder : m_DecodeClass)
 				{
-					retval = (*itr)->Decode(pclArc);
-
+					retval = decoder->Decode(pclArc);
 					if (retval)
-					{
 						break;
-					}
 				}
 
 				if (!retval)
@@ -565,17 +548,11 @@ bool CExtract::Decode(CArcFile* pclArc, bool convert)
 			else
 			{
 				// No conversion request
-
-				std::set<CExtractBase*>& Class = m_DecodeClass;
-
-				for (std::set<CExtractBase*>::iterator itr = Class.begin(); itr != Class.end(); itr++)
+				for (auto* decoders : m_DecodeClass)
 				{
-					retval = (*itr)->Extract(pclArc);
-
+					retval = decoders->Extract(pclArc);
 					if (retval)
-					{
 						break;
-					}
 				}
 
 				if (!retval)
