@@ -2,7 +2,7 @@
 #include "Common.h"
 #include "Reg.h"
 
-BOOL CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
+bool CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
 {
 	// Retrieve the handle of the key name
 	LPTSTR pKeyPathNext = PathFindNextComponent(pKeyPath);
@@ -20,7 +20,7 @@ BOOL CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
 	else if (sKey == _T("HKEY_CURRENT_CONFIG"))
 		hKey = HKEY_CURRENT_CONFIG;
 	else
-		return FALSE;
+		return false;
 
 	// Retrieve the name of the subkey
 	LPCTSTR pKeyPathEnd = pKeyPath + lstrlen(pKeyPath);
@@ -28,16 +28,16 @@ BOOL CReg::GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName)
 
 	HKEY hkResult;
 	if (RegOpenKeyEx(hKey, sSubKey, 0, KEY_QUERY_VALUE, &hkResult) != 0)
-		return FALSE;
+		return false;
 
 	BYTE data[MAX_PATH];
 	DWORD cbData = sizeof(data);
 	if (RegQueryValueEx(hkResult, pKeyName, nullptr, nullptr, data, &cbData) != 0)
-		return FALSE;
+		return false;
 
 	Value = reinterpret_cast<LPTSTR>(data);
 
 	RegCloseKey(hkResult);
 
-	return TRUE;
+	return true;
 }

@@ -3,5 +3,5 @@
 class CReg
 {
 public:
-	BOOL GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName);
+	bool GetValue(YCString& Value, LPCTSTR pKeyPath, LPCTSTR pKeyName);
 };
