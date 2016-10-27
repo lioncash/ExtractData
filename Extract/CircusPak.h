@@ -3,7 +3,11 @@
 class CCircusPak final : public CExtractBase
 {
 public:
-	using FDecrypt = BOOL (*)(void*, DWORD, const void*);
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
+	using FDecrypt = void(*)(void*, DWORD, const void*);
 
 	struct SPakFileInfoType1
 	{
@@ -27,29 +31,25 @@ public:
 		DWORD   dwOffset;
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool MountPakForKujiraCons(CArcFile* pclArc);
+	bool MountPakForKujira(CArcFile* pclArc);
+	bool MountPakForACDC(CArcFile* pclArc);
+	bool MountPakForDCGS(CArcFile* pclArc);
 
-private:
-	BOOL MountPakForKujiraCons(CArcFile* pclArc);
-	BOOL MountPakForKujira(CArcFile* pclArc);
-	BOOL MountPakForACDC(CArcFile* pclArc);
-	BOOL MountPakForDCGS(CArcFile* pclArc);
+	bool DecodePakForKujiraCons(CArcFile* pclArc);
+	bool DecodePakForKujira(CArcFile* pclArc);
+	bool DecodePakForACDC(CArcFile* pclArc);
+	bool DecodePakForDCGS(CArcFile* pclArc);
 
-	BOOL DecodePakForKujiraCons(CArcFile* pclArc);
-	BOOL DecodePakForKujira(CArcFile* pclArc);
-	BOOL DecodePakForACDC(CArcFile* pclArc);
-	BOOL DecodePakForDCGS(CArcFile* pclArc);
+	bool DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
+	bool DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
+	bool DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void* pvKey);
 
-	BOOL DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	BOOL DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	BOOL DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void* pvKey);
-
-	BOOL DecompCCC0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	BOOL DecompCCM0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompCCC0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompCCM0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
 
 	DWORD GetBit(const void* pvSrc, DWORD* pdwSrcPtrOfBit, DWORD dwReadBitLength);
 
-	static BOOL Decrypt1(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
-	static BOOL Decrypt2(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
+	static void Decrypt1(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
+	static void Decrypt2(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
 };
