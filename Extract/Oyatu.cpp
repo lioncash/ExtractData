@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::IsSupported(CArcFile* pclArc)
+bool COyatu::IsSupported(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("MEBIUS35.DAT")))
-		return FALSE;
+		return false;
 
 	// Read MEBIUS35.DAT
 	TCHAR szDatPath[MAX_PATH];
@@ -18,13 +18,13 @@ BOOL COyatu::IsSupported(CArcFile* pclArc)
 
 	CFile clfDat;
 	if (!clfDat.OpenForRead(szDatPath))
-		return FALSE;
+		return false;
 
 	clfDat.SeekHed(4);
 
 	char szGameTitle[15];
 	if (clfDat.Read(szGameTitle, sizeof(szGameTitle)) < sizeof(szGameTitle))
-		return FALSE;
+		return false;
 
 	// The decision
 	return (strcmp(szGameTitle, "‚¨‚â‚Â‚Ì‚¶‚©‚ñ") == 0);
@@ -86,7 +86,7 @@ BOOL COyatu::Decode(CArcFile* pclArc)
 /// @param pclArc Archive
 /// @param pbtKey Key
 ///
-BOOL COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
+bool COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
 {
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
@@ -127,14 +127,14 @@ BOOL COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
 		pclArc->WriteFile(&clmbtBuffer[0], dwBufferSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// BGM Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::DecodeBGM(CArcFile* pclArc)
+bool COyatu::DecodeBGM(CArcFile* pclArc)
 {
 	static const BYTE abtKey[256] = {
 		0xB0, 0x6F, 0xA4, 0xD7, 0x8B, 0x81, 0xBD, 0xF3, 0x82, 0xAF, 0x95, 0x6B, 0x9D, 0x3E, 0x88, 0x73,
@@ -162,7 +162,7 @@ BOOL COyatu::DecodeBGM(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::DecodeKOE(CArcFile* pclArc)
+bool COyatu::DecodeKOE(CArcFile* pclArc)
 {
 	static const BYTE abtKey[256] = {
 		0x15, 0xEE, 0x1F, 0x83, 0x32, 0x20, 0xF8, 0x17, 0x53, 0xE3, 0x7B, 0xC0, 0x6A, 0x75, 0x93, 0xA5,
@@ -190,7 +190,7 @@ BOOL COyatu::DecodeKOE(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::DecodeMSE(CArcFile* pclArc)
+bool COyatu::DecodeMSE(CArcFile* pclArc)
 {
 	static const BYTE abtKey[256] = {
 		0x06, 0xDE, 0xEF, 0x76, 0xD2, 0xDA, 0xE7, 0x95, 0x7A, 0x87, 0x6D, 0x7C, 0xF6, 0x17, 0x44, 0x9F,

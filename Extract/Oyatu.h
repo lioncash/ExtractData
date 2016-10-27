@@ -9,10 +9,10 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL IsSupported(CArcFile* pclArc);
+	bool IsSupported(CArcFile* pclArc);
 
-	BOOL DecodeSound(CArcFile* pclArc, const BYTE* pbtKey);
-	BOOL DecodeBGM(CArcFile* pclArc);
-	BOOL DecodeKOE(CArcFile* pclArc);
-	BOOL DecodeMSE(CArcFile* pclArc);
+	bool DecodeSound(CArcFile* pclArc, const BYTE* pbtKey);
+	bool DecodeBGM(CArcFile* pclArc);
+	bool DecodeKOE(CArcFile* pclArc);
+	bool DecodeMSE(CArcFile* pclArc);
 };
