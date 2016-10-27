@@ -371,12 +371,12 @@ bool CHimauri::Decode(CArcFile* pclArc)
 				_stprintf(szLastName, _T("_%03u.bmp"), i);
 
 				// Regrest progressbar progress
-				BOOL bProgress = (i == 0);
+				const bool progress = (i == 0);
 
 				// Output
 				CImage clImage;
 				clImage.Init(pclArc, psttgahBase->wWidth, psttgahBase->wHeight, psttgahBase->btDepth, NULL, 0, szLastName);
-				clImage.Write(&clmbtDstForCompose[0], dwDstSizeForCompose, bProgress);
+				clImage.Write(&clmbtDstForCompose[0], dwDstSizeForCompose, progress);
 				clImage.Close();
 			}
 		}

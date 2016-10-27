@@ -11,40 +11,40 @@ public:
     bool Mount(CArcFile* pclArc) override;
     bool Decode(CArcFile* pclArc) override;
 
-    BOOL Init(CArcFile* pclArc, void* pvBMP, const YCString& rfclsFileName = _T(""));
-    BOOL Init(CArcFile* pclArc, long lWidth, long lHeight, WORD wBpp, const void* pvPallet = nullptr, DWORD dwPalletSize = 1024, const YCString& rfclsFileName = _T(""));
+    bool Init(CArcFile* pclArc, void* pvBMP, const YCString& rfclsFileName = _T(""));
+    bool Init(CArcFile* pclArc, long lWidth, long lHeight, WORD wBpp, const void* pvPallet = nullptr, DWORD dwPalletSize = 1024, const YCString& rfclsFileName = _T(""));
 
     void Close();
 
-    BOOL Write(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL Write(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
-    BOOL WriteReverse(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL WriteReverse(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
+    bool Write(DWORD dwBMPSize, bool progress = true);
+    bool Write(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
+    bool WriteReverse(DWORD dwBMPSize, bool progress = true);
+    bool WriteReverse(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
 
     //void Compose(LPBYTE buf, DWORD buf_len);
-    BOOL WriteCompoBGRA(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoBGRA(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoBGRAReverse(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoBGRAReverse(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
+    bool WriteCompoBGRA(DWORD dwBMPSize, bool progress = true);
+    bool WriteCompoBGRA(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
+    bool WriteCompoBGRAReverse(DWORD dwBMPSize, bool progress = true);
+    bool WriteCompoBGRAReverse(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
 
     //void ComposeRGBA(LPBYTE buf, DWORD buf_len);
-    BOOL WriteCompoRGBA(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoRGBA(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoRGBAReverse(DWORD dwBMPSize, BOOL bProgress = TRUE);
-    BOOL WriteCompoRGBAReverse(const void* pvBMPData, DWORD dwBMPDataSize, BOOL bProgress = TRUE);
+    bool WriteCompoRGBA(DWORD dwBMPSize, bool progress = true);
+    bool WriteCompoRGBA(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
+    bool WriteCompoRGBAReverse(DWORD dwBMPSize, bool progress = true);
+    bool WriteCompoRGBAReverse(const void* pvBMPData, DWORD dwBMPDataSize, bool progress = true);
 
     LPBITMAPFILEHEADER GetBmpFileHeader();
     LPBITMAPINFOHEADER GetBmpInfoHeader();
 
 
 protected:
-    CArcFile* m_pclArc;
-    SOption*  m_pstOption;
+    CArcFile* m_pclArc = nullptr;
+    SOption*  m_pstOption = nullptr;
 
-    BYTE* m_pbtBMP;
-    BOOL  m_bBMPHeader;
-    BITMAPFILEHEADER* m_pstBMPFileHeader;
-    BITMAPINFOHEADER* m_pstBMPInfoHeader;
+    BYTE* m_pbtBMP = nullptr;
+    bool  m_bBMPHeader = true;
+    BITMAPFILEHEADER* m_pstBMPFileHeader = nullptr;
+    BITMAPINFOHEADER* m_pstBMPInfoHeader = nullptr;
 
     CBmp m_clBMP;
     CPng m_clPNG;
