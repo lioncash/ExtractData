@@ -16,13 +16,13 @@ BOOL CKatakoi::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CKatakoi::MountIar(CArcFile* pclArc)
+bool CKatakoi::MountIar(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".iar"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Version check
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
@@ -38,7 +38,7 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 
 	pclArc->SeekHed(0x1C);
@@ -100,16 +100,16 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 		pclArc->AddFileInfo(stfiWork);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CKatakoi::MountWar(CArcFile* pclArc)
+bool CKatakoi::MountWar(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".war"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Version check
 	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
@@ -121,7 +121,7 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 
 	pclArc->SeekHed(0x08);
@@ -186,7 +186,7 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 		pclArc->AddFileInfo(stfiWork);
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex)
@@ -352,13 +352,13 @@ BOOL CKatakoi::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CKatakoi::DecodeIar(CArcFile* pclArc)
+bool CKatakoi::DecodeIar(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".iar"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
@@ -389,7 +389,7 @@ BOOL CKatakoi::DecodeIar(CArcFile* pclArc)
 			wBpp = 32;
 			break;
 		default:
-			return FALSE;
+			return false;
 	}
 
 	BOOL bDiff = (*(LPBYTE)&clmbtSrc[1] == 8);
@@ -406,16 +406,16 @@ BOOL CKatakoi::DecodeIar(CArcFile* pclArc)
 		image.WriteReverse(&clmbtDst[0], dwDstSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CKatakoi::DecodeWar(CArcFile* pclArc)
+bool CKatakoi::DecodeWar(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".war"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
@@ -444,7 +444,7 @@ BOOL CKatakoi::DecodeWar(CArcFile* pclArc)
 		wav.Write(&clmbtSrc[24]);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void CKatakoi::GetBit(LPBYTE& pbySrc, DWORD& dwFlags)
@@ -460,7 +460,7 @@ void CKatakoi::GetBit(LPBYTE& pbySrc, DWORD& dwFlags)
 	}
 }
 
-BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize)
+bool CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize)
 {
 	DWORD dwFlags = 0; // Flag can always be initialized
 	DWORD dwBack;
@@ -657,7 +657,7 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 
 			if (dwBack > (pbyDst - pbyDstBegin))
 			{
-				return FALSE;
+				return false;
 			}
 
 			LPBYTE pbyWorkOfDst = pbyDst - dwBack;
@@ -669,10 +669,10 @@ BOOL CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff)
+bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff)
 {
 	SFileInfo*       pstfiDiff = pclArc->GetOpenFileInfo();
 	DWORD            dwDiffNum = pclArc->GetOpenFileInfoNum();
@@ -835,7 +835,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			cliWork.Init(pclArc, lWidth, lHeight, wBpp);
 			cliWork.WriteReverse(&clmbtDstForBase[0], dwDstSizeForBase);
 
-			return TRUE;
+			return true;
 		}
 		else if ((lWidthForDiff >= lWidthForBase) && (lHeightForDiff >= lHeightForBase))
 		{
@@ -887,7 +887,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			cliWork.Init(pclArc, lWidth, lHeight, wBpp);
 			cliWork.WriteReverse(&clmbtDst[0], dwDstSize);
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -916,7 +916,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("Info"), MB_OK);
 	}
 */
-	return FALSE;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -924,7 +924,7 @@ BOOL CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 //
 // 十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
 
-BOOL CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp)
+bool CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp)
 {
 	WORD wColors = wBpp >> 3;
 	DWORD dwLine = lWidthForSrc * wColors;
@@ -966,12 +966,12 @@ BOOL CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSr
 
 				if ((dwDst + dwOffset) >= dwDstSize)
 				{
-					return TRUE;
+					return true;
 				}
 
 				if (dwSrc >= dwSrcSize)
 				{
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -979,5 +979,5 @@ BOOL CKatakoi::Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSr
 		dwDst += dwLine;
 	}
 
-	return TRUE;
+	return true;
 }

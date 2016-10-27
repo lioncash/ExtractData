@@ -7,18 +7,18 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL MountIar(CArcFile* pclArc);
-	BOOL MountWar(CArcFile* pclArc);
+	bool MountIar(CArcFile* pclArc);
+	bool MountWar(CArcFile* pclArc);
 
-	BOOL DecodeIar(CArcFile* pclArc);
-	BOOL DecodeWar(CArcFile* pclArc);
+	bool DecodeIar(CArcFile* pclArc);
+	bool DecodeWar(CArcFile* pclArc);
 
 	bool GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex);
 	bool GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc);
 
 	void GetBit(LPBYTE& pbySrc, DWORD& dwFlags);
-	BOOL DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize);
+	bool DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize);
 
-	BOOL Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp);
-	BOOL DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff);
+	bool Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp);
+	bool DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff);
 };
