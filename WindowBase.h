@@ -13,8 +13,8 @@ public:
 	static void Init(HWND hWnd, LONG cx, LONG cy);
 	void SaveIni();
 
-	BOOL Attach(HWND hWnd); // Set
-	BOOL Detach(); // Release
+	bool Attach(HWND hWnd); // Set
+	bool Detach(); // Release
 
 	// Static procedures
 	static LRESULT CALLBACK WndStaticProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
@@ -30,10 +30,10 @@ public:
 	static POINT GetCenterPt(HWND hWnd, RECT& dlgrc);
 
 protected:
-	HWND m_hWnd;
-	HINSTANCE m_hInst;
-	WNDPROC m_oldWndProc; // Window procedure address
-	BOOL m_bDialog; // If dialog, then TRUE
+	HWND m_hWnd = nullptr;
+	HINSTANCE m_hInst = nullptr;
+	WNDPROC m_oldWndProc = nullptr; // Window procedure address
+	bool m_bDialog = false; // If dialog, then TRUE
 
-	UINT m_uID;
+	UINT m_uID = 0;
 };
