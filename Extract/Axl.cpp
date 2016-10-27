@@ -33,7 +33,7 @@ BOOL CAxl::Mount(CArcFile* pclArc)
 	pclArc->Read(pIndex, index_size);
 
 	// Decrypt Index
-	if (DecryptIndex(pIndex, index_size, pclArc->GetArcSize()) == FALSE)
+	if (!DecryptIndex(pIndex, index_size, pclArc->GetArcSize()))
 	{
 		// Cannot be decoded
 		pclArc->SeekHed();
@@ -157,7 +157,7 @@ void CAxl::InitMountKey(LPVOID deckey)
 	memcpy(m_deckey, deckey, m_len);
 }
 
-BOOL CAxl::CreateKey(LPBYTE key, LPINT key_len, LPBYTE pIndex, DWORD index_size)
+bool CAxl::CreateKey(LPBYTE key, LPINT key_len, LPBYTE pIndex, DWORD index_size)
 {
 	for (int i = 0; i < (int)index_size; i += 44)
 	{
@@ -216,7 +216,7 @@ BOOL CAxl::CreateKey(LPBYTE key, LPINT key_len, LPBYTE pIndex, DWORD index_size)
 					for (int j = key_len_hed; j < *key_len; j++)
 						key[j] = *pkey3++;
 
-					return TRUE;
+					return true;
 				}
 
 				// After exiting the loop, go back to the beginning of the file name
@@ -232,16 +232,16 @@ BOOL CAxl::CreateKey(LPBYTE key, LPINT key_len, LPBYTE pIndex, DWORD index_size)
 		pIndex += 44;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
+bool CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
 {
 	// Key generation from the file name portion of the index
 	BYTE key[32];
 	int key_len;
-	if (CreateKey(key, &key_len, pIndex, index_size) == FALSE)
-		return FALSE;
+	if (!CreateKey(key, &key_len, pIndex, index_size))
+		return false;
 
 	// Copy the index
 	YCMemory<BYTE> pIndex_copy(index_size);
@@ -260,16 +260,16 @@ BOOL CAxl::DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize)
 
 	// Check whether the index matches the beginning and end of the first file
 	if (*(LPDWORD)&pIndex_copy[40] != 8 + index_size)
-		return FALSE;
+		return false;
 
 	// Check whether the match is the end of the last file and archive files
 	if (*(LPDWORD)&pIndex_copy[index_size-4] + *(LPDWORD)&pIndex_copy[index_size-8] != arcSize)
-		return FALSE;
+		return false;
 
 	// The copied index was the result of the check if there is no problem decoding
 	memcpy(pIndex, &pIndex_copy[0], index_size);
 
-	return TRUE;
+	return true;
 
 /*
 	static char* key[] = {
