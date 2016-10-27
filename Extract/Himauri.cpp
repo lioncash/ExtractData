@@ -27,10 +27,10 @@ BOOL CHimauri::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CHimauri::MountHim4(CArcFile* pclArc)
+bool CHimauri::MountHim4(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "Him4", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -72,17 +72,17 @@ BOOL CHimauri::MountHim4(CArcFile* pclArc)
 		dwIndexPtr += 4;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Mount Him5
 ///
 /// @param pclArc Archive
 ///
-BOOL CHimauri::MountHim5(CArcFile* pclArc)
+bool CHimauri::MountHim5(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "Him5", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -224,7 +224,7 @@ BOOL CHimauri::MountHim5(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode
@@ -557,7 +557,7 @@ void CHimauri::Decomp(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD d
 /// @param pbtDiff    Image difference
 /// @param dwDiffSize Image difference size
 ///
-BOOL CHimauri::Compose(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtBase, DWORD dwBaseSize, const BYTE* pbtDiff, DWORD dwDiffSize)
+bool CHimauri::Compose(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtBase, DWORD dwBaseSize, const BYTE* pbtDiff, DWORD dwDiffSize)
 {
 	// Synthesize base image and difference image
 
@@ -578,5 +578,5 @@ BOOL CHimauri::Compose(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtBase, DWORD
 		}
 	}
 
-	return TRUE;
+	return true;
 }
