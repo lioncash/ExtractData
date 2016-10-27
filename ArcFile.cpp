@@ -105,6 +105,46 @@ DWORD CArcFile::Read(void* buf, DWORD size)
 	return dwReadSize;
 }
 
+DWORD CArcFile::ReadS8(int8_t* out)
+{
+	return Read(out, sizeof(int8_t));
+}
+
+DWORD CArcFile::ReadS16(int16_t* out)
+{
+	return Read(out, sizeof(int16_t));
+}
+
+DWORD CArcFile::ReadS32(int32_t* out)
+{
+	return Read(out, sizeof(int32_t));
+}
+
+DWORD CArcFile::ReadS64(int64_t* out)
+{
+	return Read(out, sizeof(int64_t));
+}
+
+DWORD CArcFile::ReadU8(uint8_t* out)
+{
+	return Read(out, sizeof(uint8_t));
+}
+
+DWORD CArcFile::ReadU16(uint16_t* out)
+{
+	return Read(out, sizeof(uint16_t));
+}
+
+DWORD CArcFile::ReadU32(uint32_t* out)
+{
+	return Read(out, sizeof(uint32_t));
+}
+
+DWORD CArcFile::ReadU64(uint64_t* out)
+{
+	return Read(out, sizeof(uint64_t));
+}
+
 BYTE* CArcFile::ReadHed()
 {
 	Read(m_pHeader.data(), m_pHeader.size());
