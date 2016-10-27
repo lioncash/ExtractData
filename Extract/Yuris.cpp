@@ -21,13 +21,13 @@ BOOL CYuris::Mount(CArcFile* pclArc)
 //////////////////////////////////////////////////////////////////////////////////////////
 // YPF Mounting
 
-BOOL CYuris::MountYPF(CArcFile* pclArc)
+bool CYuris::MountYPF(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ypf"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "YPF", 3) != 0)
-		return FALSE;
+		return false;
 
 	static const BYTE fnameLenTable[256] =
 	{
@@ -74,7 +74,7 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 	// Decoding test
 	static DWORD adwFileInfoLength[] = { 26, 18 };
 
-	BOOL  bSuccess = FALSE;
+	bool  success = false;
 	DWORD dwFileInfoLength = 0;
 	BYTE  btKey1 = 0;
 
@@ -137,16 +137,16 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 		if ((dwCnt == ctFile) && (dwIndex == index_size))
 		{
 			// Successful decoding
-			bSuccess = TRUE;
+			success = true;
 			dwFileInfoLength = adwFileInfoLength[i];
 			break;
 		}
 	}
 
-	if (!bSuccess)
+	if (!success)
 	{
 		// Anomaly occurred
-		return FALSE;
+		return false;
 	}
 
 	for (DWORD i = 0; i < ctFile; i++)
@@ -178,17 +178,17 @@ BOOL CYuris::MountYPF(CArcFile* pclArc)
 		pIndex += 5 + btLength + dwFileInfoLength;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// YMV Mounting
-BOOL CYuris::MountYMV(CArcFile* pclArc)
+bool CYuris::MountYMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ymv"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "YSMV", 4) != 0)
-		return FALSE;
+		return false;
 
 	pclArc->SeekHed(8);
 
@@ -216,7 +216,7 @@ BOOL CYuris::MountYMV(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
@@ -229,13 +229,13 @@ BOOL CYuris::Decode(CArcFile* pclArc)
 }
 
 /// YMV Decoding
-BOOL CYuris::DecodeYMV(CArcFile* pclArc)
+bool CYuris::DecodeYMV(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ymv"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "YSMV", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -257,5 +257,5 @@ BOOL CYuris::DecodeYMV(CArcFile* pclArc)
 	pclArc->WriteFile(&clmSrc[0], dwSrcSize);
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }

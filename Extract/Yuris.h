@@ -7,8 +7,8 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL MountYPF(CArcFile* pclArc);
-	BOOL MountYMV(CArcFile* pclArc);
+	bool MountYPF(CArcFile* pclArc);
+	bool MountYMV(CArcFile* pclArc);
 
-	BOOL DecodeYMV(CArcFile* pclArc);
+	bool DecodeYMV(CArcFile* pclArc);
 };
