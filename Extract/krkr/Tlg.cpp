@@ -69,7 +69,7 @@ BOOL CTlg::Decode(CArcFile* pclArc)
 	return Decode(pclArc, &buf[0]);
 }
 
-BOOL CTlg::Decode(CArcFile* pclArc, LPBYTE src)
+bool CTlg::Decode(CArcFile* pclArc, LPBYTE src)
 {
 	if (memcmp(src, "TLG", 3) != 0)
 	{
@@ -83,25 +83,16 @@ BOOL CTlg::Decode(CArcFile* pclArc, LPBYTE src)
 
 	// Check for TLG raw data
 	if (!memcmp(src, "TLG5.0\x00raw\x1a", 11))
-	{
 		return DecompTLG5(pclArc, &src[11]);
-	}
-	else if (!memcmp(src, "TLG6.0\x00raw\x1a", 11))
-	{
+	if (!memcmp(src, "TLG6.0\x00raw\x1a", 11))
 		return DecompTLG6(pclArc, &src[11]);
-	}
-	else
-	{
-		pclArc->OpenFile();
-		pclArc->WriteFile( src, pclArc->GetOpenFileInfo()->sizeCmp );
 
-		return TRUE;
-	}
-
-	return FALSE;
+	pclArc->OpenFile();
+	pclArc->WriteFile(src, pclArc->GetOpenFileInfo()->sizeCmp);
+	return true;
 }
 
-BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
+bool CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
 {
 	BYTE colors = src[0];
 	LONG width = *(LPLONG)&src[1];
@@ -109,7 +100,7 @@ BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
 	LONG blockHeight = *(LPLONG)&src[9];
 
 	if (colors != 3 && colors != 4)
-		return FALSE;
+		return false;
 
 	DWORD blockCount = ((height - 1) / blockHeight) + 1;
 	src += 13 + blockCount * 4;
@@ -179,21 +170,21 @@ BOOL CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
 	image.Init(pclArc, width, height, colors << 3);
 	image.WriteReverse(&dst[0], dstSize);
 
-	return TRUE;
+	return true;
 }
 
-int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
+bool CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
 {
 	BYTE colors = src[0];
 
 	if (colors != 1 && colors != 4 && colors != 3)
-		return FALSE;
+		return false;
 	if (src[1] != 0) // Data flag
-		return FALSE;
+		return false;
 	if (src[2] != 0) // Color type (currently always zero)
-		return FALSE;
+		return false;
 	if (src[3] != 0) // External golomb table (currently always zero)
-		return FALSE;
+		return false;
 
 	LONG width = *(LPLONG)&src[4];
 	LONG height = *(LPLONG)&src[8];
@@ -285,7 +276,7 @@ int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
 				TVPTLG6DecodeGolombValues((LPBYTE)&pixelbuf[0] + c, pixel_count, &bit_pool[0], c);
 				break;
 			default:
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -328,7 +319,7 @@ int CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
 	image.Init(pclArc, width, height, bpp);
 	image.WriteReverse(&dst[0], dstSize);
 
-	return TRUE;
+	return true;
 }
 
 // LZSS Decompression
