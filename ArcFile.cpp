@@ -80,11 +80,11 @@ bool CArcFile::Open(LPCTSTR pszPathToArc)
 
 void CArcFile::Close()
 {
-	for (size_t i = 0; i < m_hArcs.size(); i++)
+	for (auto* handle : m_hArcs)
 	{
-		if (m_hArcs[i] != INVALID_HANDLE_VALUE)
+		if (handle != INVALID_HANDLE_VALUE)
 		{
-			::CloseHandle(m_hArcs[i]);
+			::CloseHandle(handle);
 		}
 	}
 
