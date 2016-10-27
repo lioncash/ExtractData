@@ -20,13 +20,13 @@ BOOL CTaskForce::Mount(CArcFile* pclArc)
 }
 
 /// dat mounting
-BOOL CTaskForce::MountDat(CArcFile* pclArc)
+bool CTaskForce::MountDat(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".dat"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "tskforce", 8) != 0)
-		return FALSE;
+		return false;
 
 	pclArc->SeekHed(8);
 
@@ -60,29 +60,29 @@ BOOL CTaskForce::MountDat(CArcFile* pclArc)
 		dwIndexPtr += sizeof(SFileEntry);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// tlz mounting
-BOOL CTaskForce::MountTlz(CArcFile* pclArc)
+bool CTaskForce::MountTlz(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "tlz", 3) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
 /// bma mounting
-BOOL CTaskForce::MountBma(CArcFile* pclArc)
+bool CTaskForce::MountBma(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".tsz"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "bma", 3) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -103,11 +103,11 @@ BOOL CTaskForce::Decode(CArcFile* pclArc)
 }
 
 /// tlz decoding
-BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
+bool CTaskForce::DecodeTlz(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if ((pstFileInfo->name.GetFileExt() != _T(".tsk")) && (pstFileInfo->name.GetFileExt() != _T(".tfz")))
-		return FALSE;
+		return false;
 
 	// Read header
 	BYTE abtHeader[24];
@@ -115,7 +115,7 @@ BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
 	if (memcmp(abtHeader, "tlz", 3) != 0)
 	{
 		pclArc->SeekHed(pstFileInfo->start);
-		return FALSE;
+		return false;
 	}
 
 	// Get file information
@@ -138,15 +138,15 @@ BOOL CTaskForce::DecodeTlz(CArcFile* pclArc)
 	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }
 
 /// BMA decoding
-BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
+bool CTaskForce::DecodeBma(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->name.GetFileExt() != _T(".tsz"))
-		return FALSE;
+		return false;
 
 	// Read header
 	BYTE abtHeader[24];
@@ -154,7 +154,7 @@ BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
 	if (memcmp(abtHeader, "bma", 3) != 0)
 	{
 		pclArc->SeekHed(pstFileInfo->start);
-		return FALSE;
+		return false;
 	}
 
 	// Get file information
@@ -180,15 +180,15 @@ BOOL CTaskForce::DecodeBma(CArcFile* pclArc)
 	clImage.WriteReverse(&clmDst[0], dwDstSize);
 	clImage.Close();
 
-	return TRUE;
+	return true;
 }
 
 /// TGA Decoding
-BOOL CTaskForce::DecodeTGA(CArcFile* pclArc)
+bool CTaskForce::DecodeTGA(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->name.GetFileExt() != _T(".tga"))
-		return FALSE;
+		return false;
 
 	// Read data
 	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
@@ -216,5 +216,5 @@ BOOL CTaskForce::DecodeTGA(CArcFile* pclArc)
 		clTGA.Decode(pclArc, &clmSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }

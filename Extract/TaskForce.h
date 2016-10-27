@@ -5,6 +5,10 @@
 class CTaskForce final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	struct SFileEntry
 	{
 		char  szFileName[256];
@@ -13,15 +17,11 @@ public:
 		DWORD dwCompressedSize;
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool MountDat(CArcFile* pclArc);
+	bool MountTlz(CArcFile* pclArc);
+	bool MountBma(CArcFile* pclArc);
 
-private:
-	BOOL MountDat(CArcFile* pclArc);
-	BOOL MountTlz(CArcFile* pclArc);
-	BOOL MountBma(CArcFile* pclArc);
-
-	BOOL DecodeTlz(CArcFile* pclArc);
-	BOOL DecodeBma(CArcFile* pclArc);
-	BOOL DecodeTGA(CArcFile* pclArc);
+	bool DecodeTlz(CArcFile* pclArc);
+	bool DecodeBma(CArcFile* pclArc);
+	bool DecodeTGA(CArcFile* pclArc);
 };
