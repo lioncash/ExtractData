@@ -77,18 +77,18 @@ public:
 	// Returns previously loaded archive file header
 	LPBYTE GetHed() { return m_pHeader.data(); }
 
-	SFileInfo*              GetFileInfo(DWORD num)    { return &(*m_pEnt)[num]; }
+	SFileInfo*              GetFileInfo(DWORD num) const { return &(*m_pEnt)[num]; }
 	SFileInfo*              GetFileInfo(LPCTSTR filename, bool compare_filename_only = false) const;
 	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR pszFileName);
-	std::vector<SFileInfo>& GetFileInfo()              { return *m_pEnt; }
-	SFileInfo*              GetOpenFileInfo()          { return m_pInfFile; }
+	std::vector<SFileInfo>& GetFileInfo() const        { return *m_pEnt; }
+	SFileInfo*              GetOpenFileInfo() const    { return m_pInfFile; }
 	DWORD                   GetOpenFileInfoNum() const { return m_dwInfFileNum; }
 
 	DWORD     GetArcID() const          { return m_dwArcID; }
 	size_t    GetStartEnt() const       { return m_nStartEnt; }
 	size_t    GetCtEnt() const          { return m_ctEnt; }
-	CProgBar* GetProg()                 { return m_pProg; }
-	SOption*  GetOpt()                  { return m_pOption; }
+	CProgBar* GetProg() const           { return m_pProg; }
+	SOption*  GetOpt() const            { return m_pOption; }
 
 	bool      GetState() const          { return m_bState; }
 
