@@ -71,12 +71,12 @@ BOOL CAlcot::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CAlcot::DecodeASB(CArcFile* pclArc)
+bool CAlcot::DecodeASB(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("ASB"))
-		return FALSE;
+		return false;
 
 	// Reading
 	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
@@ -133,7 +133,7 @@ BOOL CAlcot::DecodeASB(CArcFile* pclArc)
 				pclArc->CloseFile();
 			}
 		}
-		return TRUE;
+		return true;
 	}
 
 	// Decompression
@@ -144,15 +144,15 @@ BOOL CAlcot::DecodeASB(CArcFile* pclArc)
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile(&buf[0], buf_len);
 
-	return TRUE;
+	return true;
 }
 
-BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
+bool CAlcot::DecodeCPB(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("CPB"))
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
@@ -250,7 +250,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
 				break;
 			// Unknown
 			default:
-				return FALSE;
+				return false;
 		}
 	}
 
@@ -258,7 +258,7 @@ BOOL CAlcot::DecodeCPB(CArcFile* pclArc)
 	image.Init(pclArc, width, height, bpp);
 	image.WriteCompoRGBAReverse(&buf[0], buf_len);
 
-	return TRUE;
+	return true;
 }
 
 void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
