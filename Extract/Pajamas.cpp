@@ -146,8 +146,8 @@ bool CPajamas::Decode(CArcFile* pclArc)
 ///
 bool CPajamas::DecodeEPA(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("EPA"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("EPA"))
 		return false;
 
 	// Read header
@@ -189,7 +189,7 @@ bool CPajamas::DecodeEPA(CArcFile* pclArc)
 		break;
 
 	default: // Unknown
-		pclArc->SeekHed(pstFileInfo->start);
+		pclArc->SeekHed(file_info->start);
 		return false;
 	}
 
@@ -201,7 +201,7 @@ bool CPajamas::DecodeEPA(CArcFile* pclArc)
 	}
 
 	// Read EPA data
-	DWORD dwSrcSize = pstFileInfo->sizeCmp - 16;
+	DWORD dwSrcSize = file_info->sizeCmp - 16;
 	if (wBpp == 8)
 	{
 		dwSrcSize -= sizeof(abtPallet);

@@ -46,27 +46,27 @@ bool CInnocentGrey::Mount(CArcFile* pclArc)
 
 bool CInnocentGrey::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if ((pInfFile->title != _T("InnocentGrey")) || (pclArc->GetArcExten() != _T(".dat")) || (pInfFile->format != _T("S")))
+	if ((file_info->title != _T("InnocentGrey")) || (pclArc->GetArcExten() != _T(".dat")) || (file_info->format != _T("S")))
 		return false;
 
-	if (pInfFile->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		YCMemory<BYTE> buf(pInfFile->sizeOrg);
-		pclArc->Read(&buf[0], pInfFile->sizeOrg);
+		YCMemory<BYTE> buf(file_info->sizeOrg);
+		pclArc->Read(&buf[0], file_info->sizeOrg);
 
 		// Decryption
-		for (DWORD i = 0; i < pInfFile->sizeOrg; i++)
+		for (DWORD i = 0; i < file_info->sizeOrg; i++)
 		{
 			buf[i] ^= 0xFF;
 		}
 
 		// Output
 		CImage image;
-		image.Init( pclArc, &buf[0] );
-		image.Write( pInfFile->sizeOrg );
+		image.Init(pclArc, &buf[0]);
+		image.Write(file_info->sizeOrg);
 	}
 	else
 	{
@@ -77,7 +77,7 @@ bool CInnocentGrey::Decode(CArcFile* pclArc)
 		// Create output file
 		pclArc->OpenFile();
 
-		for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize)
+		for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
 		{
 			// Get buffer size
 			pclArc->SetBufSize(&BufSize, WriteSize);

@@ -394,10 +394,10 @@ bool CCpz::DecodeCpz1(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "CPZ1", 4) != 0)
 		return false;
 
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read CPZ1
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -405,12 +405,12 @@ bool CCpz::DecodeCpz1(CArcFile* pclArc)
 	Decrypt1(&clmbtSrc[0], dwSrcSize);
 
 	// Output
-	if (pstFileInfo->format == _T("PB2"))
+	if (file_info->format == _T("PB2"))
 	{
 		CPB2A clPB2A;
 		clPB2A.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("MSK"))
+	else if (file_info->format == _T("MSK"))
 	{
 		long  lWidth = *(long*)&clmbtSrc[8];
 		long  lHeight = *(long*)&clmbtSrc[12];
@@ -438,23 +438,23 @@ bool CCpz::DecodeCpz2(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "CPZ2", 4) != 0)
 		return false;
 
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read CPZ2
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// Decryption
-	Decrypt2(&clmbtSrc[0], dwSrcSize, pstFileInfo->key);
+	Decrypt2(&clmbtSrc[0], dwSrcSize, file_info->key);
 
 	// Output
-	if (pstFileInfo->format == _T("PB2"))
+	if (file_info->format == _T("PB2"))
 	{
 		CPB2A clPB2A;
 		clPB2A.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("MSK"))
+	else if (file_info->format == _T("MSK"))
 	{
 		long  lWidth = *(long*)&clmbtSrc[8];
 		long  lHeight = *(long*)&clmbtSrc[12];
@@ -482,17 +482,17 @@ bool CCpz::DecodeCpz3(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "CPZ3", 4) != 0)
 		return false;
 
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read CPZ3
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// Decryption
-	Decrypt3(&clmbtSrc[0], dwSrcSize, pstFileInfo->key);
+	Decrypt3(&clmbtSrc[0], dwSrcSize, file_info->key);
 
-	if (pstFileInfo->format == _T("PB3"))
+	if (file_info->format == _T("PB3"))
 	{
 		CPB3B clPB3B;
 		clPB3B.Decode(pclArc, &clmbtSrc[0], dwSrcSize, OnDecrypt3FromPB3B);
@@ -515,19 +515,19 @@ bool CCpz::DecodeCpz5(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "CPZ5", 4) != 0)
 		return false;
 
-	SFileInfo*   pstFileInfo = pclArc->GetOpenFileInfo();
-	SCPZ5Header* pstCPZ5Header = (SCPZ5Header*)pclArc->GetHed();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	SCPZ5Header*     pstCPZ5Header = (SCPZ5Header*)pclArc->GetHed();
 
 	// Read CPZ5
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
 	// Decryption
 	const BYTE* pbtTable = InitDecryptWithTable5(pstCPZ5Header->adwMD5[3], pstCPZ5Header->dwIndexKey);
-	DecryptOfData5(&clmbtSrc[0], dwSrcSize, pbtTable, pstCPZ5Header->adwMD5, pstFileInfo->key);
+	DecryptOfData5(&clmbtSrc[0], dwSrcSize, pbtTable, pstCPZ5Header->adwMD5, file_info->key);
 
-	if (pstFileInfo->format == _T("PB3"))
+	if (file_info->format == _T("PB3"))
 	{
 		CPB3B clPB3B;
 		clPB3B.Decode(pclArc, &clmbtSrc[0], dwSrcSize, OnDecrypt5FromPB3B);

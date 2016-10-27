@@ -30,7 +30,7 @@ bool CNscr::Mount(CArcFile* pclArc)
 ///
 bool CNscr::MountNsa(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".nsa"))
 	{
@@ -201,8 +201,8 @@ bool CNscr::Decode(CArcFile* pclArc)
 ///
 bool CNscr::DecodeScr(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->name != _T("nscript.dat"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->name != _T("nscript.dat"))
 		return false;
 
 	// Ensure buffer exists
@@ -214,7 +214,7 @@ bool CNscr::DecodeScr(CArcFile* pclArc)
 
 	pclArc->OpenFile(_T(".txt"));
 
-	for (DWORD dwWriteSize = 0; dwWriteSize != pstFileInfo->sizeOrg; dwWriteSize += dwBufferSize)
+	for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufferSize)
 	{
 		// Buffer adjustment
 		pclArc->SetBufSize(&dwBufferSize, dwWriteSize);
@@ -251,8 +251,8 @@ bool CNscr::DecodeScr(CArcFile* pclArc)
 ///
 bool CNscr::DecodeNBZ(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("NBZ"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("NBZ"))
 		return false;
 
 	// Get file size
@@ -260,7 +260,7 @@ bool CNscr::DecodeNBZ(CArcFile* pclArc)
 	pclArc->Read(&dwDstSize, 4);
 	dwDstSize = BitUtils::Swap32(dwDstSize);
 
-	DWORD dwSrcSize = (pstFileInfo->sizeCmp - 4);
+	DWORD dwSrcSize = (file_info->sizeCmp - 4);
 
 	// Ensure buffer exists
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
@@ -342,8 +342,8 @@ DWORD CNscr::GetBit(const BYTE* pbtSrc, DWORD dwReadBitLength, DWORD* pdwReadByt
 ///
 bool CNscr::DecodeSPB(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("SPB"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("SPB"))
 		return false;
 
 	// Get the width
@@ -362,8 +362,8 @@ bool CNscr::DecodeSPB(CArcFile* pclArc)
 	DWORD dwPitch = ((dwLine + 3) & 0xFFFFFFFC);
 
 	// Ensure buffers exist
-	DWORD dwSrcSize = pstFileInfo->sizeCmp - 4;
-	DWORD dwDstSize = pstFileInfo->sizeOrg - 54;
+	DWORD dwSrcSize = file_info->sizeCmp - 4;
+	DWORD dwDstSize = file_info->sizeOrg - 54;
 	DWORD dwWorkSize = (dwColorSize + 4) * 3;
 
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
@@ -509,13 +509,13 @@ bool CNscr::DecodeSPB(CArcFile* pclArc)
 ///
 bool CNscr::DecodeLZSS(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("LZSS"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("LZSS"))
 		return false;
 
 	// Ensure buffers exist
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
-	DWORD dwDstSize = pstFileInfo->sizeOrg;
+	DWORD dwSrcSize = file_info->sizeCmp;
+	DWORD dwDstSize = file_info->sizeOrg;
 	DWORD dwDicSize = 256;
 
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);

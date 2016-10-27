@@ -64,18 +64,18 @@ bool COyatu::Decode(CArcFile* pclArc)
 		return false;
 
 	// Decode
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// BGM
-	if (pstfiWork->format == _T("BGM"))
+	if (file_info->format == _T("BGM"))
 		return DecodeBGM(pclArc);
 
 	// KOE
-	if (pstfiWork->format == _T("KOE"))
+	if (file_info->format == _T("KOE"))
 		return DecodeKOE(pclArc);
 
 	// MSE
-	if (pstfiWork->format == _T("MSE"))
+	if (file_info->format == _T("MSE"))
 		return DecodeMSE(pclArc);
 
 	return false;
@@ -88,8 +88,6 @@ bool COyatu::Decode(CArcFile* pclArc)
 ///
 bool COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
 {
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
-
 	// Read header section
 	BYTE abtHeader[44];
 	pclArc->Read(abtHeader, sizeof(abtHeader));

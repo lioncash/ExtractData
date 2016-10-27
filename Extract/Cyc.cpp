@@ -200,16 +200,16 @@ bool CCyc::Decode(CArcFile* pclArc)
 
 bool CCyc::DecodeDwq(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("DWQ"))
+	if (file_info->format != _T("DWQ"))
 		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(pInfFile->sizeCmp);
-	pclArc->Read(&buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> buf(file_info->sizeCmp);
+	pclArc->Read(&buf[0], file_info->sizeCmp);
 
 	// JPEG + MASK(PACKBMP)
 	if (memcmp(&buf[0], "JPEG+MASK", 9) == 0)
@@ -321,7 +321,7 @@ bool CCyc::DecodeDwq(CArcFile* pclArc)
 	else
 	{
 		pclArc->OpenFile(_T(".dwq"));
-		pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
+		pclArc->WriteFile(&buf[0], file_info->sizeCmp);
 	}
 
 	return true;
@@ -329,48 +329,48 @@ bool CCyc::DecodeDwq(CArcFile* pclArc)
 
 bool CCyc::DecodeWgq(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("WGQ"))
+	if (file_info->format != _T("WGQ"))
 		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(pInfFile->sizeCmp);
-	pclArc->Read(&buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> buf(file_info->sizeCmp);
+	pclArc->Read(&buf[0], file_info->sizeCmp);
 
 	// Output
 	pclArc->OpenFile(_T(".ogg"));
-	pclArc->WriteFile(&buf[64], pInfFile->sizeCmp);
+	pclArc->WriteFile(&buf[64], file_info->sizeCmp);
 
 	return true;
 }
 
 bool CCyc::DecodeVaw(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("VAW"))
+	if (file_info->format != _T("VAW"))
 		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(pInfFile->sizeCmp);
-	pclArc->Read(&buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> buf(file_info->sizeCmp);
+	pclArc->Read(&buf[0], file_info->sizeCmp);
 
 	// ogg
 	if (memcmp(&buf[108], "OggS", 4) == 0)
 	{
 		pclArc->OpenFile(_T(".ogg"));
-		pclArc->WriteFile(&buf[108], pInfFile->sizeCmp - 108);
+		pclArc->WriteFile(&buf[108], file_info->sizeCmp - 108);
 	}
 	// wav
 	else
 	{
 		pclArc->OpenFile(_T(".wav"));
-		pclArc->WriteFile(&buf[64], pInfFile->sizeCmp - 64);
+		pclArc->WriteFile(&buf[64], file_info->sizeCmp - 64);
 	}
 
 	return true;
@@ -378,40 +378,40 @@ bool CCyc::DecodeVaw(CArcFile* pclArc)
 
 bool CCyc::DecodeXtx(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("XTX"))
+	if (file_info->format != _T("XTX"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(pInfFile->sizeCmp);
-	pclArc->Read(&buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> buf(file_info->sizeCmp);
+	pclArc->Read(&buf[0], file_info->sizeCmp);
 
 	// Output
 	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
+	pclArc->WriteFile(&buf[0], file_info->sizeCmp);
 
 	return true;
 }
 
 bool CCyc::DecodeFxf(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("FXF"))
+	if (file_info->format != _T("FXF"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(pInfFile->sizeCmp);
-	pclArc->Read(&buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> buf(file_info->sizeCmp);
+	pclArc->Read(&buf[0], file_info->sizeCmp);
 
 	// Decryption
-	for (DWORD i = 0; i < pInfFile->sizeCmp; i++)
+	for (DWORD i = 0; i < file_info->sizeCmp; i++)
 		buf[i] ^= 0xFF;
 
 	// Output
 	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
+	pclArc->WriteFile(&buf[0], file_info->sizeCmp);
 
 	return true;
 }

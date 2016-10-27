@@ -19,9 +19,9 @@ bool CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 ///
 DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->name == _T("fd_op01.mpg"))
+	if (file_info->name == _T("fd_op01.mpg"))
 	{
 		// OP1
 
@@ -33,13 +33,13 @@ DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 		m_abtKey[5] = 0x94;
 
 		m_adwOffset[0] = 0;
-		m_adwOffset[1] = 0xB6B - pstFileInfo->start;
-		m_adwOffset[2] = 0x7036 - pstFileInfo->start;
-		m_adwOffset[3] = 0x7037 - pstFileInfo->start;
-		m_adwOffset[4] = 0xAF27 - pstFileInfo->start;
-		m_adwOffset[5] = 0xAF28 - pstFileInfo->start;
+		m_adwOffset[1] = 0xB6B - file_info->start;
+		m_adwOffset[2] = 0x7036 - file_info->start;
+		m_adwOffset[3] = 0x7037 - file_info->start;
+		m_adwOffset[4] = 0xAF27 - file_info->start;
+		m_adwOffset[5] = 0xAF28 - file_info->start;
 	}
-	else if (pstFileInfo->name == _T("fd_op02.mpg"))
+	else if (file_info->name == _T("fd_op02.mpg"))
 	{
 		// OP2
 
@@ -51,11 +51,11 @@ DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 		m_abtKey[5] = 0x21;
 
 		m_adwOffset[0] = 0;
-		m_adwOffset[1] = 0x552036D - pstFileInfo->start;
-		m_adwOffset[2] = 0x552254A - pstFileInfo->start;
-		m_adwOffset[3] = 0x552254B - pstFileInfo->start;
-		m_adwOffset[4] = 0x552CDF6 - pstFileInfo->start;
-		m_adwOffset[5] = 0x552CDF7 - pstFileInfo->start;
+		m_adwOffset[1] = 0x552036D - file_info->start;
+		m_adwOffset[2] = 0x552254A - file_info->start;
+		m_adwOffset[3] = 0x552254B - file_info->start;
+		m_adwOffset[4] = 0x552CDF6 - file_info->start;
+		m_adwOffset[5] = 0x552CDF7 - file_info->start;
 	}
 	else
 	{

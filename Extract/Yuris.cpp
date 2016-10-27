@@ -237,10 +237,10 @@ bool CYuris::DecodeYMV(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "YSMV", 4) != 0)
 		return false;
 
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Reading
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 

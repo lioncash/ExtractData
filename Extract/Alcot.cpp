@@ -73,14 +73,14 @@ bool CAlcot::Decode(CArcFile* pclArc)
 
 bool CAlcot::DecodeASB(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("ASB"))
+	if (file_info->format != _T("ASB"))
 		return false;
 
 	// Reading
-	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-	pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> z_buf(file_info->sizeCmp);
+	pclArc->Read(&z_buf[0], file_info->sizeCmp);
 
 	// Get size
 	DWORD z_buf_len = *(LPDWORD)&z_buf[4];
@@ -149,15 +149,15 @@ bool CAlcot::DecodeASB(CArcFile* pclArc)
 
 bool CAlcot::DecodeCPB(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("CPB"))
+	if (file_info->format != _T("CPB"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
+	YCMemory<BYTE> z_buf(file_info->sizeCmp);
 	LPBYTE z_pbuf = &z_buf[0];
-	pclArc->Read(z_pbuf, pInfFile->sizeCmp);
+	pclArc->Read(z_pbuf, file_info->sizeCmp);
 
 	BYTE type = z_buf[4];
 	BYTE bpp = z_buf[5];

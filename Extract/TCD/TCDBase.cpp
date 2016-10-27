@@ -53,10 +53,10 @@ bool CTCDBase::DecodeTCT(CArcFile* pclArc)
 ///
 bool CTCDBase::DecodeTSF(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Adjust input buffer
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 
 	// Read
@@ -85,10 +85,10 @@ bool CTCDBase::DecodeTSF(CArcFile* pclArc)
 ///
 bool CTCDBase::DecodeSPD(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure input buffer
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 
 	// Read
@@ -175,10 +175,10 @@ bool CTCDBase::DecodeSPD(CArcFile* pclArc)
 ///
 bool CTCDBase::DecodeOgg(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure input buffer
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 
 	// Read

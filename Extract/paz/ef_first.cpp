@@ -99,12 +99,10 @@ void Cef_first::InitDecodeKey(CArcFile* pclArc)
 ///
 DWORD Cef_first::InitMovieTable(void* pvTable)
 {
-	BYTE* pbtTable = (BYTE*)pvTable;
+	const BYTE* pbtTable = static_cast<const BYTE*>(pvTable);
 
 	for (DWORD i = 0; i < 256; i++)
 	{
-		LPBYTE pMovieTables = m_aabtMovieTable[i];
-
 		for (DWORD j = 0; j < 256; j++)
 		{
 			m_aabtMovieTable[i][*pbtTable++] = j;
@@ -117,9 +115,9 @@ DWORD Cef_first::InitMovieTable(void* pvTable)
 /// Decode table 1
 void Cef_first::DecodeTable1()
 {
-	DWORD* pdwTable = GetTable();
-	BYTE*  pbtKey = GetKey();
-	DWORD  dwKeyPtr = 0;
+	DWORD*      pdwTable = GetTable();
+	const BYTE* pbtKey = GetKey();
+	DWORD       dwKeyPtr = 0;
 
 	static const BYTE abtKeyTable[6] =
 	{

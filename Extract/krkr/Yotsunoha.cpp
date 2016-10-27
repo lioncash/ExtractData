@@ -16,10 +16,10 @@ bool CYotsunoha::OnCheckDecrypt(CArcFile* pclArc)
 ///
 DWORD CYotsunoha::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Decryption key
-	return (((pstFileInfo->key >> 8) & 0xFF) ^ (pstFileInfo->key & 0xFF));
+	return (((file_info->key >> 8) & 0xFF) ^ (file_info->key & 0xFF));
 }
 
 /// Decryption Process

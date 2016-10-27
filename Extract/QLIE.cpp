@@ -121,43 +121,43 @@ bool CQLIE::Decode(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".pack"))
 		return false;
 
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure buffers exist
-	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
+	YCMemory<BYTE> z_buf(file_info->sizeCmp);
 	YCMemory<BYTE> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 	LPBYTE pBuf = &z_buf[0];
 
 	// Read the file
-	pclArc->Read(pBuf, pInfFile->sizeCmp);
+	pclArc->Read(pBuf, file_info->sizeCmp);
 
 	// Decrypt the encrypted file
-	if (pInfFile->title == _T("FilePackVer1.0"))
+	if (file_info->title == _T("FilePackVer1.0"))
 	{
-		if (pInfFile->key)
-			Decrypt(pBuf, pInfFile->sizeCmp, 0);
+		if (file_info->key)
+			Decrypt(pBuf, file_info->sizeCmp, 0);
 	}
-	else if (pInfFile->title == _T("FilePackVer3.0"))
+	else if (file_info->title == _T("FilePackVer3.0"))
 	{
-		DecryptV3(pBuf, pInfFile->sizeCmp, pInfFile->key);
+		DecryptV3(pBuf, file_info->sizeCmp, file_info->key);
 	}
 
 	// Extract the file if it's compressed
-	if (pInfFile->sizeCmp != pInfFile->sizeOrg)
+	if (file_info->sizeCmp != file_info->sizeOrg)
 	{
-		buf.resize(pInfFile->sizeOrg);
-		Decomp(&buf[0], pInfFile->sizeOrg, pBuf, pInfFile->sizeCmp);
+		buf.resize(file_info->sizeOrg);
+		Decomp(&buf[0], file_info->sizeOrg, pBuf, file_info->sizeCmp);
 		pBuf = &buf[0];
 	}
 
 	// Output
-	if (pInfFile->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
 		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
 
 		// Output size
-		DWORD dstSize = pInfFile->sizeOrg - 54;
+		DWORD dstSize = file_info->sizeOrg - 54;
 
 		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != dstSize)
 			dstSize -= 2;
@@ -167,22 +167,22 @@ bool CQLIE::Decode(CArcFile* pclArc)
 		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
 		image.Write(&pBuf[fHed->bfOffBits], dstSize);
 	}
-	else if (pInfFile->format == _T("B"))
+	else if (file_info->format == _T("B"))
 	{
 		// *.b file
 
-		if (!DecodeB(pclArc, pBuf, pInfFile->sizeOrg))
+		if (!DecodeB(pclArc, pBuf, file_info->sizeOrg))
 		{
 			// Unsupported
 
 			pclArc->OpenFile();
-			pclArc->WriteFile(pBuf, pInfFile->sizeOrg);
+			pclArc->WriteFile(pBuf, file_info->sizeOrg);
 		}
 	}
 	else
 	{
 		pclArc->OpenFile();
-		pclArc->WriteFile(pBuf, pInfFile->sizeOrg);
+		pclArc->WriteFile(pBuf, file_info->sizeOrg);
 	}
 
 	return true;

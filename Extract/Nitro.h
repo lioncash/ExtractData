@@ -25,8 +25,8 @@ private:
 	bool DecodePck(CArcFile* pclArc);
 	bool DecodeNpa(CArcFile* pclArc);
 
-	void DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile);
-	void DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile);
-	void DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile, BYTE& byKey);
-	void DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile);
+	void DecryptPak3(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info);
+	void DecryptPak4(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info);
+	void DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info, BYTE& byKey);
+	void DecryptNpa(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info);
 };

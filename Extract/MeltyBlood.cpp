@@ -58,9 +58,9 @@ bool CMeltyBlood::Mount(CArcFile* pclArc)
 // Extraction function
 bool CMeltyBlood::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("MeltyBlood"))
+	if (file_info->format != _T("MeltyBlood"))
 		return false;
 
 	// Create output file
@@ -70,8 +70,8 @@ bool CMeltyBlood::Decode(CArcFile* pclArc)
 	Decrypt(pclArc);
 
 	// Output earlier than 0x2173
-	if (pInfFile->sizeOrg > 0x2173)
-		pclArc->ReadWrite(pInfFile->sizeOrg - 0x2173);
+	if (file_info->sizeOrg > 0x2173)
+		pclArc->ReadWrite(file_info->sizeOrg - 0x2173);
 
 	return true;
 }
@@ -79,20 +79,20 @@ bool CMeltyBlood::Decode(CArcFile* pclArc)
 // Data decryption function
 void CMeltyBlood::Decrypt(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure buffer
-	int lim = (pInfFile->sizeOrg < 0x2173) ? pInfFile->sizeOrg : 0x2173;
+	int lim = (file_info->sizeOrg < 0x2173) ? file_info->sizeOrg : 0x2173;
 	YCMemory<BYTE> buf(lim);
 
 	pclArc->Read(&buf[0], lim);
 
 	// Decryption
-	int keylen = (int) pInfFile->name.GetLength();
+	int keylen = (int) file_info->name.GetLength();
 	
 	for (int i = 0; i < lim; i++)
 	{
-		buf[i] ^= pInfFile->name[i % keylen] + i + 3;
+		buf[i] ^= file_info->name[i % keylen] + i + 3;
 	}
 
 	pclArc->WriteFile(&buf[0], lim);

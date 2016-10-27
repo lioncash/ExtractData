@@ -85,10 +85,10 @@ bool CAOS::Decode(CArcFile* pclArc)
 ///
 bool CAOS::DecodeABM(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read data
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 
@@ -105,7 +105,7 @@ bool CAOS::DecodeABM(CArcFile* pclArc)
 	DWORD             dwSrcPtr = 0;
 	DWORD             dwDstPtr = 0;
 
-	switch( pstbihSrc->biBitCount )
+	switch (pstbihSrc->biBitCount)
 	{
 	case 1: // Multi-frame
 		dwFrames = *(DWORD*) &clmSrc[58];
@@ -182,10 +182,10 @@ bool CAOS::DecodeABM(CArcFile* pclArc)
 ///
 bool CAOS::DecodeMask(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read Data
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 
@@ -204,10 +204,10 @@ bool CAOS::DecodeMask(CArcFile* pclArc)
 ///
 bool CAOS::DecodeScript(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read compressed data
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 

@@ -262,7 +262,7 @@ bool CCircusPak::Decode(CArcFile* pclArc)
 ///
 bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".pak"))
 		return false;
@@ -272,12 +272,12 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
 
 	BYTE abtKey[2];
 	abtKey[0] = 0xFF;
-	abtKey[1] = (pstFileInfo->format == _T("CS")) ? 1 : 0;
+	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
 
-	if (pstFileInfo->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -287,10 +287,10 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
 		// Output
 		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("CPS"))
+	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -316,7 +316,7 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
 ///
 bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".pak"))
 		return false;
@@ -326,12 +326,12 @@ bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
 
 	BYTE abtKey[2];
 	abtKey[0] = 0xFF;
-	abtKey[1] = (pstFileInfo->format == _T("CS")) ? 1 : 0;
+	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
 
-	if (pstFileInfo->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -341,10 +341,10 @@ bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
 		// Output
 		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("CPS"))
+	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -370,7 +370,7 @@ bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
 ///
 bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".pak"))
 		return false;
@@ -380,12 +380,12 @@ bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 
 	BYTE abtKey[2];
 	abtKey[0] = 0x68;
-	abtKey[1] = (pstFileInfo->format == _T("CS")) ? 1 : 0;
+	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
 
-	if (pstFileInfo->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -395,10 +395,10 @@ bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 		// Output
 		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("TGA"))
+	else if (file_info->format == _T("TGA"))
 	{
 		// TGA
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -409,10 +409,10 @@ bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 		CTga clTGA;
 		clTGA.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
 	}
-	else if (pstFileInfo->format == _T("CPS"))
+	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+		DWORD          dwSrcSize = file_info->sizeCmp;
 		YCMemory<BYTE> clmbtSrc(dwSrcSize);
 		pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -458,7 +458,7 @@ bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 ///
 bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".pak"))
 		return false;
@@ -467,13 +467,13 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
 		return false;
 
 	// Read
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 
 	// Decompression
 	BYTE*          pbtDst = &clmSrc[0];
-	DWORD          dwDstSize = pstFileInfo->sizeOrg;
+	DWORD          dwDstSize = file_info->sizeOrg;
 	YCMemory<BYTE> clmDst;
 
 	if (dwSrcSize != dwDstSize)
@@ -488,7 +488,7 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
 	}
 
 	// Output
-	if (pstFileInfo->format == _T("OP2"))
+	if (file_info->format == _T("OP2"))
 	{
 		// Image
 		long  lWidth = *(long*)&pbtDst[4];
@@ -531,8 +531,8 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
 ///
 bool CCircusPak::DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("BMP"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("BMP"))
 		return false;
 
 	BYTE*             pbtSrc = (BYTE*)pvSrc;
@@ -556,9 +556,9 @@ bool CCircusPak::DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 ///
 bool CCircusPak::DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format != _T("CPS"))
+	if (file_info->format != _T("CPS"))
 		return false;
 
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -614,13 +614,13 @@ bool CCircusPak::DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 ///
 bool CCircusPak::DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void* pvKey)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	DWORD      dwBufSize = pclArc->GetBufSize();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	DWORD            dwBufSize = pclArc->GetBufSize();
 
 	YCMemory<BYTE> clmbtBuf(dwBufSize);
 
 	// Generate output files
-	if (pstFileInfo->format == _T("CS"))
+	if (file_info->format == _T("CS"))
 	{
 		pclArc->OpenScriptFile();
 	}
@@ -629,7 +629,7 @@ bool CCircusPak::DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void
 		pclArc->OpenFile();
 	}
 
-	for (DWORD dwWriteSize = 0; dwWriteSize < pstFileInfo->sizeOrg; dwWriteSize += dwBufSize)
+	for (DWORD dwWriteSize = 0; dwWriteSize < file_info->sizeOrg; dwWriteSize += dwBufSize)
 	{
 		// Buffer size adjustment
 		pclArc->SetBufSize(&dwBufSize, dwWriteSize);

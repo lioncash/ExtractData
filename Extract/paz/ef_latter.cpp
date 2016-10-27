@@ -118,9 +118,9 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 	GetBaseArcName(szBaseArcName, pclArc->GetArcName());
 
 	// Get base key
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	LPCTSTR pszFileExt = PathFindExtension(pstFileInfo->name);
+	LPCTSTR pszFileExt = PathFindExtension(file_info->name);
 	YCStringA clsBaseKey;
 
 	if ((lstrcmpi(pszFileExt, _T(".png")) == 0) || (lstrcmpi(pszFileExt, _T(".png-")) == 0))
@@ -151,7 +151,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 	// Get file name (Lower-case)
 	TCHAR szFileName[_MAX_FNAME];
 
-	lstrcpy(szFileName, pstFileInfo->name);
+	lstrcpy(szFileName, file_info->name);
 
 	if (lstrcmpi(szBaseArcName, _T("voice")) == 0)
 	{
@@ -166,7 +166,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 	CharLower(szFileName);
 
 	// Create Key
-	sprintf(m_szKey, "%s %08X %s", szFileName, pstFileInfo->sizeOrg, clsBaseKey.GetString());
+	sprintf(m_szKey, "%s %08X %s", szFileName, file_info->sizeOrg, clsBaseKey.GetString());
 
 	// Create Table
 	if ((clsBaseKey == "8fO1Xj6g") && (lstrcmpi(pszFileExt, _T(".avi")) == 0))
@@ -175,7 +175,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
 
 		// Construct RC4 Table
 
-		BYTE* pbtMovieTable = GetMovieTable();
+		const BYTE* pbtMovieTable = GetMovieTable();
 		BYTE abtRC4Table[256];
 
 		const char* pszKey = m_szKey;

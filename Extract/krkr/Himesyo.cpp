@@ -16,10 +16,10 @@ bool CHimesyo::OnCheckDecrypt(CArcFile* pclArc)
 ///
 DWORD CHimesyo::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR    pszFileExt = PathFindExtension(pstFileInfo->name);
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	LPCTSTR          pszFileExt = PathFindExtension(file_info->name);
 
-	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (pstFileInfo->name == _T("startup.tjs")))
+	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
 	{
 		// Files we don't decode
 		SetDecryptRequirement(false);
@@ -35,7 +35,7 @@ DWORD CHimesyo::OnInitDecrypt(CArcFile* pclArc)
 	// Decryption key
 	m_dwChangeDecryptKey = 0;
 
-	return (pstFileInfo->key ^ 0x03020100 ^ 0xFFFFFFFF);
+	return (file_info->key ^ 0x03020100 ^ 0xFFFFFFFF);
 }
 
 /// Decryption Process

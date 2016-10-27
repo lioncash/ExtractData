@@ -334,8 +334,8 @@ bool CMajiro::Decode(CArcFile* pclArc)
 ///
 bool CMajiro::DecodeMJO(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("MJO"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("MJO"))
 		return false;
 
 	// Decoding table
@@ -411,14 +411,14 @@ bool CMajiro::DecodeMJO(CArcFile* pclArc)
 ///
 bool CMajiro::DecodeRC(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if ((pstFileInfo->format != _T("RCT")) && (pstFileInfo->format != _T("RC8")))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if ((file_info->format != _T("RCT")) && (file_info->format != _T("RC8")))
 	{
 		return false;
 	}
 
 	// rc8/rct reading
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -739,8 +739,8 @@ void CMajiro::read_bits_8(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWO
 ///
 bool CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->starts.empty())
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->starts.empty())
 	{
 		// Mask image doesn't exist.
 
@@ -748,9 +748,9 @@ bool CMajiro::AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const 
 	}
 
 	// Read image mask
-	DWORD          dwSrcSizeOfMask = pstFileInfo->sizesCmp[0];
+	DWORD          dwSrcSizeOfMask = file_info->sizesCmp[0];
 	YCMemory<BYTE> clmbtSrcOfMask(dwSrcSizeOfMask);
-	pclArc->SeekHed(pstFileInfo->starts[0]);
+	pclArc->SeekHed(file_info->starts[0]);
 	pclArc->Read(&clmbtSrcOfMask[0], dwSrcSizeOfMask);
 
 	// Get header information

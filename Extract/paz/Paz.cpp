@@ -290,7 +290,7 @@ void CPaz::InitTable()
 ///
 DWORD CPaz::InitMovieTable(void* pvTable)
 {
-	BYTE* pbtTable = (BYTE*)pvTable;
+	const BYTE* pbtTable = (const BYTE*)pvTable;
 	BYTE* pbtMovieTable = GetMovieTable();
 
 	for (DWORD i = 0; i < 256; i++)
@@ -412,7 +412,7 @@ void CPaz::DecodeTable2()
 void CPaz::DecodeData(void* pvTarget, DWORD dwSize)
 {
 	BYTE* pbtTarget = (BYTE*)pvTarget;
-	DWORD* pdwTable = GetTable();
+	const DWORD* pdwTable = GetTable();
 
 	for (DWORD i = 0; i < dwSize; i += 8)
 	{
@@ -454,10 +454,10 @@ void CPaz::DecodeMovieData(void* pvTarget, DWORD dwSize)
 /// @param dwValue Input data
 /// @param pvTable Table
 ///
-DWORD CPaz::DecodeValueByTable(DWORD dwValue, void* pvTable)
+DWORD CPaz::DecodeValueByTable(DWORD dwValue, const void* pvTable)
 {
 	DWORD dwResult;
-	DWORD* pdwTable = (DWORD*)pvTable;
+	const DWORD* pdwTable = static_cast<const DWORD*>(pvTable);
 
 	dwResult = pdwTable[((dwValue >> 24) & 0xFF) + 18];
 	dwResult += pdwTable[((dwValue >> 16) & 0xFF) + 274];
@@ -473,9 +473,9 @@ DWORD CPaz::DecodeValueByTable(DWORD dwValue, void* pvTable)
 /// @param pdwValue2 - Target data 2
 /// @param pvTable   - Table
 ///
-void CPaz::DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable)
+void CPaz::DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, const void* pvTable)
 {
-	DWORD* pdwTable = (DWORD*)pvTable;
+	const DWORD* pdwTable = static_cast<const DWORD*>(pvTable);
 
 	DWORD dwWork1 = *pdwValue1;
 	DWORD dwWork2 = *pdwValue2;

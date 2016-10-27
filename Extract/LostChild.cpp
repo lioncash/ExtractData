@@ -127,9 +127,9 @@ bool CLostChild::Mount(CArcFile* pclArc)
 ///
 bool CLostChild::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->title != _T("LOST CHILD"))
+	if (file_info->title != _T("LOST CHILD"))
 		return false;
 
 	if (DecodeESUR(pclArc))
@@ -147,12 +147,12 @@ bool CLostChild::Decode(CArcFile* pclArc)
 ///
 bool CLostChild::DecodeESUR(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("SUR"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("SUR"))
 		return false;
 
 	// Read
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	DWORD dwReadSize = pclArc->Read(&clmSrc[0], dwSrcSize);
 
@@ -191,12 +191,12 @@ bool CLostChild::DecodeESUR(CArcFile* pclArc)
 ///
 bool CLostChild::DecodeLAD(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("LAD"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("LAD"))
 		return false;
 
 	// Reading
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	DWORD dwReadSize = pclArc->Read(&clmSrc[0], dwSrcSize);
 
@@ -322,8 +322,8 @@ bool CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 ///
 bool CLostChild::Extract(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->title != _T("LOST CHILD"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->title != _T("LOST CHILD"))
 		return false;
 
 	// Ensure buffer exists
@@ -333,7 +333,7 @@ bool CLostChild::Extract(CArcFile* pclArc)
 	// Generate output files
 	pclArc->OpenFile();
 
-	for (DWORD WriteSize = 0; WriteSize != pstFileInfo->sizeCmp; WriteSize += dwBufferSize)
+	for (DWORD WriteSize = 0; WriteSize != file_info->sizeCmp; WriteSize += dwBufferSize)
 	{
 		// Adjust buffer size
 		pclArc->SetBufSize(&dwBufferSize, WriteSize);

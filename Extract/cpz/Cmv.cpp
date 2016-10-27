@@ -76,13 +76,13 @@ bool CCmv::Mount(CArcFile* pclArc)
 
 bool CCmv::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("JBP"))
+	if (file_info->format != _T("JBP"))
 		return false;
 
-	YCMemory<BYTE> src(pInfFile->sizeCmp);
-	pclArc->Read(&src[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> src(file_info->sizeCmp);
+	pclArc->Read(&src[0], file_info->sizeCmp);
 
 	LONG width = *(LPWORD)&src[0x10];
 	LONG height = *(LPWORD)&src[0x12];
@@ -104,7 +104,7 @@ bool CCmv::Decode(CArcFile* pclArc)
 	else
 	{
 		pclArc->OpenFile();
-		pclArc->WriteFile(&src[0], pInfFile->sizeCmp);
+		pclArc->WriteFile(&src[0], file_info->sizeCmp);
 	}
 
 	return true;

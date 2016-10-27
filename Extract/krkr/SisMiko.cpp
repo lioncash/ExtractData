@@ -16,11 +16,11 @@ bool CSisMiko::OnCheckDecrypt(CArcFile* pclArc)
 ///
 DWORD CSisMiko::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR    pszFileExt = PathFindExtension(pstFileInfo->name);
-	DWORD      dwKey = pclArc->GetOpenFileInfo()->key;
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	LPCTSTR          pszFileExt = PathFindExtension(file_info->name);
+	DWORD            dwKey = pclArc->GetOpenFileInfo()->key;
 
-	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (pstFileInfo->name == _T("startup.tjs")))
+	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
 	{
 		// Files we don't decrypt
 		SetDecryptRequirement(false);

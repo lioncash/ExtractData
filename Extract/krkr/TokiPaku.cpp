@@ -17,8 +17,8 @@ bool CTokiPaku::OnCheckDecrypt(CArcFile* pclArc)
 ///
 DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	LPCTSTR    pszFileExt = PathFindExtension(pstFileInfo->name);
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	LPCTSTR          pszFileExt = PathFindExtension(file_info->name);
 
 	if (lstrcmp(pszFileExt, _T(".dll")) == 0)
 	{

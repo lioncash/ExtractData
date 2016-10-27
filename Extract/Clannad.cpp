@@ -62,16 +62,16 @@ bool CClannad::Mount(CArcFile* pclArc)
 // Function to perform extraction
 bool CClannad::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if ((pInfFile->title != _T("CLANNAD")) || (pInfFile->format != _T("AHX")))
+	if ((file_info->title != _T("CLANNAD")) || (file_info->format != _T("AHX")))
 		return false;
 
 	// Ensure buffer
-	YCMemory<BYTE> mzx_buf(pInfFile->sizeCmp);
+	YCMemory<BYTE> mzx_buf(file_info->sizeCmp);
 
 	// Read
-	pclArc->Read(&mzx_buf[0], pInfFile->sizeCmp);
+	pclArc->Read(&mzx_buf[0], file_info->sizeCmp);
 
 	// MZX Decompression
 	DWORD ahx_buf_len = *(LPDWORD)&mzx_buf[11];

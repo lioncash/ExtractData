@@ -176,12 +176,12 @@ bool CCircus::Decode(CArcFile* pclArc)
 ///
 bool CCircus::DecodeCRX(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("CRX"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("CRX"))
 		return false;
 
 	// Ensure input buffer exists
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 
 	// Read
@@ -372,8 +372,8 @@ bool CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 ///
 bool CCircus::DecodePCM(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->format != _T("PCM"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("PCM"))
 		return false;
 
 	// Read header

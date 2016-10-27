@@ -670,32 +670,32 @@ bool CNitro::Decode(CArcFile* pclArc)
 
 bool CNitro::DecodePak1(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->title != _T("Pak1") && pInfFile->title != _T("Pak2"))
+	if (file_info->title != _T("Pak1") && file_info->title != _T("Pak2"))
 		return false;
-	if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) != 0)
+	if (lstrcmpi(PathFindExtension(file_info->name), _T(".nps")) != 0)
 		return false;
 
 	// Create output file
 	pclArc->OpenScriptFile();
 
 	// zlib compressed data
-	if (pInfFile->format == _T("zlib"))
+	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffer exists
-		YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-		YCMemory<BYTE> buf(pInfFile->sizeOrg);
+		YCMemory<BYTE> z_buf(file_info->sizeCmp);
+		YCMemory<BYTE> buf(file_info->sizeOrg);
 
 		// Reading
-		pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
+		pclArc->Read(&z_buf[0], file_info->sizeCmp);
 
 		// Decompression
 		CZlib zlib;
-		zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
+		zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
 
 		// Output
-		pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
+		pclArc->WriteFile(&buf[0], file_info->sizeOrg);
 	}
 	else
 	{
@@ -708,47 +708,47 @@ bool CNitro::DecodePak1(CArcFile* pclArc)
 
 bool CNitro::DecodePak3(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->title != _T("Pak3"))
+	if (file_info->title != _T("Pak3"))
 		return false;
 
-	if (pInfFile->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		YCMemory<BYTE> buf(pInfFile->sizeCmp);
-		pclArc->Read(&buf[0], pInfFile->sizeCmp);
-		DecryptPak3(&buf[0], pInfFile->sizeCmp, 0, pInfFile);
+		YCMemory<BYTE> buf(file_info->sizeCmp);
+		pclArc->Read(&buf[0], file_info->sizeCmp);
+		DecryptPak3(&buf[0], file_info->sizeCmp, 0, file_info);
 
 		CImage image;
 		image.Init(pclArc, &buf[0]);
-		image.Write(pInfFile->sizeCmp);
+		image.Write(file_info->sizeCmp);
 	}
 	else
 	{
 		// Create output file
-		if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) == 0)
+		if (lstrcmpi(PathFindExtension(file_info->name), _T(".nps")) == 0)
 			pclArc->OpenScriptFile();
 		else
 			pclArc->OpenFile();
 
 		// zlib compressed data
-		if (pInfFile->format == _T("zlib"))
+		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffers exist
-			YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-			YCMemory<BYTE> buf(pInfFile->sizeOrg);
+			YCMemory<BYTE> z_buf(file_info->sizeCmp);
+			YCMemory<BYTE> buf(file_info->sizeOrg);
 
 			// Reading
-			pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
+			pclArc->Read(&z_buf[0], file_info->sizeCmp);
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
+			zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
 
 			// Output
-			DecryptPak3(&buf[0], pInfFile->sizeOrg, 0, pInfFile);
-			pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
+			DecryptPak3(&buf[0], file_info->sizeOrg, 0, file_info);
+			pclArc->WriteFile(&buf[0], file_info->sizeOrg);
 		}
 		else
 		{
@@ -756,14 +756,14 @@ bool CNitro::DecodePak3(CArcFile* pclArc)
 			DWORD BufSize = pclArc->GetBufSize();
 			YCMemory<BYTE> buf(BufSize);
 
-			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize)
+			for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
 			{
 				// Adjust buffer size
 				pclArc->SetBufSize(&BufSize, WriteSize);
 
 				// Output
 				pclArc->Read(&buf[0], BufSize);
-				DecryptPak3(&buf[0], BufSize, WriteSize, pInfFile);
+				DecryptPak3(&buf[0], BufSize, WriteSize, file_info);
 				pclArc->WriteFile(&buf[0], BufSize);
 			}
 		}
@@ -774,47 +774,47 @@ bool CNitro::DecodePak3(CArcFile* pclArc)
 
 bool CNitro::DecodePak4(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->title != _T("Pak4"))
+	if (file_info->title != _T("Pak4"))
 		return false;
 
-	if (pInfFile->format == _T("BMP"))
+	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		YCMemory<BYTE> buf(pInfFile->sizeCmp);
-		pclArc->Read(&buf[0], pInfFile->sizeCmp);
-		DecryptPak4(&buf[0], pInfFile->sizeCmp, 0, pInfFile);
+		YCMemory<BYTE> buf(file_info->sizeCmp);
+		pclArc->Read(&buf[0], file_info->sizeCmp);
+		DecryptPak4(&buf[0], file_info->sizeCmp, 0, file_info);
 
 		CImage image;
 		image.Init(pclArc, &buf[0]);
-		image.Write(pInfFile->sizeCmp);
+		image.Write(file_info->sizeCmp);
 	}
 	else
 	{
 		// Create output file
-		if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".nps")) == 0)
+		if (lstrcmpi(PathFindExtension(file_info->name), _T(".nps")) == 0)
 			pclArc->OpenScriptFile();
 		else
 			pclArc->OpenFile();
 
 		// zlib compressed data
-		if (pInfFile->format == _T("zlib"))
+		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffer exists
-			YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-			YCMemory<BYTE> buf(pInfFile->sizeOrg);
+			YCMemory<BYTE> z_buf(file_info->sizeCmp);
+			YCMemory<BYTE> buf(file_info->sizeOrg);
 
 			// Read
-			pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
+			pclArc->Read(&z_buf[0], file_info->sizeCmp);
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
+			zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
 
 			// Output
-			DecryptPak4(&buf[0], pInfFile->sizeOrg, 0, pInfFile);
-			pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
+			DecryptPak4(&buf[0], file_info->sizeOrg, 0, file_info);
+			pclArc->WriteFile(&buf[0], file_info->sizeOrg);
 		}
 		else
 		{
@@ -822,14 +822,14 @@ bool CNitro::DecodePak4(CArcFile* pclArc)
 			DWORD BufSize = pclArc->GetBufSize();
 			YCMemory<BYTE> buf(BufSize);
 
-			for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; WriteSize += BufSize)
+			for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
 			{
 				// Adjust buffer size
 				pclArc->SetBufSize(&BufSize, WriteSize);
 
 				// Output
 				pclArc->Read(&buf[0], BufSize);
-				DecryptPak4(&buf[0], BufSize, WriteSize, pInfFile);
+				DecryptPak4(&buf[0], BufSize, WriteSize, file_info);
 				pclArc->WriteFile(&buf[0], BufSize);
 			}
 		}
@@ -843,8 +843,8 @@ bool CNitro::DecodePK2(CArcFile* pclArc)
 	if ((pclArc->GetArcExten() != _T(".PK2")) || (memcmp(pclArc->GetHed(), "ARCV", 4) != 0))
 		return false;
 
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(pInfFile->name);
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	YCString sFileExt = PathFindExtension(file_info->name);
 
 	if (sFileExt != _T(".nps") && sFileExt != _T(".ini") && sFileExt != _T(".h") && sFileExt != _T(".txt"))
 		return false;
@@ -855,15 +855,15 @@ bool CNitro::DecodePK2(CArcFile* pclArc)
 	dwSizeOrg &= 0x00FFFFFF;
 
 	// Ensure buffer exists
-	YCMemory<BYTE> vbyBufCmp(pInfFile->sizeCmp);
+	YCMemory<BYTE> vbyBufCmp(file_info->sizeCmp);
 	YCMemory<BYTE> vbyBufOrg(dwSizeOrg);
 
 	// Reading
-	pclArc->Read(&vbyBufCmp[0], pInfFile->sizeCmp);
+	pclArc->Read(&vbyBufCmp[0], file_info->sizeCmp);
 
 	// Decompression
 	CZlib zlib;
-	zlib.Decompress(&vbyBufOrg[0], dwSizeOrg, &vbyBufCmp[0], pInfFile->sizeCmp);
+	zlib.Decompress(&vbyBufOrg[0], dwSizeOrg, &vbyBufCmp[0], file_info->sizeCmp);
 
 	if (sFileExt == _T(".nps"))
 	{
@@ -885,28 +885,28 @@ bool CNitro::DecodeN3Pk(CArcFile* pclArc)
 	if ((pclArc->GetArcExten() != _T(".pak")) || (memcmp(pclArc->GetHed(), "N3Pk", 4) != 0))
 		return false;
 
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(pInfFile->name);
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	YCString sFileExt = PathFindExtension(file_info->name);
 
 	// Ensure buffer exists
 	DWORD dwBufSize = pclArc->GetBufSize();
 	YCMemory<BYTE> vbyBuf(dwBufSize);
 
-	BYTE byKey = (BYTE)pInfFile->key;
+	BYTE byKey = (BYTE)file_info->key;
 
 	if (sFileExt == _T(".nps"))
 		pclArc->OpenScriptFile();
 	else
 		pclArc->OpenFile();
 
-	for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize)
+	for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufSize)
 	{
 		// Ensure buffer exists
 		pclArc->SetBufSize(&dwBufSize, dwWriteSize);
 
 		// Output
 		pclArc->Read(&vbyBuf[0], dwBufSize);
-		DecryptN3Pk(&vbyBuf[0], dwBufSize, dwWriteSize, pInfFile, byKey);
+		DecryptN3Pk(&vbyBuf[0], dwBufSize, dwWriteSize, file_info, byKey);
 		pclArc->WriteFile(&vbyBuf[0], dwBufSize);
 	}
 
@@ -918,32 +918,32 @@ bool CNitro::DecodeNpa(CArcFile* pclArc)
 	if ((pclArc->GetArcExten() != _T(".npa")) || (memcmp(pclArc->GetHed(), "NPA\x01", 4) != 0))
 		return false;
 
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(pInfFile->name);
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	YCString sFileExt = PathFindExtension(file_info->name);
 
 	if (sFileExt == _T(".nss"))
 		pclArc->OpenScriptFile();
 	else
 		pclArc->OpenFile();
 
-	if (pInfFile->format == _T("zlib"))
+	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffers exist
-		YCMemory<BYTE> vbyBufCmp(pInfFile->sizeCmp);
-		YCMemory<BYTE> vbyBufOrg(pInfFile->sizeOrg);
+		YCMemory<BYTE> vbyBufCmp(file_info->sizeCmp);
+		YCMemory<BYTE> vbyBufOrg(file_info->sizeOrg);
 
 		// Reading
-		pclArc->Read(&vbyBufCmp[0], pInfFile->sizeCmp);
+		pclArc->Read(&vbyBufCmp[0], file_info->sizeCmp);
 
 		// Decryption
-		DecryptNpa(&vbyBufCmp[0], pInfFile->sizeCmp, 0, pInfFile);
+		DecryptNpa(&vbyBufCmp[0], file_info->sizeCmp, 0, file_info);
 
 		// Decompression
 		CZlib zlib;
-		zlib.Decompress(&vbyBufOrg[0], pInfFile->sizeOrg, &vbyBufCmp[0], pInfFile->sizeCmp);
+		zlib.Decompress(&vbyBufOrg[0], file_info->sizeOrg, &vbyBufCmp[0], file_info->sizeCmp);
 
 		// Output
-		pclArc->WriteFile(&vbyBufOrg[0], pInfFile->sizeOrg);
+		pclArc->WriteFile(&vbyBufOrg[0], file_info->sizeOrg);
 	}
 	else
 	{
@@ -951,14 +951,14 @@ bool CNitro::DecodeNpa(CArcFile* pclArc)
 		DWORD dwBufSize = pclArc->GetBufSize();
 		YCMemory<BYTE> vbyBuf(dwBufSize);
 
-		for (DWORD dwWriteSize = 0; dwWriteSize != pInfFile->sizeOrg; dwWriteSize += dwBufSize)
+		for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufSize)
 		{
 			// Adjust buffer size
 			pclArc->SetBufSize(&dwBufSize, dwWriteSize);
 
 			// Output
 			pclArc->Read(&vbyBuf[0], dwBufSize);
-			DecryptNpa(&vbyBuf[0], dwBufSize, dwWriteSize, pInfFile);
+			DecryptNpa(&vbyBuf[0], dwBufSize, dwWriteSize, file_info);
 			pclArc->WriteFile(&vbyBuf[0], dwBufSize);
 		}
 	}
@@ -966,11 +966,11 @@ bool CNitro::DecodeNpa(CArcFile* pclArc)
 	return true;
 }
 
-void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
+void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
 {
-	YCString clsFileExt = PathFindExtension(pInfFile->name);
+	YCString clsFileExt = PathFindExtension(file_info->name);
 
-	if (pInfFile->format == _T("zlib"))
+	if (file_info->format == _T("zlib"))
 	{
 		// No decoding
 
@@ -987,22 +987,22 @@ void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	for (DWORD i = offset; i < (size / 4); i++)
 	{
-		*(DWORD*)&data[dwTargetPtr] ^= pInfFile->key;
+		*(DWORD*)&data[dwTargetPtr] ^= file_info->key;
 
 		dwTargetPtr += 4;
 	}
 
 	for (DWORD i = offset; i < (size & 3); i++)
 	{
-		data[dwTargetPtr++] ^= (pInfFile->key >> (i * 8)) & 0xFF;
+		data[dwTargetPtr++] ^= (file_info->key >> (i * 8)) & 0xFF;
 	}
 }
 
-void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
+void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
 {
-	YCString clsFileExt = PathFindExtension(pInfFile->name);
+	YCString clsFileExt = PathFindExtension(file_info->name);
 
-	if (pInfFile->format != _T("zlib"))
+	if (file_info->format != _T("zlib"))
 	{
 		// Decoding up to 1024 bytes from the beginning
 
@@ -1015,18 +1015,18 @@ void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 
 	for (DWORD i = offset; i < (size / 4); i++)
 	{
-		*(DWORD*)&data[dwTargetPtr] ^= pInfFile->key;
+		*(DWORD*)&data[dwTargetPtr] ^= file_info->key;
 
 		dwTargetPtr += 4;
 	}
 
 	for (DWORD i = offset; i < (size & 3); i++)
 	{
-		data[dwTargetPtr++] ^= (pInfFile->key >> (i * 8)) & 0xFF;
+		data[dwTargetPtr++] ^= (file_info->key >> (i * 8)) & 0xFF;
 	}
 }
 
-void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile, BYTE& byKey)
+void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info, BYTE& byKey)
 {
 	static const BYTE abtKey[1024] =
 	{
@@ -1064,7 +1064,7 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 		0x2E, 0x7A, 0x66, 0xB3, 0xB8, 0x4A, 0x61, 0xC4, 0x02, 0x1B, 0x68, 0x5D, 0x94, 0x2B, 0x6F, 0x2A, 0x37, 0xBE, 0x0B, 0xB4, 0xA1, 0x8E, 0x0C, 0xC3, 0x1B, 0xDF, 0x05, 0x5A, 0x8D, 0xEF, 0x02, 0x2D
 	};
 
-	switch (pInfFile->type)
+	switch (file_info->type)
 	{
 	case 1: // Decode all sizes
 		for (DWORD i = 0; i < size; i++)
@@ -1084,7 +1084,7 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfF
 	}
 }
 
-void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFile)
+void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
 {
 	static const BYTE abtKey[256] =
 	{
@@ -1098,7 +1098,7 @@ void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, SFileInfo* pInfFi
 		0xA6, 0xA1, 0x47, 0x5A, 0x1F, 0x36, 0xC1, 0x53, 0xB6, 0xCF, 0xAE, 0x7D, 0xFF, 0x93, 0x71, 0x34, 0xD3, 0xFC, 0x9F, 0xF8, 0x5E, 0x1B, 0xD9, 0x60, 0xBA, 0xBD, 0x5C, 0xE5, 0xF3, 0x27, 0xDA, 0x96
 	};
 
-	BYTE btKey = (BYTE) (pInfFile->key & 0xFF);
+	BYTE btKey = (BYTE) (file_info->key & 0xFF);
 
 	// Decoding up to 4096 bytes from the beginning
 	size = (size < 4096) ? size : 4096;

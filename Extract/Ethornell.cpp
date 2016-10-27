@@ -76,10 +76,10 @@ bool CEthornell::Decode(CArcFile* pclArc)
 ///
 bool CEthornell::DecodeDSC(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 
@@ -157,10 +157,10 @@ bool CEthornell::DecodeDSC(CArcFile* pclArc)
 ///
 bool CEthornell::DecodeCBG(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read CompressedBG
-	DWORD dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
 

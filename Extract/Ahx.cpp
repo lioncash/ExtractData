@@ -39,17 +39,17 @@ bool CAhx::Mount(CArcFile* pclArc)
 
 bool CAhx::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("AHX"))
+	if (file_info->format != _T("AHX"))
 		return false;
 
 	// Read AHX
-	YCMemory<BYTE> ahx_buf(pInfFile->sizeCmp);
-	pclArc->Read(&ahx_buf[0], pInfFile->sizeCmp);
+	YCMemory<BYTE> ahx_buf(file_info->sizeCmp);
+	pclArc->Read(&ahx_buf[0], file_info->sizeCmp);
 
 	// Output to convert WAV to AHX
-	Decode(pclArc, &ahx_buf[0], pInfFile->sizeCmp);
+	Decode(pclArc, &ahx_buf[0], file_info->sizeCmp);
 
 	return true;
 }

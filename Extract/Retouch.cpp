@@ -49,9 +49,9 @@ bool CRetouch::Decode(CArcFile* pclArc)
 ///
 bool CRetouch::DecodeGYU(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format != _T("GYU"))
+	if (file_info->format != _T("GYU"))
 		return false;
 
 	// Read header

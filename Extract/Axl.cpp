@@ -66,42 +66,42 @@ bool CAxl::Mount(CArcFile* pclArc)
 
 bool CAxl::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->title != _T("AXL"))
+	if (file_info->title != _T("AXL"))
 		return false;
 
 	// Ensure buffer
-	YCMemory<BYTE> buf(pInfFile->sizeOrg);
+	YCMemory<BYTE> buf(file_info->sizeOrg);
 
 	// LZ Compressed File
-	if (pInfFile->format == _T("LZ"))
+	if (file_info->format == _T("LZ"))
 	{
 		// Reading
-		YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-		pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
+		YCMemory<BYTE> z_buf(file_info->sizeCmp);
+		pclArc->Read(&z_buf[0], file_info->sizeCmp);
 
 		// LZSS Decompression
 		CLZSS clLZSS;
-		clLZSS.Decomp( &buf[0], pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp, 4096, 4078, 3 );
+		clLZSS.Decomp( &buf[0], file_info->sizeOrg, &z_buf[0], file_info->sizeCmp, 4096, 4078, 3 );
 	}
 	else // Uncompressed File
 	{
-		pclArc->Read(&buf[0], pInfFile->sizeCmp);
+		pclArc->Read(&buf[0], file_info->sizeCmp);
 	}
 
 	// BMP File
-	if (lstrcmpi(PathFindExtension(pInfFile->name), _T(".bmp")) == 0)
+	if (lstrcmpi(PathFindExtension(file_info->name), _T(".bmp")) == 0)
 	{
 		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&buf[0];
 		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&buf[14];
 
-		if (fHed->bfSize != pInfFile->sizeOrg)
+		if (fHed->bfSize != file_info->sizeOrg)
 		{
 			// 32bit BMP
 
 			// Make buffer for 32bit BMP
-			YCMemory<BYTE> buf2(pInfFile->sizeOrg - 54);
+			YCMemory<BYTE> buf2(file_info->sizeOrg - 54);
 
 			// Refers to the alpha value
 			LPBYTE pbufA = &buf[fHed->bfSize];
@@ -126,26 +126,26 @@ bool CAxl::Decode(CArcFile* pclArc)
 
 			CImage image;
 			image.Init(pclArc, iHed->biWidth, iHed->biHeight, 32);
-			image.Write(&buf2[0], pInfFile->sizeOrg - 54);
+			image.Write(&buf2[0], file_info->sizeOrg - 54);
 		}
 		else // Below 24bit BMP
 		{
 			CImage image;
 			image.Init(pclArc, &buf[0]);
-			image.Write(pInfFile->sizeOrg);
+			image.Write(file_info->sizeOrg);
 		}
 	}
-	else if (pInfFile->format == _T("LZ"))
+	else if (file_info->format == _T("LZ"))
 	{
 		// LZ Compressed files other than BMP
 
 		pclArc->OpenFile();
-		pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
+		pclArc->WriteFile(&buf[0], file_info->sizeOrg);
 	}
 	else // Other file
 	{
 		pclArc->OpenFile();
-		pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
+		pclArc->WriteFile(&buf[0], file_info->sizeCmp);
 	}
 
 	return true;

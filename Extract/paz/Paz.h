@@ -45,8 +45,8 @@ protected:
 	virtual void DecodeMovieData(void* pvTarget, DWORD dwSize);
 
 	// Decode DWORD value
-	virtual DWORD DecodeValueByTable(DWORD dwValue, void* pvTable);
-	virtual void  DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, void* pvTable);
+	virtual DWORD DecodeValueByTable(DWORD dwValue, const void* pvTable);
+	virtual void  DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, const void* pvTable);
 
 	// Get 
 	virtual DWORD* GetTable();

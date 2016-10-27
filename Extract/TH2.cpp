@@ -206,7 +206,7 @@ bool CTH2::Decode(CArcFile* pclArc)
 /// WMV Decoding
 bool CTH2::DecodeWMV(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".wmv"))
 		return false;
@@ -222,7 +222,7 @@ bool CTH2::DecodeWMV(CArcFile* pclArc)
 	pclArc->OpenFile();
 	pclArc->SeekCur(8);
 	pclArc->WriteFile("\x30\x26\xB2\x75\x8E\x66\xCF\x11", 8);
-	pclArc->ReadWrite((pstFileInfo->sizeCmp - 8));
+	pclArc->ReadWrite((file_info->sizeCmp - 8));
 	pclArc->CloseFile();
 
 	return true;
@@ -231,21 +231,21 @@ bool CTH2::DecodeWMV(CArcFile* pclArc)
 /// Decoding other files
 bool CTH2::DecodeEtc(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->title != _T("TH2"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->title != _T("TH2"))
 		return false;
 
-	if ((pstFileInfo->format != _T("LZ")) && (pstFileInfo->format != _T("TGA")))
+	if ((file_info->format != _T("LZ")) && (file_info->format != _T("TGA")))
 		return false;
 
 	YCMemory<BYTE> clmDst;
 	DWORD          dwDstSize;
 
 	// LZ Decoding
-	if (pstFileInfo->format == _T("LZ"))
+	if (file_info->format == _T("LZ"))
 	{
 		// Get input size
-		DWORD dwSrcSize = (pstFileInfo->sizeCmp - 8);
+		DWORD dwSrcSize = (file_info->sizeCmp - 8);
 
 		// Get output size
 		pclArc->SeekCur(4);
@@ -265,12 +265,12 @@ bool CTH2::DecodeEtc(CArcFile* pclArc)
 	else
 	{
 		// Uncompressed
-		dwDstSize = pstFileInfo->sizeOrg;
+		dwDstSize = file_info->sizeOrg;
 		clmDst.resize(dwDstSize);
 		pclArc->Read(&clmDst[0], dwDstSize);
 	}
 
-	YCString clsFileExt = pstFileInfo->name.GetFileExt().MakeLower();
+	YCString clsFileExt = file_info->name.GetFileExt().MakeLower();
 	if (clsFileExt == _T(".tga"))
 	{
 		// TGA

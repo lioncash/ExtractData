@@ -87,7 +87,7 @@ void CEFsfm::InitDecodeKey(CArcFile* pclArc)
 ///
 DWORD CEFsfm::InitMovieTable(void* pvTable)
 {
-	BYTE* pbtTable = (BYTE*)pvTable;
+	const BYTE* pbtTable = static_cast<const BYTE*>(pvTable);
 
 	for (DWORD i = 0; i < 256; i++)
 	{

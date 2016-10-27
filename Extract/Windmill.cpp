@@ -44,9 +44,9 @@ bool CWindmill::Mount(CArcFile* pclArc)
 
 bool CWindmill::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("HG2"))
+	if (file_info->format != _T("HG2"))
 		return false;
 
 	return false; // TODO: Not completed yet

@@ -360,11 +360,11 @@ bool CKatakoi::DecodeIar(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
 		return false;
 
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Reading
-	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
+	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
 
 	// Output buffer
 	DWORD dwDstSize = *(LPDWORD)&clmbtSrc[8];
@@ -417,11 +417,11 @@ bool CKatakoi::DecodeWar(CArcFile* pclArc)
 	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
 		return false;
 
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Reading
-	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
+	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
 
 	if (memcmp(&clmbtSrc[0], "OggS", 4) == 0)
 	{

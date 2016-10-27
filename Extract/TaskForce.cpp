@@ -105,8 +105,8 @@ bool CTaskForce::Decode(CArcFile* pclArc)
 /// tlz decoding
 bool CTaskForce::DecodeTlz(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if ((pstFileInfo->name.GetFileExt() != _T(".tsk")) && (pstFileInfo->name.GetFileExt() != _T(".tfz")))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if ((file_info->name.GetFileExt() != _T(".tsk")) && (file_info->name.GetFileExt() != _T(".tfz")))
 		return false;
 
 	// Read header
@@ -114,7 +114,7 @@ bool CTaskForce::DecodeTlz(CArcFile* pclArc)
 	pclArc->Read(abtHeader, sizeof(abtHeader));
 	if (memcmp(abtHeader, "tlz", 3) != 0)
 	{
-		pclArc->SeekHed(pstFileInfo->start);
+		pclArc->SeekHed(file_info->start);
 		return false;
 	}
 
@@ -144,8 +144,8 @@ bool CTaskForce::DecodeTlz(CArcFile* pclArc)
 /// BMA decoding
 bool CTaskForce::DecodeBma(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->name.GetFileExt() != _T(".tsz"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->name.GetFileExt() != _T(".tsz"))
 		return false;
 
 	// Read header
@@ -153,7 +153,7 @@ bool CTaskForce::DecodeBma(CArcFile* pclArc)
 	pclArc->Read(abtHeader, sizeof(abtHeader));
 	if (memcmp(abtHeader, "bma", 3) != 0)
 	{
-		pclArc->SeekHed(pstFileInfo->start);
+		pclArc->SeekHed(file_info->start);
 		return false;
 	}
 
@@ -186,19 +186,19 @@ bool CTaskForce::DecodeBma(CArcFile* pclArc)
 /// TGA Decoding
 bool CTaskForce::DecodeTGA(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if (pstFileInfo->name.GetFileExt() != _T(".tga"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->name.GetFileExt() != _T(".tga"))
 		return false;
 
 	// Read data
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
-	if (pstFileInfo->format == _T("LZ"))
+	if (file_info->format == _T("LZ"))
 	{
 		// Is compressed
 
-		DWORD          dwDstSize = pstFileInfo->sizeOrg;
+		DWORD          dwDstSize = file_info->sizeOrg;
 		YCMemory<BYTE> clmDst(dwDstSize);
 
 		// LZSS Decompression

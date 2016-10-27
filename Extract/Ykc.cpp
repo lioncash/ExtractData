@@ -69,13 +69,13 @@ bool CYkc::Decode(CArcFile* pclArc)
 
 bool CYkc::DecodeYKS(CArcFile* pclArc)
 {
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
-	if (pstfiWork->format != _T("YKS"))
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("YKS"))
 		return false;
 
 	// Read the YKS file
-	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
+	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
 
 	if (memcmp(&clmbtSrc[0], "YKS001", 6) == 0)
 	{
@@ -85,20 +85,20 @@ bool CYkc::DecodeYKS(CArcFile* pclArc)
 		DWORD dwTextOffset = *(LPDWORD)&clmbtSrc[0x20];
 
 		// Decode the text portion
-		for (DWORD i = dwTextOffset; i < pstfiWork->sizeCmp; i++)
+		for (DWORD i = dwTextOffset; i < file_info->sizeCmp; i++)
 		{
 			clmbtSrc[i] ^= 0xAA;
 		}
 
 		// Output
 		pclArc->OpenScriptFile();
-		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
+		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
 	}
 	else
 	{
 		// Other
 		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
+		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
 	}
 
 	return true;
@@ -106,14 +106,14 @@ bool CYkc::DecodeYKS(CArcFile* pclArc)
 
 bool CYkc::DecodeYKG(CArcFile* pclArc)
 {
-	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstfiWork->format != _T("YKG"))
+	if (file_info->format != _T("YKG"))
 		return false;
 
 	// Read the YKG file
-	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], pstfiWork->sizeCmp);
+	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
 
 	if (memcmp(&clmbtSrc[0], "YKG000", 6) == 0)
 	{
@@ -124,13 +124,13 @@ bool CYkc::DecodeYKG(CArcFile* pclArc)
 
 		// Output
 		pclArc->OpenFile(_T(".png"));
-		pclArc->WriteFile(&clmbtSrc[0x40], pstfiWork->sizeCmp - 0x40);
+		pclArc->WriteFile(&clmbtSrc[0x40], file_info->sizeCmp - 0x40);
 	}
 	else
 	{
 		// Other
 		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
+		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
 	}
 
 	return true;
