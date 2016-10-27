@@ -11,7 +11,7 @@
 /// @param pvSrc      Compressed data
 /// @param dwSrcSize  Compressed data size
 ///
-BOOL CPB::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvFlags, DWORD dwFlagsSize, const void* pvSrc, DWORD dwSrcSize)
+void CPB::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvFlags, DWORD dwFlagsSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	// Initialize Dictionary
 	DWORD dwDicSize = 2048;
@@ -71,6 +71,4 @@ BOOL CPB::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvFlags, DWORD dw
 
 		btCode >>= 1;
 	}
-
-	return TRUE;
 }
