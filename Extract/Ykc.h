@@ -7,6 +7,6 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL DecodeYKS(CArcFile* pclArc);
-	BOOL DecodeYKG(CArcFile* pclArc);
+	bool DecodeYKS(CArcFile* pclArc);
+	bool DecodeYKG(CArcFile* pclArc);
 };

@@ -67,11 +67,11 @@ BOOL CYkc::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CYkc::DecodeYKS(CArcFile* pclArc)
+bool CYkc::DecodeYKS(CArcFile* pclArc)
 {
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 	if (pstfiWork->format != _T("YKS"))
-		return FALSE;
+		return false;
 
 	// Read the YKS file
 	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
@@ -101,15 +101,15 @@ BOOL CYkc::DecodeYKS(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CYkc::DecodeYKG(CArcFile* pclArc)
+bool CYkc::DecodeYKG(CArcFile* pclArc)
 {
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
 
 	if (pstfiWork->format != _T("YKG"))
-		return FALSE;
+		return false;
 
 	// Read the YKG file
 	YCMemory<BYTE> clmbtSrc(pstfiWork->sizeCmp);
@@ -133,5 +133,5 @@ BOOL CYkc::DecodeYKG(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], pstfiWork->sizeCmp);
 	}
 
-	return TRUE;
+	return true;
 }
