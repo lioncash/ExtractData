@@ -39,8 +39,8 @@ protected:
 	inline void fill(const TYPE& rftValue);
 
 private:
-	TYPE* m_ptMemory;
-	DWORD m_dwMemoryCount;
+	TYPE* m_ptMemory = nullptr;
+	DWORD m_dwMemoryCount = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +49,6 @@ private:
 template<class TYPE>
 YCMemory<TYPE>::YCMemory()
 {
-	m_ptMemory = NULL;
-	m_dwMemoryCount = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
