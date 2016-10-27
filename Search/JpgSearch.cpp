@@ -45,7 +45,7 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 	pclArc->GetProg()->UpdatePercent(pclArc->GetArcPointer() - infFile.start);
 
 	// Get footer
-	if (SearchFot(pclArc) == FALSE)
+	if (!SearchFot(pclArc))
 		return;
 
 	// Get exit address

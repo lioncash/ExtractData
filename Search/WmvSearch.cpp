@@ -17,7 +17,7 @@ void CWmvSearch::Mount(CArcFile* pclArc)
 	pclArc->Seek(GetHedSize(), FILE_CURRENT);
 
 	// Search the auxiliary header
-	if (SearchFot(pclArc) == FALSE)
+	if (!SearchFot(pclArc))
 		return;
 
 	// Amount of progress advanced by the search bar

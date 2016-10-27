@@ -23,7 +23,7 @@ void CAhxSearch::Mount(CArcFile* pclArc)
 	pclArc->GetProg()->UpdatePercent(4);
 
 	// Search footer
-	if (SearchFot(pclArc) == FALSE)
+	if (!SearchFot(pclArc))
 		return;
 
 	// Get exit address

@@ -21,7 +21,7 @@ void CMpgSearch::Mount(CArcFile* pclArc)
 	pclArc->GetProg()->UpdatePercent(GetHedSize());
 
 	// Get footer
-	if (SearchFot(pclArc) == FALSE)
+	if (!SearchFot(pclArc))
 		return;
 
 	// Get exit address
