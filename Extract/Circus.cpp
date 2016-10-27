@@ -30,10 +30,10 @@ BOOL CCircus::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::MountPCK(CArcFile* pclArc)
+bool CCircus::MountPCK(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".PCK"))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -67,22 +67,22 @@ BOOL CCircus::MountPCK(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// voice.dat Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::MountVoiceDat(CArcFile* pclArc)
+bool CCircus::MountVoiceDat(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcName(), _T("voice.dat")) != 0)
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "tskforce", 8) == 0)
 	{
 		// Not the right archive
-		return FALSE;
+		return false;
 	}
 
 	// Get file count
@@ -108,7 +108,7 @@ BOOL CCircus::MountVoiceDat(CArcFile* pclArc)
 		{
 			// Unsupported archive
 			pclArc->SeekCur(-(INT64)(4 + dwIndexSize));
-			return FALSE;
+			return false;
 		}
 
 		// Store file information in memory
@@ -122,20 +122,20 @@ BOOL CCircus::MountVoiceDat(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CRX Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::MountCRX(CArcFile* pclArc)
+bool CCircus::MountCRX(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".CRX")) != 0)
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "CRXG", 4) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -144,13 +144,13 @@ BOOL CCircus::MountCRX(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::MountPCM(CArcFile* pclArc)
+bool CCircus::MountPCM(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pcm"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "XPCM", 4) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -174,11 +174,11 @@ BOOL CCircus::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::DecodeCRX(CArcFile* pclArc)
+bool CCircus::DecodeCRX(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("CRX"))
-		return FALSE;
+		return false;
 
 	// Ensure input buffer exists
 	DWORD dwSrcSize = pstFileInfo->sizeCmp;
@@ -205,7 +205,7 @@ BOOL CCircus::DecodeCRX(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CRX Decoding (Type 1)
@@ -214,7 +214,7 @@ BOOL CCircus::DecodeCRX(CArcFile* pclArc)
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CCircus::DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*) pvSrc;
 
@@ -259,7 +259,7 @@ BOOL CCircus::DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp, pbtPallet, dwPalletSize);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize, dwSrcSize);
 
-	return TRUE;
+	return true;
 }
 
 /// CRX Decoding (Type 2)
@@ -268,7 +268,7 @@ BOOL CCircus::DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*) pvSrc;
 
@@ -363,18 +363,18 @@ BOOL CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp, pbtPallet, dwPalletSize);
 	clImage.WriteReverse(&clmbtDst2[0], dwDstSize2, dwSrcSize);
 
-	return TRUE;
+	return true;
 }
 
 /// PCM Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::DecodePCM(CArcFile* pclArc)
+bool CCircus::DecodePCM(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("PCM"))
-		return FALSE;
+		return false;
 
 	// Read header
 	SPCMHeader stPCMHeader;
@@ -406,7 +406,7 @@ BOOL CCircus::DecodePCM(CArcFile* pclArc)
 		pclArc->ReadWrite();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// PCM Decoding (Type 1)
@@ -414,7 +414,7 @@ BOOL CCircus::DecodePCM(CArcFile* pclArc)
 /// @param pclArc        Archive
 /// @param rfstPCMHeader PCM header
 ///
-BOOL CCircus::DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
+bool CCircus::DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 {
 	// Get input data size
 	DWORD dwSrcSize;
@@ -443,7 +443,7 @@ BOOL CCircus::DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 	clWav.Init(pclArc, rfstPCMHeader.dwDataSize, rfstPCMHeader.dwFreq, rfstPCMHeader.wChannels, rfstPCMHeader.wBits);
 	clWav.Write(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// PCM Decoding (Type 2)
@@ -451,7 +451,7 @@ BOOL CCircus::DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 /// @param pclArc        Archive
 /// @param rfstPCMHeader PCM header
 ///
-BOOL CCircus::DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
+bool CCircus::DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 {
 	// Ensure buffer exists
 	DWORD          dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader);
@@ -471,7 +471,7 @@ BOOL CCircus::DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 	clWav.Init(pclArc, rfstPCMHeader.dwDataSize, rfstPCMHeader.dwFreq, rfstPCMHeader.wChannels, rfstPCMHeader.wBits);
 	clWav.Write(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// LZSS Decompression
@@ -481,7 +481,7 @@ BOOL CCircus::DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE*       pbtDst = (BYTE*)pvDst;
@@ -556,7 +556,7 @@ BOOL CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CRX Decompression (Type 2)
@@ -570,7 +570,7 @@ BOOL CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 /// @param wBpp      Bit depth
 /// @param wFlags    Flags
 ///
-BOOL CCircus::DecompCRX2(
+bool CCircus::DecompCRX2(
 	void*       pvDst,
 	DWORD       dwDstSize,
 	const void* pvSrc,
@@ -737,7 +737,7 @@ BOOL CCircus::DecompCRX2(
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// PCM Extraction (Type 1)
@@ -747,7 +747,7 @@ BOOL CCircus::DecompCRX2(
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE*       pbtDst = (BYTE*)pvDst;
@@ -1040,7 +1040,7 @@ BOOL CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		// TODO: Unfinished ?
 	}
 
-	return	TRUE;
+	return true;
 }
 
 /// PCM Extraction (Type 2)
@@ -1050,7 +1050,7 @@ BOOL CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CCircus::DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE*       pbtDst = (BYTE*)pvDst;
@@ -1085,5 +1085,5 @@ BOOL CCircus::DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		dwChannel = 1 - dwChannel;
 	}
 
-	return TRUE;
+	return true;
 }
