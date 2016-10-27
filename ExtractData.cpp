@@ -117,7 +117,7 @@ void CExtractData::Mount(LPCTSTR c_pclArcNames)
 {
 	Close(); // Close the last opened 
 	m_pclArcNames = c_pclArcNames;
-	m_bInput = TRUE;
+	m_bInput = true;
 	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 	m_pListView->Show();
 }
@@ -322,7 +322,7 @@ void CExtractData::Decode(DWORD ExtractMode, LPCTSTR pSaveDir, bool convert)
 	m_dwExtractMode = ExtractMode;
 	m_pSaveDir = pSaveDir;
 	m_bConvert = convert;
-	m_bInput = FALSE;
+	m_bInput = false;
 	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
@@ -333,7 +333,7 @@ void CExtractData::DecodeTmp()
 	m_dwExtractMode = EXTRACT_SELECT;
 	m_pSaveDir = m_pOption->TmpDir;
 	m_bConvert = true;
-	m_bInput = FALSE;
+	m_bInput = false;
 	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 

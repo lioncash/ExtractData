@@ -48,7 +48,7 @@ private:
 	LPCTSTR                 m_pSaveDir;
 	bool                    m_bConvert;
 	SOption*                m_pOption;
-	BOOL                    m_bInput;
+	bool                    m_bInput;
 	std::vector<CArcFile*>  m_ArcList;
 
 	std::set<YCString>      m_ssTmpFile;
