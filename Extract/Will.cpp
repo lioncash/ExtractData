@@ -399,11 +399,11 @@ void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 /// @param pbtMask    8-bit data (mask)
 /// @param dwMaskSize 8-bit data size
 ///
-BOOL CWill::AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize)
+bool CWill::AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize)
 {
 	// Make files
 	memcpy(pbtDst, pbtSrc, dwSrcSize);
 	memcpy(&pbtDst[dwSrcSize], pbtMask, dwMaskSize);
 
-	return TRUE;
+	return true;
 }
