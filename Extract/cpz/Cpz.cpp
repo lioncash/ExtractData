@@ -358,7 +358,7 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 		pbtCurrentDirIndex = pbtNextDirIndex;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
