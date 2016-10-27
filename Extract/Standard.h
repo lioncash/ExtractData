@@ -8,9 +8,9 @@ public:
 	bool Extract(CArcFile* pclArc) override;
 
 protected:
-	virtual BOOL DecodeLZSS(CArcFile* pclArc);
-	virtual BOOL DecodeZlib(CArcFile* pclArc);
-	virtual BOOL DecodeAhx(CArcFile* pclArc);
-	virtual BOOL DecodeImage(CArcFile* pclArc);
-	virtual BOOL DecodeOgg(CArcFile* pclArc);
+	virtual bool DecodeLZSS(CArcFile* pclArc);
+	virtual bool DecodeZlib(CArcFile* pclArc);
+	virtual bool DecodeAhx(CArcFile* pclArc);
+	virtual bool DecodeImage(CArcFile* pclArc);
+	virtual bool DecodeOgg(CArcFile* pclArc);
 };

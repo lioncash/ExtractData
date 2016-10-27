@@ -3,16 +3,16 @@
 #include "../Image.h"
 #include "Zlib.h"
 
-BOOL CZlib::Decode(CArcFile* pclArc)
+bool CZlib::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("zlib"))
-		return FALSE;
+	if (file_info->format != _T("zlib"))
+		return false;
 
 	DecompressFile(pclArc);
 
-	return TRUE;
+	return true;
 }
 
 void CZlib::DecompressFile(CArcFile* pclArc)

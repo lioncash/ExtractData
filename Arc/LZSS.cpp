@@ -6,14 +6,12 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CLZSS::Decode(CArcFile* pclArc)
+bool CLZSS::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format != _T("LZ"))
-	{
-		return FALSE;
-	}
+	if (file_info->format != _T("LZ"))
+		return false;
 
 	return Decomp(pclArc, 4096, 4078, 3);
 }
@@ -21,28 +19,28 @@ BOOL CLZSS::Decode(CArcFile* pclArc)
 /// Extract the file
 ///
 /// @param pclArc         Archive
-/// @param dwDictSize     Dictionary size
+/// @param dwDicSize      Dictionary size
 /// @param dwDicPtr       Initial address to the dictionary position (dictionary pointer)
 /// @param dwLengthOffset Length offset
 ///
-BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
+bool CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Read
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmSrc(dwSrcSize);
 	pclArc->Read(&clmSrc[0], dwSrcSize);
 
 	// Buffer allocation for extraction
-	DWORD          dwDstSize = pstFileInfo->sizeOrg;
+	DWORD          dwDstSize = file_info->sizeOrg;
 	YCMemory<BYTE> clmDst(dwDstSize);
 
 	// Decompression
 	Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, dwDicSize, dwDicPtr, dwLengthOffset);
 
 	// Bitmap
-	if (lstrcmp(PathFindExtension(pstFileInfo->name), _T(".bmp")) == 0)
+	if (lstrcmp(PathFindExtension(file_info->name), _T(".bmp")) == 0)
 	{
 		CImage clImage;
 		clImage.Init(pclArc, &clmDst[0]);
@@ -56,7 +54,7 @@ BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLe
 		pclArc->CloseFile();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Extract from memory
@@ -65,11 +63,11 @@ BOOL CLZSS::Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLe
 /// @param dwDstSize      Destination size
 /// @param pvSrc          Compressed data
 /// @param dwSrcSize      Compressed data size
-/// @param dwDictSize     Dictionary size
+/// @param dwDicSize      Dictionary size
 /// @param dwDicPtr       Initial address to the dictionary position (dictionary pointer)
 /// @param dwLengthOffset Length offset
 ///
-BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
+bool CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
 	BYTE*       pbtDst = static_cast<BYTE*>(pvDst);
 	const BYTE* pbtSrc = static_cast<const BYTE*>(pvSrc);
@@ -188,5 +186,5 @@ BOOL CLZSS::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcS
 		}*/
 	}
 
-	return TRUE;
+	return true;
 }

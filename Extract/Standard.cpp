@@ -45,7 +45,7 @@ bool CStandard::Decode(CArcFile* pclArc)
 }
 
 /// LZSS Decoding
-BOOL CStandard::DecodeLZSS(CArcFile* pclArc)
+bool CStandard::DecodeLZSS(CArcFile* pclArc)
 {
 	CLZSS clLZSS;
 
@@ -53,7 +53,7 @@ BOOL CStandard::DecodeLZSS(CArcFile* pclArc)
 }
 
 /// zlib Decoding
-BOOL CStandard::DecodeZlib(CArcFile* pclArc)
+bool CStandard::DecodeZlib(CArcFile* pclArc)
 {
 	CZlib clZlib;
 
@@ -61,7 +61,7 @@ BOOL CStandard::DecodeZlib(CArcFile* pclArc)
 }
 
 /// AHX Decoding
-BOOL CStandard::DecodeAhx(CArcFile* pclArc)
+bool CStandard::DecodeAhx(CArcFile* pclArc)
 {
 	CAhx clAHX;
 
@@ -69,7 +69,7 @@ BOOL CStandard::DecodeAhx(CArcFile* pclArc)
 }
 
 /// Image Decoding
-BOOL CStandard::DecodeImage(CArcFile* pclArc)
+bool CStandard::DecodeImage(CArcFile* pclArc)
 {
 	CImage clImage;
 
@@ -77,7 +77,7 @@ BOOL CStandard::DecodeImage(CArcFile* pclArc)
 }
 
 /// Ogg Vorbis Decoding
-BOOL CStandard::DecodeOgg(CArcFile* pclArc)
+bool CStandard::DecodeOgg(CArcFile* pclArc)
 {
 	COgg clOgg;
 

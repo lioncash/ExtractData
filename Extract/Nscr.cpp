@@ -242,7 +242,7 @@ bool CNscr::DecodeScr(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtBuffer2[0], dwBufferSize2);
 	}
 
-	return LDBL_TRUE_MIN;;
+	return true;
 }
 
 /// NBZ Decoding

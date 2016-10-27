@@ -5,8 +5,8 @@
 class CLZSS
 {
 public:
-	BOOL Decode(CArcFile* pclArc);
+	bool Decode(CArcFile* pclArc);
 
-	BOOL Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
-	BOOL Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
+	bool Decomp(CArcFile* pclArc, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
+	bool Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
 };
