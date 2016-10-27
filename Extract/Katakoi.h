@@ -13,8 +13,8 @@ private:
 	BOOL DecodeIar(CArcFile* pclArc);
 	BOOL DecodeWar(CArcFile* pclArc);
 
-	BOOL GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex);
-	BOOL GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc);
+	bool GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex);
+	bool GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc);
 
 	void GetBit(LPBYTE& pbySrc, DWORD& dwFlags);
 	BOOL DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize);

@@ -61,7 +61,7 @@ public:
 	void SetSaveDir(LPCTSTR pSaveDir)         { m_pSaveDir = pSaveDir; }
 
 	// TRUE if file is supported(Closed immediately if the file is not supported)
-	void SetState(BOOL bState) { m_bState = bState; }
+	void SetState(bool bState) { m_bState = bState; }
 
 	// Split files support
 	void        SetFirstArc()             { m_dwArcsID = 0; }
@@ -90,7 +90,7 @@ public:
 	CProgBar* GetProg()                 { return m_pProg; }
 	SOption*  GetOpt()                  { return m_pOption; }
 
-	BOOL      GetState() const          { return m_bState; }
+	bool      GetState() const          { return m_bState; }
 
 	DWORD     GetBufSize() const;
 	void      SetBufSize(LPDWORD BufSize, DWORD WriteSize);
@@ -103,29 +103,29 @@ public:
 	BOOL      CheckDir(LPCTSTR pDirName);
 
 	// Susie plugin mounting
-	void      SetMountSusie() { m_bMountWasSusie = TRUE; }
-	BOOL      GetMountSusie() const { return m_bMountWasSusie; }
+	void      SetMountSusie() { m_bMountWasSusie = true; }
+	bool      GetMountSusie() const { return m_bMountWasSusie; }
 
 	// MD5 value setting
 	void      SetMD5(SMD5 stmd5File);
 
 	// Set flag of MD5 value
-	void      SetMD5OfFlag(BOOL bSetMD5) { m_bSetMD5 = bSetMD5; }
+	void      SetMD5OfFlag(bool bSetMD5) { m_bSetMD5 = bSetMD5; }
 
 	// Get MD5 value
 	std::vector<SMD5> GetMD5() const { return m_vtstmd5File; }
 
 	// Check if MD5 value is set
-	BOOL CheckMD5OfSet() const { return m_bSetMD5; }
+	bool CheckMD5OfSet() const { return m_bSetMD5; }
 
 	// Clear MD5 value
 	void ClearMD5();
 
 	// Work flag setting
-	void SetFlag(BOOL bFlag) { m_bWork = bFlag; }
+	void SetFlag(bool bFlag) { m_bWork = bFlag; }
 
 	// Workload capture flag
-	BOOL GetFlag() const { return m_bWork; }
+	bool GetFlag() const { return m_bWork; }
 
 	// Comparison function for sorting
 	static BOOL CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2);
@@ -157,7 +157,7 @@ private:
 	size_t                  m_ctEnt;        // Number of archive file information
 	DWORD                   m_dwInfFileNum;
 
-	BOOL                    m_bState;
+	bool                    m_bState = false;
 
 	CProgBar*               m_pProg;
 	SOption*                m_pOption;
@@ -168,14 +168,14 @@ private:
 
 	DWORD                   m_deckey;
 
-	BOOL                    m_bMountWasSusie;   // Check if Susie was used to mount a plugin
+	bool                    m_bMountWasSusie = false;   // Check if Susie was used to mount a plugin
 
 	// MD5 value
 	std::vector<SMD5>       m_vtstmd5File;
 
 	// Set MD5 value flag
-	BOOL                    m_bSetMD5;
+	bool                    m_bSetMD5 = false;
 
 	// Flag variable that can be set for each archive
-	BOOL                    m_bWork;
+	bool                    m_bWork = false;
 };

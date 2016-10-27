@@ -532,7 +532,7 @@ BOOL CExtract::Decode(
 		pclArc->InitDecrypt();
 
 		// Decoding process
-		if( pclArc->GetMountSusie() )
+		if (pclArc->GetMountSusie())
 		{
 			// Decode with the Susie plug-in
 

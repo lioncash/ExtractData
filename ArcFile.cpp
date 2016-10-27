@@ -13,11 +13,6 @@ CArcFile::CArcFile()
 	m_pEnt = nullptr;
 	m_hFile = INVALID_HANDLE_VALUE;
 	m_ctEnt = 0;
-	m_bState = FALSE;
-
-	m_bMountWasSusie = FALSE;
-	m_bSetMD5 = FALSE;
-	m_bWork = FALSE;
 }
 
 /// Destructor
@@ -721,7 +716,7 @@ void CArcFile::SetMD5(SMD5 stmd5File)
 
 void CArcFile::ClearMD5()
 {
-	m_bSetMD5 = FALSE;
+	m_bSetMD5 = false;
 	m_vtstmd5File.clear();
 }
 

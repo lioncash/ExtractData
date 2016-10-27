@@ -202,7 +202,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 			if (CExtract::Mount(pclArc) == TRUE)
 			{
 				dwArcID++;
-				pclArc->SetState(TRUE);
+				pclArc->SetState(true);
 			}
 		}
 		//MessageBox(pObj->m_hWnd, "", "", MB_OK);

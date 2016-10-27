@@ -97,7 +97,7 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 		m_vcOpenHistoryList.insert(m_vcOpenHistoryList.begin(), pclArc->GetArcPath());
 
 		// Close a file that isn't supported
-		if (pclArc->GetState() == FALSE)
+		if (!pclArc->GetState())
 		{
 			itrArc = pclArcList.erase(itrArc);
 			delete pclArc;

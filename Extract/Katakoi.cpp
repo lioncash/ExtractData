@@ -58,7 +58,7 @@ BOOL CKatakoi::MountIar(CArcFile* pclArc)
 	YCMemory<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
-	BOOL bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
+	const bool bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
 
 	// File information retrieval
 	TCHAR szFileName[_MAX_FNAME];
@@ -142,7 +142,7 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	YCMemory<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
-	BOOL bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
+	const bool bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
 
 	// Set index for each archive filename to see if it is correct(Used in delta synthesis/decoding)
 	pclArc->SetFlag(bSec);
@@ -189,17 +189,17 @@ BOOL CKatakoi::MountWar(CArcFile* pclArc)
 	return TRUE;
 }
 
-BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex)
+bool CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex)
 {
 	// Open the filename represented by the index
 	TCHAR szPathToSec[MAX_PATH];
 
-	if (GetPathToSec(szPathToSec, pclArc->GetArcPath()) == FALSE)
+	if (!GetPathToSec(szPathToSec, pclArc->GetArcPath()))
 	{
 		// sec5 file couldn't be found
 
 //		MessageBox(pclArc->GetProg()->GetHandle(), _T("sec5ファイルが見つかりません。\nインストールフォルダ内にsec5ファイルが存在していない可能性があります。"), _T("エラー"), MB_OK);
-		return FALSE;
+		return false;
 	}
 
 	CFile clfSec;
@@ -208,7 +208,7 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 	{
 		// Failed to open the sec5 file
 
-		return FALSE;
+		return false;
 	}
 
 	DWORD dwSecSize = clfSec.GetFileSize();
@@ -226,7 +226,7 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 		_stprintf(szError, _T("%s is incorrect."), szPathToSec);
 //		MessageBox(pclArc->GetProg()->GetHandle(), szError, _T("Error"), MB_OK);
 
-		return FALSE;
+		return false;
 	}
 
 	// Find the RESR
@@ -272,15 +272,15 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 						if (lstrcmp(PathFindFileName(szPathToSec), _T("toa.sec5")) == 0)
 						{
 							// 杏奈ちゃんにお願い
-							pclArc->SetFlag(TRUE);
+							pclArc->SetFlag(true);
 						}
 						else if (lstrcmp(PathFindFileName(szPathToSec), _T("katakoi.sec5")) == 0)
 						{
 							// 片恋いの月
-							pclArc->SetFlag(TRUE);
+							pclArc->SetFlag(true);
 						}
 
-						return TRUE;
+						return true;
 					}
 				}
 
@@ -296,10 +296,10 @@ BOOL CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 
 //	MessageBox(pclArc->GetProg()->GetHandle(), _T("ファイル名の取得に失敗しました。\nアーカイブファイル名が変更されている可能性があります。"), _T("Error"), MB_OK);
 
-	return FALSE;
+	return false;
 }
 
-BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
+bool CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 {
 	TCHAR szWork[MAX_PATH];
 
@@ -328,7 +328,7 @@ BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 		{
 			// sec5 file couldn't be found
 
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -338,7 +338,7 @@ BOOL CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 	PathRemoveFileSpec(pszPathToSec);
 	PathAppend(pszPathToSec, stwfdWork.cFileName);
 
-	return TRUE;
+	return true;
 }
 
 BOOL CKatakoi::Decode(CArcFile* pclArc)

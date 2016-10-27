@@ -452,7 +452,7 @@ void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
 		pclArc->SetMD5(clmd5Tpm.Calculate(vtsPathToTpm[i]));
 	}
 
-	pclArc->SetMD5OfFlag(TRUE);
+	pclArc->SetMD5OfFlag(true);
 }
 
 /// Determine if decryption is possible
