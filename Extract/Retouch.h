@@ -5,6 +5,10 @@
 class CRetouch final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	struct SGYUHeader
 	{
 		BYTE  abtIdentifier[4];
@@ -17,15 +21,11 @@ public:
 		DWORD dwPallets;
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool MountGYU(CArcFile* pclArc);
 
-private:
-	BOOL MountGYU(CArcFile* pclArc);
+	bool DecodeGYU(CArcFile* pclArc);
 
-	BOOL DecodeGYU(CArcFile* pclArc);
+	bool DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey);
 
-	BOOL DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey);
-
-	BOOL DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
 };

@@ -20,13 +20,13 @@ BOOL CRetouch::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CRetouch::MountGYU(CArcFile* pclArc)
+bool CRetouch::MountGYU(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".gyu"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "GYU\x1A", 4) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -47,12 +47,12 @@ BOOL CRetouch::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
+bool CRetouch::DecodeGYU(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pstFileInfo->format != _T("GYU"))
-		return FALSE;
+		return false;
 
 	// Read header
 	SGYUHeader stGYUHeader;
@@ -62,7 +62,7 @@ BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 		// File does not matter
 
 		pclArc->SeekCur(-(INT64)sizeof(stGYUHeader));
-		return FALSE;
+		return false;
 	}
 
 	// Read pallet
@@ -159,7 +159,7 @@ BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 		clImage.Write(&clmbtDst[0], dwDstSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// GYU Decryption
@@ -168,7 +168,7 @@ BOOL CRetouch::DecodeGYU(CArcFile* pclArc)
 /// @param dwSrcSize Encrypted data size
 /// @param dwKey     Decryption key
 ///
-BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
+bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
 
@@ -355,7 +355,7 @@ BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 		pbtSrc[dwWork2] = btTemp;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// GYU Decompression
@@ -365,11 +365,11 @@ BOOL CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 /// @param pvSrc     Compressed data
 /// @param dwSrcSize Compressed data size
 ///
-BOOL CRetouch::DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CRetouch::DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	// LZSS Decompression
 	CLZSS clLZSS;
 	clLZSS.Decomp(pvDst, dwDstSize, pvSrc, dwSrcSize, 4096, 4078, 3);
 
-	return TRUE;
+	return true;
 }
