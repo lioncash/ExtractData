@@ -32,10 +32,10 @@ private:
 		DWORD   dummy;
 	};
 
-	BOOL MountNwa(CArcFile* pclArc);
-	BOOL MountNwk(CArcFile* pclArc);
-	BOOL MountOvk(CArcFile* pclArc);
-	BOOL DecodeNwa(CArcFile* pclArc);
+	bool MountNwa(CArcFile* pclArc);
+	bool MountNwk(CArcFile* pclArc);
+	bool MountOvk(CArcFile* pclArc);
+	bool DecodeNwa(CArcFile* pclArc);
 
 	inline int getbits(LPBYTE& data, int& shift, int bits);
 };

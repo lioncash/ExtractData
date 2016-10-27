@@ -15,10 +15,10 @@ BOOL CVA::Mount(CArcFile* pclArc)
 }
 
 // Function that gets the information of a *.nwa file.
-BOOL CVA::MountNwa(CArcFile* pclArc)
+bool CVA::MountNwa(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".nwa"))
-		return FALSE;
+		return false;
 
 	// Read nwa header
 	NWAHed nwaHed;
@@ -33,14 +33,14 @@ BOOL CVA::MountNwa(CArcFile* pclArc)
 	infFile.end = infFile.start + infFile.sizeCmp;
 	pclArc->AddFileInfo(infFile);
 
-	return TRUE;
+	return true;
 }
 
 // Function that gets the information of a *.nwk file
-BOOL CVA::MountNwk(CArcFile* pclArc)
+bool CVA::MountNwk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".nwk"))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -82,16 +82,16 @@ BOOL CVA::MountNwk(CArcFile* pclArc)
 		pIndex += 12;
 	}
 
-	return TRUE;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Gets information from .ovk files
 
-BOOL CVA::MountOvk(CArcFile* pclArc)
+bool CVA::MountOvk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".ovk"))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -129,7 +129,7 @@ BOOL CVA::MountOvk(CArcFile* pclArc)
 		pclArc->AddFileInfo(stfiWork);
 	}
 
-	return TRUE;
+	return true;
 }
 
 inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
@@ -155,12 +155,12 @@ BOOL CVA::Decode(CArcFile* pclArc)
 }
 
 // Function to convert to WAV for extraction
-BOOL CVA::DecodeNwa(CArcFile* pclArc)
+bool CVA::DecodeNwa(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("NWA"))
-		return FALSE;
+		return false;
 
 	// Read NWA header
 	NWAHed nwaHed;
@@ -177,14 +177,7 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 	else
 	{
 		// RLE compression
-		BOOL bRLE = FALSE;
-
-		if ((nwaHed.CmpLevel == 5) && (nwaHed.channels != 2))
-		{
-			// Uses RLE 
-
-			bRLE = TRUE;
-		}
+		const bool bRLE = nwaHed.CmpLevel == 5 && nwaHed.channels != 2;
 
 		// Memory allocation of the offset
 		DWORD offset_size = nwaHed.blocks * 4;
@@ -382,5 +375,5 @@ BOOL CVA::DecodeNwa(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
