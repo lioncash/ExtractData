@@ -128,7 +128,7 @@ ATOM CWinMain::InitApp()
 }
 
 // Window creation
-BOOL CWinMain::InitInstance()
+bool CWinMain::InitInstance()
 {
 	m_hWnd = CreateWindow(WINDOWCLASS_NAME,
 		WINDOW_NAME,            // This name will be displayed in the title bar
@@ -142,12 +142,12 @@ BOOL CWinMain::InitInstance()
 		m_hInst,                // Instance handle
 		static_cast<LPVOID>(this));
 	if (!m_hWnd)
-		return FALSE;
+		return false;
 
 	Init(idsMainWindow, 640, 480);
 	UpdateWindow(m_hWnd);
 
-	return TRUE;
+	return true;
 }
 
 // Window Procedure

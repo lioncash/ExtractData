@@ -8,7 +8,7 @@ public:
 
 	int WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow);
 	ATOM InitApp();
-	BOOL InitInstance();
+	bool InitInstance();
 
 	LRESULT WndProc(HWND hWnd, UINT Msg, WPARAM wp, LPARAM lp) override;
 
