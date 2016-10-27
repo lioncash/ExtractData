@@ -4,10 +4,6 @@ class CSpitan final : public CExtractBase
 {
 public:
 	BOOL Mount(CArcFile* pclArc) override;
-	BOOL MountSound(CArcFile* pclArc);
-	BOOL MountGraphic1(CArcFile* pclArc);
-	BOOL MountGraphic2(CArcFile* pclArc);
-	BOOL MountGraphic3(CArcFile* pclArc);
 
 private:
 	// Spitan File Info
@@ -17,4 +13,9 @@ private:
 		DWORD size;
 		TCHAR dummy[20];
 	};
+
+	bool MountSound(CArcFile* pclArc);
+	bool MountGraphic1(CArcFile* pclArc);
+	bool MountGraphic2(CArcFile* pclArc);
+	bool MountGraphic3(CArcFile* pclArc);
 };

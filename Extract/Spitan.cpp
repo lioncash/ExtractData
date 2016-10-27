@@ -16,10 +16,10 @@ BOOL CSpitan::Mount(CArcFile* pclArc)
 }
 
 // Function to get information from  Spitan bm0000, bv00**, k000* files.
-BOOL CSpitan::MountSound(CArcFile* pclArc)
+bool CSpitan::MountSound(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcName().Left(6) != _T("bm0000")) && (pclArc->GetArcName().Left(4) != _T("bv00")) && (pclArc->GetArcName().Left(4) != _T("k000")))
-		return FALSE;
+		return false;
 
 	pclArc->Seek(4, FILE_BEGIN);
 
@@ -47,16 +47,16 @@ BOOL CSpitan::MountSound(CArcFile* pclArc)
 		pclArc->AddFileInfo(infFile);
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Function to get infomation from Spitan *.aif files
-BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
+bool CSpitan::MountGraphic1(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".aif"))
-		return FALSE;
+		return false;
 	if (memcmp(pclArc->GetHed(), "\x10\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	for (int i = 1; ; i++)
 	{
@@ -80,27 +80,27 @@ BOOL CSpitan::MountGraphic1(CArcFile* pclArc)
 		pclArc->AddFileInfo(infFile);
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Function to get information from Spitan f0* files
-BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
+bool CSpitan::MountGraphic2(CArcFile* pclArc)
 {
-	BOOL flag = FALSE;
+	bool flag = false;
 	for (int i = 0; i < 5; i++)
 	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("f%02d"), i);
 		if (lstrcmp(pclArc->GetArcName(), szArcName) == 0)
-			flag = TRUE;
+			flag = true;
 	}
 	
-	if (flag == FALSE)
-		return FALSE;
+	if (!flag)
+		return false;
 
 	// Get .field file information
 	std::vector<FileInfo> FileInfoList;
-	while (1)
+	while (true)
 	{
 		BYTE header[8];
 		pclArc->Read(header, sizeof(header));
@@ -134,7 +134,7 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 		pclArc->Seek(FileInfoList[i].start + file[2].start, FILE_BEGIN);
 
 		int count = 0;
-		while (1)
+		while (true)
 		{
 			// By counting the amount of times ReadFile is called, we can determine the relative address of the third header PNG
 			count++;
@@ -186,24 +186,24 @@ BOOL CSpitan::MountGraphic2(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Function that gets information from Spitan b0*, c0*, IGNR**** files
-BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
+bool CSpitan::MountGraphic3(CArcFile* pclArc)
 {
-	BOOL flag = FALSE;
+	bool flag = false;
 	
 	if (pclArc->GetArcName().Left(4) == _T("IGNR"))
-		flag = TRUE;
+		flag = true;
 	
 	for (int i = 0; i < 5; i++)
 	{
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("b%02d"), i);
 		
-		if( pclArc->GetArcName() == szArcName )
-			flag = TRUE;
+		if (pclArc->GetArcName() == szArcName)
+			flag = true;
 	}
 	
 	for (int i = 0; i < 2; i++)
@@ -211,17 +211,17 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 		TCHAR szArcName[_MAX_FNAME];
 		_stprintf(szArcName, _T("c%02d"), i);
 		
-		if( pclArc->GetArcName() == szArcName )
-			flag = TRUE;
+		if (pclArc->GetArcName() == szArcName)
+			flag = true;
 	}
 	
-	if (flag == FALSE)
-		return FALSE;
+	if (!flag)
+		return false;
 
 	std::vector<FileInfo> FileInfoList;
 
 	// Get information from the NORI file
-	while (1)
+	while (true)
 	{
 		BYTE header[8];
 		pclArc->Read(header, sizeof(header));
@@ -281,5 +281,5 @@ BOOL CSpitan::MountGraphic3(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
