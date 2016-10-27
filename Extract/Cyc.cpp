@@ -27,12 +27,12 @@ BOOL CCyc::Mount(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CCyc::MountGpk(CArcFile* pclArc)
+bool CCyc::MountGpk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".gpk"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	// Get gtb file path
 	TCHAR szGtbPath[MAX_PATH];
@@ -42,7 +42,7 @@ BOOL CCyc::MountGpk(CArcFile* pclArc)
 	// Open gtb file
 	CFile GtbFile;
 	if (GtbFile.Open(szGtbPath, FILE_READ) == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return false;
 
 	// Number of files in the gtb file
 	DWORD ctFile;
@@ -82,25 +82,25 @@ BOOL CCyc::MountGpk(CArcFile* pclArc)
 		pfnTbl += infFile.name.GetLength() - 3;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::MountVpk(CArcFile* pclArc)
+bool CCyc::MountVpk(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".vpk"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	// Get vtb file path
 	TCHAR szVtbPath[MAX_PATH];
 	lstrcpy(szVtbPath, pclArc->GetArcPath());
 	PathRenameExtension(szVtbPath, _T(".vtb"));
-
+	
 	// Open vtb file
 	CFile VtbFile;
 	if (VtbFile.Open(szVtbPath, FILE_READ) == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return false;
 
 	// Read vtb file
 	DWORD vtbSize = VtbFile.GetFileSize();
@@ -129,51 +129,51 @@ BOOL CCyc::MountVpk(CArcFile* pclArc)
 			break;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::MountDwq(CArcFile* pclArc)
+bool CCyc::MountDwq(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".dwq"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL CCyc::MountWgq(CArcFile* pclArc)
+bool CCyc::MountWgq(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".wgq"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL CCyc::MountVaw(CArcFile* pclArc)
+bool CCyc::MountVaw(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".vaw"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL CCyc::MountXtx(CArcFile* pclArc)
+bool CCyc::MountXtx(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".xtx"))
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL CCyc::MountFxf(CArcFile* pclArc)
+bool CCyc::MountFxf(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".fxf"))
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -198,14 +198,14 @@ BOOL CCyc::Decode(CArcFile* pclArc)
 	return FALSE;
 }
 
-BOOL CCyc::DecodeDwq(CArcFile* pclArc)
+bool CCyc::DecodeDwq(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("DWQ"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> buf(pInfFile->sizeCmp);
@@ -324,17 +324,17 @@ BOOL CCyc::DecodeDwq(CArcFile* pclArc)
 		pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::DecodeWgq(CArcFile* pclArc)
+bool CCyc::DecodeWgq(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("WGQ"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> buf(pInfFile->sizeCmp);
@@ -344,17 +344,17 @@ BOOL CCyc::DecodeWgq(CArcFile* pclArc)
 	pclArc->OpenFile(_T(".ogg"));
 	pclArc->WriteFile(&buf[64], pInfFile->sizeCmp);
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::DecodeVaw(CArcFile* pclArc)
+bool CCyc::DecodeVaw(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("VAW"))
-		return FALSE;
+		return false;
 	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> buf(pInfFile->sizeCmp);
@@ -373,15 +373,15 @@ BOOL CCyc::DecodeVaw(CArcFile* pclArc)
 		pclArc->WriteFile(&buf[64], pInfFile->sizeCmp - 64);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::DecodeXtx(CArcFile* pclArc)
+bool CCyc::DecodeXtx(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("XTX"))
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> buf(pInfFile->sizeCmp);
@@ -391,15 +391,15 @@ BOOL CCyc::DecodeXtx(CArcFile* pclArc)
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCyc::DecodeFxf(CArcFile* pclArc)
+bool CCyc::DecodeFxf(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("FXF"))
-		return FALSE;
+		return false;
 
 	// Read
 	YCMemory<BYTE> buf(pInfFile->sizeCmp);
@@ -413,7 +413,7 @@ BOOL CCyc::DecodeFxf(CArcFile* pclArc)
 	pclArc->OpenScriptFile();
 	pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
 
-	return TRUE;
+	return true;
 }
 
 void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
