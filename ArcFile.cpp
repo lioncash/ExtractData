@@ -96,7 +96,7 @@ void CArcFile::Close()
 	m_vcFileInfoOfFileNameSorted.clear();
 }
 
-DWORD CArcFile::Read(LPVOID buf, DWORD size)
+DWORD CArcFile::Read(void* buf, DWORD size)
 {
 	DWORD dwReadSize;
 
