@@ -12,7 +12,7 @@
 /// @param dwSrcSize  Compressed data size
 /// @param pfnDecrypt Decoding function
 ///
-BOOL CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT pfnDecrypt)
+bool CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT pfnDecrypt)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
 
@@ -54,7 +54,7 @@ BOOL CPB3B::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize, PB3B_DECRYPT 
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decryption
@@ -84,7 +84,7 @@ void CPB3B::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD          dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -98,7 +98,7 @@ BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 3
@@ -110,7 +110,7 @@ BOOL CPB3B::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD          dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -124,7 +124,7 @@ BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 4
@@ -136,12 +136,12 @@ BOOL CPB3B::Decode3(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	pclArc->OpenFile();
 	pclArc->WriteFile(pbtSrc, dwSrcSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 5
@@ -153,7 +153,7 @@ BOOL CPB3B::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
 	DWORD          dwBaseSize = (lWidth * lHeight * (wBpp >> 3));
@@ -168,7 +168,7 @@ BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.WriteReverse(&clmbtBase[0], dwBaseSize);
 	clImage.Close();
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 6
@@ -181,7 +181,7 @@ BOOL CPB3B::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param wBpp       Number of bits
 /// @param pfnDecrypt Decryption function
 ///
-BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp, PB3B_DECRYPT pfnDecrypt)
+bool CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp, PB3B_DECRYPT pfnDecrypt)
 {
 	// Ensure output buffer
 	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -249,7 +249,7 @@ BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 1
@@ -262,7 +262,7 @@ BOOL CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[44];
 	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[48];
@@ -380,7 +380,7 @@ BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 3
@@ -393,7 +393,7 @@ BOOL CPB3B::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Get alpha value
 	const BYTE* pbtAlpha = pbtSrc + *(DWORD*)&pbtSrc[44];
@@ -403,7 +403,7 @@ BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	CJBP1 clJBP1;
 	clJBP1.Decomp(pbtDst, &pbtSrc[52], wBpp, pbtAlpha, dwAlphaSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 4
@@ -416,9 +416,9 @@ BOOL CPB3B::Decomp3(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
-	return TRUE;
+	return true;
 }
 
 /// Decompression 5
@@ -431,7 +431,7 @@ BOOL CPB3B::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight    Height
 /// @param wBpp       Number of bits
 ///
-BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// LZSS decompression buffer
 	DWORD dwTempSize = (lWidth * lHeight);
@@ -469,7 +469,7 @@ BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 		pbtDst[i * 4 + 3] = aclmbtTemp[3][i] + pbtDst[i * 4 - 1];
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompress 6
@@ -484,7 +484,7 @@ BOOL CPB3B::Decomp5(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight       Height
 /// @param wBpp          Number of bits
 ///
-BOOL CPB3B::Decomp6(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB3B::Decomp6(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure LZSS decompression buffer
 	DWORD dwLZSSDecodeSize = *(DWORD*)&pbtSrc[24];
@@ -554,5 +554,5 @@ BOOL CPB3B::Decomp6(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 		pbtWorkOfDst += (lLine * lHeightOfBlock);
 	}
 
-	return TRUE;
+	return true;
 }
