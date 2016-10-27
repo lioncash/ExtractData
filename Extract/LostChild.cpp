@@ -8,10 +8,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CLostChild::Mount(CArcFile* pclArc)
+bool CLostChild::Mount(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "EPK ", 4) != 0)
-		return FALSE;
+		return false;
 
 	pclArc->SeekHed(4);
 
@@ -118,25 +118,25 @@ BOOL CLostChild::Mount(CArcFile* pclArc)
 
 	pclArc->SetFirstArc();
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CLostChild::Decode(CArcFile* pclArc)
+bool CLostChild::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pstFileInfo->title != _T("LOST CHILD"))
-		return FALSE;
+		return false;
 
 	if (DecodeESUR(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeLAD(pclArc))
-		return TRUE;
+		return true;
 
 	return Extract(pclArc);
 }
@@ -320,13 +320,11 @@ bool CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 ///
 /// @param pclArc Archive
 ///
-BOOL CLostChild::Extract(CArcFile* pclArc)
+bool CLostChild::Extract(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->title != _T("LOST CHILD"))
-	{
-		return FALSE;
-	}
+		return false;
 
 	// Ensure buffer exists
 	DWORD dwBufferSize = pclArc->GetBufSize();
@@ -356,5 +354,5 @@ BOOL CLostChild::Extract(CArcFile* pclArc)
 
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }

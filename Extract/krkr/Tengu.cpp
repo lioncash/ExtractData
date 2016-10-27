@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CTengu::OnCheckDecrypt(CArcFile* pclArc)
+bool CTengu::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("CE093BB86595E62ADBCB1280CA6583EF");
 }

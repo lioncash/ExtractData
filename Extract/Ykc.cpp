@@ -2,10 +2,10 @@
 #include "../ExtractBase.h"
 #include "Ykc.h"
 
-BOOL CYkc::Mount(CArcFile* pclArc)
+bool CYkc::Mount(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
-		return FALSE;
+		return false;
 
 	// Get the index size and the offset to the index
 	DWORD dwIndexOffset;
@@ -50,21 +50,21 @@ BOOL CYkc::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(stfiWork);
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CYkc::Decode(CArcFile* pclArc)
+bool CYkc::Decode(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
-		return FALSE;
+		return false;
 
 	if (DecodeYKS(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeYKG(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool CYkc::DecodeYKS(CArcFile* pclArc)

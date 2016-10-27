@@ -9,12 +9,12 @@ public:
 	CArcFile();
 	virtual ~CArcFile();
 
-	BOOL Mount();
-	BOOL Decode();
-	BOOL Extract();
+	bool Mount();
+	bool Decode();
+	bool Extract();
 
 	// Archive file manipulation
-	BOOL Open(LPCTSTR pszPathToArc);
+	bool Open(LPCTSTR pszPathToArc);
 	void Close();
 
 	DWORD Read(void* pvBuffer, DWORD dwReadSize);
@@ -31,8 +31,8 @@ public:
 	// Output file operations
 	YCString CreateFileName(LPCTSTR pszReFileExt = nullptr);
 
-	BOOL OpenFile(LPCTSTR pszReFileExt = nullptr);
-	BOOL OpenScriptFile();
+	bool OpenFile(LPCTSTR pszReFileExt = nullptr);
+	bool OpenScriptFile();
 	void CloseFile();
 
 	DWORD WriteFile(const void* pvBuffer, DWORD dwWriteSize, DWORD dwSizeOrg = 0xFFFFFFFF);
@@ -78,7 +78,7 @@ public:
 	LPBYTE GetHed() { return m_pHeader.data(); }
 
 	SFileInfo*              GetFileInfo(DWORD num)    { return &(*m_pEnt)[num]; }
-	SFileInfo*              GetFileInfo(PCTSTR pszFileName, BOOL bCmpFileNameOnly = FALSE);
+	SFileInfo*              GetFileInfo(LPCTSTR filename, bool compare_filename_only = false) const;
 	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR pszFileName);
 	std::vector<SFileInfo>& GetFileInfo()              { return *m_pEnt; }
 	SFileInfo*              GetOpenFileInfo()          { return m_pInfFile; }
@@ -99,8 +99,8 @@ public:
 	void      ReplaceBackslash(LPTSTR pFileName);
 	void      MakeDirectory(LPCTSTR wFileName);
 
-	BOOL      CheckExe(LPCTSTR pExeName);
-	BOOL      CheckDir(LPCTSTR pDirName);
+	bool      CheckExe(LPCTSTR pExeName);
+	bool      CheckDir(LPCTSTR pDirName);
 
 	// Susie plugin mounting
 	void      SetMountSusie() { m_bMountWasSusie = true; }
@@ -128,7 +128,7 @@ public:
 	bool GetFlag() const { return m_bWork; }
 
 	// Comparison function for sorting
-	static BOOL CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2);
+	static bool CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2);
 
 	// Binary search
 	static SFileInfo* SearchForFileInfo(std::vector<SFileInfo>& rvcFileInfo, LPCTSTR pszFileName);

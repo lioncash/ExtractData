@@ -5,10 +5,10 @@
 #include "Alcot.h"
 #include "Utils/ArrayUtils.h"
 
-BOOL CAlcot::Mount(CArcFile* pclArc)
+bool CAlcot::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".arc")) || (memcmp(pclArc->GetHed(), "ARC\x1a", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -57,18 +57,18 @@ BOOL CAlcot::Mount(CArcFile* pclArc)
 		pIndex += size;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CAlcot::Decode(CArcFile* pclArc)
+bool CAlcot::Decode(CArcFile* pclArc)
 {
-	if (DecodeASB(pclArc) == TRUE)
-		return TRUE;
+	if (DecodeASB(pclArc))
+		return true;
 
-	if (DecodeCPB(pclArc) == TRUE)
-		return TRUE;
+	if (DecodeCPB(pclArc))
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool CAlcot::DecodeASB(CArcFile* pclArc)

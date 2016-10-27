@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CSpecialite::OnCheckDecrypt(CArcFile* pclArc)
+bool CSpecialite::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("F78FF15C0BD396080BCDF431AED59211");
 }

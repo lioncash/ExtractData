@@ -10,7 +10,7 @@ class CExtractBase
 public:
 	virtual ~CExtractBase() = default;
 
-	virtual BOOL Mount(CArcFile* pclArc) = 0;
-	virtual BOOL Decode(CArcFile* pclArc);
-	virtual BOOL Extract(CArcFile* pclArc);
+	virtual bool Mount(CArcFile* pclArc) = 0;
+	virtual bool Decode(CArcFile* pclArc);
+	virtual bool Extract(CArcFile* pclArc);
 };

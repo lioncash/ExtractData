@@ -8,32 +8,32 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::Mount(CArcFile* pclArc)
+bool CTCDBase::Mount(CArcFile* pclArc)
 {
-	return FALSE;
+	return false;
 }
 
 /// Decode
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::Decode(CArcFile* pclArc)
+bool CTCDBase::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format == _T("TCT"))
+	if (file_info->format == _T("TCT"))
 		return DecodeTCT(pclArc);
 
-	if (pstFileInfo->format == _T("TSF"))
+	if (file_info->format == _T("TSF"))
 		return DecodeTSF(pclArc);
 
-	if (pstFileInfo->format == _T("SPD"))
+	if (file_info->format == _T("SPD"))
 		return DecodeSPD(pclArc);
 
-	if (pstFileInfo->format == _T("OGG"))
+	if (file_info->format == _T("OGG"))
 		return DecodeOgg(pclArc);
 
-	return FALSE;
+	return false;
 }
 
 /// Decode TCT

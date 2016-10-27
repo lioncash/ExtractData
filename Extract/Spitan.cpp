@@ -2,17 +2,18 @@
 #include "../ExtractBase.h"
 #include "Spitan.h"
 
-BOOL CSpitan::Mount(CArcFile* pclArc)
+bool CSpitan::Mount(CArcFile* pclArc)
 {
 	if (MountSound(pclArc))
-		return TRUE;
+		return true;
 	if (MountGraphic1(pclArc))
-		return TRUE;
+		return true;
 	if (MountGraphic2(pclArc))
-		return TRUE;
+		return true;
 	if (MountGraphic3(pclArc))
-		return TRUE;
-	return FALSE;
+		return true;
+
+	return false;
 }
 
 // Function to get information from  Spitan bm0000, bv00**, k000* files.

@@ -24,12 +24,10 @@ char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT*2*128][TVP_TLG6_GOLOMB_
 ///
 /// @param pclArc Archive
 ///
-BOOL CTlg::Mount(CArcFile* pclArc)
+bool CTlg::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".tlg"))
-	{
-		return FALSE;
-	}
+		return false;
 
 	BYTE* pbtHeader = pclArc->GetHed();
 
@@ -50,21 +48,21 @@ BOOL CTlg::Mount(CArcFile* pclArc)
 	{
 		// NG
 
-		return FALSE;
+		return false;
 	}
 
 	return pclArc->Mount();
 }
 
-BOOL CTlg::Decode(CArcFile* pclArc)
+bool CTlg::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("TLG"))
-		return FALSE;
+	if (file_info->format != _T("TLG"))
+		return false;
 
-	YCMemory<BYTE> buf(pInfFile->sizeOrg);
-	pclArc->Read(&buf[0], pInfFile->sizeOrg);
+	YCMemory<BYTE> buf(file_info->sizeOrg);
+	pclArc->Read(&buf[0], file_info->sizeOrg);
 
 	return Decode(pclArc, &buf[0]);
 }

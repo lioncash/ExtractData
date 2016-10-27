@@ -8,8 +8,8 @@ class CImage : public CExtractBase
 public:
     CImage();
 
-    BOOL Mount(CArcFile* pclArc) override;
-    BOOL Decode(CArcFile* pclArc) override;
+    bool Mount(CArcFile* pclArc) override;
+    bool Decode(CArcFile* pclArc) override;
 
     BOOL Init(CArcFile* pclArc, void* pvBMP, const YCString& rfclsFileName = _T(""));
     BOOL Init(CArcFile* pclArc, long lWidth, long lHeight, WORD wBpp, const void* pvPallet = nullptr, DWORD dwPalletSize = 1024, const YCString& rfclsFileName = _T(""));

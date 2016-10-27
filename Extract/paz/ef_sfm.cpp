@@ -14,10 +14,10 @@ bool CEFsfm::IsSupported(CArcFile* pclArc) const
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFsfm::Mount(CArcFile* pclArc)
+bool CEFsfm::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	// Skip 32 bytes
 	pclArc->SeekHed(32);
@@ -29,10 +29,10 @@ BOOL CEFsfm::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFsfm::Decode(CArcFile* pclArc)
+bool CEFsfm::Decode(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

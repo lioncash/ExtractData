@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CFate::OnCheckDecrypt(CArcFile* pclArc)
+bool CFate::OnCheckDecrypt(CArcFile* pclArc)
 {
 	static const std::array<const char*, 2> apszMD5 = {{
 		"4BE5F676CE80429B3245DA9E721FE23B",

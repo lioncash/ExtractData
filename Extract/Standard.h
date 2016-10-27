@@ -3,10 +3,9 @@
 class CStandard : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
-	BOOL Extract(CArcFile* pclArc) override;
-
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
+	bool Extract(CArcFile* pclArc) override;
 
 protected:
 	virtual BOOL DecodeLZSS(CArcFile* pclArc);

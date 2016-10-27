@@ -4,14 +4,14 @@
 #include "Navel.h"
 
 // Function that gets file information from Navel's .pac files
-BOOL CNavel::Mount(CArcFile* pclArc)
+bool CNavel::Mount(CArcFile* pclArc)
 {
 	if (MountPac(pclArc))
-		return TRUE;
+		return true;
 	if (MountWpd(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool CNavel::MountPac(CArcFile* pclArc)
@@ -65,12 +65,12 @@ bool CNavel::MountWpd(CArcFile* pclArc)
 }
 
 // Function to convert to WAV files
-BOOL CNavel::Decode(CArcFile* pclArc)
+bool CNavel::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("WPD"))
-		return FALSE;
+	if (file_info->format != _T("WPD"))
+		return false;
 
 	// Read WPD Format
 	FormatWPD fWPD;
@@ -78,8 +78,8 @@ BOOL CNavel::Decode(CArcFile* pclArc)
 
 	// Output
 	CWav wav;
-	wav.Init(pclArc, pInfFile->sizeOrg - 44, fWPD.freq, fWPD.channels, fWPD.bits);
+	wav.Init(pclArc, file_info->sizeOrg - 44, fWPD.freq, fWPD.channels, fWPD.bits);
 	wav.Write();
 
-	return TRUE;
+	return true;
 }

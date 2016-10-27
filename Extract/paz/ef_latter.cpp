@@ -23,10 +23,10 @@ bool CEFLatter::IsSupported(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFLatter::Mount(CArcFile* pclArc)
+bool CEFLatter::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	// Skip 32 bytes
 	pclArc->SeekHed(32);
@@ -38,10 +38,10 @@ BOOL CEFLatter::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFLatter::Decode(CArcFile* pclArc)
+bool CEFLatter::Decode(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

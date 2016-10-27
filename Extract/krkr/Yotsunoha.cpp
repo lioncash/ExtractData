@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CYotsunoha::OnCheckDecrypt(CArcFile* pclArc)
+bool CYotsunoha::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("AAF0A99EAF4018CB1AA5E0D9065C2239");
 }

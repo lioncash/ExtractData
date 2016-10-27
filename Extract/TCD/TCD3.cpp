@@ -7,13 +7,13 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCD3::Mount(CArcFile* pclArc)
+bool CTCD3::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".TCD"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "TCD3", 4) != 0)
-		return FALSE;
+		return false;
 
 	pclArc->SeekHed(4);
 
@@ -110,7 +110,7 @@ BOOL CTCD3::Mount(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// RLE Decompression (Type 2)

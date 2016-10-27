@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CHaruotoFD::Mount(CArcFile* pclArc)
+bool CHaruotoFD::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Mount(pclArc);
 }
@@ -17,10 +17,10 @@ BOOL CHaruotoFD::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CHaruotoFD::Decode(CArcFile* pclArc)
+bool CHaruotoFD::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("haruotoFD.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

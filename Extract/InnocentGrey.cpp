@@ -3,10 +3,10 @@
 #include "../Image.h"
 #include "InnocentGrey.h"
 
-BOOL CInnocentGrey::Mount(CArcFile* pclArc)
+bool CInnocentGrey::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".dat")) || (memcmp(pclArc->GetHed(), "PACKDAT.", 8) != 0))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -41,15 +41,15 @@ BOOL CInnocentGrey::Mount(CArcFile* pclArc)
 		pIndex += 48;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CInnocentGrey::Decode(CArcFile* pclArc)
+bool CInnocentGrey::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if ((pInfFile->title != _T("InnocentGrey")) || (pclArc->GetArcExten() != _T(".dat")) || (pInfFile->format != _T("S")))
-		return FALSE;
+		return false;
 
 	if (pInfFile->format == _T("BMP"))
 	{
@@ -90,5 +90,5 @@ BOOL CInnocentGrey::Decode(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }

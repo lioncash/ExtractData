@@ -7,12 +7,12 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CRetouch::Mount(CArcFile* pclArc)
+bool CRetouch::Mount(CArcFile* pclArc)
 {
 	if (MountGYU(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 
@@ -35,12 +35,12 @@ bool CRetouch::MountGYU(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CRetouch::Decode(CArcFile* pclArc)
+bool CRetouch::Decode(CArcFile* pclArc)
 {
 	if (DecodeGYU(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// GYU Decoding

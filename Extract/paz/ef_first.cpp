@@ -24,10 +24,10 @@ bool Cef_first::IsSupported(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL Cef_first::Mount(CArcFile* pclArc)
+bool Cef_first::Mount(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	// Skip 32 bytes
 	pclArc->Seek(32, FILE_BEGIN);
@@ -39,10 +39,10 @@ BOOL Cef_first::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL Cef_first::Decode(CArcFile* pclArc)
+bool Cef_first::Decode(CArcFile* pclArc)
 {
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

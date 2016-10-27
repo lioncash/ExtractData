@@ -3,5 +3,5 @@
 class CAselia final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
 };

@@ -6,10 +6,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CPaz::Mount(CArcFile* pclArc)
+bool CPaz::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".paz"))
-		return FALSE;
+		return false;
 
 	// Initialize Mount Key
 	InitMountKey(pclArc);
@@ -84,17 +84,17 @@ BOOL CPaz::Mount(CArcFile* pclArc)
 		dwIndexPtr += 24;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode
 ///
 /// @param pclArc Archive
 ///
-BOOL CPaz::Decode(CArcFile* pclArc)
+bool CPaz::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".paz"))
-		return FALSE;
+		return false;
 
 	// Initialize decryption key
 	InitDecodeKey(pclArc);
@@ -201,7 +201,7 @@ BOOL CPaz::Decode(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Initialize Table

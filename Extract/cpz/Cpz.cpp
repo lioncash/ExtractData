@@ -9,24 +9,24 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::Mount(CArcFile* pclArc)
+bool CCpz::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".cpz"))
-		return FALSE;
+		return false;
 
 	if (MountCpz1(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountCpz2(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountCpz3(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountCpz5(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// CPZ1 Mounting
@@ -365,24 +365,24 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::Decode(CArcFile* pclArc)
+bool CCpz::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".cpz"))
-		return FALSE;
+		return false;
 
 	if (DecodeCpz1(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeCpz2(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeCpz3(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeCpz5(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// CPZ1 Decoding
@@ -470,7 +470,7 @@ bool CCpz::DecodeCpz2(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ3 Decoding

@@ -3,15 +3,16 @@
 #include "../Sound/Wav.h"
 #include "VA.h"
 
-BOOL CVA::Mount(CArcFile* pclArc)
+bool CVA::Mount(CArcFile* pclArc)
 {
 	if (MountNwa(pclArc))
-		return TRUE;
+		return true;
 	if (MountNwk(pclArc))
-		return TRUE;
+		return true;
 	if (MountOvk(pclArc))
-		return TRUE;
-	return FALSE;
+		return true;
+
+	return false;
 }
 
 // Function that gets the information of a *.nwa file.
@@ -146,12 +147,12 @@ inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
 	return ret & ((1 << bits) - 1); // mask
 }
 
-BOOL CVA::Decode(CArcFile* pclArc)
+bool CVA::Decode(CArcFile* pclArc)
 {
 	if (DecodeNwa(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 // Function to convert to WAV for extraction

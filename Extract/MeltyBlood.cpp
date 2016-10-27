@@ -3,13 +3,13 @@
 #include "MeltyBlood.h"
 
 // Function that gets file information from MELTY BLOOD *.data files
-BOOL CMeltyBlood::Mount(CArcFile* pclArc)
+bool CMeltyBlood::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetHed()[0] != 0x00) && (pclArc->GetHed()[0] != 0x01))
-		return FALSE;
+		return false;
 
 	if ((pclArc->GetArcName().Left(5) != _T("data0")) || (pclArc->GetArcExten() != _T(".p")))
-		return FALSE;
+		return false;
 
 	DWORD deckey = 0xE3DF59AC;
 
@@ -52,16 +52,16 @@ BOOL CMeltyBlood::Mount(CArcFile* pclArc)
 		pIndex += 68;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Extraction function
-BOOL CMeltyBlood::Decode(CArcFile* pclArc)
+bool CMeltyBlood::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("MeltyBlood"))
-		return FALSE;
+		return false;
 
 	// Create output file
 	pclArc->OpenFile();
@@ -73,7 +73,7 @@ BOOL CMeltyBlood::Decode(CArcFile* pclArc)
 	if (pInfFile->sizeOrg > 0x2173)
 		pclArc->ReadWrite(pInfFile->sizeOrg - 0x2173);
 
-	return TRUE;
+	return true;
 }
 
 // Data decryption function

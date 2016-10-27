@@ -9,8 +9,8 @@
 class CBSFre final : public CPaz
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 
 private:
 	void InitMountKey(CArcFile* pclArc) override;

@@ -6,21 +6,21 @@
 #include "TH2.h"
 
 /// Mounting
-BOOL CTH2::Mount(CArcFile* pclArc)
+bool CTH2::Mount(CArcFile* pclArc)
 {
 	if (MountKCAP(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountLAC(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountDpl(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountWMV(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// KCAP Mounting
@@ -192,15 +192,15 @@ bool CTH2::MountWMV(CArcFile* pclArc)
 }
 
 /// Decoding
-BOOL CTH2::Decode(CArcFile* pclArc)
+bool CTH2::Decode(CArcFile* pclArc)
 {
 	if (DecodeWMV(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeEtc(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// WMV Decoding

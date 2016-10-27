@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL Cef_trial::Mount(CArcFile* pclArc)
+bool Cef_trial::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ef_trial.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Mount(pclArc);
 }
@@ -17,10 +17,10 @@ BOOL Cef_trial::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL Cef_trial::Decode(CArcFile* pclArc)
+bool Cef_trial::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ef_trial.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

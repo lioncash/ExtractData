@@ -5,8 +5,8 @@
 class Cef_first final : public CHaruotoFD
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 
 private:
 	bool IsSupported(CArcFile* pclArc);

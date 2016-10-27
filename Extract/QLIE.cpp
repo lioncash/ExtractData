@@ -3,10 +3,10 @@
 #include "../Image.h"
 #include "QLIE.h"
 
-BOOL CQLIE::Mount(CArcFile* pclArc)
+bool CQLIE::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pack"))
-		return FALSE;
+		return false;
 
 	// Get the signature
 	BYTE signature[16];
@@ -76,7 +76,7 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 	else
 	{
 		pclArc->SeekHed();
-		return FALSE;
+		return false;
 	}
 
 	for (DWORD i = 0; i < ctFile; i++)
@@ -113,13 +113,13 @@ BOOL CQLIE::Mount(CArcFile* pclArc)
 		pIndex += 28;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CQLIE::Decode(CArcFile* pclArc)
+bool CQLIE::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pack"))
-		return FALSE;
+		return false;
 
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
@@ -185,7 +185,7 @@ BOOL CQLIE::Decode(CArcFile* pclArc)
 		pclArc->WriteFile(pBuf, pInfFile->sizeOrg);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// *.b file decompressing

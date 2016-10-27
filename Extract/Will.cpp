@@ -5,12 +5,12 @@
 #include "Utils/ArrayUtils.h"
 
 /// Mounting
-BOOL CWill::Mount(CArcFile* pclArc)
+bool CWill::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".arc")) != 0)
-		return FALSE;
+		return false;
 
-	BOOL bMatch = FALSE;
+	bool is_match = false;
 
 	static const char*	apszHeader[] =
 	{
@@ -21,14 +21,14 @@ BOOL CWill::Mount(CArcFile* pclArc)
 	{
 		if (memcmp(&pclArc->GetHed()[4], apszHeader[i], 4) == 0)
 		{
-			bMatch = TRUE;
+			is_match = true;
 			break;
 		}
 	}
 
-	if (!bMatch)
+	if (!is_match)
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Get number of file formats
@@ -148,18 +148,18 @@ BOOL CWill::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(vcNotMaskFileInfo[i]);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
-BOOL CWill::Decode(CArcFile* pclArc)
+bool CWill::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-	if ((pstFileInfo->format != _T("WIP")) && (pstFileInfo->format != _T("MSK")))
-		return FALSE;
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	if (file_info->format != _T("WIP") && file_info->format != _T("MSK"))
+		return false;
 
 	// Read data
-	DWORD          dwSrcSize = pstFileInfo->sizeCmp;
+	DWORD          dwSrcSize = file_info->sizeCmp;
 	YCMemory<BYTE> clmbtSrc(dwSrcSize);
 	DWORD          dwSrcPtr = 0;
 	pclArc->Read(&clmbtSrc[0], dwSrcSize);
@@ -184,7 +184,7 @@ BOOL CWill::Decode(CArcFile* pclArc)
 	}
 
 	// Is image mask there or not.
-	BOOL bExistsMask = !pstFileInfo->starts.empty();
+	BOOL bExistsMask = !file_info->starts.empty();
 
 	// Get image mask
 	DWORD              dwSrcSizeForMask = 0;
@@ -199,12 +199,12 @@ BOOL CWill::Decode(CArcFile* pclArc)
 	if (bExistsMask)
 	{
 		// Image mask exists
-		dwSrcSizeForMask = pstFileInfo->sizesCmp[0];
+		dwSrcSizeForMask = file_info->sizesCmp[0];
 		dwSrcPtrForMask = 0;
 		clmbtSrcForMask.resize(dwSrcSizeForMask);
 
 		// Read image mask
-		pclArc->SeekHed(pstFileInfo->starts[0]);
+		pclArc->SeekHed(file_info->starts[0]);
 		pclArc->Read(&clmbtSrcForMask[0], dwSrcSizeForMask);
 
 		// Get number of files and colors
@@ -303,20 +303,16 @@ BOOL CWill::Decode(CArcFile* pclArc)
 		}
 
 		// Request progress bar progress
-		BOOL bProgress = TRUE;
-		if (i >= 1)
-		{
-			bProgress = FALSE;
-		}
+		const bool progress = i == 0;
 
 		// Output
 		CImage clImage;
 		clImage.Init(pclArc, vclWidth[i], vclHeight[i], wBpp, pbtPallet, 1024, szFileExt);
-		clImage.WriteCompoBGRAReverse(pbtDst, dwDstSize, bProgress);
+		clImage.WriteCompoBGRAReverse(pbtDst, dwDstSize, progress);
 		clImage.Close();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// LZSS Decompression

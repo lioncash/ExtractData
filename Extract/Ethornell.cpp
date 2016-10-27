@@ -8,13 +8,13 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CEthornell::Mount(CArcFile* pclArc)
+bool CEthornell::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".arc"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "PackFile    ", 12) != 0)
-		return FALSE;
+		return false;
 
 	pclArc->SeekHed(12);
 
@@ -45,14 +45,14 @@ BOOL CEthornell::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode
 ///
 /// @param pclArc Archive
 ///
-BOOL CEthornell::Decode(CArcFile* pclArc)
+bool CEthornell::Decode(CArcFile* pclArc)
 {
 	BYTE abtHeader[16];
 	pclArc->Read(abtHeader, sizeof(abtHeader));

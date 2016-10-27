@@ -7,15 +7,15 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
 
-BOOL CYuris::Mount(CArcFile* pclArc)
+bool CYuris::Mount(CArcFile* pclArc)
 {
 	if (MountYPF(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountYMV(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -220,12 +220,12 @@ bool CYuris::MountYMV(CArcFile* pclArc)
 }
 
 /// Decoding
-BOOL CYuris::Decode(CArcFile* pclArc)
+bool CYuris::Decode(CArcFile* pclArc)
 {
 	if (DecodeYMV(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// YMV Decoding

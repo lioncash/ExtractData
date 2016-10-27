@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CAngelType::Mount(CArcFile* pclArc)
+bool CAngelType::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Mount(pclArc);
 }
@@ -17,10 +17,10 @@ BOOL CAngelType::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CAngelType::Decode(CArcFile* pclArc)
+bool CAngelType::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("ANGELTYPE.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

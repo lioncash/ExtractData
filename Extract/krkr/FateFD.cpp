@@ -5,12 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CFateFD::OnCheckDecrypt(CArcFile* pclArc)
+bool CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 {
 	if (pclArc->GetArcName() != _T("video.xp3"))
-	{
-		return FALSE;
-	}
+		return false;
 
 	return CheckTpm("9C5BB86A5BBD1B77A311EC504DB45653");
 }
@@ -63,7 +61,7 @@ DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 	{
 		// Other
 
-		SetDecryptRequirement(FALSE);
+		SetDecryptRequirement(false);
 	}
 
 	return 0;

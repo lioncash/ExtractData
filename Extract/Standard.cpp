@@ -8,7 +8,7 @@
 #include "Standard.h"
 
 /// Mounting
-BOOL CStandard::Mount(CArcFile* pclArc)
+bool CStandard::Mount(CArcFile* pclArc)
 {
 	// Get file info
 	SFileInfo stFileInfo;
@@ -20,26 +20,26 @@ BOOL CStandard::Mount(CArcFile* pclArc)
 
 	pclArc->AddFileInfo(stFileInfo);
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
-BOOL CStandard::Decode(CArcFile* pclArc)
+bool CStandard::Decode(CArcFile* pclArc)
 {
 	if (DecodeLZSS(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeZlib(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeAhx(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeImage(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeOgg(pclArc))
-		return TRUE;
+		return true;
 
 	return Extract(pclArc);
 }
@@ -85,11 +85,11 @@ BOOL CStandard::DecodeOgg(CArcFile* pclArc)
 }
 
 /// Extraction
-BOOL CStandard::Extract(CArcFile* pclArc)
+bool CStandard::Extract(CArcFile* pclArc)
 {
 	pclArc->OpenFile();
 	pclArc->ReadWrite();
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }

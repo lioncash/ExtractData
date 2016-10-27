@@ -9,21 +9,21 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircusPak::Mount(CArcFile* pclArc)
+bool CCircusPak::Mount(CArcFile* pclArc)
 {
 	if (MountPakForKujiraCons(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountPakForKujira(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountPakForACDC(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountPakForDCGS(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// 最終試験くじら-Conservative-向けpakのマウント
@@ -239,21 +239,21 @@ bool CCircusPak::MountPakForDCGS(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircusPak::Decode(CArcFile* pclArc)
+bool CCircusPak::Decode(CArcFile* pclArc)
 {
 	if (DecodePakForKujiraCons(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodePakForKujira(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodePakForACDC(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodePakForDCGS(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// 最終試験くじら-Conservative-向けpakのデコード

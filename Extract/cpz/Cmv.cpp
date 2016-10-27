@@ -8,17 +8,13 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CCmv::Mount(CArcFile* pclArc)
+bool CCmv::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".cmv"))
-	{
-		return FALSE;
-	}
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "CMV", 3) != 0)
-	{
-		return FALSE;
-	}
+		return false;
 
 	// Read Header
 	BYTE abtHeader[44];
@@ -75,15 +71,15 @@ BOOL CCmv::Mount(CArcFile* pclArc)
 		dwIndexPtr += 20;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CCmv::Decode(CArcFile* pclArc)
+bool CCmv::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("JBP"))
-		return FALSE;
+		return false;
 
 	YCMemory<BYTE> src(pInfFile->sizeCmp);
 	pclArc->Read(&src[0], pInfFile->sizeCmp);
@@ -111,5 +107,5 @@ BOOL CCmv::Decode(CArcFile* pclArc)
 		pclArc->WriteFile(&src[0], pInfFile->sizeCmp);
 	}
 
-	return TRUE;
+	return true;
 }

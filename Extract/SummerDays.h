@@ -3,7 +3,7 @@
 class CSummerDays final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
 
 private:
 	struct TCONTEXT
@@ -13,7 +13,7 @@ private:
 		WORD ui16Code;
 	};
 
-	int _sub(CArcFile* pclArc, LPTSTR pcPath);
+	bool _sub(CArcFile* pclArc, LPTSTR pcPath);
 	WORD _context_new(CArcFile* pclArc, WORD ui16Length);
 	int _context_add(WORD ui16Code);
 

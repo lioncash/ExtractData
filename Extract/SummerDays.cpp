@@ -5,10 +5,10 @@
 #define TYPE_NONE   0x00000000
 #define TYPE_FOLDER 0x00000001
 
-BOOL CSummerDays::Mount(CArcFile* pclArc)
+bool CSummerDays::Mount(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "Í2nY", 4) != 0)
-		return FALSE;
+		return false;
 
 	m_ui16ContextCount = 0x8003; // Code starts at 0x8003
 
@@ -32,16 +32,16 @@ BOOL CSummerDays::Mount(CArcFile* pclArc)
 	TCHAR pcPath[MAX_PATH] = {};
 	for (DWORD i = 0; i < ctTotal; i++)
 	{
-		if (_sub(pclArc, pcPath) == FALSE)
+		if (!_sub(pclArc, pcPath))
 		{
 			m_tContextTable.clear();
-			return FALSE;
+			return false;
 		}
 	}
 
 	m_tContextTable.clear();
 
-	return TRUE;
+	return true;
 }
 
 WORD CSummerDays::_context_new(CArcFile* pclArc, WORD ui16Length)
@@ -78,7 +78,7 @@ int CSummerDays::_context_add(WORD ui16Code)
 	return -1;
 }
 
-BOOL CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
+bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 {
 	union
 	{
@@ -129,9 +129,9 @@ BOOL CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 
 		for (WORD i = 0; i < ui16Count; i++)
 		{
-			if (_sub(pclArc, pcPath2) == FALSE)
+			if (!_sub(pclArc, pcPath2))
 			{
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -150,5 +150,5 @@ BOOL CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 		pclArc->AddFileInfo(infFile);
 	}
 
-	return TRUE;
+	return true;
 }

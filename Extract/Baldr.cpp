@@ -19,16 +19,16 @@ struct SPACFileInfo
 ///
 /// @param pclArc Archive
 ///
-BOOL CBaldr::Mount(CArcFile* pclArc)
+bool CBaldr::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".pac"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "PAC", 3) != 0)
-		return FALSE;
+		return false;
 
 	if (memcmp(&pclArc->GetHed()[72], "\0\0\0\0", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get filecount
 	DWORD dwFiles;
@@ -41,7 +41,7 @@ BOOL CBaldr::Mount(CArcFile* pclArc)
 
 	// Get compressed formats
 	YCString clsFormat;
-	switch( dwFlags )
+	switch (dwFlags)
 	{
 	case 0: // No compression
 		break;
@@ -73,7 +73,7 @@ BOOL CBaldr::Mount(CArcFile* pclArc)
 		if (strlen(szFileName) <= 4)
 		{
 			pclArc->SeekHed();
-			return FALSE;
+			return false;
 		}
 
 		// Add to listview
@@ -91,5 +91,5 @@ BOOL CBaldr::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }

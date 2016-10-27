@@ -4,27 +4,27 @@
 #include "../Image.h"
 #include "Nitro.h"
 
-BOOL CNitro::Mount(CArcFile* pclArc)
+bool CNitro::Mount(CArcFile* pclArc)
 {
 	if (MountPak1(pclArc))
-		return TRUE;
+		return true;
 	if (MountPak2(pclArc))
-		return TRUE;
+		return true;
 	if (MountPak3(pclArc))
-		return TRUE;
+		return true;
 	if (MountPak4(pclArc))
-		return TRUE;
+		return true;
 	if (MountPK2(pclArc))
-		return TRUE;
+		return true;
 	if (MountN3Pk(pclArc))
-		return TRUE;
+		return true;
 //	if (MountPck(pclArc))
-//		return TRUE;
+//		return true;
 	if (MountNpp(pclArc))
-		return TRUE;
+		return true;
 //	if (MountNpa(pclArc))
-//		return TRUE;
-	return FALSE;
+//		return true;
+	return false;
 }
 
 bool CNitro::MountPak1(CArcFile* pclArc)
@@ -651,21 +651,21 @@ bool CNitro::MountNpa(CArcFile* pclArc)
 	return true;
 }
 
-BOOL CNitro::Decode(CArcFile* pclArc)
+bool CNitro::Decode(CArcFile* pclArc)
 {
 	if (DecodePak1(pclArc))
-		return TRUE;
+		return true;
 	if (DecodePak3(pclArc))
-		return TRUE;
+		return true;
 	if (DecodePak4(pclArc))
-		return TRUE;
+		return true;
 	if (DecodePK2(pclArc))
-		return TRUE;
+		return true;
 	if (DecodeN3Pk(pclArc))
-		return TRUE;
+		return true;
 //	if (DecodeNpa(pclArc))
-//		return TRUE;
-	return FALSE;
+//		return true;
+	return false;
 }
 
 bool CNitro::DecodePak1(CArcFile* pclArc)

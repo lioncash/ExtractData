@@ -29,21 +29,21 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::Mount(CArcFile* pclArc)
+bool CMajiro::Mount(CArcFile* pclArc)
 {
 	if (MountArc1(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountArc2(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountMJO(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountRC(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// Mounting V1 Archives
@@ -317,15 +317,15 @@ bool CMajiro::MountRC(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CMajiro::Decode(CArcFile* pclArc)
+bool CMajiro::Decode(CArcFile* pclArc)
 {
 	if (DecodeMJO(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeRC(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// MJO Decoding

@@ -29,20 +29,20 @@
 
 #define M_PI    3.14159265358979323846
 
-BOOL CAhx::Mount(CArcFile* pclArc)
+bool CAhx::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".ahx")) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL CAhx::Decode(CArcFile* pclArc)
+bool CAhx::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("AHX"))
-		return FALSE;
+		return false;
 
 	// Read AHX
 	YCMemory<BYTE> ahx_buf(pInfFile->sizeCmp);
@@ -51,7 +51,7 @@ BOOL CAhx::Decode(CArcFile* pclArc)
 	// Output to convert WAV to AHX
 	Decode(pclArc, &ahx_buf[0], pInfFile->sizeCmp);
 
-	return TRUE;
+	return true;
 }
 
 void CAhx::Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len)

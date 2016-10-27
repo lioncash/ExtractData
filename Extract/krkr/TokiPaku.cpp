@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CTokiPaku::OnCheckDecrypt(CArcFile* pclArc)
+bool CTokiPaku::OnCheckDecrypt(CArcFile* pclArc)
 {
 //	return CheckTpm( "510BE09DF50DB143E90D3837D416FD0F" );
 	return CheckTpm( "A9D18BCE341E20D25DB4DBFAAE7FBF5B" );
@@ -23,7 +23,7 @@ DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
 	if (lstrcmp(pszFileExt, _T(".dll")) == 0)
 	{
 		// Don't decrypt
-		SetDecryptRequirement(FALSE);
+		SetDecryptRequirement(false);
 		return 0;
 	}
 

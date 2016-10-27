@@ -5,7 +5,7 @@
 class CTCD3 final : public CTCDBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
 
 private:
 	struct STCD3IndexInfo

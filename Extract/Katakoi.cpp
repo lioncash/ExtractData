@@ -5,15 +5,15 @@
 #include "../Sound/Ogg.h"
 #include "Katakoi.h"
 
-BOOL CKatakoi::Mount(CArcFile* pclArc)
+bool CKatakoi::Mount(CArcFile* pclArc)
 {
 	if (MountIar(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountWar(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool CKatakoi::MountIar(CArcFile* pclArc)
@@ -341,15 +341,15 @@ bool CKatakoi::GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc)
 	return true;
 }
 
-BOOL CKatakoi::Decode(CArcFile* pclArc)
+bool CKatakoi::Decode(CArcFile* pclArc)
 {
 	if (DecodeIar(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeWar(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool CKatakoi::DecodeIar(CArcFile* pclArc)

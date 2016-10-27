@@ -4,13 +4,13 @@
 #include "../Image.h"
 #include "Axl.h"
 
-BOOL CAxl::Mount(CArcFile* pclArc)
+bool CAxl::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".arc"))
-		return FALSE;
+		return false;
 
 	if (*(LPDWORD)&pclArc->GetHed()[4] != 0 && *(LPDWORD)&pclArc->GetHed()[4] != 1)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile = *(LPDWORD)&pclArc->GetHed()[0];
@@ -23,7 +23,7 @@ BOOL CAxl::Mount(CArcFile* pclArc)
 
 	// Archive file size cannot be smaller than the index size
 	if (pclArc->GetArcSize() < index_size)
-		return FALSE;
+		return false;
 
 	pclArc->Seek(8, FILE_BEGIN);
 
@@ -37,7 +37,7 @@ BOOL CAxl::Mount(CArcFile* pclArc)
 	{
 		// Cannot be decoded
 		pclArc->SeekHed();
-		return FALSE;
+		return false;
 	}
 
 	for (DWORD i = 0; i < ctFile; i++)
@@ -61,15 +61,15 @@ BOOL CAxl::Mount(CArcFile* pclArc)
 		pIndex += 44;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CAxl::Decode(CArcFile* pclArc)
+bool CAxl::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->title != _T("AXL"))
-		return FALSE;
+		return false;
 
 	// Ensure buffer
 	YCMemory<BYTE> buf(pInfFile->sizeOrg);
@@ -148,7 +148,7 @@ BOOL CAxl::Decode(CArcFile* pclArc)
 		pclArc->WriteFile(&buf[0], pInfFile->sizeCmp);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void CAxl::InitMountKey(LPVOID deckey)

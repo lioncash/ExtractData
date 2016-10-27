@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CBSFre::Mount(CArcFile* pclArc)
+bool CBSFre::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("BSF.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Mount(pclArc);
 }
@@ -17,10 +17,10 @@ BOOL CBSFre::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CBSFre::Decode(CArcFile* pclArc)
+bool CBSFre::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("BSF.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

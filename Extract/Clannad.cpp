@@ -6,10 +6,10 @@
 #include "Clannad.h"
 
 // Functions to get file information for Clannad's VOICE.MRG
-BOOL CClannad::Mount(CArcFile* pclArc)
+bool CClannad::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".MRG")) || (memcmp(pclArc->GetHed(), "LV", 2) != 0) || (memcmp(pclArc->GetHed() + 7, "MZX0", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Open VOICE.HED
 	TCHAR szHedFilePath[MAX_PATH];
@@ -17,7 +17,7 @@ BOOL CClannad::Mount(CArcFile* pclArc)
 	PathRenameExtension(szHedFilePath, _T(".HED"));
 	CFile HedFile;
 	if (HedFile.Open(szHedFilePath, FILE_READ) == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return false;
 
 	// Get index size
 	DWORD index_size = HedFile.GetFileSize() - 16;
@@ -56,16 +56,16 @@ BOOL CClannad::Mount(CArcFile* pclArc)
 		pIndex += 4;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Function to perform extraction
-BOOL CClannad::Decode(CArcFile* pclArc)
+bool CClannad::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if ((pInfFile->title != _T("CLANNAD")) || (pInfFile->format != _T("AHX")))
-		return FALSE;
+		return false;
 
 	// Ensure buffer
 	YCMemory<BYTE> mzx_buf(pInfFile->sizeCmp);
@@ -95,5 +95,5 @@ BOOL CClannad::Decode(CArcFile* pclArc)
 	wav.WriteHed(pclArc, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), 1, 16);
 	pclArc->WriteFile(&wav_buf[0], wav_buf_len);
 */
-	return TRUE;
+	return true;
 }

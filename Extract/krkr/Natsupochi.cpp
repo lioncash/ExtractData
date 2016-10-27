@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CNatsupochi::OnCheckDecrypt(CArcFile* pclArc)
+bool CNatsupochi::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("B1CCCE8E4048B563B316D8BAEDF7E2B1");
 }

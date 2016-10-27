@@ -22,7 +22,7 @@ CArcFile::~CArcFile()
 }
 
 /// Mount
-BOOL CArcFile::Mount()
+bool CArcFile::Mount()
 {
 	CStandard clStandard;
 
@@ -30,7 +30,7 @@ BOOL CArcFile::Mount()
 }
 
 /// Decode
-BOOL CArcFile::Decode()
+bool CArcFile::Decode()
 {
 	CStandard clStandard;
 
@@ -38,7 +38,7 @@ BOOL CArcFile::Decode()
 }
 
 /// Extract
-BOOL CArcFile::Extract()
+bool CArcFile::Extract()
 {
 	CStandard clStandard;
 
@@ -55,7 +55,7 @@ BOOL CArcFile::Extract()
 ///
 /// @param pszPathToArc Path to the archive file
 ///
-BOOL CArcFile::Open(LPCTSTR pszPathToArc)
+bool CArcFile::Open(LPCTSTR pszPathToArc)
 {
 	HANDLE hArc = CreateFile(pszPathToArc, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hArc == INVALID_HANDLE_VALUE)
@@ -75,7 +75,7 @@ BOOL CArcFile::Open(LPCTSTR pszPathToArc)
 		m_pclArcExtens.push_back(PathFindExtension(pszPathToArc));
 	}
 
-	return (hArc != INVALID_HANDLE_VALUE);
+	return hArc != INVALID_HANDLE_VALUE;
 }
 
 void CArcFile::Close()
@@ -161,9 +161,9 @@ QWORD CArcFile::GetArcSize() const
 ///
 /// @param pszReFileExt Extension after rename
 ///
-BOOL CArcFile::OpenFile(LPCTSTR pszReFileExt)
+bool CArcFile::OpenFile(LPCTSTR pszReFileExt)
 {
-	BOOL bReturn = FALSE;
+	bool ret = false;
 
 	// Create file path
 	CreateFileName(pszReFileExt);
@@ -178,7 +178,7 @@ BOOL CArcFile::OpenFile(LPCTSTR pszReFileExt)
 			m_pInfFile->sTmpFilePath.insert(m_clsPathToFile);
 		}
 
-		bReturn = TRUE;
+		ret = true;
 	}
 	else
 	{
@@ -194,13 +194,13 @@ BOOL CArcFile::OpenFile(LPCTSTR pszReFileExt)
 	// Prepare simple decoding
 	// InitDecrypt();
 
-	return bReturn;
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Opening the script file for writing
 
-BOOL CArcFile::OpenScriptFile()
+bool CArcFile::OpenScriptFile()
 {
 	YCString clsFileExt;
 
@@ -617,7 +617,7 @@ YCString CArcFile::CreateFileName(LPCTSTR pszRenameFileExt)
 	return m_clsPathToFile;
 }
 
-BOOL CArcFile::CheckExe(LPCTSTR pExeName)
+bool CArcFile::CheckExe(LPCTSTR pExeName)
 {
 	// Gets the path to the executable file
 	TCHAR szExePath[MAX_PATH];
@@ -625,10 +625,10 @@ BOOL CArcFile::CheckExe(LPCTSTR pExeName)
 	PathRemoveFileSpec(szExePath);
 	PathAppend(szExePath, pExeName);
 
-	return PathFileExists(szExePath);
+	return PathFileExists(szExePath) == TRUE;
 }
 
-BOOL CArcFile::CheckDir(LPCTSTR pDirName)
+bool CArcFile::CheckDir(LPCTSTR pDirName)
 {
 	// Get directory name
 	TCHAR szDirPath[MAX_PATH];
@@ -636,9 +636,9 @@ BOOL CArcFile::CheckDir(LPCTSTR pDirName)
 	PathRemoveFileSpec(szDirPath);
 
 	if (lstrcmp(PathFindFileName(szDirPath), pDirName) == 0)
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// Return information to the appropriate file from the file name
@@ -648,27 +648,27 @@ BOOL CArcFile::CheckDir(LPCTSTR pDirName)
 ///
 /// @remark Linear search
 ///
-SFileInfo* CArcFile::GetFileInfo(LPCTSTR pszFileName, BOOL bCmpFileNameOnly)
+SFileInfo* CArcFile::GetFileInfo(LPCTSTR filename, bool compare_filename_only) const
 {
-	if (bCmpFileNameOnly)
+	if (compare_filename_only)
 	{
 		// Comparison in the requested file name only
 
-		pszFileName = PathFindFileName(pszFileName);
+		filename = PathFindFileName(filename);
 	}
 
 	for (size_t i = 0; i < m_pEnt->size(); i++)
 	{
 		LPCTSTR pszWork = (*m_pEnt)[i].name;
 
-		if (bCmpFileNameOnly)
+		if (compare_filename_only)
 		{
 			// Comparison in the requested file name only
 
 			pszWork = PathFindFileName(pszWork);
 		}
 
-		if (lstrcmpi(pszWork, pszFileName) == 0)
+		if (lstrcmpi(pszWork, filename) == 0)
 		{
 			return &(*m_pEnt)[i];
 		}
@@ -725,9 +725,9 @@ void CArcFile::ClearMD5()
 /// @param rstfiTarget1 Left 
 /// @param rstfiTarget2 Right
 ///
-BOOL CArcFile::CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2)
+bool CArcFile::CompareForFileInfo(const SFileInfo& rstfiTarget1, const SFileInfo& rstfiTarget2)
 {
-	return (lstrcmpi(rstfiTarget1.name, rstfiTarget2.name) < 0);
+	return lstrcmpi(rstfiTarget1.name, rstfiTarget2.name) < 0;
 }
 
 /// Binary Search

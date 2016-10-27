@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CBraban::OnCheckDecrypt(CArcFile* pclArc)
+bool CBraban::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("C42B141D42FCBCDA29850FA9E9FE3FF2");
 }

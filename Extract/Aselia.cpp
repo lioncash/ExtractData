@@ -2,22 +2,22 @@
 #include "../ExtractBase.h"
 #include "Aselia.h"
 
-BOOL CAselia::Mount(CArcFile* pclArc)
+bool CAselia::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".gd"))
-		return FALSE;
+		return false;
 
 	TCHAR szDllPath[MAX_PATH];
 	lstrcpy(szDllPath, pclArc->GetArcPath());
 	PathRenameExtension(szDllPath, _T(".dll"));
 
 	if (PathFileExists(szDllPath) == FALSE)
-		return FALSE;
+		return false;
 
 	// Open DLL File
 	CFile DllFile;
 	if (DllFile.Open(szDllPath, FILE_READ) == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return false;
 
 	// Get filecount
 	DWORD ctFile;
@@ -62,5 +62,5 @@ BOOL CAselia::Mount(CArcFile* pclArc)
 		pIndex += 8;
 	}
 
-	return TRUE;
+	return true;
 }

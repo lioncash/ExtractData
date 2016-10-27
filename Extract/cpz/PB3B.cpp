@@ -217,7 +217,7 @@ bool CPB3B::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	}
 
 	// Store base image
-	const SFileInfo* pstBaseFileInfo = pclArc->GetFileInfo(clsBaseFileName, TRUE);
+	const SFileInfo* pstBaseFileInfo = pclArc->GetFileInfo(clsBaseFileName, true);
 
 	// Base image exists
 	if (pstBaseFileInfo != nullptr)

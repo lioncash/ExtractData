@@ -11,7 +11,7 @@
 /// @param pvSrc  - Compressed data
 /// @param dwSize - Compressed data size
 ///
-BOOL CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
+bool CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
 {
 	BYTE* pbtSrc = (BYTE*)pvSrc;
 
@@ -54,7 +54,7 @@ BOOL CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
 		break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 ///  Decoding

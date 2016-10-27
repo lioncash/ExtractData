@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CFlyingShine::OnCheckDecrypt(CArcFile* pclArc)
+bool CFlyingShine::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return CheckTpm("2FAA3AF83558C93EC2C44F06DD727ED5");
 }

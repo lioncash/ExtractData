@@ -10,18 +10,18 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::Mount(CArcFile* pclArc)
+bool CNscr::Mount(CArcFile* pclArc)
 {
 	if (MountNsa(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountSar(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountScr(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// nsa mounting
@@ -178,21 +178,21 @@ bool CNscr::MountScr(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::Decode(CArcFile* pclArc)
+bool CNscr::Decode(CArcFile* pclArc)
 {
 	if (DecodeScr(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeSPB(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeLZSS(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeNBZ(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// Script file decoding

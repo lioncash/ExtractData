@@ -6,10 +6,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CAOS::Mount(CArcFile* pclArc)
+bool CAOS::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".aos"))
-		return FALSE;
+		return false;
 
 	// Unknown 4 bytes
 	pclArc->SeekHed(4);
@@ -30,7 +30,7 @@ BOOL CAOS::Mount(CArcFile* pclArc)
 		// Archive filename is different
 
 		pclArc->SeekHed();
-		return FALSE;
+		return false;
 	}
 
 	// Get index
@@ -50,38 +50,32 @@ BOOL CAOS::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// General decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CAOS::Decode(CArcFile* pclArc)
+bool CAOS::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".aos"))
-		return FALSE;
+		return false;
 
-	BOOL       bReturn = FALSE;
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format == _T("ABM"))
-	{
-		// ABM
-		bReturn = DecodeABM(pclArc);
-	}
-	else if (pstFileInfo->format == _T("MSK"))
-	{
-		// Image mask
-		bReturn = DecodeMask( pclArc );
-	}
-	else if (pstFileInfo->format == _T("SCR"))
-	{
-		// Script
-		bReturn = DecodeScript(pclArc);
-	}
+	if (file_info->format == _T("ABM"))
+		return DecodeABM(pclArc);
 
-	return bReturn;
+	// Image mask
+	if (file_info->format == _T("MSK"))
+		return DecodeMask(pclArc);
+
+	// Script
+	if (file_info->format == _T("SCR"))
+		return DecodeScript(pclArc);
+
+	return false;
 }
 
 

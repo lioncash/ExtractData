@@ -9,18 +9,18 @@
 ///
 /// @pclArc Archive
 ///
-BOOL CHimauri::Mount(CArcFile* pclArc)
+bool CHimauri::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".hxp"))
-		return FALSE;
+		return false;
 
 	if (MountHim4(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountHim5(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// Mount Him4
@@ -231,13 +231,13 @@ bool CHimauri::MountHim5(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CHimauri::Decode(CArcFile* pclArc)
+bool CHimauri::Decode(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".hxp"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "Him", 3) != 0)
-		return FALSE;
+		return false;
 
 	// Get input size
 	DWORD dwSrcSize;
@@ -292,7 +292,7 @@ BOOL CHimauri::Decode(CArcFile* pclArc)
 		clImage.Init(pclArc, &clmbtDst[0]);
 		clImage.Write(dwDstSize);
 
-		return TRUE;
+		return true;
 	}
 	else if ((clmbtDst[0] == 0) && (clmbtDst[1] <= 1) && (clmbtDst[2] > 0) && (memcmp(&clmbtDst[3], "\x00\x00\x00\x00\x00", 5) == 0))
 	{
@@ -381,7 +381,7 @@ BOOL CHimauri::Decode(CArcFile* pclArc)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 	else if (memcmp(&clmbtDst[0], "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) == 0)
 	{
@@ -390,7 +390,7 @@ BOOL CHimauri::Decode(CArcFile* pclArc)
 		clImage.Init(pclArc, 800, 600, 8);
 		clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -402,7 +402,7 @@ BOOL CHimauri::Decode(CArcFile* pclArc)
 	pclArc->OpenFile(sFileExt);
 	pclArc->WriteFile(&clmbtDst[0], dwDstSize, pclArc->GetOpenFileInfo()->sizeCmp);
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression

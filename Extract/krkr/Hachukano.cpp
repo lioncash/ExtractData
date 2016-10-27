@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CHachukano::OnCheckDecrypt(CArcFile* pclArc)
+bool CHachukano::OnCheckDecrypt(CArcFile* pclArc)
 {
 	return pclArc->CheckExe(_T("hachukano.exe"));
 }
@@ -22,7 +22,7 @@ DWORD CHachukano::OnInitDecrypt(CArcFile* pclArc)
 	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (pstFileInfo->name == _T("startup.tjs")))
 	{
 		// Files we don't decode
-		SetDecryptRequirement(FALSE);
+		SetDecryptRequirement(false);
 		return 0;
 	}
 

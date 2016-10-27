@@ -37,39 +37,39 @@ const std::array<DWORD, 256> COgg::m_pCRCTable = {{
 	0xafb010b1,0xab710d06,0xa6322bdf,0xa2f33668,0xbcb4666d,0xb8757bda,0xb5365d03,0xb1f740b4
 }};
 
-BOOL COgg::Mount(CArcFile* pclArc)
+bool COgg::Mount(CArcFile* pclArc)
 {
 	if (lstrcmpi(pclArc->GetArcExten(), _T(".ogg")) != 0)
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
-BOOL COgg::Decode(CArcFile* pclArc)
+bool COgg::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("OGG"))
-		return FALSE;
+	if (file_info->format != _T("OGG"))
+		return false;
 
 	// All loaded into memory (anti-overwrite)
-	YCMemory<BYTE> buf(pInfFile->sizeOrg);
+	YCMemory<BYTE> buf(file_info->sizeOrg);
 	LPBYTE pbuf = &buf[0];
-	pclArc->Read(pbuf, pInfFile->sizeOrg);
+	pclArc->Read(pbuf, file_info->sizeOrg);
 
 	// Generated output file
 	pclArc->OpenFile();
 
-	if (pclArc->GetOpt()->bFixOgg == FALSE)
+	if (!pclArc->GetOpt()->bFixOgg)
 	{
-		pclArc->Decrypt(pbuf, pInfFile->sizeOrg);
-		pclArc->WriteFile(pbuf, pInfFile->sizeOrg);
+		pclArc->Decrypt(pbuf, file_info->sizeOrg);
+		pclArc->WriteFile(pbuf, file_info->sizeOrg);
 	}
 	else
 	{
 		Init(pclArc);
 
-		for (DWORD WriteSize = 0; WriteSize != pInfFile->sizeOrg; )
+		for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; )
 		{
 			DWORD PageSize = ReadHed(pbuf);
 
@@ -84,7 +84,7 @@ BOOL COgg::Decode(CArcFile* pclArc)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void COgg::Decode(CArcFile* pclArc, LPBYTE buf)

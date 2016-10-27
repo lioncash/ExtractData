@@ -5,10 +5,10 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CWindRP::Mount(CArcFile* pclArc)
+bool CWindRP::Mount(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("WindRP.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Mount(pclArc);
 }
@@ -17,10 +17,10 @@ BOOL CWindRP::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CWindRP::Decode(CArcFile* pclArc)
+bool CWindRP::Decode(CArcFile* pclArc)
 {
 	if (!pclArc->CheckExe(_T("WindRP.exe")))
-		return FALSE;
+		return false;
 
 	return CPaz::Decode(pclArc);
 }

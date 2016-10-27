@@ -6,6 +6,11 @@
 class CKrkr : public CExtractBase
 {
 public:
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
+	bool Extract(CArcFile* pclArc) override;
+
+protected:
 	// File chunk
 	struct FileChunk
 	{
@@ -44,16 +49,11 @@ public:
 		DWORD key;    // Unique file key
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
-	BOOL Extract(CArcFile* pclArc) override;
-
-protected:
 	//  Check whether or not it can be decoded
-	virtual BOOL OnCheckDecrypt(CArcFile* pclArc);
+	virtual bool OnCheckDecrypt(CArcFile* pclArc);
 
 	// Check tpm
-	BOOL CheckTpm(const char* pszMD5);
+	bool CheckTpm(const char* pszMD5) const;
 
 	// Set decryption key
 	void InitDecrypt(CArcFile* pclArc);
@@ -64,16 +64,16 @@ protected:
 	virtual DWORD OnDecrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey);
 
 	// Set decryption request
-	void SetDecryptRequirement(BOOL bDecrypt);
+	void SetDecryptRequirement(bool decrypt);
 
 	// Set decryption size
 	void SetDecryptSize(DWORD dwDecryptSize);
 
 	// Find XP3 from within an EXE file
-	BOOL FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset);
+	bool FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset);
 
 private:
-	BOOL        m_bDecrypt;      // Decryption request
+	bool        m_bDecrypt;      // Decryption request
 	DWORD       m_dwDecryptKey;
 	DWORD       m_dwDecryptSize; // Decryption size
 	YCString    m_clsTpmPath;

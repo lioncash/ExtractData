@@ -3,21 +3,21 @@
 #include "../Sound/Wav.h"
 #include "TrH.h"
 
-BOOL CTrH::Mount(CArcFile* pclArc)
+bool CTrH::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".px")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
 
 // Function to convert to WAV
-BOOL CTrH::Decode(CArcFile* pclArc)
+bool CTrH::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if ((pInfFile->format != _T("PX")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
-		return FALSE;
+	if ((file_info->format != _T("PX")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
+		return false;
 
 	// Read px header
 	PXHed pxHed;
@@ -25,8 +25,8 @@ BOOL CTrH::Decode(CArcFile* pclArc)
 
 	// Output
 	CWav wav;
-	wav.Init(pclArc, pInfFile->sizeOrg - 44, pxHed.freq, pxHed.channels, pxHed.bits);
+	wav.Init(pclArc, file_info->sizeOrg - 44, pxHed.freq, pxHed.channels, pxHed.bits);
 	wav.Write();
 
-	return TRUE;
+	return true;
 }

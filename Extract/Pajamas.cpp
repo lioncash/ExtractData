@@ -7,15 +7,15 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CPajamas::Mount(CArcFile* pclArc)
+bool CPajamas::Mount(CArcFile* pclArc)
 {
 	if (MountDat1(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountDat2(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// GAMEDAT PACK Mounting
@@ -132,12 +132,12 @@ bool CPajamas::MountDat2(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CPajamas::Decode(CArcFile* pclArc)
+bool CPajamas::Decode(CArcFile* pclArc)
 {
 	if (DecodeEPA(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// EPA Decoding

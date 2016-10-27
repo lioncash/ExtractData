@@ -3,8 +3,8 @@
 class CCircusPak final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 
 private:
 	using FDecrypt = void(*)(void*, DWORD, const void*);

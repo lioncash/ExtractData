@@ -12,35 +12,28 @@ CImage::CImage()
 }
 
 /// Mount
-BOOL CImage::Mount(CArcFile* pclArc)
+bool CImage::Mount(CArcFile* pclArc)
 {
-	if (m_clBMP.Mount(pclArc))
-	{
-		return TRUE;
-	}
-
-	return FALSE;
+	return m_clBMP.Mount(pclArc);
 }
 
 /// Decode
-BOOL CImage::Decode(CArcFile* pclArc)
+bool CImage::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	if (pstFileInfo->format != _T("BMP"))
-	{
-		return FALSE;
-	}
+	if (file_info->format != _T("BMP"))
+		return false;
 
 	// Read BMP
-	YCMemory<BYTE> clmbtSrc(pstFileInfo->sizeOrg);
-	pclArc->Read(&clmbtSrc[0], pstFileInfo->sizeOrg);
+	YCMemory<BYTE> clmbtSrc(file_info->sizeOrg);
+	pclArc->Read(&clmbtSrc[0], file_info->sizeOrg);
 
 	// Output
 	Init(pclArc, &clmbtSrc[0]);
-	Write(pstFileInfo->sizeOrg);
+	Write(file_info->sizeOrg);
 
-	return TRUE;
+	return true;
 }
 
 /// Initialization (When BMP is passed)

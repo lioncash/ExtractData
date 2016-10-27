@@ -6,7 +6,7 @@
 class CPB2A final : public CPB
 {
 public:
-	BOOL Decode(CArcFile* pclArc, void* pbtSrc, DWORD dwSrcSize);
+	bool Decode(CArcFile* pclArc, void* pbtSrc, DWORD dwSrcSize);
 
 private:
 	void Decrypt(BYTE* pbtTarget, DWORD dwSize);

@@ -11,7 +11,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CKrkr::Mount(CArcFile* pclArc)
+bool CKrkr::Mount(CArcFile* pclArc)
 {
 	DWORD dwOffset;
 
@@ -27,12 +27,12 @@ BOOL CKrkr::Mount(CArcFile* pclArc)
 	{
 		if (!FindXP3FromExecuteFile(pclArc, &dwOffset))
 		{
-			return FALSE;
+			return false;
 		}
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 
 	m_pclArc = pclArc;
@@ -45,7 +45,7 @@ BOOL CKrkr::Mount(CArcFile* pclArc)
 	// Archive can't be decoded
 	if (!OnCheckDecrypt(pclArc))
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Get index position
@@ -207,21 +207,21 @@ BOOL CKrkr::Mount(CArcFile* pclArc)
 		pclArc->AddFileInfo(stFileInfo);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode
 ///
 /// @param pclArc Archive
 ///
-BOOL CKrkr::Decode(CArcFile* pclArc)
+bool CKrkr::Decode(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	if ((pclArc->GetArcExten() != _T(".xp3")) && (pclArc->GetArcExten() != _T(".exe")))
-		return FALSE;
+		return false;
 
-	YCString clsFileExt = PathFindExtension(pstFileInfo->name);
+	YCString clsFileExt = PathFindExtension(file_info->name);
 	clsFileExt.MakeLower();
 
 	InitDecrypt(pclArc);
@@ -235,15 +235,15 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	YCMemory<BYTE> clmbtBuffer;
 
 	// Whether or not it's bound to memory
-	BOOL bComposeMemory = FALSE;
+	bool compose_memory = false;
 
 	// TLS, OGG (fix CRC), BMP
 	if ((clsFileExt == _T(".tlg")) ||
 	    ((clsFileExt == _T(".ogg")) && pclArc->GetOpt()->bFixOgg) ||
 	    (clsFileExt == _T(".bmp")))
 	{
-		clmbtBuffer.resize(pstFileInfo->sizeOrg + 3);
-		bComposeMemory = TRUE;
+		clmbtBuffer.resize(file_info->sizeOrg + 3);
+		compose_memory = true;
 	}
 	// TJS, KS, ASD, TXT
 	else if ((m_dwDecryptKey == 0) &&
@@ -253,8 +253,8 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	   (clsFileExt == _T(".asd")) ||
 	   (clsFileExt == _T(".txt"))))
 	{
-		clmbtBuffer.resize(pstFileInfo->sizeOrg + 3);
-		bComposeMemory = TRUE;
+		clmbtBuffer.resize(file_info->sizeOrg + 3);
+		compose_memory = true;
 	}
 	else // Other
 	{
@@ -262,7 +262,7 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	}
 
 	// Create output file
-	if (!bComposeMemory)
+	if (!compose_memory)
 	{
 		pclArc->OpenFile();
 	}
@@ -271,22 +271,22 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	DWORD dwBufferSizeBase = dwBufferSize;
 	DWORD dwWroteSize = 0;
 
-	for (size_t i = 0; i < pstFileInfo->starts.size(); i++)
+	for (size_t i = 0; i < file_info->starts.size(); i++)
 	{
 		dwBufferSize = dwBufferSizeBase;
 
-		pclArc->SeekHed(pstFileInfo->starts[i]);
+		pclArc->SeekHed(file_info->starts[i]);
 
 		// Compressed data
-		if (pstFileInfo->bCmps[i])
+		if (file_info->bCmps[i])
 		{
 			CZlib clZlib;
 
 			// Ensure buffer
-			DWORD dwSrcSize = pstFileInfo->sizesCmp[i];
+			DWORD dwSrcSize = file_info->sizesCmp[i];
 			YCMemory<BYTE> clmbtSrc(dwSrcSize);
 
-			DWORD dwDstSize = pstFileInfo->sizesOrg[i];
+			DWORD dwDstSize = file_info->sizesOrg[i];
 			YCMemory<BYTE> clmbtDst(dwDstSize + 3);
 
 			// zlib Decompression
@@ -295,7 +295,7 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 
 			DWORD dwDataSize = Decrypt(&clmbtDst[0], dwDstSize, dwWroteSize);
 
-			if (bComposeMemory)
+			if (compose_memory)
 			{
 				memcpy(&clmbtBuffer[dwBufferPtr], &clmbtDst[0], dwDataSize);
 
@@ -310,11 +310,11 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 		}
 		else // Uncompressed data
 		{
-			if (bComposeMemory)
+			if (compose_memory)
 			{
 				// Bound to the buffer
 
-				DWORD dwDstSize = pstFileInfo->sizesOrg[i];
+				DWORD dwDstSize = file_info->sizesOrg[i];
 				pclArc->Read(&clmbtBuffer[dwBufferPtr], dwDstSize);
 
 				DWORD dwDataSize = Decrypt(&clmbtBuffer[dwBufferPtr], dwDstSize, dwWroteSize);
@@ -324,7 +324,7 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 			}
 			else
 			{
-				DWORD dwDstSize = pstFileInfo->sizesOrg[i];
+				DWORD dwDstSize = file_info->sizesOrg[i];
 
 				for (DWORD dwWroteSizes = 0; dwWroteSizes != dwDstSize; dwWroteSizes += dwBufferSize)
 				{
@@ -358,7 +358,7 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	{
 		CImage clImage;
 		clImage.Init(pclArc, &clmbtBuffer[0]);
-		clImage.Write(pstFileInfo->sizeOrg);
+		clImage.Write(file_info->sizeOrg);
 	}
 	// Text file
 	else if (m_dwDecryptKey == 0 &&
@@ -368,9 +368,9 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 	    (clsFileExt == _T(".asd")) ||
 	    (clsFileExt == _T(".txt"))))
 	{
-		DWORD dwDstSize = pstFileInfo->sizeOrg;
+		DWORD dwDstSize = file_info->sizeOrg;
 
-		SetDecryptRequirement(TRUE);
+		SetDecryptRequirement(true);
 
 		m_dwDecryptKey = pclArc->InitDecryptForText(&clmbtBuffer[0], dwDstSize);
 
@@ -380,16 +380,16 @@ BOOL CKrkr::Decode(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtBuffer[0], dwDataSize, dwDstSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Extraction
 ///
 /// @param pclArc Archive
 ///
-BOOL CKrkr::Extract(CArcFile* pclArc)
+bool CKrkr::Extract(CArcFile* pclArc)
 {
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	DWORD dwBufferSize = pclArc->GetBufSize();
 	DWORD dwBufferSizeBase = dwBufferSize;
@@ -398,13 +398,13 @@ BOOL CKrkr::Extract(CArcFile* pclArc)
 
 	pclArc->OpenFile();
 
-	for (size_t i = 0; i < pstFileInfo->starts.size(); i++)
+	for (size_t i = 0; i < file_info->starts.size(); i++)
 	{
 		dwBufferSize = dwBufferSizeBase;
 
-		pclArc->SeekHed(pstFileInfo->starts[i]);
+		pclArc->SeekHed(file_info->starts[i]);
 
-		DWORD dwDstSize = pstFileInfo->sizesOrg[i];
+		DWORD dwDstSize = file_info->sizesOrg[i];
 
 		for (DWORD dwWroteSizes = 0; dwWroteSizes != dwDstSize; dwWroteSizes += dwBufferSize)
 		{
@@ -419,7 +419,7 @@ BOOL CKrkr::Extract(CArcFile* pclArc)
 
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }
 
 /// Set MD5 value for tpm in the archive folder
@@ -459,30 +459,28 @@ void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CKrkr::OnCheckDecrypt(CArcFile* pclArc)
+bool CKrkr::OnCheckDecrypt(CArcFile* pclArc)
 {
-	return TRUE;
+	return true;
 }
 
 /// Verifies that the MD5 value of tpm in the archive folder matches
 ///
 /// @param pszMD5 MD5
 ///
-BOOL CKrkr::CheckTpm(const char* pszMD5)
+bool CKrkr::CheckTpm(const char* pszMD5) const
 {
 	// Comparison
-
 	for (size_t i = 0; i < m_pclArc->GetMD5().size(); i++)
 	{
 		if (memcmp(pszMD5, m_pclArc->GetMD5()[i].szABCD, 32) == 0)
 		{
 			// Matches
-
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 /// Initialization of the decryption process
@@ -494,7 +492,7 @@ void CKrkr::InitDecrypt(CArcFile* pclArc)
 	m_pclArc = pclArc;
 
 	// Enable decryption request
-	SetDecryptRequirement(TRUE);
+	SetDecryptRequirement(true);
 
 	// Set decryption size
 	SetDecryptSize(0);
@@ -514,7 +512,7 @@ DWORD CKrkr::OnInitDecrypt(CArcFile* pclArc)
 	// Unencrypted
 	if (dwDecryptKey == 0)
 	{
-		SetDecryptRequirement(FALSE);
+		SetDecryptRequirement(false);
 	}
 
 	return dwDecryptKey;
@@ -581,9 +579,9 @@ DWORD CKrkr::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWOR
 ///
 /// @param bDecrypt Decryption request
 ///
-void CKrkr::SetDecryptRequirement(BOOL bDecrypt)
+void CKrkr::SetDecryptRequirement(bool decrypt)
 {
-	m_bDecrypt = bDecrypt;
+	m_bDecrypt = decrypt;
 }
 
 /// Set decoding size
@@ -602,12 +600,12 @@ void CKrkr::SetDecryptSize(DWORD dwDecryptSize)
 /// @param pclArc    Archive
 /// @param pdwOffset Offset within archive
 ///
-BOOL CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
+bool CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
 {
 	// Is not a kirikiri executable
 	if (pclArc->GetArcSize() <= 0x200000)
 	{
-		return FALSE;
+		return false;
 	}
 
 	*pdwOffset = 16;
@@ -627,7 +625,7 @@ BOOL CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
 			if (memcmp(&abtBuffer[j], "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
 			{
 				*pdwOffset += j;
-				return TRUE;
+				return true;
 			}
 		}
 
@@ -650,5 +648,5 @@ BOOL CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
 	*pdwOffset = 0;
 	pclArc->SeekHed();
 
-	return FALSE;
+	return false;
 }

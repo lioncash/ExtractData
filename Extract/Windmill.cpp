@@ -3,10 +3,10 @@
 #include "../Arc/Zlib.h"
 #include "Windmill.h"
 
-BOOL CWindmill::Mount(CArcFile* pclArc)
+bool CWindmill::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".int")) || (memcmp(pclArc->GetHed(), "KIF", 3) != 0))
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD ctFile;
@@ -39,17 +39,17 @@ BOOL CWindmill::Mount(CArcFile* pclArc)
 		pIndex += 40;
 	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL CWindmill::Decode(CArcFile* pclArc)
+bool CWindmill::Decode(CArcFile* pclArc)
 {
 	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
 
 	if (pInfFile->format != _T("HG2"))
-		return FALSE;
+		return false;
 
-	return FALSE; // TODO: Not completed yet
+	return false; // TODO: Not completed yet
 
 	// Read HG2 header
 	BYTE header[48];

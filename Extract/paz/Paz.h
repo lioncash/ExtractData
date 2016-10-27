@@ -12,8 +12,8 @@ public:
 		BYTE     abtKey[64];
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 
 protected:
 	// Initialization of the table of 72 + 4096 bytes

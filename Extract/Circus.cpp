@@ -9,21 +9,21 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::Mount(CArcFile* pclArc)
+bool CCircus::Mount(CArcFile* pclArc)
 {
 	if (MountPCK(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountVoiceDat(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountCRX(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountPCM(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// PCK Mounting
@@ -159,15 +159,15 @@ bool CCircus::MountPCM(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCircus::Decode(CArcFile* pclArc)
+bool CCircus::Decode(CArcFile* pclArc)
 {
 	if (DecodeCRX(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodePCM(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// CRX Decoding

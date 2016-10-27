@@ -3,10 +3,10 @@
 #include "Izumo.h"
 
 // Function to get file information from IZUMO *.dat files
-BOOL CIzumo::Mount(CArcFile* pclArc)
+bool CIzumo::Mount(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".dat")) || (memcmp(pclArc->GetHed(), "PAK0", 4) != 0))
-		return FALSE;
+		return false;
 
 	// Get index size (Starting address of the first file)
 	DWORD index_size;
@@ -17,7 +17,7 @@ BOOL CIzumo::Mount(CArcFile* pclArc)
 	DWORD dwDummys;
 	DWORD dwSkip;
 
-	pclArc->Read( &dwDummys, 4 );
+	pclArc->Read(&dwDummys, 4);
 	dwSkip = dwDummys << 3;
 
 	// Get file count
@@ -40,7 +40,7 @@ BOOL CIzumo::Mount(CArcFile* pclArc)
 
 	// Remove unneeded filenames 
 
-	for( DWORD i = 1 ; i < dwDummys ; i++ )
+	for (DWORD i = 1; i < dwDummys; i++)
 	{
 		pFileNameIndex += pFileNameIndex[0] + 1;
 	}
@@ -66,5 +66,5 @@ BOOL CIzumo::Mount(CArcFile* pclArc)
 		pFileNameIndex += len;
 	}
 
-	return TRUE;
+	return true;
 }

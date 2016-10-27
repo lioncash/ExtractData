@@ -34,11 +34,11 @@ bool COyatu::IsSupported(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::Mount(CArcFile* pclArc)
+bool COyatu::Mount(CArcFile* pclArc)
 {
 	// Check if supported
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	// Mount
 	if (pclArc->GetArcExten() == _T(".BGM"))
@@ -50,18 +50,18 @@ BOOL COyatu::Mount(CArcFile* pclArc)
 	if (pclArc->GetArcExten() == _T(".MSE"))
 		return pclArc->Mount();
 
-	return FALSE;
+	return false;
 }
 
 /// Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL COyatu::Decode(CArcFile* pclArc)
+bool COyatu::Decode(CArcFile* pclArc)
 {
 	// Check if supported
 	if (!IsSupported(pclArc))
-		return FALSE;
+		return false;
 
 	// Decode
 	SFileInfo* pstfiWork = pclArc->GetOpenFileInfo();
@@ -78,7 +78,7 @@ BOOL COyatu::Decode(CArcFile* pclArc)
 	if (pstfiWork->format == _T("MSE"))
 		return DecodeMSE(pclArc);
 
-	return FALSE;
+	return false;
 }
 
 /// Sound file decoding

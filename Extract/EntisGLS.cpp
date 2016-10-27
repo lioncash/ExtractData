@@ -6,13 +6,13 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CEntisGLS::Mount(CArcFile* pclArc)
+bool CEntisGLS::Mount(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".noa"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "Entis\x1A\0\0", 8) != 0)
-		return FALSE;
+		return false;
 
 //	if( memcmp( pclArc->GetHed(), ""
 
@@ -39,14 +39,14 @@ BOOL CEntisGLS::Mount(CArcFile* pclArc)
 	//  Read 4 bytes - Gets file name
 	//  Gets the file name by reading its segment
 
-	return FALSE;
+	return false;
 }
 
 /// Decode
 ///
 /// @param pclArc Archive
 ///
-BOOL CEntisGLS::Decode(CArcFile* pclArc)
+bool CEntisGLS::Decode(CArcFile* pclArc)
 {
-	return FALSE;
+	return false;
 }

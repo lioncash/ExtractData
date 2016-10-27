@@ -5,18 +5,18 @@
 #include "TaskForce.h"
 
 /// Mounting
-BOOL CTaskForce::Mount(CArcFile* pclArc)
+bool CTaskForce::Mount(CArcFile* pclArc)
 {
 	if (MountDat(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountTlz(pclArc))
-		return TRUE;
+		return true;
 
 	if (MountBma(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// dat mounting
@@ -88,18 +88,18 @@ bool CTaskForce::MountBma(CArcFile* pclArc)
 }
 
 /// Decoding
-BOOL CTaskForce::Decode(CArcFile* pclArc)
+bool CTaskForce::Decode(CArcFile* pclArc)
 {
 	if (DecodeTlz(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeBma(pclArc))
-		return TRUE;
+		return true;
 
 	if (DecodeTGA(pclArc))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 /// tlz decoding

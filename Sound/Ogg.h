@@ -20,8 +20,8 @@ struct VH
 class COgg final : public CExtractBase
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 	void Decode(CArcFile* pclArc, LPBYTE buf);
 
 	void Init(CArcFile* pclArc);

@@ -5,8 +5,8 @@
 class Cef_trial final : public CHaruotoFD
 {
 public:
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
 
 protected:
 	void InitMountKey(CArcFile* pclArc) override;
