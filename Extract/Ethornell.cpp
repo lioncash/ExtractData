@@ -74,7 +74,7 @@ BOOL CEthornell::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CEthornell::DecodeDSC(CArcFile* pclArc)
+bool CEthornell::DecodeDSC(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -148,14 +148,14 @@ BOOL CEthornell::DecodeDSC(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtDst[0], dwDstSize, dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode CompressedBG
 ///
 /// @param pclArc Archive
 ///
-BOOL CEthornell::DecodeCBG(CArcFile* pclArc)
+bool CEthornell::DecodeCBG(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -181,14 +181,14 @@ BOOL CEthornell::DecodeCBG(CArcFile* pclArc)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 // Decode other files
 ///
 /// @param pclArc Archive
 ///
-BOOL CEthornell::DecodeStd(CArcFile* pclArc)
+bool CEthornell::DecodeStd(CArcFile* pclArc)
 {
 	// Get offset
 	DWORD dwOffset;
@@ -225,7 +225,7 @@ BOOL CEthornell::DecodeStd(CArcFile* pclArc)
 
 	pclArc->ReadWrite(pclArc->GetOpenFileInfo()->sizeOrg - dwOffset);
 
-	return TRUE;
+	return true;
 }
 
 /// Get Key
@@ -510,7 +510,7 @@ void CEthornell::DecompCBG(BYTE* pbtDst, BYTE* pbtSrc)
 	// Initialization of the branch node
 	for (DWORD i = 256; i < 511; i++)
 	{
-		astNodeInfo[i].bValidity = FALSE;
+		astNodeInfo[i].bValidity = false;
 		astNodeInfo[i].dwFreq = 0;
 		astNodeInfo[i].dwLeft = (DWORD)-1;
 		astNodeInfo[i].dwRight = (DWORD)-1;
@@ -541,14 +541,14 @@ void CEthornell::DecompCBG(BYTE* pbtDst, BYTE* pbtSrc)
 
 			if (adwChild[i] != (DWORD)-1)
 			{
-				astNodeInfo[adwChild[i]].bValidity = FALSE;
+				astNodeInfo[adwChild[i]].bValidity = false;
 
 				dwFreq += astNodeInfo[adwChild[i]].dwFreq;
 			}
 		}
 
 		// Registration of branch node 
-		astNodeInfo[dwNodes].bValidity = TRUE;
+		astNodeInfo[dwNodes].bValidity = true;
 		astNodeInfo[dwNodes].dwFreq = dwFreq;
 		astNodeInfo[dwNodes].dwLeft = adwChild[0];
 		astNodeInfo[dwNodes].dwRight = adwChild[1];

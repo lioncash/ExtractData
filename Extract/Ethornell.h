@@ -3,21 +3,21 @@
 class CEthornell final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	struct SNodeInfo
 	{
-		BOOL  bValidity; // Validity
+		bool  bValidity; // Validity
 		DWORD dwFreq;    // Frequency
 		DWORD dwLeft;    // Left Node
 		DWORD dwRight;   // Right Node
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
-
-private:
-	BOOL DecodeDSC(CArcFile* pclArc);
-	BOOL DecodeCBG(CArcFile* pclArc);
-	BOOL DecodeStd(CArcFile* pclArc);
+	bool DecodeDSC(CArcFile* pclArc);
+	bool DecodeCBG(CArcFile* pclArc);
+	bool DecodeStd(CArcFile* pclArc);
 
 	DWORD GetKey(DWORD* dwKey);
 	DWORD GetVariableData(const BYTE* pbtSrc, DWORD* pdwDstOfReadLength);
