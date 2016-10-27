@@ -4,11 +4,12 @@
 
 class CFateFD final : public CKrkr
 {
-private:
+public:
 	BOOL  OnCheckDecrypt(CArcFile* pclArc) override;
 	DWORD OnInitDecrypt(CArcFile* pclArc) override;
 	DWORD OnDecrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey) override;
 
+private:
 	BYTE  m_abtKey[6];
 	DWORD m_adwOffset[6];
 
