@@ -145,11 +145,11 @@ BOOL CLostChild::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CLostChild::DecodeESUR(CArcFile* pclArc)
+bool CLostChild::DecodeESUR(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("SUR"))
-		return FALSE;
+		return false;
 
 	// Read
 	DWORD dwSrcSize = pstFileInfo->sizeCmp;
@@ -182,18 +182,18 @@ BOOL CLostChild::DecodeESUR(CArcFile* pclArc)
 	clImage.WriteReverse(&clmDst[0], dwDstSize);
 	clImage.Close();
 
-	return TRUE;
+	return true;
 }
 
 /// LAD Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CLostChild::DecodeLAD(CArcFile* pclArc)
+bool CLostChild::DecodeLAD(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("LAD"))
-		return FALSE;
+		return false;
 
 	// Reading
 	DWORD dwSrcSize = pstFileInfo->sizeCmp;
@@ -230,7 +230,7 @@ BOOL CLostChild::DecodeLAD(CArcFile* pclArc)
 //	clImage.WriteReverse(&clmDst[0], dwDstSize);
 //	clImage.Close();
 
-	return TRUE;
+	return true;
 }
 
 /// LZSS Decompression
@@ -243,7 +243,7 @@ BOOL CLostChild::DecodeLAD(CArcFile* pclArc)
 /// @param dwDicPtr       Dictionary reference position
 /// @param dwLengthOffset Length offset
 ///
-BOOL CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
+bool CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
 {
 	BYTE*       pbtDst = (BYTE*)pvDst;
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -313,7 +313,7 @@ BOOL CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 		dwBitCount--;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Extraction

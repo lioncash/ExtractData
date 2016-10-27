@@ -8,8 +8,8 @@ public:
 	BOOL Extract(CArcFile* pclArc) override;
 
 private:
-	BOOL DecodeESUR(CArcFile* pclArc);
-	BOOL DecodeLAD(CArcFile* pclArc);
+	bool DecodeESUR(CArcFile* pclArc);
+	bool DecodeLAD(CArcFile* pclArc);
 
-	BOOL DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
+	bool DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
 };
