@@ -84,7 +84,7 @@ void CPB2A::Decrypt(BYTE* pbtTarget, DWORD dwSize)
 /// @param lHeight   Height
 /// @param wBpp      Number of bits
 ///
-BOOL CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -98,7 +98,7 @@ BOOL CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init( pclArc, lWidth, lHeight, wBpp );
 	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 2
@@ -110,7 +110,7 @@ BOOL CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight   Height
 /// @param wBpp      Number of bits
 ///
-BOOL CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -124,7 +124,7 @@ BOOL CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 4
@@ -136,7 +136,7 @@ BOOL CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight   Height
 /// @param wBpp      Number of bits
 ///
-BOOL CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure output buffer
 	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
@@ -150,7 +150,7 @@ BOOL CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 5
@@ -162,7 +162,7 @@ BOOL CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight   Height
 /// @param wBpp      Number of bits
 ///
-BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
 	DWORD dwBaseSize = (lWidth * lHeight * 4);
@@ -182,7 +182,7 @@ BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	if (dwImageFiles == 1)
 	{
 		// Only the base image exists
-		return TRUE;
+		return true;
 	}
 
 	// Ensure image difference buffer
@@ -203,7 +203,7 @@ BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 		clImage.Close();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode 6
@@ -215,7 +215,7 @@ BOOL CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight   Height
 /// @param wBpp      Number of bits
 ///
-BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Ensure base image buffer
 	DWORD dwBaseSize = (lWidth * lHeight * 4);
@@ -235,7 +235,7 @@ BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	if (dwImageFiles == 1)
 	{
 		// Only the base image exists
-		return TRUE;
+		return true;
 	}
 
 	// Ensure difference image buffer
@@ -256,7 +256,7 @@ BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 		clImage.Close();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 1
@@ -269,7 +269,7 @@ BOOL CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 /// @param lHeight       Height
 /// @param wBpp          Number of bits
 ///
-BOOL CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
 	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[28];
@@ -330,7 +330,7 @@ BOOL CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 2
@@ -343,7 +343,7 @@ BOOL CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight       Height
 /// @param wBpp          Number of bits
 ///
-BOOL CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
 	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[28];
@@ -467,7 +467,7 @@ BOOL CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 4
@@ -480,7 +480,7 @@ BOOL CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param lHeight       Height
 /// @param wBpp          Number of bits
 ///
-BOOL CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
 {
 	// Get alpha value
 	const BYTE* pbtAlpha = pbtSrc + *(DWORD*) &pbtSrc[24];
@@ -490,7 +490,7 @@ BOOL CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 	CJBP1 clJBP1;
 	clJBP1.Decomp( pbtDst, &pbtSrc[32], wBpp, pbtAlpha, dwAlphaSize );
 
-	return TRUE;
+	return true;
 }
 
 /// Decompression 5
@@ -507,7 +507,7 @@ BOOL CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 /// @param pbtBase       Base image
 /// @param dwFrameNumber Frame number
 ///
-BOOL CPB2A::Decomp5(
+bool CPB2A::Decomp5(
 	BYTE*       pbtDst,
 	DWORD       dwDstSize,
 	const BYTE* pbtSrc,
@@ -652,7 +652,7 @@ BOOL CPB2A::Decomp5(
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompress 6
@@ -669,7 +669,7 @@ BOOL CPB2A::Decomp5(
 /// @param pbtBase       Base image
 /// @param dwFrameNumber Frame number
 ///
-BOOL CPB2A::Decomp6(
+bool CPB2A::Decomp6(
 	BYTE*       pbtDst,
 	DWORD       dwDstSize,
 	const BYTE* pbtSrc,
@@ -820,5 +820,5 @@ BOOL CPB2A::Decomp6(
 		}
 	}
 
-	return TRUE;
+	return true;
 }
