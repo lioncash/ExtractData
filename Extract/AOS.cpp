@@ -89,7 +89,7 @@ BOOL CAOS::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CAOS::DecodeABM(CArcFile* pclArc)
+bool CAOS::DecodeABM(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -179,14 +179,14 @@ BOOL CAOS::DecodeABM(CArcFile* pclArc)
 		pclArc->CloseFile();
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode Image Mask
 ///
 /// @param pclArc Archive
 ///
-BOOL CAOS::DecodeMask(CArcFile* pclArc)
+bool CAOS::DecodeMask(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -201,14 +201,14 @@ BOOL CAOS::DecodeMask(CArcFile* pclArc)
 	clImage.Write(dwSrcSize);
 	clImage.Close();
 
-	return TRUE;
+	return true;
 }
 
 /// Decode Script
 ///
 /// @param pclArc Archive
 ///
-BOOL CAOS::DecodeScript(CArcFile* pclArc)
+bool CAOS::DecodeScript(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -229,7 +229,7 @@ BOOL CAOS::DecodeScript(CArcFile* pclArc)
 	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
 	pclArc->CloseFile();
 
-	return TRUE;
+	return true;
 }
 
 /// ABM Decompression
@@ -239,7 +239,7 @@ BOOL CAOS::DecodeScript(CArcFile* pclArc)
 /// @param pbtSrc    Compressed data
 /// @param dwSrcSize Compressed data size
 ///
-BOOL CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+bool CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
@@ -306,7 +306,7 @@ BOOL CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dw
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decompress Script
@@ -316,7 +316,7 @@ BOOL CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dw
 /// @param pbtSrc    Compressed data
 /// @param dwSrcSize Compressed data size
 ///
-BOOL CAOS::DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+bool CAOS::DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
 {
 	// Construct huffman table
 	DWORD adwTableOfBit0[511] = {};
@@ -331,7 +331,7 @@ BOOL CAOS::DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD
 	// Decompress
 	DecompHuffman(pbtDst, dwDstSize, adwTableOfBit0, adwTableOfBit1, &pbtSrc[dwSrcPtr], dwTablePtr, dwCurrentSrc, dwBitShift);
 
-	return TRUE;
+	return true;
 }
 
 /// Construct Huffman Table
@@ -411,10 +411,10 @@ DWORD CAOS::CreateHuffmanTable(DWORD* pdwTableOfBit0, DWORD* pdwTableOfBit1, con
 /// @param dwCurrentSrc   Current data
 /// @param dwBitShift     Bit shift
 ///
-BOOL CAOS::DecompHuffman(BYTE* pbtDst, DWORD dwDstSize, const DWORD* pdwTableOfBit0, const DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD dwRoot, DWORD dwCurrentSrc, DWORD dwBitShift)
+bool CAOS::DecompHuffman(BYTE* pbtDst, DWORD dwDstSize, const DWORD* pdwTableOfBit0, const DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD dwRoot, DWORD dwCurrentSrc, DWORD dwBitShift)
 {
 	if (dwDstSize <= 0)
-		return FALSE;
+		return false;
 
 	DWORD dwSrcPtr = 0;
 	DWORD dwDstPtr = 0;
@@ -448,5 +448,5 @@ BOOL CAOS::DecompHuffman(BYTE* pbtDst, DWORD dwDstSize, const DWORD* pdwTableOfB
 		pbtDst[dwDstPtr++] = (BYTE) dwTablePtr;
 	}
 
-	return TRUE;
+	return true;
 }
