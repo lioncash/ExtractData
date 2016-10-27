@@ -442,14 +442,14 @@ void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
 
 	// Get the tpm file path
 	CFindFile clFindFile;
-	std::vector<YCString>& vtsPathToTpm = clFindFile.DoFind(szBasePathToTpm, _T("*.tpm"));
+	std::vector<YCString> tpm_paths = clFindFile.DoFind(szBasePathToTpm, _T("*.tpm"));
 
 	// Set the tpm MD5 value
 	CMD5 clmd5Tpm;
 
-	for (size_t i = 0; i < vtsPathToTpm.size(); i++)
+	for (const auto& path : tpm_paths)
 	{
-		pclArc->SetMD5(clmd5Tpm.Calculate(vtsPathToTpm[i]));
+		pclArc->SetMD5(clmd5Tpm.Calculate(path));
 	}
 
 	pclArc->SetMD5OfFlag(true);
