@@ -512,12 +512,13 @@ BOOL CExtract::Search(CArcFile* pclArc)
 //////////////////////////////////////////////////////////////////////////////////////////
 // Decode
 
-BOOL CExtract::Decode(
-	CArcFile*			pclArc,							// Archive
-	BOOL				bConvert						// Conversion request
-	)
+/**
+ * @param pclArc  Archive
+ * @param convert Conversion request
+ */
+bool CExtract::Decode(CArcFile* pclArc, bool convert)
 {
-	BOOL       bReturn = FALSE;
+	bool       retval = false;
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	try
@@ -537,30 +538,30 @@ BOOL CExtract::Decode(
 			// Decode with the Susie plug-in
 
 			CSusie clSusie;
-			bReturn = clSusie.Decode( pclArc );
+			retval = clSusie.Decode(pclArc);
 		}
 		else
 		{
 			// Decoded by built-in features
-			if( bConvert )
+			if (convert)
 			{
 				// Conversion request
 
 				std::set<CExtractBase*>& Class = m_DecodeClass;
 
-				for( std::set<CExtractBase*>::iterator itr = Class.begin() ; itr != Class.end() ; itr++ )
+				for (std::set<CExtractBase*>::iterator itr = Class.begin(); itr != Class.end(); itr++)
 				{
-					bReturn = (*itr)->Decode( pclArc );
+					retval = (*itr)->Decode(pclArc);
 
-					if( bReturn )
+					if (retval)
 					{
 						break;
 					}
 				}
 
-				if( !bReturn )
+				if (!retval)
 				{
-					bReturn = pclArc->Decode();
+					retval = pclArc->Decode();
 				}
 			}
 			else
@@ -569,19 +570,19 @@ BOOL CExtract::Decode(
 
 				std::set<CExtractBase*>& Class = m_DecodeClass;
 
-				for( std::set<CExtractBase*>::iterator itr = Class.begin() ; itr != Class.end() ; itr++ )
+				for (std::set<CExtractBase*>::iterator itr = Class.begin(); itr != Class.end(); itr++)
 				{
-					bReturn = (*itr)->Extract( pclArc );
+					retval = (*itr)->Extract(pclArc);
 
-					if( bReturn )
+					if (retval)
 					{
 						break;
 					}
 				}
 
-				if( !bReturn )
+				if (!retval)
 				{
-					bReturn = pclArc->Extract();
+					retval = pclArc->Extract();
 				}
 			}
 		}
@@ -663,16 +664,16 @@ BOOL CExtract::Decode(
 			pclArc->CloseFile();
 		}*/
 	}
-	catch( CExistsDialog )
+	catch (CExistsDialog)
 	{
 		// If selected 'No' in the overwrite confirmation
 
-		pclArc->GetProg()->UpdatePercent( pstFileInfo->sizeOrg );
+		pclArc->GetProg()->UpdatePercent(pstFileInfo->sizeOrg);
 
-		bReturn = TRUE;
+		retval = true;
 	}
 
-	return	bReturn;
+	return retval;
 }
 
 void CExtract::Close()

@@ -19,10 +19,10 @@ public:
 	void OpenHistory(YCString& sFilePath);
 	void Mount(LPCTSTR c_pclArcNames);
 
-	void SaveSel(LPTSTR pSaveDir, BOOL bConvert);
-	void SaveAll(LPTSTR pSaveDir, BOOL bConvert);
+	void SaveSel(LPTSTR pSaveDir, bool convert);
+	void SaveAll(LPTSTR pSaveDir, bool convert);
 	void SaveDrop();
-	void Decode(DWORD ExtractMode, LPCTSTR pSaveDir, BOOL bConvert);
+	void Decode(DWORD ExtractMode, LPCTSTR pSaveDir, bool convert);
 	void DecodeTmp();
 
 	void OpenRelate();
@@ -46,14 +46,14 @@ private:
 	LPCTSTR                 m_pclArcNames;
 	DWORD                   m_dwExtractMode;
 	LPCTSTR                 m_pSaveDir;
-	BOOL                    m_bConvert;
+	bool                    m_bConvert;
 	SOption*                m_pOption;
 	BOOL                    m_bInput;
 	std::vector<CArcFile*>  m_ArcList;
 
 	std::set<YCString>      m_ssTmpFile;
 
-	void Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert);
+	void Save(DWORD ExtractMode, LPTSTR pSaveDir, bool convert);
 	static UINT WINAPI MountThread(LPVOID lpParam);
 	static UINT WINAPI DecodeThread(LPVOID lpParam);
 };

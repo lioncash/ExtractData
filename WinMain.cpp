@@ -278,7 +278,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case IDM_EXTRACT: // Extract the selected range
 			if (listview.GetCountSel() > 0)
 			{
-				extract.SaveSel(lastdir.GetSave(), TRUE);
+				extract.SaveSel(lastdir.GetSave(), true);
 			}
 			lastdir.SaveIni();
 			break;
@@ -286,7 +286,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case IDM_EXTRACTALL: // Extract all
 			if( listview.GetCount() > 0 )
 			{
-				extract.SaveAll(lastdir.GetSave(), TRUE);
+				extract.SaveAll(lastdir.GetSave(), true);
 			}
 			lastdir.SaveIni();
 			break;
@@ -294,7 +294,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case IDM_EXTRACT_NOTCONVERT: // Extracts the selection without converting it
 			if (listview.GetCountSel() > 0)
 			{
-				extract.SaveSel(lastdir.GetSave(), FALSE);
+				extract.SaveSel(lastdir.GetSave(), false);
 			}
 			lastdir.SaveIni();
 			break;
@@ -302,7 +302,7 @@ LRESULT CWinMain::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case IDM_EXTRACTALL_NOTCONVERT: // Extracts all without conversion
 			if (listview.GetCount() > 0)
 			{
-				extract.SaveAll(lastdir.GetSave(), FALSE);
+				extract.SaveAll(lastdir.GetSave(), false);
 			}
 			lastdir.SaveIni();
 			break;

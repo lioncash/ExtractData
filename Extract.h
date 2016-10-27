@@ -10,7 +10,7 @@ public:
 	void SetClass();
 	void SetSearchClass();
 	static BOOL Mount(CArcFile* pclArc);
-	static BOOL Decode(CArcFile* pclArc, BOOL bConvert);
+	static bool Decode(CArcFile* pclArc, bool convert);
 	static BOOL Search(CArcFile* pclArc);
 	void Close();
 

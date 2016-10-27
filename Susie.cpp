@@ -50,7 +50,7 @@ void CSusie::Apply()
 // Parameters:
 //   - pclArc - Archive
 
-BOOL CSusie::Mount(CArcFile* pclArc)
+bool CSusie::Mount(CArcFile* pclArc)
 {
 	// Get header
 	BYTE* pbtHeader = pclArc->GetHed();
@@ -160,10 +160,10 @@ BOOL CSusie::Mount(CArcFile* pclArc)
 		// Release resources
 		cllmFileInfo.Free();
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ BOOL CSusie::Mount(CArcFile* pclArc)
 // Parameters:
 //   - pclArc - Archive
 
-BOOL CSusie::Decode(CArcFile* pclArc)
+bool CSusie::Decode(CArcFile* pclArc)
 {
 	YCStringA clsPathToArc = pclArc->GetArcPath();
 	YCStringA clsFileName = pclArc->GetOpenFileInfo()->name;
@@ -251,7 +251,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 		cllmBitmapInfo.Free();
 		cllmBitmapData.Free();
 
-		return TRUE;
+		return true;
 	}
 
 	// File input - GetFile()
@@ -287,7 +287,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 
 	// Lock the memory for reading
 
-	BOOL   bGetFileSuccess = TRUE;
+	bool   bGetFileSuccess = true;
 	LPBYTE pbtSrc = nullptr;
 	DWORD  dwSrcSize;
 
@@ -301,7 +301,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 	else
 	{
 		// GetFile() has failed
-		bGetFileSuccess = FALSE;
+		bGetFileSuccess = false;
 
 		// Memory allocation
 		dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp;
@@ -386,7 +386,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 		cllmBitmapData.Free();
 		cllmSrc.Free();
 
-		return TRUE;
+		return true;
 	}
 
 	// Exit if the file could not be obtained in the function GetFile()
@@ -394,7 +394,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 	{
 		cllmSrc.Free();
 
-		return FALSE;
+		return false;
 	}
 
 	// Output file obtained from GetFile()
@@ -405,7 +405,7 @@ BOOL CSusie::Decode(CArcFile* pclArc)
 	// Exit (Free resources)
 	cllmSrc.Free();
 
-	return TRUE;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

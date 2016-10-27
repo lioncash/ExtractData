@@ -227,7 +227,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 	return 0;
 }
 
-void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert)
+void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, bool convert)
 {
 	SOption* pstOption = m_pOption;
 
@@ -239,31 +239,31 @@ void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, BOOL bConvert)
 
 		if (clFolderInputDlg.DoModal(m_hParentWnd, pSaveDir ) == IDOK)
 		{
-			Decode(ExtractMode, pSaveDir, bConvert);
+			Decode(ExtractMode, pSaveDir, convert);
 		}
 	}
 	else if (pstOption->bSaveSrc)
 	{
 		// Output to input destination
 
-		Decode(ExtractMode, nullptr, bConvert);
+		Decode(ExtractMode, nullptr, convert);
 	}
 	else if (pstOption->bSaveDir)
 	{
 		// Output to a fixed destination
 
-		Decode(ExtractMode, pstOption->SaveDir, bConvert);
+		Decode(ExtractMode, pstOption->SaveDir, convert);
 	}
 }
 
-void CExtractData::SaveSel(LPTSTR pSaveDir, BOOL bConvert)
+void CExtractData::SaveSel(LPTSTR pSaveDir, bool convert)
 {
-	Save(EXTRACT_SELECT, pSaveDir, bConvert);
+	Save(EXTRACT_SELECT, pSaveDir, convert);
 }
 
-void CExtractData::SaveAll(LPTSTR pSaveDir, BOOL bConvert)
+void CExtractData::SaveAll(LPTSTR pSaveDir, bool convert)
 {
-	Save(EXTRACT_ALL, pSaveDir, bConvert);
+	Save(EXTRACT_ALL, pSaveDir, convert);
 }
 
 void CExtractData::SaveDrop()
@@ -315,13 +315,13 @@ void CExtractData::SaveDrop()
 */
 }
 
-void CExtractData::Decode(DWORD ExtractMode, LPCTSTR pSaveDir, BOOL bConvert)
+void CExtractData::Decode(DWORD ExtractMode, LPCTSTR pSaveDir, bool convert)
 {
 	CExistsDialog ExistsDlg;
 	ExistsDlg.GetOverWrite() = 0x01; // Perform Overwrite Confirmation
 	m_dwExtractMode = ExtractMode;
 	m_pSaveDir = pSaveDir;
-	m_bConvert = bConvert;
+	m_bConvert = convert;
 	m_bInput = FALSE;
 	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
@@ -332,7 +332,7 @@ void CExtractData::DecodeTmp()
 	ExistsDlg.GetOverWrite() = 0x00; // Overwrite confirmation is not perform
 	m_dwExtractMode = EXTRACT_SELECT;
 	m_pSaveDir = m_pOption->TmpDir;
-	m_bConvert = TRUE;
+	m_bConvert = true;
 	m_bInput = FALSE;
 	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
@@ -346,7 +346,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 	{
 		SOption* pOption  = pObj->m_pOption;
 		LPCTSTR  pSaveDir = pObj->m_pSaveDir;
-		BOOL     bConvert = pObj->m_bConvert;
+		bool     convert = pObj->m_bConvert;
 
 		// Determine entire filesize
 		std::vector<int> nSelects;
@@ -419,7 +419,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 			prog.SetFileName(pInfFile->name);
 
 			// Extraction
-			CExtract::Decode(pclArc, bConvert);
+			CExtract::Decode(pclArc, convert);
 
 			// Close the file (For when I forget to close it)
 			pclArc->CloseFile();

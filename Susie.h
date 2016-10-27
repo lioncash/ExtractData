@@ -18,8 +18,8 @@ struct SSusieInfo
 class CSusie
 {
 public:
-	BOOL Mount(CArcFile* pclArc);
-	BOOL Decode(CArcFile* pclArc);
+	bool Mount(CArcFile* pclArc);
+	bool Decode(CArcFile* pclArc);
 
 	void Init();
 	void Apply();
