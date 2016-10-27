@@ -2,6 +2,19 @@
 #include "../ExtractBase.h"
 #include "Baldr.h"
 
+namespace
+{
+
+struct SPACFileInfo
+{
+	char  szFileName[64];
+	DWORD dwOffset;
+	DWORD dwFileSize;
+	DWORD dwCompFileSize;
+};
+
+} // Anonymous namespace
+
 /// Mounting
 ///
 /// @param pclArc Archive
