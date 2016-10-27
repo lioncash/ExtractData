@@ -9,6 +9,9 @@
 class CTCD2 final : public CTCDBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+
+private:
 	struct STCD2IndexInfo
 	{
 		DWORD dwFileSize;             // File size
@@ -29,8 +32,5 @@ public:
 		DWORD dwReserve;              // Reserved
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-
-private:
-	BOOL DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize) override;
+	bool DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize) override;
 };

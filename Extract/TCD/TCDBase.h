@@ -13,15 +13,15 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 protected:
-	virtual BOOL DecodeTCT(CArcFile* pclArc);
-	virtual BOOL DecodeTSF(CArcFile* pclArc);
-	virtual BOOL DecodeSPD(CArcFile* pclArc);
-	virtual BOOL DecodeOgg(CArcFile* pclArc);
+	virtual bool DecodeTCT(CArcFile* pclArc);
+	virtual bool DecodeTSF(CArcFile* pclArc);
+	virtual bool DecodeSPD(CArcFile* pclArc);
+	virtual bool DecodeOgg(CArcFile* pclArc);
 
-	virtual BOOL DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual BOOL DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual BOOL DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual BOOL DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth);
+	virtual bool DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	virtual bool DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	virtual bool DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	virtual bool DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth);
 
-	virtual BOOL Decrypt(void* pvData, DWORD dwDataSize);
+	virtual bool Decrypt(void* pvData, DWORD dwDataSize);
 };

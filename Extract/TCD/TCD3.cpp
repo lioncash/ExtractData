@@ -120,7 +120,7 @@ BOOL CTCD3::Mount(CArcFile* pclArc)
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE*       pbtDst = (BYTE*)pvDst;
@@ -199,5 +199,5 @@ BOOL CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 		}
 	}
 
-	return TRUE;
+	return true;
 }

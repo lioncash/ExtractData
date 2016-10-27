@@ -40,7 +40,7 @@ BOOL CTCDBase::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::DecodeTCT(CArcFile* pclArc)
+bool CTCDBase::DecodeTCT(CArcFile* pclArc)
 {
 	// TSF Decoding routine
 
@@ -51,7 +51,7 @@ BOOL CTCDBase::DecodeTCT(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::DecodeTSF(CArcFile* pclArc)
+bool CTCDBase::DecodeTSF(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -76,14 +76,14 @@ BOOL CTCDBase::DecodeTSF(CArcFile* pclArc)
 	pclArc->OpenFile();
 	pclArc->WriteFile(&clmbtDst[0], dwDstSize, dwSrcSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode SPD
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::DecodeSPD(CArcFile* pclArc)
+bool CTCDBase::DecodeSPD(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -157,7 +157,7 @@ BOOL CTCDBase::DecodeSPD(CArcFile* pclArc)
 	default: // Unknown
 		pclArc->OpenFile();
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
-		return TRUE;
+		return true;
 	}
 
 	// Output
@@ -166,14 +166,14 @@ BOOL CTCDBase::DecodeSPD(CArcFile* pclArc)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp);
 	clImage.WriteReverse(pbtDstForFinal, dwDstSizeForFinal, dwSrcSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Decode Ogg Vorbis
 ///
 /// @param pclArc Archive
 ///
-BOOL CTCDBase::DecodeOgg(CArcFile* pclArc)
+bool CTCDBase::DecodeOgg(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -188,7 +188,7 @@ BOOL CTCDBase::DecodeOgg(CArcFile* pclArc)
 	COgg clOgg;
 	clOgg.Decode(pclArc, &clmbtSrc[0]);
 
-	return TRUE;
+	return true;
 }
 
 /// Decompress LZSS
@@ -198,7 +198,7 @@ BOOL CTCDBase::DecodeOgg(CArcFile* pclArc)
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	BYTE* pbtDst = (BYTE*)pvDst;
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
@@ -246,7 +246,7 @@ BOOL CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode RLE (Type 0)
@@ -256,7 +256,7 @@ BOOL CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE* pbtDst = (BYTE*)pvDst;
@@ -265,7 +265,7 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 	DWORD dwPixelCount = *(DWORD*)&pbtSrc[4];
 	DWORD dwZeroFlag = *(DWORD*)&pbtSrc[8];
 
-	BOOL bZero = (dwZeroFlag == 0);
+	bool is_zero = dwZeroFlag == 0;
 
 	DWORD dwSrcHeaderPtr = 12;
 	DWORD dwSrcDataPtr = dwOffset;
@@ -282,7 +282,7 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 			MessageBox(nullptr, _T("Output buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 		}
 
-		if (bZero)
+		if (is_zero)
 		{
 			for (DWORD i = 0; i < dwLength; i++)
 			{
@@ -310,10 +310,10 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 			}
 		}
 
-		bZero = !bZero;
+		is_zero = !is_zero;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decode RLE (Type 2)
@@ -323,9 +323,9 @@ BOOL CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 /// @param pvSrc     Input data
 /// @param dwSrcSize Input data size
 ///
-BOOL CTCDBase::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
 {
-	return FALSE;
+	return false;
 }
 
 /// Decompress SPD
@@ -336,7 +336,7 @@ BOOL CTCDBase::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 /// @param dwSrcSize Input data size
 /// @param lWidth    Image width
 ///
-BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
+bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
 {
 	static const BYTE abtKey1[256] = {
 		0x10, 0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1, 0xF0,
@@ -547,7 +547,7 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decryption
@@ -555,7 +555,7 @@ BOOL CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 /// @param pvData     Data
 /// @param dwDataSize Data size
 ///
-BOOL CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
+bool CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
 {
 	BYTE* const pbtData = static_cast<BYTE*>(pvData);
 
@@ -564,5 +564,5 @@ BOOL CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
 		pbtData[i] = BitUtils::RotateRight(pbtData[i], 1);
 	}
 
-	return TRUE;
+	return true;
 }
