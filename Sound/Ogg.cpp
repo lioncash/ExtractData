@@ -91,9 +91,9 @@ void COgg::Decode(CArcFile* pclArc, LPBYTE buf)
 {
 	pclArc->OpenFile(_T(".ogg"));
 
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
-	for (DWORD WriteSize = 0; WriteSize < pInfFile->sizeOrg; )
+	for (DWORD WriteSize = 0; WriteSize < file_info->sizeOrg; )
 	{
 		VH vheader;
 
@@ -102,8 +102,8 @@ void COgg::Decode(CArcFile* pclArc, LPBYTE buf)
 
 		// Get page size
 		DWORD PageSize = GetPageSize(vheader);
-		if (WriteSize + PageSize > pInfFile->sizeOrg)
-			PageSize = pInfFile->sizeOrg - WriteSize;
+		if (WriteSize + PageSize > file_info->sizeOrg)
+			PageSize = file_info->sizeOrg - WriteSize;
 
 		// Simple decoding
 		if (memcmp(buf, "OggS", 4) != 0)
