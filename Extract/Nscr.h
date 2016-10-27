@@ -7,14 +7,14 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL MountNsa(CArcFile* pclArc);
-	BOOL MountSar(CArcFile* pclArc);
-	BOOL MountScr(CArcFile* pclArc);
+	bool MountNsa(CArcFile* pclArc);
+	bool MountSar(CArcFile* pclArc);
+	bool MountScr(CArcFile* pclArc);
 
-	BOOL DecodeScr(CArcFile* pclArc);
-	BOOL DecodeNBZ(CArcFile* pclArc);
-	BOOL DecodeSPB(CArcFile* pclArc);
-	BOOL DecodeLZSS(CArcFile* pclArc);
+	bool DecodeScr(CArcFile* pclArc);
+	bool DecodeNBZ(CArcFile* pclArc);
+	bool DecodeSPB(CArcFile* pclArc);
+	bool DecodeLZSS(CArcFile* pclArc);
 
 	void  GetFileExt(YCString& clsDst, const BYTE* pbtBuffer);
 	DWORD GetBit(const BYTE* pbtSrc, DWORD dwReadBitLength, DWORD* pdwReadByteLength);

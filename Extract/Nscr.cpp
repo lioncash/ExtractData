@@ -28,13 +28,13 @@ BOOL CNscr::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::MountNsa(CArcFile* pclArc)
+bool CNscr::MountNsa(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
 	if (pclArc->GetArcExten() != _T(".nsa"))
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Get file count
@@ -108,17 +108,17 @@ BOOL CNscr::MountNsa(CArcFile* pclArc)
 		dwIndexPtr += 13;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// sar mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::MountSar(CArcFile* pclArc)
+bool CNscr::MountSar(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".sar"))
-		return FALSE;
+		return false;
 
 	// Get file count
 	WORD dwFiles;
@@ -159,17 +159,17 @@ BOOL CNscr::MountSar(CArcFile* pclArc)
 		dwIndexPtr += 8;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Script file mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::MountScr(CArcFile* pclArc)
+bool CNscr::MountScr(CArcFile* pclArc)
 {
 	if (pclArc->GetArcName() != _T("nscript.dat"))
-		return FALSE;
+		return false;
 
 	return pclArc->Mount();
 }
@@ -199,11 +199,11 @@ BOOL CNscr::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::DecodeScr(CArcFile* pclArc)
+bool CNscr::DecodeScr(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->name != _T("nscript.dat"))
-		return FALSE;
+		return false;
 
 	// Ensure buffer exists
 	DWORD dwBufferSize = pclArc->GetBufSize();
@@ -242,18 +242,18 @@ BOOL CNscr::DecodeScr(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtBuffer2[0], dwBufferSize2);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// NBZ Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::DecodeNBZ(CArcFile* pclArc)
+bool CNscr::DecodeNBZ(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("NBZ"))
-		return FALSE;
+		return false;
 
 	// Get file size
 	DWORD dwDstSize;
@@ -278,7 +278,7 @@ BOOL CNscr::DecodeNBZ(CArcFile* pclArc)
 	pclArc->OpenFile(clsFileExt);
 	pclArc->WriteFile(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// Getting file extensions
@@ -340,11 +340,11 @@ DWORD CNscr::GetBit(const BYTE* pbtSrc, DWORD dwReadBitLength, DWORD* pdwReadByt
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::DecodeSPB(CArcFile* pclArc)
+bool CNscr::DecodeSPB(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("SPB"))
-		return FALSE;
+		return false;
 
 	// Get the width
 	WORD wWidth;
@@ -500,18 +500,18 @@ BOOL CNscr::DecodeSPB(CArcFile* pclArc)
 	clImage.Init(pclArc, wWidth, wHeight, 24);
 	clImage.Write(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// LZSS Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CNscr::DecodeLZSS(CArcFile* pclArc)
+bool CNscr::DecodeLZSS(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("LZSS"))
-		return FALSE;
+		return false;
 
 	// Ensure buffers exist
 	DWORD dwSrcSize = pstFileInfo->sizeCmp;
@@ -586,5 +586,5 @@ BOOL CNscr::DecodeLZSS(CArcFile* pclArc)
 	clImage.Init(pclArc, &clmbtDst[0]);
 	clImage.Write(dwDstSize);
 
-	return TRUE;
+	return true;
 }
