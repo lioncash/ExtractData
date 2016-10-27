@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFLatter::IsSupported(CArcFile* pclArc)
+bool CEFLatter::IsSupported(CArcFile* pclArc)
 {
 	// Get header
 	BYTE abtHeader[32];
@@ -16,7 +16,7 @@ BOOL CEFLatter::IsSupported(CArcFile* pclArc)
 
 	// Decryption
 	Decrypt(abtHeader, sizeof(abtHeader));
-	return (memcmp(abtHeader, "ef_latter", 9) == 0);
+	return memcmp(abtHeader, "ef_latter", 9) == 0;
 }
 
 /// Mount
