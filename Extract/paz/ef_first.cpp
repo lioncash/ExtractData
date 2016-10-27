@@ -5,7 +5,7 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL Cef_first::IsSupported(CArcFile* pclArc)
+bool Cef_first::IsSupported(CArcFile* pclArc)
 {
 	// Get header
 	BYTE abtHeader[32];
@@ -17,7 +17,7 @@ BOOL Cef_first::IsSupported(CArcFile* pclArc)
 	// Decrypt
 	Decrypt(abtHeader, sizeof(abtHeader));
 
-	return (memcmp(abtHeader, "ef_first", 8) == 0);
+	return memcmp(abtHeader, "ef_first", 8) == 0;
 }
 
 /// Mount
