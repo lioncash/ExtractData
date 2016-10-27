@@ -5,9 +5,9 @@
 ///
 /// @param pclArc Archive
 ///
-BOOL CEFsfm::IsSupported(CArcFile* pclArc)
+bool CEFsfm::IsSupported(CArcFile* pclArc) const
 {
-	return (memcmp(pclArc->GetHed(), "ef_sfm", 6) == 0);
+	return memcmp(pclArc->GetHed(), "ef_sfm", 6) == 0;
 }
 
 /// Mount

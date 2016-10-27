@@ -13,7 +13,7 @@ public:
 	BOOL Decode(CArcFile* pclArc) override;
 
 private:
-	BOOL IsSupported(CArcFile* pclArc);
+	bool IsSupported(CArcFile* pclArc) const;
 
 	void InitMountKey(CArcFile* pclArc) override;
 	void InitDecodeKey(CArcFile* pclArc) override;
