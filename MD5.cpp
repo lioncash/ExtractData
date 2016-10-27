@@ -108,19 +108,19 @@ SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
 /// @param pvSrc         Input Data
 /// @param dwSrcSize     Input data size
 /// @param pdwInitialize Initialization
-/// @param bAlignment    Request alignment
+/// @param alignment    Request alignment
 ///
 /// Remark: If bAlignment assumes that the input data is aligned on 64 bytes
 ///         then the efficiency is not good
 ///
-SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize, BOOL bAlignment)
+SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize, bool alignment)
 {
 	const DWORD* pdwSrc = static_cast<const DWORD*>(pvSrc);
 
 	// Alignment
 	YCMemory<BYTE> clmbtSrc;
 
-	if (bAlignment)
+	if (alignment)
 	{
 		// Alignment request
 		DWORD dwPadding = CalculatePadding(dwSrcSize);

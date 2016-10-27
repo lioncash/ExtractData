@@ -12,7 +12,7 @@ public:
 	CMD5();
 
 	SMD5    Calculate(LPCTSTR pszPathToFile);
-	SMD5    Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize = nullptr, BOOL bAlignment = FALSE);
+	SMD5    Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize = nullptr, bool alignment = false);
 
 	DWORD   CalculatePadding(DWORD dwSize);
 	void    AppendPadding(void* pvSrc, DWORD dwSrcSize, DWORD dwPadding);
