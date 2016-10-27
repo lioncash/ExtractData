@@ -5,6 +5,10 @@
 class CCpz final : public CExtractBase
 {
 public:
+	BOOL Mount(CArcFile* pclArc) override;
+	BOOL Decode(CArcFile* pclArc) override;
+
+private:
 	struct SCPZ5Header
 	{
 		char  szIdentifier[4];            // Identifier
@@ -17,19 +21,15 @@ public:
 		DWORD adwUnKnown2[3];             // Unknown
 	};
 
-	BOOL Mount(CArcFile* pclArc) override;
-	BOOL Decode(CArcFile* pclArc) override;
+	bool MountCpz1(CArcFile* pclArc);
+	bool MountCpz2(CArcFile* pclArc);
+	bool MountCpz3(CArcFile* pclArc);
+	bool MountCpz5(CArcFile* pclArc);
 
-private:
-	BOOL MountCpz1(CArcFile* pclArc);
-	BOOL MountCpz2(CArcFile* pclArc);
-	BOOL MountCpz3(CArcFile* pclArc);
-	BOOL MountCpz5(CArcFile* pclArc);
-
-	BOOL DecodeCpz1(CArcFile* pclArc);
-	BOOL DecodeCpz2(CArcFile* pclArc);
-	BOOL DecodeCpz3(CArcFile* pclArc);
-	BOOL DecodeCpz5(CArcFile* pclArc);
+	bool DecodeCpz1(CArcFile* pclArc);
+	bool DecodeCpz2(CArcFile* pclArc);
+	bool DecodeCpz3(CArcFile* pclArc);
+	bool DecodeCpz5(CArcFile* pclArc);
 
 	static void Decrypt1(BYTE* pbtTarget, DWORD dwSize);
 	static void Decrypt2(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey);

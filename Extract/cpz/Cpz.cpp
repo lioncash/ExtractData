@@ -33,12 +33,10 @@ BOOL CCpz::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::MountCpz1(CArcFile* pclArc)
+bool CCpz::MountCpz1(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ1", 4) != 0)
-	{
-		return FALSE;
-	}
+		return false;
 
 	// Read header
 	BYTE abtHeader[16];
@@ -72,17 +70,17 @@ BOOL CCpz::MountCpz1(CArcFile* pclArc)
 		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ2 Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::MountCpz2(CArcFile* pclArc)
+bool CCpz::MountCpz2(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ2", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Read header
 	BYTE abtHeader[20];
@@ -118,19 +116,17 @@ BOOL CCpz::MountCpz2(CArcFile* pclArc)
 		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ3 Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::MountCpz3(CArcFile* pclArc)
+bool CCpz::MountCpz3(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ3", 4) != 0)
-	{
-		return FALSE;
-	}
+		return false;
 
 	// Read header
 	BYTE abtHeader[20];
@@ -178,17 +174,17 @@ BOOL CCpz::MountCpz3(CArcFile* pclArc)
 		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ5 Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::MountCpz5(CArcFile* pclArc)
+bool CCpz::MountCpz5(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ5", 4) != 0)
-		return FALSE;
+		return false;
 
 	// Get header
 	SCPZ5Header* pstHeader = (SCPZ5Header*)pclArc->GetHed();
@@ -393,10 +389,10 @@ BOOL CCpz::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::DecodeCpz1(CArcFile* pclArc)
+bool CCpz::DecodeCpz1(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ1", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -430,17 +426,17 @@ BOOL CCpz::DecodeCpz1(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ2 Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::DecodeCpz2(CArcFile* pclArc)
+bool CCpz::DecodeCpz2(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ2", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -481,10 +477,10 @@ BOOL CCpz::DecodeCpz2(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::DecodeCpz3(CArcFile* pclArc)
+bool CCpz::DecodeCpz3(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ3", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 
@@ -507,17 +503,17 @@ BOOL CCpz::DecodeCpz3(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// CPZ5 Decoding
 ///
 /// @param pclArc Archive
 ///
-BOOL CCpz::DecodeCpz5(CArcFile* pclArc)
+bool CCpz::DecodeCpz5(CArcFile* pclArc)
 {
 	if (memcmp(pclArc->GetHed(), "CPZ5", 4) != 0)
-		return FALSE;
+		return false;
 
 	SFileInfo*   pstFileInfo = pclArc->GetOpenFileInfo();
 	SCPZ5Header* pstCPZ5Header = (SCPZ5Header*)pclArc->GetHed();
@@ -542,7 +538,7 @@ BOOL CCpz::DecodeCpz5(CArcFile* pclArc)
 		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decryption function 1
