@@ -22,13 +22,13 @@ BOOL CPajamas::Mount(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CPajamas::MountDat1(CArcFile* pclArc)
+bool CPajamas::MountDat1(CArcFile* pclArc)
 {
 	if ((pclArc->GetArcExten() != _T(".dat")) && (pclArc->GetArcExten() != _T(".pak")))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "GAMEDAT PACK", 12) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -70,20 +70,20 @@ BOOL CPajamas::MountDat1(CArcFile* pclArc)
 		pbtFileInfoIndex += 8;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // GAMEDAT PAC2 Mounting
 ///
 /// @param pclArc Archive
 ///
-BOOL CPajamas::MountDat2(CArcFile* pclArc)
+bool CPajamas::MountDat2(CArcFile* pclArc)
 {
 	if (pclArc->GetArcExten() != _T(".dat"))
-		return FALSE;
+		return false;
 
 	if (memcmp(pclArc->GetHed(), "GAMEDAT PAC2", 12) != 0)
-		return FALSE;
+		return false;
 
 	// Get file count
 	DWORD dwFiles;
@@ -125,7 +125,7 @@ BOOL CPajamas::MountDat2(CArcFile* pclArc)
 		pbtFileInfoIndex += 8;
 	}
 
-	return TRUE;
+	return true;
 }
 
 /// Decoding
@@ -144,11 +144,11 @@ BOOL CPajamas::Decode(CArcFile* pclArc)
 ///
 /// @param pclArc Archive
 ///
-BOOL CPajamas::DecodeEPA(CArcFile* pclArc)
+bool CPajamas::DecodeEPA(CArcFile* pclArc)
 {
 	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
 	if (pstFileInfo->format != _T("EPA"))
-		return FALSE;
+		return false;
 
 	// Read header
 	BYTE abtHeader[16];
@@ -190,7 +190,7 @@ BOOL CPajamas::DecodeEPA(CArcFile* pclArc)
 
 	default: // Unknown
 		pclArc->SeekHed(pstFileInfo->start);
-		return FALSE;
+		return false;
 	}
 
 	// Read palette
@@ -222,7 +222,7 @@ BOOL CPajamas::DecodeEPA(CArcFile* pclArc)
 	clImage.Init(pclArc, lWidth, lHeight, wBpp, abtPallet, sizeof(abtPallet));
 	clImage.WriteCompoBGRAReverse(&clmbtDst[0], dwDstSize);
 
-	return TRUE;
+	return true;
 }
 
 /// EPA Decompression
@@ -233,7 +233,7 @@ BOOL CPajamas::DecodeEPA(CArcFile* pclArc)
 /// @param dwSrcSize Compressed data size
 /// @param lWidth    Width
 ///
-BOOL CPajamas::DecompEPA(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
+bool CPajamas::DecompEPA(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
 {
 	const BYTE* pbtSrc = (const BYTE*)pvSrc;
 	BYTE*       pbtDst = (BYTE*)pvDst;
@@ -292,5 +292,5 @@ BOOL CPajamas::DecompEPA(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		}
 	}
 
-	return TRUE;
+	return true;
 }
