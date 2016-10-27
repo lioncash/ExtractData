@@ -197,27 +197,25 @@ void CExtract::SetSearchClass()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mounting
 
-BOOL CExtract::Mount(
-	CArcFile* pclArc  // Archive
-	)
+bool CExtract::Mount(CArcFile* pclArc)
 {
 	// Read the archive header
 
 	pclArc->ReadHed();
 	pclArc->SeekHed();
 
-	if( pclArc->GetOpt()->bSusieFirst )
+	if (pclArc->GetOpt()->bSusieFirst)
 	{
 		// Mount the archive using the Susie plug-in
 
-		if( pclArc->GetOpt()->bSusieUse )
+		if (pclArc->GetOpt()->bSusieUse)
 		{
 			CSusie clSusie;
 
-			if( clSusie.Mount( pclArc ) )
+			if (clSusie.Mount(pclArc))
 			{
 				pclArc->SetMountSusie();
-				return TRUE;
+				return true;
 			}
 		}
 
@@ -226,14 +224,14 @@ BOOL CExtract::Mount(
 		std::vector<CExtractBase*>& Class = m_Class;
 		std::set<CExtractBase*>& DecodeClass = m_DecodeClass;
 
-		for( size_t i = 0 ; i < Class.size() ; i++ )
+		for (size_t i = 0; i < Class.size(); i++)
 		{
 			// Set the class to use to decode the archive
 
-			if( Class[i]->Mount( pclArc ) )
+			if (Class[i]->Mount(pclArc))
 			{
-				DecodeClass.insert( Class[i] );
-				return TRUE;
+				DecodeClass.insert(Class[i]);
+				return true;
 			}
 		}
 	}
@@ -244,27 +242,27 @@ BOOL CExtract::Mount(
 		std::vector<CExtractBase*>& Class = m_Class;
 		std::set<CExtractBase*>& DecodeClass = m_DecodeClass;
 
-		for( size_t i = 0 ; i < Class.size() ; i++ )
+		for (size_t i = 0; i < Class.size(); i++)
 		{
 			// Set the class to use to decode the archive
 
-			if( Class[i]->Mount( pclArc ) )
+			if (Class[i]->Mount(pclArc))
 			{
-				DecodeClass.insert( Class[i] );
-				return TRUE;
+				DecodeClass.insert(Class[i]);
+				return true;
 			}
 		}
 
 		// Mount the archive file using the Susie plug-in
 
-		if( pclArc->GetOpt()->bSusieUse )
+		if (pclArc->GetOpt()->bSusieUse)
 		{
 			CSusie clSusie;
 
-			if( clSusie.Mount( pclArc ) )
+			if (clSusie.Mount(pclArc))
 			{
 				pclArc->SetMountSusie();
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -273,21 +271,21 @@ BOOL CExtract::Mount(
 
 	CSearchDialog clSearchDlg;
 
-	int nReturn = clSearchDlg.DoModal( pclArc->GetProg()->GetHandle(), pclArc->GetArcPath() );
+	int nReturn = clSearchDlg.DoModal(pclArc->GetProg()->GetHandle(), pclArc->GetArcPath());
 
-	if( nReturn == IDYES )
+	if (nReturn == IDYES)
 	{
-		return Search( pclArc );
+		return Search(pclArc);
 	}
 	else
 	{
-		pclArc->GetProg()->UpdatePercent( pclArc->GetArcSize() );
+		pclArc->GetProg()->UpdatePercent(pclArc->GetArcSize());
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL CExtract::Search(CArcFile* pclArc)
+bool CExtract::Search(CArcFile* pclArc)
 {
 	SOption* pOption = pclArc->GetOpt();
 
@@ -329,7 +327,7 @@ BOOL CExtract::Search(CArcFile* pclArc)
 	if (ctClass == 0)
 	{
 		pProg->UpdatePercent(pclArc->GetArcSize());
-		return FALSE;
+		return false;
 	}
 /*
 	CFileMap FileMap;
@@ -415,9 +413,9 @@ BOOL CExtract::Search(CArcFile* pclArc)
 //  CloseHandle(hFileMap);
 	std::map<int, int> offsets;
 
-	while (1)
+	while (true)
 	{
-		BOOL ret = FALSE;
+		bool ret = false;
 
 		// Read BUFSIZE segments
 		BYTE buf[BUFSIZE];
@@ -434,20 +432,14 @@ BOOL CExtract::Search(CArcFile* pclArc)
 
 		for (int i = 0; i < (int)ctClass; i++)
 		{
-			if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize) == TRUE)
+			if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize))
 			{
 				offsets.insert(std::map<int, int>::value_type(Class[i]->GetOffset(), i));
-				ret = TRUE;
+				ret = true;
 			}
 		}
 
-		if (ret == FALSE)
-		{
-			pProg->UpdatePercent(dwSearchSize);
-			// Prevent interruption of data
-			pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
-		}
-		else
+		if (ret)
 		{
 			for (std::map<int, int>::iterator itr = offsets.begin(); itr != offsets.end(); itr++)
 			{
@@ -463,6 +455,12 @@ BOOL CExtract::Search(CArcFile* pclArc)
 			}
 
 			offsets.clear();
+		}
+		else
+		{
+			pProg->UpdatePercent(dwSearchSize);
+			// Prevent interruption of data
+			pclArc->Seek(-((int)maxHedSize - 1), FILE_CURRENT);
 		}
 	}
 
@@ -504,9 +502,9 @@ BOOL CExtract::Search(CArcFile* pclArc)
 	*/
 
 	if (pclArc->GetCtEnt() == 0)
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
