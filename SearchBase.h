@@ -22,8 +22,8 @@ public:
 	void Init();
 	void Init(SOption* pOption);
 	virtual void OnInit(SOption* pOption) {} // Virtual function for when you want to do something during initialization
-	void InitHed(LPCVOID pattern, DWORD size);
-	void InitFot(LPCVOID pattern, DWORD size);
+	void InitHed(const void* pattern, DWORD size);
+	void InitFot(const void* pattern, DWORD size);
 
 	LPBYTE  GetHed()           { return m_pattern[0].pattern; }
 	DWORD   GetHedSize() const { return m_pattern[0].size; }
@@ -47,5 +47,5 @@ private:
 	HF m_pattern[2];
 	DWORD m_offset;
 	DWORD m_ctFile;
-	void InitPattern(LPCVOID pattern, DWORD size, DWORD num);
+	void InitPattern(const void* pattern, DWORD size, DWORD num);
 };

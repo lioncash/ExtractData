@@ -29,7 +29,7 @@ void CSearchBase::Init(SOption* pOption)
 	OnInit(pOption);
 }
 
-void CSearchBase::InitPattern(LPCVOID pattern, DWORD size, DWORD num)
+void CSearchBase::InitPattern(const void* pattern, DWORD size, DWORD num)
 {
 	//m_pattern[num].pattern = new BYTE[size];
 	memcpy(m_pattern[num].pattern, pattern, size);
@@ -37,12 +37,12 @@ void CSearchBase::InitPattern(LPCVOID pattern, DWORD size, DWORD num)
 }
 
 // Enter the header
-void CSearchBase::InitHed(LPCVOID pattern, DWORD size)
+void CSearchBase::InitHed(const void* pattern, DWORD size)
 {
 	InitPattern(pattern, size, 0);
 }
 // Enter the footer
-void CSearchBase::InitFot(LPCVOID pattern, DWORD size)
+void CSearchBase::InitFot(const void* pattern, DWORD size)
 {
 	InitPattern(pattern, size, 1);
 }
