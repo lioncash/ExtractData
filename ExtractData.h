@@ -16,7 +16,7 @@ public:
 
 	void Open(LPTSTR pOpenDir);
 	void OpenDrop(WPARAM wp);
-	void OpenHistory(YCString& sFilePath);
+	void OpenHistory(const YCString& file_path);
 	void Mount(LPCTSTR c_pclArcNames);
 
 	void SaveSel(LPTSTR pSaveDir, bool convert);

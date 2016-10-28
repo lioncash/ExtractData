@@ -46,10 +46,10 @@ void CExtractData::Open(LPTSTR pOpenDir)
 	}
 }
 
-void CExtractData::OpenHistory(YCString& clsFilePath)
+void CExtractData::OpenHistory(const YCString& file_path)
 {
 	std::vector<TCHAR> szFileNames(32000, 0);
-	lstrcpy(&szFileNames[0], clsFilePath);
+	lstrcpy(&szFileNames[0], file_path);
 	Mount(&szFileNames[0]);
 }
 
