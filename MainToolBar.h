@@ -12,7 +12,7 @@ public:
 	HWND Create(HWND hWnd);
 	void CreateMenuHistory(int iItem);
 	void AddOpenHistory(std::vector<CArcFile*>& pclArcList);
-	std::vector<YCString>& GetHistory() { return m_vcOpenHistoryList; }
+	const std::vector<YCString>& GetHistory() const { return m_vcOpenHistoryList; }
 
 	void LoadIni() override;
 	void SaveIni() override;
