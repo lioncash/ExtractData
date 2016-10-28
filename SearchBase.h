@@ -35,7 +35,7 @@ public:
 	bool    CmpFot(LPCBYTE buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
 
 	bool    CmpMem(LPCBYTE data, LPCBYTE pattern, DWORD size) const;
-	bool    Search(CArcFile* pclArc, LPCBYTE buf, DWORD dwReadSize, DWORD dwSearchSize);
+	bool    Search(LPCBYTE buf, DWORD dwSearchSize);
 	bool    SearchFot(CArcFile* pclArc);
 
 	void    SetOffset(DWORD offset) { m_offset = offset; }

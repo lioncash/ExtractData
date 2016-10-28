@@ -421,7 +421,7 @@ bool CExtract::Search(CArcFile* pclArc)
 
 		for (int i = 0; i < (int)ctClass; i++)
 		{
-			if (Class[i]->Search(pclArc, buf, dwReadSize, dwSearchSize))
+			if (Class[i]->Search(buf, dwSearchSize))
 			{
 				offsets.emplace(static_cast<int>(Class[i]->GetOffset()), i);
 				ret = true;
