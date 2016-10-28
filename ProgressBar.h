@@ -18,8 +18,8 @@ public:
 	void SetFileName(YCString& pFileName);
 	BOOL OnCancel();
 
-	HWND GetHandle()    { return m_hDlg;  }
-	HINSTANCE GetInst() { return m_hInst; }
+	HWND GetHandle()    const { return m_hDlg;  }
+	HINSTANCE GetInst() const { return m_hInst; }
 
 protected:
 	HWND m_hDlg = nullptr;
