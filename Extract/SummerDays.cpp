@@ -46,22 +46,22 @@ bool CSummerDays::Mount(CArcFile* pclArc)
 	return true;
 }
 
-WORD CSummerDays::_context_new(CArcFile* pclArc, WORD ui16Length)
+WORD CSummerDays::CreateNewContext(CArcFile* archive, WORD length)
 {
 	m_ui16ContextCount++;
 
 	// Get class name
-	TCHAR pcName[256];
-	pclArc->Read(pcName, ui16Length);
-	pcName[ui16Length] = _T('\0');
+	TCHAR name[256];
+	archive->Read(name, length);
+	name[length] = _T('\0');
 
-	TCONTEXT tNew;
-	tNew.pcName = pcName;
-	tNew.ui16Code = m_ui16ContextCount;
-	tNew.iType = (tNew.pcName == _T("CAutoFolder")) ? TYPE_FOLDER : TYPE_NONE;
-	m_tContextTable.push_back(tNew);
+	TCONTEXT ctx;
+	ctx.pcName = name;
+	ctx.ui16Code = m_ui16ContextCount;
+	ctx.iType = (ctx.pcName == _T("CAutoFolder")) ? TYPE_FOLDER : TYPE_NONE;
+	m_tContextTable.push_back(ctx);
 
-	return (m_ui16ContextCount);
+	return m_ui16ContextCount;
 }
 
 int CSummerDays::FindContextTypeWithCode(WORD code)
@@ -101,7 +101,7 @@ bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 
 	if (ui16Context == (WORD)0xffff)
 	{
-		ui16Context = _context_new(pclArc, uData.pui16Value[3]);
+		ui16Context = CreateNewContext(pclArc, uData.pui16Value[3]);
 		pclArc->Read(&uData.pui32Value[1], 4);
 	}
 

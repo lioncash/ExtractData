@@ -14,7 +14,7 @@ private:
 	};
 
 	bool _sub(CArcFile* pclArc, LPTSTR pcPath);
-	WORD _context_new(CArcFile* pclArc, WORD ui16Length);
+	WORD CreateNewContext(CArcFile* archive, WORD length);
 	int FindContextTypeWithCode(WORD code);
 
 	std::vector<TCONTEXT> m_tContextTable;
