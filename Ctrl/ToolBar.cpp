@@ -6,9 +6,6 @@
 
 CToolBar::CToolBar()
 {
-	m_hWnd = nullptr;
-	m_hInst = nullptr;
-	m_hToolBar = nullptr;
 }
 
 void CToolBar::Init(HWND hWnd)

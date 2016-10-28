@@ -18,7 +18,7 @@ public:
 	HWND GetCtrlHandle() const { return m_hToolBar; }
 
 private:
-	HWND m_hWnd;
-	HINSTANCE m_hInst;
-	HWND m_hToolBar;
+	HWND m_hWnd = nullptr;
+	HINSTANCE m_hInst = nullptr;
+	HWND m_hToolBar = nullptr;
 };
