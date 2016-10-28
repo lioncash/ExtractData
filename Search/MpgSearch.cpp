@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../SearchBase.h"
 #include "MpgSearch.h"
 
 CMpgSearch::CMpgSearch()

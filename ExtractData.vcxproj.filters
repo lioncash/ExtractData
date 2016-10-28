@@ -349,6 +349,9 @@
     <ClCompile Include="Search\PngSearch.cpp">
       <Filter>Source Files\Search</Filter>
     </ClCompile>
+    <ClCompile Include="Search\SearchBase.cpp">
+      <Filter>Source Files\Search</Filter>
+    </ClCompile>
     <ClCompile Include="Search\WavSearch.cpp">
       <Filter>Source Files\Search</Filter>
     </ClCompile>
@@ -432,9 +435,6 @@
     </ClCompile>
     <ClCompile Include="Sound\Ogg.cpp">
       <Filter>Source Files\Sound</Filter>
-    </ClCompile>
-    <ClCompile Include="SearchBase.cpp">
-      <Filter>Source Files\Search</Filter>
     </ClCompile>
     <ClCompile Include="Utils\BitUtils.cpp">
       <Filter>Source Files\Utils</Filter>
@@ -852,6 +852,9 @@
     <ClInclude Include="Search\PngSearch.h">
       <Filter>Source Files\Search</Filter>
     </ClInclude>
+    <ClInclude Include="Search\SearchBase.h">
+      <Filter>Source Files\Search</Filter>
+    </ClInclude>
     <ClInclude Include="Search\WavSearch.h">
       <Filter>Source Files\Search</Filter>
     </ClInclude>
@@ -866,9 +869,6 @@
     </ClInclude>
     <ClInclude Include="WinMain.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SearchBase.h">
-      <Filter>Source Files\Search</Filter>
     </ClInclude>
     <ClInclude Include="Utils\BitUtils.h">
       <Filter>Source Files\Utils</Filter>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SearchBase.h"
+
 class CMpgSearch final : public CSearchBase
 {
 public:

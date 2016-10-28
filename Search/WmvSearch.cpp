@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../SearchBase.h"
 #include "WmvSearch.h"
 
 CWmvSearch::CWmvSearch()

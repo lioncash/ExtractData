@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ExtractBase.h"
-#include "SearchBase.h"
+#include "Search/SearchBase.h"
 
 class CExtract
 {

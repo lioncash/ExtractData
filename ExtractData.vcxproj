@@ -134,7 +134,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="Option.cpp" />
     <ClCompile Include="ProgressBar.cpp" />
     <ClCompile Include="Reg.cpp" />
-    <ClCompile Include="SearchBase.cpp" />
     <ClCompile Include="Sound\Ogg.cpp" />
     <ClCompile Include="Sound\Wav.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -224,6 +223,7 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="Search\MpgSearch.cpp" />
     <ClCompile Include="Search\OggSearch.cpp" />
     <ClCompile Include="Search\PngSearch.cpp" />
+    <ClCompile Include="Search\SearchBase.cpp" />
     <ClCompile Include="Search\WavSearch.cpp" />
     <ClCompile Include="Search\WmvSearch.cpp" />
     <ClCompile Include="Ctrl\Button.cpp" />
@@ -285,7 +285,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="ProgressBar.h" />
     <ClInclude Include="Reg.h" />
     <ClInclude Include="res\ResExtractData.h" />
-    <ClInclude Include="SearchBase.h" />
     <ClInclude Include="Sound\Ogg.h" />
     <ClInclude Include="Sound\Wav.h" />
     <ClInclude Include="StdAfx.h" />
@@ -373,6 +372,7 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="Search\MpgSearch.h" />
     <ClInclude Include="Search\OggSearch.h" />
     <ClInclude Include="Search\PngSearch.h" />
+    <ClInclude Include="Search\SearchBase.h" />
     <ClInclude Include="Search\WavSearch.h" />
     <ClInclude Include="Search\WmvSearch.h" />
     <ClInclude Include="Ctrl\Button.h" />

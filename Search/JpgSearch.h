@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SearchBase.h"
+
 class CJpgSearch final : public CSearchBase
 {
 public:

@@ -4,7 +4,6 @@
 #include "Dialog/ExistsDialog.h"
 #include "Dialog/SearchDialog.h"
 #include "ExtractBase.h"
-#include "SearchBase.h"
 //#include "FileMap.h"
 #include "Extract.h"
 
@@ -86,6 +85,7 @@
 #include "Search/MpgSearch.h"
 #include "Search/OggSearch.h"
 #include "Search/PngSearch.h"
+#include "Search/SearchBase.h"
 #include "Search/WavSearch.h"
 #include "Search/WmvSearch.h"
 

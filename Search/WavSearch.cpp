@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../SearchBase.h"
 #include "WavSearch.h"
 
 CWavSearch::CWavSearch()

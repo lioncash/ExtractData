@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../SearchBase.h"
 #include "AhxSearch.h"
 #include "Utils/BitUtils.h"
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SearchBase.h"
+
 class CAhxSearch final : public CSearchBase
 {
 public:
