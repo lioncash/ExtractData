@@ -26,7 +26,7 @@ public:
 
 	void Init(CArcFile* pclArc);
 	DWORD ReadHed();
-	DWORD ReadHed(LPBYTE buf);
+	DWORD ReadHed(const BYTE* buf);
 	void NextPage();
 	void BackHed();
 

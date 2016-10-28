@@ -165,7 +165,7 @@ DWORD COgg::ReadHed()
 	return m_PageSize;
 }
 
-DWORD COgg::ReadHed(LPBYTE buf)
+DWORD COgg::ReadHed(const BYTE* buf)
 {
 	VH& vheader = m_vheader;
 
