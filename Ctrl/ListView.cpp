@@ -7,11 +7,6 @@ SORTPARAM* CListView::m_pSort;
 
 CListView::CListView()
 {
-	m_hWnd = nullptr;
-	m_hList = nullptr;
-	m_hInst = nullptr;
-	m_hImage = nullptr;
-	m_pOption = nullptr;
 }
 
 CListView::~CListView()

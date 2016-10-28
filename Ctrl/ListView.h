@@ -42,11 +42,11 @@ public:
 	int GetFocusItem()         const { return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED); }
 
 protected:
-	HWND m_hWnd;
-	HWND m_hList;
-	HINSTANCE m_hInst;
-	SOption* m_pOption;
-	SORTPARAM m_sort;
+	HWND m_hWnd = nullptr;
+	HWND m_hList = nullptr;
+	HINSTANCE m_hInst = nullptr;
+	SOption* m_pOption = nullptr;
+	SORTPARAM m_sort{};
 	static SORTPARAM* m_pSort;
 
 	HWND Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x = 0, int y = 0, int cx = 0, int cy = 0);
@@ -60,6 +60,6 @@ protected:
 	virtual void OnSort() {}
 
 private:
-	HIMAGELIST m_hImage;
-	UINT m_uID;
+	HIMAGELIST m_hImage = nullptr;
+	UINT m_uID = 0;
 };
