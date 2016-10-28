@@ -375,7 +375,7 @@ DWORD CArcFile::InitDecryptForText(const void* pvText, DWORD dwTextSize)
 }
 
 // Simple decoding
-void CArcFile::Decrypt(LPVOID buf, DWORD size)
+void CArcFile::Decrypt(void* buf, DWORD size)
 {
 	if (m_deckey == 0)
 		return;
