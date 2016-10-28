@@ -154,7 +154,7 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
 }
 
 // Comparison function for sorting
-BOOL CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
+bool CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 {
 	static SORTPARAM* pSort = m_pSort;
 	switch (pSort->column)
@@ -175,7 +175,7 @@ BOOL CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 			return retCompare(a.end, b.end);
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Function to sort a listview

@@ -52,7 +52,7 @@ protected:
 	HWND Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x = 0, int y = 0, int cx = 0, int cy = 0);
 
 	template <typename TYPE>
-	static BOOL retCompare(TYPE a, TYPE b)
+	static bool retCompare(TYPE a, TYPE b)
 	{
 		return ((m_pSort->direct) ? (a > b) : (a < b));
 	}

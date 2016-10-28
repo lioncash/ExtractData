@@ -20,5 +20,5 @@ protected:
 
 private:
 	std::vector<SFileInfo> m_ent;
-	static BOOL CompareFunc(const SFileInfo& a, const SFileInfo& b);
+	static bool CompareFunc(const SFileInfo& a, const SFileInfo& b);
 };
