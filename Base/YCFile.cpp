@@ -249,19 +249,19 @@ UINT64 YCFile::GetLength()
 }
 
 /// Gets the file path
-YCString YCFile::GetFilePath()
+YCString YCFile::GetFilePath() const
 {
 	return m_clsPathToFile;
 }
 
 /// Gets the file name
-YCString YCFile::GetFileName()
+YCString YCFile::GetFileName() const
 {
 	return m_clsFileName;
 }
 
 /// Retrieves the file's extension
-YCString YCFile::GetFileExt()
+YCString YCFile::GetFileExt() const
 {
 	return m_clsFileExt;
 }

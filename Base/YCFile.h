@@ -53,9 +53,9 @@ public:
 	virtual UINT64 GetPosition();
 	virtual UINT64 GetLength();
 
-	virtual YCString GetFilePath();
-	virtual YCString GetFileName();
-	virtual YCString GetFileExt();
+	virtual YCString GetFilePath() const;
+	virtual YCString GetFileName() const;
+	virtual YCString GetFileExt() const;
 
 protected:
 	YCString m_clsPathToFile;
