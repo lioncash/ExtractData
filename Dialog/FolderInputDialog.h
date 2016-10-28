@@ -9,5 +9,5 @@ public:
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
-	LPTSTR m_pSaveDir;
+	LPTSTR m_pSaveDir = nullptr;
 };
