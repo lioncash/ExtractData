@@ -3,7 +3,9 @@
 #include "ProgressBar.h"
 #include "MD5.h"
 
+#include <cstddef>
 #include <cstdint>
+#include <type_traits>
 
 class CArcFile
 {
@@ -29,6 +31,16 @@ public:
 	bool ReadU32(uint32_t* out);
 	bool ReadU64(uint64_t* out);
 	BYTE* ReadHed();
+
+	template <typename T, size_t N>
+	bool ReadArray(T (&arr)[N])
+	{
+		static_assert(std::is_trivially_copyable<T>(), "T must be trivially copyable");
+
+		constexpr size_t bytes_to_read = N * sizeof(T);
+		return Read(arr, bytes_to_read) == bytes_to_read;
+	}
+
 
 	UINT64 Seek(INT64 n64Offset, DWORD dwSeekMode);
 	UINT64 SeekHed(INT64 n64Offset = 0);
