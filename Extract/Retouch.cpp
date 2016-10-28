@@ -3,6 +3,8 @@
 #include "../Image.h"
 #include "Retouch.h"
 
+#include <algorithm>
+
 /// Mounting
 ///
 /// @param pclArc Archive
@@ -174,11 +176,8 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 
 	// Construct table
 	DWORD adwTable[625 * 2];
-	DWORD dwWork;
+	DWORD dwWork = dwKey;
 	DWORD dwWork2;
-	BYTE btTemp;
-
-	dwWork = dwKey;
 
 	for (DWORD i = 0; i < 624; i++)
 	{
@@ -350,9 +349,7 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 		dwWork = (adwTable[j++] % dwSrcSize);
 		dwWork2 = (adwTable[j++] % dwSrcSize);
 
-		btTemp = pbtSrc[dwWork];
-		pbtSrc[dwWork] = pbtSrc[dwWork2];
-		pbtSrc[dwWork2] = btTemp;
+		std::swap(pbtSrc[dwWork], pbtSrc[dwWork2]);
 	}
 
 	return true;
