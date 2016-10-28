@@ -10,8 +10,7 @@ INT_PTR CFolderInputDialog::DoModal(HWND hWnd, LPTSTR pSaveDir)
 {
 	m_pSaveDir = pSaveDir;
 	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
-	INT_PTR ret = DialogBoxParam(hInst, _T("FOLDER_INPUT_DLG"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
-	return (ret);
+	return DialogBoxParam(hInst, _T("FOLDER_INPUT_DLG"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 LRESULT CFolderInputDialog::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
