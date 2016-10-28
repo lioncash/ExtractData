@@ -27,22 +27,27 @@
 #include "Ahx.h"
 #include "Utils/BitUtils.h"
 
+#include <array>
+
 #define M_PI    3.14159265358979323846
 
 namespace
 {
-int bit_alloc_table[32] = { 4,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 };
-int offset_table[5][16] = {
+constexpr std::array<int, 32> bit_alloc_table{ 4,4,4,4,3,3,3,3,3,3,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 };
+constexpr std::array<std::array<int, 16>, 5> offset_table{{
 	{ 0 },
 	{ 0 },
 	{ 0, 1, 3, 4,                                      },
 	{ 0, 1, 3, 4, 5, 6, 7, 8,                          },
 	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }
-};
+}};
+
 struct quantclass {
 	int nlevels;
 	int bits;
-} const qc_table[17] = {
+};
+
+constexpr std::array<quantclass, 17> qc_table{{
 	{     3,  -5},
 	{     5,  -7},
 	{     7,   3},
@@ -60,8 +65,9 @@ struct quantclass {
 	{ 16383,  14},
 	{ 32767,  15},
 	{ 65535,  16}
-};
-int intwinbase[257] = {
+}};
+
+constexpr std::array<int, 257> intwinbase{
      0,    -1,    -1,    -1,    -1,    -1,    -1,    -2,    -2,    -2,    -2,    -3,    -3,    -4,    -4,    -5,
     -5,    -6,    -7,    -7,    -8,    -9,   -10,   -11,   -13,   -14,   -16,   -17,   -19,   -21,   -24,   -26,
    -29,   -31,   -35,   -38,   -41,   -45,   -49,   -53,   -58,   -63,   -68,   -73,   -79,   -85,   -91,   -97,
@@ -81,8 +87,8 @@ int intwinbase[257] = {
  75038
 };
 
-double costable[5][16];
-double decwin[512 + 32];
+std::array<std::array<double, 16>, 5> costable;
+std::array<double, 512 + 32> decwin;
 } // Anonymous namespace
 
 bool CAhx::Mount(CArcFile* pclArc)
@@ -442,7 +448,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 				dct(sbsamples[gr], dctbuf[1][phase], dctbuf[0][phase + 1]);
 
 			double sum;
-			double *win = decwin + 16 - (phase | 1);
+			double* win = decwin.data() + 16 - (phase | 1);
 
 			for (int i = 0; i < 16; i++)
 			{
