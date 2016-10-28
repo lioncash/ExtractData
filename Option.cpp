@@ -30,16 +30,17 @@ void COption::Init(CSearchToolBar& toolbar, CMainListView& listview)
 	m_pToolBar = &toolbar;
 	m_pListView = &listview;
 
-	std::vector<YCString>& SearchFiles = m_SearchFiles;
-	SearchFiles.push_back(_T("AHX"));
-	SearchFiles.push_back(_T("BMP"));
-	SearchFiles.push_back(_T("JPG"));
-	SearchFiles.push_back(_T("MID"));
-	SearchFiles.push_back(_T("MPG"));
-	SearchFiles.push_back(_T("OGG"));
-	SearchFiles.push_back(_T("PNG"));
-	SearchFiles.push_back(_T("WAV"));
-	SearchFiles.push_back(_T("WMV"));
+	m_SearchFiles.insert(m_SearchFiles.end(), {
+		_T("AHX"),
+		_T("BMP"),
+		_T("JPG"),
+		_T("MID"),
+		_T("MPG"),
+		_T("OGG"),
+		_T("PNG"),
+		_T("WAV"),
+		_T("WMV")
+	});
 
 	LoadIni();
 
