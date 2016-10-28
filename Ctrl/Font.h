@@ -10,5 +10,5 @@ public:
 	HFONT GetFont() const { return m_hFont; }
 
 private:
-	HFONT m_hFont;
+	HFONT m_hFont = nullptr;
 };

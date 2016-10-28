@@ -3,7 +3,6 @@
 
 CFont::CFont()
 {
-	m_hFont = nullptr;
 }
 
 CFont::~CFont()
