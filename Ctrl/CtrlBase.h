@@ -28,9 +28,9 @@ protected:
 	HWND CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption, int x, int y, int cx, int cy, DWORD dwExStyle = 0);
 
 private:
-	HWND      m_hWnd;
-	HINSTANCE m_hInst;
-	HWND      m_hCtrl;
-	UINT      m_ID;
+	HWND      m_hWnd = nullptr;
+	HINSTANCE m_hInst = nullptr;
+	HWND      m_hCtrl = nullptr;
+	UINT      m_ID = 0;
 	CFont     m_font;
 };

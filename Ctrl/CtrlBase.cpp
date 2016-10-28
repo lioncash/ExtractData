@@ -3,9 +3,6 @@
 
 CCtrlBase::CCtrlBase()
 {
-	m_hWnd = nullptr;
-	m_hInst = nullptr;
-	m_hCtrl = nullptr;
 }
 
 void CCtrlBase::Init(HWND hWnd, UINT ID)
