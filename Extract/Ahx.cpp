@@ -316,7 +316,9 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 
 	src += src[2] * 256 + src[3] + 4;
 	int phase = 0;
-	int bit_alloc[32], scfsi[32], scalefactor[32][3];
+	int bit_alloc[32];
+	int scfsi[32];
+	int scalefactor[32][3];
 	double dctbuf[2][16][17];
 	short* dst_p = (short*)dst;
 	int bit_rest = 0, bit_data;
