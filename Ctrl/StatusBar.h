@@ -13,8 +13,8 @@ public:
 	void SetWindowPos(int cx);
 
 protected:
-	HWND m_hWnd;
-	HWND m_hSBWnd;
-	SOption* m_pOption;
-	CMainListView* m_pListView;
+	HWND m_hWnd = nullptr;
+	HWND m_hSBWnd = nullptr;
+	SOption* m_pOption = nullptr;
+	CMainListView* m_pListView = nullptr;
 };

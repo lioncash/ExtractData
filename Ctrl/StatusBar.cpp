@@ -8,10 +8,6 @@
 
 CStatusBar::CStatusBar()
 {
-	m_hWnd = nullptr;
-	m_hSBWnd = nullptr;
-	m_pOption = nullptr;
-	m_pListView = nullptr;
 }
 
 void CStatusBar::Init(HWND hWnd, SOption& option, CMainListView& listview)
