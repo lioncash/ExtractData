@@ -43,6 +43,4 @@ private:
 	VH m_vheader;
 	DWORD m_SegmentSize;
 	DWORD m_PageSize;
-
-	static const std::array<DWORD, 256> m_pCRCTable;
 };
