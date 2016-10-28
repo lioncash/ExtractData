@@ -2,6 +2,8 @@
 #include "../ExtractBase.h"
 #include "SummerDays.h"
 
+#include <algorithm>
+
 #define TYPE_NONE   0x00000000
 #define TYPE_FOLDER 0x00000001
 
@@ -46,7 +48,6 @@ bool CSummerDays::Mount(CArcFile* pclArc)
 
 WORD CSummerDays::_context_new(CArcFile* pclArc, WORD ui16Length)
 {
-	std::vector<TCONTEXT>* ptContextTable = &m_tContextTable;
 	m_ui16ContextCount++;
 
 	// Get class name
@@ -58,24 +59,20 @@ WORD CSummerDays::_context_new(CArcFile* pclArc, WORD ui16Length)
 	tNew.pcName = pcName;
 	tNew.ui16Code = m_ui16ContextCount;
 	tNew.iType = (tNew.pcName == _T("CAutoFolder")) ? TYPE_FOLDER : TYPE_NONE;
-	ptContextTable->push_back(tNew);
+	m_tContextTable.push_back(tNew);
 
 	return (m_ui16ContextCount);
 }
 
-int CSummerDays::_context_add(WORD ui16Code)
+int CSummerDays::FindContextTypeWithCode(WORD code)
 {
-	std::vector<TCONTEXT>& ptContextTable = m_tContextTable;
+	const auto iter = std::find_if(m_tContextTable.begin(), m_tContextTable.end(),
+	                               [code](const auto& entry) { return entry.ui16Code == code; });
 
-	for (size_t i = 0; i < ptContextTable.size(); i++)
-	{
-		if (ptContextTable[i].ui16Code == ui16Code)
-		{
-			return (ptContextTable[i].iType);
-		}
-	}
+	if (iter == m_tContextTable.end())
+		return -1;
 
-	return -1;
+	return iter->iType;
 }
 
 bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
@@ -108,7 +105,7 @@ bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 		pclArc->Read(&uData.pui32Value[1], 4);
 	}
 
-	int iType = _context_add(ui16Context);
+	int iType = FindContextTypeWithCode(ui16Context);
 	long i32Position = (long)(uData.pui32Value[1] - (DWORD)0xA2FB6AD1);
 
 	// Get file size
