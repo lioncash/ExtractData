@@ -100,7 +100,7 @@ public:
 	LPBYTE GetHed() { return m_pHeader.data(); }
 
 	SFileInfo*              GetFileInfo(DWORD num) const { return &(*m_pEnt)[num]; }
-	SFileInfo*              GetFileInfo(LPCTSTR filename, bool compare_filename_only = false) const;
+	SFileInfo*              GetFileInfo(LPCTSTR filepath, bool compare_filename_only = false) const;
 	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR pszFileName);
 	std::vector<SFileInfo>& GetFileInfo() const        { return *m_pEnt; }
 	SFileInfo*              GetOpenFileInfo() const    { return m_pInfFile; }

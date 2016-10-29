@@ -680,34 +680,32 @@ bool CArcFile::CheckDir(LPCTSTR pDirName)
 
 /// Return information to the appropriate file from the file name
 ///
-/// @param filename              Target file name
+/// @param filepath              Target file path
 /// @param compare_filename_only Whether or not to compare just the file names
 ///
 /// @remark Linear search
 ///
-SFileInfo* CArcFile::GetFileInfo(LPCTSTR filename, bool compare_filename_only) const
+SFileInfo* CArcFile::GetFileInfo(LPCTSTR filepath, bool compare_filename_only) const
 {
 	if (compare_filename_only)
 	{
 		// Comparison in the requested file name only
-
-		filename = PathFindFileName(filename);
+		filepath = PathFindFileName(filepath);
 	}
 
-	for (size_t i = 0; i < m_pEnt->size(); i++)
+	for (auto& entry : *m_pEnt)
 	{
-		LPCTSTR pszWork = (*m_pEnt)[i].name;
+		LPCTSTR name = entry.name;
 
 		if (compare_filename_only)
 		{
 			// Comparison in the requested file name only
-
-			pszWork = PathFindFileName(pszWork);
+			name = PathFindFileName(name);
 		}
 
-		if (lstrcmpi(pszWork, filename) == 0)
+		if (lstrcmpi(name, filepath) == 0)
 		{
-			return &(*m_pEnt)[i];
+			return &entry;
 		}
 	}
 
