@@ -384,10 +384,12 @@ bool CCircus::DecodePCM(CArcFile* pclArc)
 	switch (stPCMHeader.dwFlags & 0xFF)
 	{
 	case 0: // Uncompressed
+		{
 		CWav clWav;
 		clWav.Init(pclArc, stPCMHeader.dwDataSize, stPCMHeader.dwFreq, stPCMHeader.wChannels, stPCMHeader.wBits);
 		clWav.Write();
 		break;
+		}
 
 //	case 1:
 		DecodePCM1(pclArc, stPCMHeader);
