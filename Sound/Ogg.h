@@ -39,8 +39,8 @@ public:
 	VH& GetHed() { return m_vheader; }
 
 private:
-	CArcFile* m_pclArc;
-	VH m_vheader;
-	DWORD m_SegmentSize;
-	DWORD m_PageSize;
+	CArcFile* m_pclArc = nullptr;
+	VH m_vheader{};
+	DWORD m_SegmentSize = 0;
+	DWORD m_PageSize = 0;
 };
