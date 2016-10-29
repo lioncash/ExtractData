@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../../ExtractBase.h"
 #include "../../Image.h"
 #include "JBP1.h"
 #include "Cmv.h"

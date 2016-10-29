@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CYkc final : public CExtractBase
 {
 public:

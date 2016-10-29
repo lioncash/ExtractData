@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CLostChild final : public CExtractBase
 {
 public:

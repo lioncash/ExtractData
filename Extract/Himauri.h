@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CHimauri final : public CExtractBase
 {
 public:

@@ -1,7 +1,5 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Image.h"
-//#include "../Image/Jpg.h"
 #include "Cyc.h"
 
 ///////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "SummerDays.h"
 
 #include <algorithm>

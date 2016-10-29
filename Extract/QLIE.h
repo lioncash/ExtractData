@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CQLIE final : public CExtractBase
 {
 public:

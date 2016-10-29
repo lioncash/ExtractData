@@ -1,6 +1,5 @@
 
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Image.h"
 #include "Ethornell.h"
 

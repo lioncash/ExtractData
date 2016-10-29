@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CYuris final : public CExtractBase
 {
 public:

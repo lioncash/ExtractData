@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CMeltyBlood final : public CExtractBase
 {
 public:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CAlcot final : public CExtractBase
 {
 public:

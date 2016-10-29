@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CAhx final : public CExtractBase
 {
 public:

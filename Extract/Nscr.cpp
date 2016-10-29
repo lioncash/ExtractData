@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../bzip2/bzlib.h"
 #include "../Image.h"
 #include "Standard.h"

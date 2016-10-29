@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "Ykc.h"
 
 bool CYkc::Mount(CArcFile* pclArc)

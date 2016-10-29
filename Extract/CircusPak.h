@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CCircusPak final : public CExtractBase
 {
 public:

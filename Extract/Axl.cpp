@@ -1,5 +1,4 @@
 ﻿#include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Arc/LZSS.h"
 #include "../Image.h"
 #include "Axl.h"

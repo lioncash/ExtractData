@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Arc/Zlib.h"
 #include "../Image.h"
 #include "Alcot.h"

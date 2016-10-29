@@ -21,7 +21,6 @@
 */
 
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Image.h"
 #include "Majiro.h"
 

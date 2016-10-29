@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "Aselia.h"
 
 bool CAselia::Mount(CArcFile* pclArc)

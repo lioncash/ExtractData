@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "Spitan.h"
 
 bool CSpitan::Mount(CArcFile* pclArc)

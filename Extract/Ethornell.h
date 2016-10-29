@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CEthornell final : public CExtractBase
 {
 public:

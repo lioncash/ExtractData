@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CNscr final : public CExtractBase
 {
 public:

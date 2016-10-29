@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../ExtractBase.h"
+
 class CCmv final : public CExtractBase
 {
 public:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CNavel final : public CExtractBase
 {
 public:

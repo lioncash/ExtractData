@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CInnocentGrey final : public CExtractBase
 {
 public:

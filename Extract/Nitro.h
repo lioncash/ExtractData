@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CNitro final : public CExtractBase
 {
 public:

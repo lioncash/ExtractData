@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Image.h"
 #include "../Sound/Wav.h"
 #include "../Sound/Ogg.h"

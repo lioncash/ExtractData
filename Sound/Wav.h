@@ -1,5 +1,7 @@
 #pragma once
 
+class CArcFile;
+
 class CWav final
 {
 public:

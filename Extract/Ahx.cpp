@@ -22,7 +22,6 @@
 // http://www.mpg123.de/
 
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Sound/Wav.h"
 #include "Ahx.h"
 #include "Utils/BitUtils.h"

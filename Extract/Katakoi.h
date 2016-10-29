@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CKatakoi final : public CExtractBase
 {
 public:

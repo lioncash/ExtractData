@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../ExtractBase.h"
+
 class CTlg final : public CExtractBase
 {
 public:

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "../Mzx.h"
 #include "../Sound/Wav.h"
 #include "Ahx.h"

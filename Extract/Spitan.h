@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CSpitan final : public CExtractBase
 {
 public:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CPajamas final : public CExtractBase
 {
 public:

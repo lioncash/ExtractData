@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CClannad final : public CExtractBase
 {
 public:

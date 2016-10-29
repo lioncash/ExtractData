@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "Izumo.h"
 
 // Function to get file information from IZUMO *.dat files

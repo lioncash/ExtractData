@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 class CWindmill final : public CExtractBase
 {
 public:
