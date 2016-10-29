@@ -86,15 +86,15 @@ public:
 	void SetState(bool bState) { m_bState = bState; }
 
 	// Split files support
-	void        SetFirstArc()             { m_dwArcsID = 0; }
-	void        SetNextArc()              { m_dwArcsID++; }
-	HANDLE      GetArcHandle()            { return m_hArcs[m_dwArcsID]; }
-	void        SetArcsID(DWORD dwArcsID) { m_dwArcsID = dwArcsID; }
-	DWORD       GetArcsID() const         { return m_dwArcsID; }
-	size_t      GetArcCount() const       { return m_hArcs.size(); }
-	YCString&   GetArcPath()              { return m_pclArcPaths[m_dwArcsID]; }
-	YCString&   GetArcName()              { return m_pclArcNames[m_dwArcsID]; }
-	YCString&   GetArcExten()             { return m_pclArcExtens[m_dwArcsID]; }
+	void            SetFirstArc()             { m_dwArcsID = 0; }
+	void            SetNextArc()              { m_dwArcsID++; }
+	HANDLE          GetArcHandle()            { return m_hArcs[m_dwArcsID]; }
+	void            SetArcsID(DWORD dwArcsID) { m_dwArcsID = dwArcsID; }
+	DWORD           GetArcsID()   const       { return m_dwArcsID; }
+	size_t          GetArcCount() const       { return m_hArcs.size(); }
+	const YCString& GetArcPath()  const       { return m_pclArcPaths[m_dwArcsID]; }
+	const YCString& GetArcName()  const       { return m_pclArcNames[m_dwArcsID]; }
+	const YCString& GetArcExten() const       { return m_pclArcExtens[m_dwArcsID]; }
 
 	// Returns previously loaded archive file header
 	LPBYTE GetHed() { return m_pHeader.data(); }
