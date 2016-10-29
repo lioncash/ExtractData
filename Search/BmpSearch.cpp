@@ -6,40 +6,40 @@ CBmpSearch::CBmpSearch()
 	InitHed("BM****\0\0\0\0\x36*\0\0\x28\0\0\0", 18);
 }
 
-void CBmpSearch::Mount(CArcFile* pclArc)
+void CBmpSearch::Mount(CArcFile* archive)
 {
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Get file size
-	pclArc->Seek(2, FILE_CURRENT);
-	pclArc->Read(&infFile.sizeOrg, 4);
+	archive->Seek(2, FILE_CURRENT);
+	archive->Read(&file_info.sizeOrg, 4);
 
 	// Corresponds to the case filesize
-	if (infFile.sizeOrg == 0)
+	if (file_info.sizeOrg == 0)
 	{
 		// Get the full size
-		pclArc->Seek(16, FILE_CURRENT);
-		pclArc->Read(&infFile.sizeOrg, 4);
+		archive->Seek(16, FILE_CURRENT);
+		archive->Read(&file_info.sizeOrg, 4);
 
 		// If it is not written, also search the end of the BMP (avoids an infinite loop)
-		if (infFile.sizeOrg == 0)
+		if (file_info.sizeOrg == 0)
 			return;
 
 		// +54(BMP header size)
-		infFile.sizeOrg += 54;
+		file_info.sizeOrg += 54;
 	}
 
-	infFile.sizeCmp = infFile.sizeOrg;
+	file_info.sizeCmp = file_info.sizeOrg;
 
 	// Get exit address
-	infFile.end = infFile.start + infFile.sizeOrg;
+	file_info.end = file_info.start + file_info.sizeOrg;
 
 	// Find the end of the BMP file
-	pclArc->Seek(infFile.end, FILE_BEGIN);
-	pclArc->GetProg()->UpdatePercent(infFile.sizeOrg);
+	archive->Seek(file_info.end, FILE_BEGIN);
+	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".bmp"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".bmp"));
 }
