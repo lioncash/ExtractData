@@ -13,6 +13,7 @@
 #include    <process.h>
 #include    <algorithm>
 #include    <array>
+#include    <cstddef>
 #include    <map>
 #include    <memory>
 #include    <set>
