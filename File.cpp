@@ -12,28 +12,28 @@ CFile::~CFile()
 	Close();
 }
 
-HANDLE CFile::Open(LPCTSTR pFileName, DWORD Mode)
+HANDLE CFile::Open(LPCTSTR filename, u32 mode)
 {
-	if (Mode == FILE_READ)
+	if (mode == FILE_READ)
 	{
-		m_hFile = CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+		m_hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
-	else if (Mode == FILE_WRITE)
+	else if (mode == FILE_WRITE)
 	{
-		m_hFile = CreateFile(pFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+		m_hFile = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
 
 	return m_hFile;
 }
 
-bool CFile::OpenForRead(LPCTSTR pszFileName)
+bool CFile::OpenForRead(LPCTSTR filename)
 {
-	return Open(pszFileName, FILE_READ) != INVALID_HANDLE_VALUE;
+	return Open(filename, FILE_READ) != INVALID_HANDLE_VALUE;
 }
 
-bool CFile::OpenForWrite(LPCTSTR pszFileName)
+bool CFile::OpenForWrite(LPCTSTR filename)
 {
-	return Open(pszFileName, FILE_WRITE) != INVALID_HANDLE_VALUE;
+	return Open(filename, FILE_WRITE) != INVALID_HANDLE_VALUE;
 }
 
 void CFile::Close()
@@ -45,131 +45,131 @@ void CFile::Close()
 	}
 }
 
-DWORD CFile::Read(void* buf, DWORD size)
+u32 CFile::Read(void* buffer, u32 size)
 {
-	DWORD dwReadSize;
-	ReadFile(m_hFile, buf, size, &dwReadSize, nullptr);
-	return dwReadSize;
+	DWORD read_size;
+	ReadFile(m_hFile, buffer, size, &read_size, nullptr);
+	return static_cast<u32>(read_size);
 }
 
-DWORD CFile::ReadLine(void* buf, DWORD dwBufSize, bool delete_line_code)
+u32 CFile::ReadLine(void* buffer, u32 buffer_size, bool delete_line_code)
 {
-	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
-	LPBYTE pbyBufEnd = pbyBuf + dwBufSize;
-	DWORD dwTotalReadSize = 0;
+	u8* byte_buffer = static_cast<LPBYTE>(buffer);
+	const u8* byte_buffer_end = byte_buffer + buffer_size;
+	u32 total_read_size = 0;
 
 	while (true)
 	{
 		// Read one byte
-		DWORD dwReadSize = Read(pbyBuf, 1);
-		dwTotalReadSize += dwReadSize;
+		const u32 read_size = Read(byte_buffer, 1);
+		total_read_size += read_size;
 
-		if (*pbyBuf == '\n')
+		if (*byte_buffer == '\n')
 		{
 			// Reached newline character
 
 			if (delete_line_code)
 			{
 				// Remove carriage return character
-				if (*(pbyBuf - 1) == '\r')
-					*(pbyBuf - 1) = '\0';
-				*pbyBuf = '\0';
+				if (*(byte_buffer - 1) == '\r')
+					*(byte_buffer - 1) = '\0';
+				*byte_buffer = '\0';
 			}
 
 			break;
 		}
 
-		if (dwReadSize == 0)
+		if (read_size == 0)
 		{
 			// Read until the end of the file (EOF).
 			break;
 		}
 
-		pbyBuf++;
+		byte_buffer++;
 
-		if (pbyBuf >= pbyBufEnd)
+		if (byte_buffer >= byte_buffer_end)
 		{
 			// Filled the entire buffer.
 			break;
 		}
 	}
 
-	return dwTotalReadSize;
+	return total_read_size;
 }
 
-DWORD CFile::Write(const void* buf, DWORD size)
+u32 CFile::Write(const void* buffer, u32 size)
 {
-	DWORD dwWriteSize;
-	WriteFile(m_hFile, buf, size, &dwWriteSize, nullptr);
-	return dwWriteSize;
+	DWORD write_size;
+	WriteFile(m_hFile, buffer, size, &write_size, nullptr);
+	return static_cast<u32>(write_size);
 }
 
-void CFile::WriteLine(const void* buf)
+void CFile::WriteLine(const void* buffer)
 {
-	LPCBYTE pbyBuf = static_cast<LPCBYTE>(buf);
+	const u8* byte_buffer = static_cast<const u8*>(buffer);
 
 	while (true)
 	{
-		if (*pbyBuf == '\0')
+		if (*byte_buffer == '\0')
 		{
 			// Has reached the null termination character
 			break;
 		}
 
 		// Writing one byte
-		DWORD dwWriteSize = Write(pbyBuf, 1);
+		const u32 write_size = Write(byte_buffer, 1);
 
-		if (dwWriteSize == 0)
+		if (write_size == 0)
 		{
 			// Could not be written
 			break;
 		}
 
-		if (*pbyBuf == '\n')
+		if (*byte_buffer == '\n')
 		{
 			// Reached newline character
 			break;
 		}
 
-		pbyBuf++;
+		byte_buffer++;
 	}
 }
 
-QWORD CFile::Seek(INT64 offset, DWORD SeekMode)
+u64 CFile::Seek(s64 offset, u32 seek_mode)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
-	li.LowPart = SetFilePointer(m_hFile, li.LowPart, &li.HighPart, SeekMode);
+	li.LowPart = SetFilePointer(m_hFile, li.LowPart, &li.HighPart, seek_mode);
 
 	if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		li.QuadPart = -1;
 
-	return static_cast<QWORD>(li.QuadPart);
+	return static_cast<u64>(li.QuadPart);
 }
 
-QWORD CFile::SeekHed(INT64 offset)
+u64 CFile::SeekHed(s64 offset)
 {
 	return Seek(offset, FILE_BEGIN);
 }
 
-QWORD CFile::SeekEnd(INT64 offset)
+u64 CFile::SeekEnd(s64 offset)
 {
 	return Seek(-offset, FILE_END);
 }
 
-QWORD CFile::SeekCur(INT64 offset)
+u64 CFile::SeekCur(s64 offset)
 {
 	return Seek(offset, FILE_CURRENT);
 }
 
-QWORD CFile::GetFilePointer()
+u64 CFile::GetFilePointer()
 {
 	return Seek(0, FILE_CURRENT);
 }
 
-QWORD CFile::GetFileSize()
+u64 CFile::GetFileSize()
 {
 	LARGE_INTEGER li = {};
 	li.LowPart = ::GetFileSize(m_hFile, &reinterpret_cast<DWORD&>(li.HighPart));
-	return static_cast<QWORD>(li.QuadPart);
+	return static_cast<u64>(li.QuadPart);
 }
