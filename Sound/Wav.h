@@ -1,32 +1,34 @@
 #pragma once
 
+#include <cstddef>
+
 class CArcFile;
 
 class CWav final
 {
 public:
-	void Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WORD bits);
+	void Init(CArcFile* pclArc, u32 dataSize, u32 freq, u16 channels, u16 bits);
 	void Write();
-	void Write(LPBYTE buf);
-	void Write(LPBYTE buf, DWORD size);
+	void Write(u8* buf);
+	void Write(u8* buf, size_t size);
 
 private:
 	// WAV Format
 	struct WAVHed
 	{
-		BYTE    RiffID[4]; // "RIFF"
-		DWORD   FileSize;  // Filesize
-		BYTE    WaveID[4]; // "WAVE"
-		BYTE    fmtID[4];  // "fmt "
-		DWORD   ChunkByte; // fmt Number of bytes in chunk
-		WORD    FormatID;  // Format ID
-		WORD    channels;  // Number of channels
-		DWORD   freq;      // Sampling rate
-		DWORD   bps;       // Data rate (Byte/sec)
-		WORD    BlockSize; // Block size (Byte/sample * Number of channels)
-		WORD    bits;      // Number of bits per sample (bit/sample)
-		BYTE    DataID[4]; // "data"
-		DWORD   DataSize;  // Number of bytes of waveform data
+		u8  riff_id[4]; // "RIFF"
+		u32 file_size;  // Filesize
+		u8  wave_id[4]; // "WAVE"
+		u8  fmt_id[4];  // "fmt "
+		u32 chunk_byte; // fmt Number of bytes in chunk
+		u16 format_id;  // Format ID
+		u16 channels;   // Number of channels
+		u32 freq;       // Sampling rate
+		u32 bps;        // Data rate (Byte/sec)
+		u16 block_size; // Block size (Byte/sample * Number of channels)
+		u16 bits;       // Number of bits per sample (bit/sample)
+		u8  data_id[4]; // "data"
+		u32 data_size;  // Number of bytes of waveform data
 	};
 
 	CArcFile* m_archive = nullptr;
