@@ -6,6 +6,6 @@ class COggSearch final : public CSearchBase
 {
 public:
 	COggSearch();
-	void OnInit(SOption* pOption) override;
-	void Mount(CArcFile* pclArc) override;
+	void OnInit(SOption* option) override;
+	void Mount(CArcFile* archive) override;
 };

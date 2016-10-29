@@ -8,82 +8,82 @@ COggSearch::COggSearch()
 	//InitHed("\x4F\x67\x67\x53\x00\x02", 6);
 }
 
-void COggSearch::OnInit(SOption* pOption)
+void COggSearch::OnInit(SOption* option)
 {
-	if (pOption->bHighSearchOgg == TRUE)
+	if (option->bHighSearchOgg)
 		InitHed("\x4F\x67\x67\x53\x00\x02", 6);
 	else
 		InitHed("\x4F\x67\x67\x53", 4);
 }
 
-void COggSearch::Mount(CArcFile* pclArc)
+void COggSearch::Mount(CArcFile* archive)
 {
 	COgg ogg;
-	ogg.Init(pclArc);
+	ogg.Init(archive);
 
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Serial number when reading the header from memory
-	DWORD SerialNo;
-	pclArc->Seek(14, FILE_CURRENT);
-	pclArc->Read(&SerialNo, 4);
+	u32 serial_no;
+	archive->Seek(14, FILE_CURRENT);
+	archive->Read(&serial_no, 4);
 
-	pclArc->Seek(infFile.start, FILE_BEGIN);
-	DWORD ReadCount = 0;
-	infFile.sizeOrg = 0;
+	archive->Seek(file_info.start, FILE_BEGIN);
+	u32 read_count = 0;
+	file_info.sizeOrg = 0;
 
 	while (true)
 	{
-		ReadCount++;
+		read_count++;
 
 		// Read the OGG header
-		DWORD PageSize = ogg.ReadHed();
-		VH vheader = ogg.GetHed();
+		const u32 page_size = ogg.ReadHed();
+		VH header = ogg.GetHed();
 
 		//If the serial number is different than what we have
-		if (vheader.serialno != SerialNo)
+		if (header.serialno != serial_no)
 		{
 			ogg.BackHed();
 			break;
 		}
 
 		// If it is no longer OggS
-		if (memcmp(vheader.pattern, GetHed(), 4) != 0)
+		if (memcmp(header.pattern, GetHed(), 4) != 0)
 		{
 			ogg.BackHed();
 			break;
 		}
 
 		// Exit after the beginning of the OGG until we hit the next header
-		if ((ReadCount > 1) && (memcmp(vheader.pattern, GetHed(), 4) == 0) && (vheader.type == 2))
+		if (read_count > 1 && memcmp(header.pattern, GetHed(), 4) == 0 && header.type == 2)
 		{
 			ogg.BackHed();
 			break;
 		}
 
 		// Exit after we hit the end of the file
-		if (PageSize == 0)
+		if (page_size == 0)
 			break;
 
 		// Add to the file size
-		infFile.sizeOrg += PageSize;
+		file_info.sizeOrg += page_size;
 
 		// Advance to the next OggS
 		ogg.NextPage();
 
-		pclArc->GetProg()->UpdatePercent(PageSize);
+		archive->GetProg()->UpdatePercent(page_size);
 	}
 
-	if (infFile.sizeOrg == 0)
+	if (file_info.sizeOrg == 0)
 		return;
 
-	infFile.sizeCmp = infFile.sizeOrg;
+	file_info.sizeCmp = file_info.sizeOrg;
 
 	// Get exit address
-	infFile.end = infFile.start + infFile.sizeOrg;
+	file_info.end = file_info.start + file_info.sizeOrg;
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".ogg"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".ogg"));
 }
