@@ -63,9 +63,9 @@ public:
 
 	// Simple decoding
 	DWORD InitDecrypt();
-	DWORD InitDecrypt(const void* pvData);
-	DWORD InitDecryptForText(const void* pvText, DWORD dwTextSize);
-	void  Decrypt(void* pvBuffer, DWORD dwSize);
+	DWORD InitDecrypt(const u8* data);
+	DWORD InitDecryptForText(const u8* text_data, size_t text_data_size);
+	void  Decrypt(u8* buffer, size_t buffer_size);
 
 	// File information to be added to the list in the archive
 	void AddFileInfo(SFileInfo& infFile);

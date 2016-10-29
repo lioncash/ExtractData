@@ -297,9 +297,9 @@ DWORD CArcFile::InitDecrypt()
 
 /// Simple initialization of the decryption key
 ///
-/// @remark Gets the decryption key from pvData
+/// @remark Gets the decryption key from data
 ///
-DWORD CArcFile::InitDecrypt(const void* pvData)
+DWORD CArcFile::InitDecrypt(const u8* data)
 {
 	m_deckey = 0;
 
@@ -309,45 +309,44 @@ DWORD CArcFile::InitDecrypt(const void* pvData)
 	}
 
 	const SFileInfo* file_info = GetOpenFileInfo();
-	const BYTE* pbtData = static_cast<const BYTE*>(pvData);
 
 	if (file_info->format == _T("OGG"))
 	{
 		// Ogg Vorbis
-		m_deckey = *(DWORD*) &pbtData[0] ^ 0x5367674F;
+		m_deckey = *(DWORD*) &data[0] ^ 0x5367674F;
 	}
 	else if (file_info->format == _T("PNG"))
 	{
 		// PNG
-		m_deckey = *(DWORD*) &pbtData[0] ^ 0x474E5089;
+		m_deckey = *(DWORD*) &data[0] ^ 0x474E5089;
 	}
 	else if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		m_deckey = (*(WORD*) &pbtData[6] << 16) | *(WORD*) &pbtData[8];
+		m_deckey = (*(WORD*) &data[6] << 16) | *(WORD*) &data[8];
 	}
 	else if ((file_info->format == _T("JPG")) || (file_info->format == _T("JPEG")))
 	{
 		// JPEG
-		m_deckey = *(DWORD*) &pbtData[0] ^ 0xE0FFD8FF;
+		m_deckey = *(DWORD*) &data[0] ^ 0xE0FFD8FF;
 	}
 	else if ((file_info->format == _T("MPG")) || (file_info->format == _T("MPEG")))
 	{
 		// MPEG
-		m_deckey = *(DWORD*) &pbtData[0] ^ 0xBA010000;
+		m_deckey = *(DWORD*) &data[0] ^ 0xBA010000;
 	}
 	else if (file_info->format == _T("TLG"))
 	{
 		// TLG
-		m_deckey = *(DWORD*) &pbtData[4] ^ 0x7200302E;
+		m_deckey = *(DWORD*) &data[4] ^ 0x7200302E;
 
 		// Try to decode
-		*(DWORD*) &pbtData[0] ^= m_deckey;
+		*(DWORD*) &data[0] ^= m_deckey;
 
-		if ((memcmp(pbtData, "TLG5", 4) != 0) && (memcmp(pbtData, "TLG6", 4) != 0))
+		if ((memcmp(data, "TLG5", 4) != 0) && (memcmp(data, "TLG6", 4) != 0))
 		{
 			// TLG0 Decision
-			m_deckey = *(DWORD*) &pbtData[4] ^ 0x7300302E;
+			m_deckey = *(DWORD*) &data[4] ^ 0x7300302E;
 		}
 	}
 
@@ -356,31 +355,27 @@ DWORD CArcFile::InitDecrypt(const void* pvData)
 
 /// Simple initialization for the decryption key
 ///
-/// Note: Text-only data
+/// @param text_data      Text Data
+/// @param text_data_size Text data size
 ///
-/// @param pvText     Text Data
-/// @param dwTextSize Text data size
+/// @remark Text-only data
 ///
-DWORD CArcFile::InitDecryptForText(const void* pvText, DWORD dwTextSize)
+DWORD CArcFile::InitDecryptForText(const u8* text_data, size_t text_data_size)
 {
-	const BYTE* pbtText = static_cast<const BYTE*>(pvText);
-
-	m_deckey = *(WORD*) &pbtText[dwTextSize - 2] ^ 0x0A0D;
+	m_deckey = *(WORD*) &text_data[text_data_size - 2] ^ 0x0A0D;
 	m_deckey = (m_deckey << 16) | m_deckey;
 
 	return m_deckey;
 }
 
 // Simple decoding
-void CArcFile::Decrypt(void* buf, DWORD size)
+void CArcFile::Decrypt(u8* buffer, size_t buffer_size)
 {
 	if (m_deckey == 0)
 		return;
 
-	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
-
-	for (DWORD i = 0; i < size; i += 4)
-		*(LPDWORD)&pbyBuf[i] ^= m_deckey;
+	for (size_t i = 0; i < buffer_size; i += sizeof(u32))
+		*(LPDWORD)&buffer[i] ^= m_deckey;
 }
 
 /// Write File
