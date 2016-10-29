@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ArcFile.h"
 #include "ExtractData.h"
+#include "File.h"
 #include "ProgressBar.h"
 #include "Common.h"
 #include "Dialog/ExistsDialog.h"
