@@ -22,27 +22,27 @@ struct VH
 class COgg final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-	void Decode(CArcFile* pclArc, LPBYTE buf);
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
+	void Decode(CArcFile* archive, u8* buf);
 
-	void Init(CArcFile* pclArc);
-	DWORD ReadHed();
-	DWORD ReadHed(const BYTE* buf);
+	void Init(CArcFile* archive);
+	u32 ReadHed();
+	u32 ReadHed(const u8* buf);
 	void NextPage();
 	void BackHed();
 
-	void FixCRC(LPBYTE data, DWORD PageSize);
+	void FixCRC(u8* data, u32 page_size);
 
 	const VH& GetHed() const { return m_vheader; }
 
 private:
-	DWORD GetSegSize(const VH& vheader) const;
-	DWORD GetPageSize(const VH& vheader) const;
-	DWORD GetPageSize(const VH& vheader, DWORD SegmentSize) const;
+	u32 GetSegSize(const VH& vheader) const;
+	u32 GetPageSize(const VH& vheader) const;
+	u32 GetPageSize(const VH& vheader, u32 segment_size) const;
 
 	CArcFile* m_pclArc = nullptr;
 	VH m_vheader{};
-	DWORD m_SegmentSize = 0;
-	DWORD m_PageSize = 0;
+	u32 m_segment_size = 0;
+	u32 m_page_size = 0;
 };

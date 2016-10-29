@@ -2,10 +2,11 @@
 #include "Ogg.h"
 
 #include <array>
+#include <vector>
 
 namespace
 {
-constexpr std::array<DWORD, 256> crc_table{{
+constexpr std::array<u32, 256> crc_table{{
 	0x00000000,0x04c11db7,0x09823b6e,0x0d4326d9,0x130476dc,0x17c56b6b,0x1a864db2,0x1e475005,
 	0x2608edb8,0x22c9f00f,0x2f8ad6d6,0x2b4bcb61,0x350c9b64,0x31cd86d3,0x3c8ea00a,0x384fbdbd,
 	0x4c11db70,0x48d0c6c7,0x4593e01e,0x4152fda9,0x5f15adac,0x5bd4b01b,0x569796c2,0x52568b75,
@@ -41,63 +42,64 @@ constexpr std::array<DWORD, 256> crc_table{{
 }};
 } // Anonymous namespace
 
-bool COgg::Mount(CArcFile* pclArc)
+bool COgg::Mount(CArcFile* archive)
 {
-	if (lstrcmpi(pclArc->GetArcExten(), _T(".ogg")) != 0)
+	if (lstrcmpi(archive->GetArcExten(), _T(".ogg")) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool COgg::Decode(CArcFile* pclArc)
+bool COgg::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("OGG"))
 		return false;
 
 	// All loaded into memory (anti-overwrite)
-	YCMemory<BYTE> buf(file_info->sizeOrg);
-	LPBYTE pbuf = &buf[0];
-	pclArc->Read(pbuf, file_info->sizeOrg);
+	std::vector<u8> buf(file_info->sizeOrg);
+	archive->Read(buf.data(), buf.size());
 
 	// Generated output file
-	pclArc->OpenFile();
+	archive->OpenFile();
 
-	if (!pclArc->GetOpt()->bFixOgg)
+	if (!archive->GetOpt()->bFixOgg)
 	{
-		pclArc->Decrypt(pbuf, file_info->sizeOrg);
-		pclArc->WriteFile(pbuf, file_info->sizeOrg);
+		archive->Decrypt(buf.data(), buf.size());
+		archive->WriteFile(buf.data(), buf.size());
 	}
 	else
 	{
-		Init(pclArc);
+		Init(archive);
 
-		for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; )
+		u8* pbuf = buf.data();
+
+		for (size_t write_size = 0; write_size != buf.size(); )
 		{
-			DWORD PageSize = ReadHed(pbuf);
+			const u32 page_size = ReadHed(pbuf);
 
 			// Simple Decoding
 			if (memcmp(pbuf, "OggS", 4) != 0)
-				pclArc->Decrypt(pbuf, PageSize);
-			FixCRC(pbuf, PageSize);
-			pclArc->WriteFile(pbuf, PageSize);
+				archive->Decrypt(pbuf, page_size);
+			FixCRC(pbuf, page_size);
+			archive->WriteFile(pbuf, page_size);
 
-			WriteSize += PageSize;
-			pbuf += PageSize;
+			write_size += page_size;
+			pbuf += page_size;
 		}
 	}
 
 	return true;
 }
 
-void COgg::Decode(CArcFile* pclArc, LPBYTE buf)
+void COgg::Decode(CArcFile* archive, u8* buf)
 {
-	pclArc->OpenFile(_T(".ogg"));
+	archive->OpenFile(_T(".ogg"));
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	for (DWORD WriteSize = 0; WriteSize < file_info->sizeOrg; )
+	for (u32 write_size = 0; write_size < file_info->sizeOrg; )
 	{
 		VH vheader;
 
@@ -105,71 +107,71 @@ void COgg::Decode(CArcFile* pclArc, LPBYTE buf)
 		memcpy(vheader.segment_table, &buf[27], vheader.page_segments);
 
 		// Get page size
-		DWORD PageSize = GetPageSize(vheader);
-		if (WriteSize + PageSize > file_info->sizeOrg)
-			PageSize = file_info->sizeOrg - WriteSize;
+		u32 page_size = GetPageSize(vheader);
+		if (write_size + page_size > file_info->sizeOrg)
+			page_size = file_info->sizeOrg - write_size;
 
 		// Simple decoding
 		if (memcmp(buf, "OggS", 4) != 0)
-			pclArc->Decrypt(buf, PageSize);
+			archive->Decrypt(buf, page_size);
 
-		FixCRC(buf, PageSize);
-		pclArc->WriteFile(buf, PageSize);
+		FixCRC(buf, page_size);
+		archive->WriteFile(buf, page_size);
 
-		WriteSize += PageSize;
-		buf += PageSize;
+		write_size += page_size;
+		buf += page_size;
 	}
 }
 
 // Fix OGG CRC on extraction function
-void COgg::FixCRC(LPBYTE data, DWORD PageSize)
+void COgg::FixCRC(u8* data, u32 page_size)
 {
 	for (int i = 22; i <= 25; i++)
 		data[i] = 0;
 
-	DWORD crc_reg = 0;
-	for (DWORD i = 0; i < PageSize; i++)
+	u32 crc_reg = 0;
+	for (u32 i = 0; i < page_size; i++)
 		crc_reg = (crc_reg << 8) ^ crc_table[((crc_reg >> 24) & 0xff) ^ data[i]];
 
-	data[22] = (BYTE)(crc_reg & 0xff);
-	data[23] = (BYTE)((crc_reg >> 8) & 0xff);
-	data[24] = (BYTE)((crc_reg >> 16) & 0xff);
-	data[25] = (BYTE)((crc_reg >> 24) & 0xff);
+	data[22] = static_cast<u8>(crc_reg);
+	data[23] = static_cast<u8>(crc_reg >> 8);
+	data[24] = static_cast<u8>(crc_reg >> 16);
+	data[25] = static_cast<u8>(crc_reg >> 24);
 }
 
-void COgg::Init(CArcFile* pclArc)
+void COgg::Init(CArcFile* archive)
 {
-	m_pclArc = pclArc;
+	m_pclArc = archive;
 }
 
-DWORD COgg::ReadHed()
+u32 COgg::ReadHed()
 {
 	CArcFile* pclArc = m_pclArc;
 	VH& vheader = m_vheader;
 
-	DWORD dwReadSize = pclArc->Read(vheader.pattern, 4);
-	dwReadSize = pclArc->Read(&vheader.version, 1);
-	dwReadSize = pclArc->Read(&vheader.type, 1);
-	dwReadSize = pclArc->Read(vheader.granpos, 8);
-	dwReadSize = pclArc->Read(&vheader.serialno, 4);
-	dwReadSize = pclArc->Read(&vheader.pageno, 4);
-	dwReadSize = pclArc->Read(&vheader.checksum, 4);
-	dwReadSize = pclArc->Read(&vheader.page_segments, 1);
-	dwReadSize = pclArc->Read(vheader.segment_table, vheader.page_segments);
+	u32 read_size = pclArc->Read(vheader.pattern, 4);
+	read_size = pclArc->Read(&vheader.version, 1);
+	read_size = pclArc->Read(&vheader.type, 1);
+	read_size = pclArc->Read(vheader.granpos, 8);
+	read_size = pclArc->Read(&vheader.serialno, 4);
+	read_size = pclArc->Read(&vheader.pageno, 4);
+	read_size = pclArc->Read(&vheader.checksum, 4);
+	read_size = pclArc->Read(&vheader.page_segments, 1);
+	read_size = pclArc->Read(vheader.segment_table, vheader.page_segments);
 
-	if (dwReadSize == 0)
+	if (read_size == 0)
 		return 0;
 
 	// Get segment size
-	m_SegmentSize = GetSegSize(vheader);
+	m_segment_size = GetSegSize(vheader);
 
 	// Get page size
-	m_PageSize = GetPageSize(vheader, m_SegmentSize);
+	m_page_size = GetPageSize(vheader, m_segment_size);
 
-	return m_PageSize;
+	return m_page_size;
 }
 
-DWORD COgg::ReadHed(const BYTE* buf)
+u32 COgg::ReadHed(const u8* buf)
 {
 	VH& vheader = m_vheader;
 
@@ -177,45 +179,46 @@ DWORD COgg::ReadHed(const BYTE* buf)
 	vheader.version = buf[4];
 	vheader.type = buf[5];
 	memcpy(vheader.granpos, &buf[6], 8);
-	vheader.serialno = *(LPDWORD)&buf[14];
-	vheader.pageno = *(LPDWORD)&buf[18];
-	vheader.checksum = *(LPDWORD)&buf[22];
+	vheader.serialno = *(u32*)&buf[14];
+	vheader.pageno = *(u32*)&buf[18];
+	vheader.checksum = *(u32*)&buf[22];
 	vheader.page_segments = buf[26];
 	memcpy(vheader.segment_table, &buf[27], vheader.page_segments);
 
 	// Get segment size
-	m_SegmentSize = GetSegSize(vheader);
+	m_segment_size = GetSegSize(vheader);
 
 	// Get page size
-	m_PageSize = GetPageSize(vheader, m_SegmentSize);
+	m_page_size = GetPageSize(vheader, m_segment_size);
 
-	return m_PageSize;
+	return m_page_size;
 }
 
-DWORD COgg::GetSegSize(const VH& vheader) const
+u32 COgg::GetSegSize(const VH& vheader) const
 {
-	DWORD SegmentSize = 0;
-	for (BYTE i = 0; i < vheader.page_segments; i++)
-		SegmentSize += vheader.segment_table[i];
+	u32 segment_size = 0;
 
-	return SegmentSize;
+	for (u32 i = 0; i < vheader.page_segments; i++)
+		segment_size += vheader.segment_table[i];
+
+	return segment_size;
 }
 
-DWORD COgg::GetPageSize(const VH& vheader) const
+u32 COgg::GetPageSize(const VH& vheader) const
 {
 	// Get page size
 	return 27U + vheader.page_segments + GetSegSize(vheader);
 }
 
-DWORD COgg::GetPageSize(const VH& vheader, DWORD SegmentSize) const
+u32 COgg::GetPageSize(const VH& vheader, u32 segment_size) const
 {
-	return 27U + vheader.page_segments + SegmentSize;
+	return 27U + vheader.page_segments + segment_size;
 }
 
 void COgg::NextPage()
 {
 	// Advance to the next OggS
-	m_pclArc->Seek(m_SegmentSize, FILE_CURRENT);
+	m_pclArc->Seek(m_segment_size, FILE_CURRENT);
 }
 
 void COgg::BackHed()
