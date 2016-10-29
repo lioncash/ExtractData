@@ -179,9 +179,9 @@ u32 COgg::ReadHed(const u8* buf)
 	vheader.version = buf[4];
 	vheader.type = buf[5];
 	memcpy(vheader.granpos, &buf[6], 8);
-	vheader.serialno = *(u32*)&buf[14];
-	vheader.pageno = *(u32*)&buf[18];
-	vheader.checksum = *(u32*)&buf[22];
+	memcpy(&vheader.serialno, &buf[14], sizeof(u32));
+	memcpy(&vheader.pageno, &buf[18], sizeof(u32));
+	memcpy(&vheader.checksum, &buf[22], sizeof(u32));
 	vheader.page_segments = buf[26];
 	memcpy(vheader.segment_table, &buf[27], vheader.page_segments);
 
