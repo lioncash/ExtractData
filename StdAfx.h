@@ -45,3 +45,5 @@
 #include    "Base/YCStdioFile.h"
 #include    "Base/YCMultiFile.h"
 
+#include    "Types.h"
+

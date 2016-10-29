@@ -504,6 +504,9 @@
     <ClInclude Include="SusieListView.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="WindowBase.h">
       <Filter>Source Files</Filter>
     </ClInclude>
