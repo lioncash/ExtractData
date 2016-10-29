@@ -6,13 +6,6 @@
 #include <array>
 #include <cstddef>
 
-// Pattern string
-struct HF
-{
-	BYTE  pattern[32];
-	DWORD size;
-};
-
 class CSearchBase
 {
 public:
@@ -46,6 +39,13 @@ public:
 	virtual void Mount(CArcFile* pclArc) = 0;
 
 private:
+	// Pattern string
+	struct HF
+	{
+		BYTE  pattern[32];
+		DWORD size;
+	};
+
 	std::array<HF, 2> m_pattern;
 	DWORD m_offset;
 	DWORD m_ctFile;
