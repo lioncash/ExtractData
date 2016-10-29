@@ -34,13 +34,13 @@ public:
 
 	void FixCRC(LPBYTE data, DWORD PageSize);
 
+	VH& GetHed() { return m_vheader; }
+
+private:
 	DWORD GetSegSize(const VH& vheader) const;
 	DWORD GetPageSize(const VH& vheader) const;
 	DWORD GetPageSize(const VH& vheader, DWORD SegmentSize) const;
 
-	VH& GetHed() { return m_vheader; }
-
-private:
 	CArcFile* m_pclArc = nullptr;
 	VH m_vheader{};
 	DWORD m_SegmentSize = 0;
