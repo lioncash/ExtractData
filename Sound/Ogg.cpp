@@ -141,12 +141,12 @@ void COgg::FixCRC(u8* data, u32 page_size)
 
 void COgg::Init(CArcFile* archive)
 {
-	m_pclArc = archive;
+	m_archive = archive;
 }
 
 u32 COgg::ReadHed()
 {
-	CArcFile* pclArc = m_pclArc;
+	CArcFile* pclArc = m_archive;
 	VH& vheader = m_vheader;
 
 	u32 read_size = pclArc->Read(vheader.pattern, 4);
@@ -218,10 +218,10 @@ u32 COgg::GetPageSize(const VH& vheader, u32 segment_size) const
 void COgg::NextPage()
 {
 	// Advance to the next OggS
-	m_pclArc->Seek(m_segment_size, FILE_CURRENT);
+	m_archive->Seek(m_segment_size, FILE_CURRENT);
 }
 
 void COgg::BackHed()
 {
-	m_pclArc->Seek(-27 - m_vheader.page_segments, FILE_CURRENT);
+	m_archive->Seek(-27 - m_vheader.page_segments, FILE_CURRENT);
 }

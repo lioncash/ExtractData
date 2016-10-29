@@ -41,7 +41,7 @@ private:
 	u32 GetPageSize(const VH& vheader) const;
 	u32 GetPageSize(const VH& vheader, u32 segment_size) const;
 
-	CArcFile* m_pclArc = nullptr;
+	CArcFile* m_archive = nullptr;
 	VH m_vheader{};
 	u32 m_segment_size = 0;
 	u32 m_page_size = 0;
