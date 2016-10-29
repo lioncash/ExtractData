@@ -6,5 +6,5 @@ class CPngSearch final : public CSearchBase
 {
 public:
 	CPngSearch();
-	void Mount(CArcFile* pclArc) override;
+	void Mount(CArcFile* archive) override;
 };

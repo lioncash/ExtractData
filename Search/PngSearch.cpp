@@ -14,48 +14,48 @@ CPngSearch::CPngSearch()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
 
-void CPngSearch::Mount(CArcFile* pclArc)
+void CPngSearch::Mount(CArcFile* archive)
 {
-	SFileInfo stFileInfo;
+	SFileInfo file_info;
 
 	// Get start address
-	stFileInfo.start = pclArc->GetArcPointer();
-	pclArc->SeekCur(GetHedSize());
+	file_info.start = archive->GetArcPointer();
+	archive->SeekCur(GetHedSize());
 
 	// Search the file end
-	BYTE abtChunkName[4];
+	BYTE chunk_name[4];
 
 	do
 	{
 		// Get chunk length
-		DWORD dwLength;
-		if (pclArc->Read(&dwLength, 4) == 0)
+		DWORD length;
+		if (archive->Read(&length, 4) == 0)
 			return;
 
-		dwLength = BitUtils::Swap32(dwLength);
+		length = BitUtils::Swap32(length);
 
 		// Get chunk name
-		if (pclArc->Read(abtChunkName, 4) == 0)
+		if (archive->Read(chunk_name, 4) == 0)
 			return;
 
 		// Advance the file pointer to chunk length + CRC segments
-		// if( (dwLength + 4) > pclArc->GetArcSize() )
+		// if(length + 4 > archive->GetArcSize())
 		// {
 		//	return;
 		// }
 
-		pclArc->SeekCur(dwLength + 4);
-	} while (memcmp(abtChunkName, "IEND", 4) != 0); // Keep looping until IEND is reached
+		archive->SeekCur(length + 4);
+	} while (memcmp(chunk_name, "IEND", 4) != 0); // Keep looping until IEND is reached
 
 	// Get exit address
-	stFileInfo.end = pclArc->GetArcPointer();
+	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	stFileInfo.sizeOrg = stFileInfo.end - stFileInfo.start;
-	stFileInfo.sizeCmp = stFileInfo.sizeOrg;
+	file_info.sizeOrg = file_info.end - file_info.start;
+	file_info.sizeCmp = file_info.sizeOrg;
 
 	// Update progress bar
-	pclArc->GetProg()->UpdatePercent(stFileInfo.sizeOrg);
+	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	pclArc->AddFileInfo(stFileInfo, GetCtFile(), _T(".png"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".png"));
 }
