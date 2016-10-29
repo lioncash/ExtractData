@@ -8,22 +8,22 @@ CJpgSearch::CJpgSearch()
 	InitFot("\xFF\xD9", 2);
 }
 
-void CJpgSearch::Mount(CArcFile* pclArc)
+void CJpgSearch::Mount(CArcFile* archive)
 {
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Skip FFD8
-	pclArc->Seek(2, FILE_CURRENT);
+	archive->Seek(2, FILE_CURRENT);
 
 	// JPEG Image Search
 	while (true)
 	{
 		// Get marker
 		BYTE marker[2];
-		if (pclArc->Read(marker, 2) == 0)
+		if (archive->Read(marker, 2) == 0)
 			return;
 
 		// Exit the loop when we reach the JPEG image data
@@ -32,27 +32,27 @@ void CJpgSearch::Mount(CArcFile* pclArc)
 
 		// Get the size of the data area
 		unsigned short length;
-		if (pclArc->Read(&length, sizeof(unsigned short)) == 0)
+		if (archive->Read(&length, sizeof(unsigned short)) == 0)
 			return;
 		length = BitUtils::Swap16(length);
 
 		// Advance to the next data area
-		pclArc->Seek(length - 2, FILE_CURRENT);
+		archive->Seek(length - 2, FILE_CURRENT);
 	}
 
 	// Advance the progress bar
-	pclArc->GetProg()->UpdatePercent(pclArc->GetArcPointer() - infFile.start);
+	archive->GetProg()->UpdatePercent(archive->GetArcPointer() - file_info.start);
 
 	// Get footer
-	if (!SearchFot(pclArc))
+	if (!SearchFot(archive))
 		return;
 
 	// Get exit address
-	infFile.end = pclArc->GetArcPointer();
+	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	infFile.sizeOrg = infFile.end - infFile.start;
-	infFile.sizeCmp = infFile.sizeOrg;
+	file_info.sizeOrg = file_info.end - file_info.start;
+	file_info.sizeCmp = file_info.sizeOrg;
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".jpg"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".jpg"));
 }
