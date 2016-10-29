@@ -96,14 +96,7 @@ void CExtractData::OpenDrop(WPARAM wp)
 void CExtractData::Close()
 {
 	// Close all open archive files
-	std::vector<CArcFile*>& rArcList = m_ArcList;
-	if (!rArcList.empty())
-	{
-		for (size_t i = 0; i < rArcList.size(); i++)
-			delete rArcList[i];
-
-		rArcList.clear();
-	}
+	m_ArcList.clear();
 
 	// Close the decoding class
 	CExtract::Close();
@@ -163,24 +156,22 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 		// Entire file size
 		QWORD AllArcSize = 0;
-		std::vector<CArcFile*>& rArcList = pObj->m_ArcList;
-		for (std::vector<YCString>::iterator itr = sArcNameList.begin(); itr != sArcNameList.end(); )
+		for (auto itr = sArcNameList.begin(); itr != sArcNameList.end(); )
 		{
 			// Open the archive file
-			CArcFile* pclArc = new CArcFile();
+			auto archive = std::make_unique<CArcFile>();
 
-			if (!pclArc->Open(*itr))
+			if (archive->Open(*itr))
 			{
-				itr = sArcNameList.erase(itr); // Remove archive files that could not be opened from the list
-				delete pclArc;
+				// Add archive filesize
+				AllArcSize += archive->GetArcSize();
+				pObj->m_ArcList.push_back(std::move(archive));
+				++itr;
 			}
 			else
 			{
-				// Add archive filesize
-
-				AllArcSize += pclArc->GetArcSize();
-				rArcList.push_back(pclArc);
-				++itr;
+				// Unable to open archive. Remove its name from the list.
+				itr = sArcNameList.erase(itr);
 			}
 		}
 
@@ -190,21 +181,21 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 		// Reading
 		DWORD dwArcID = 0;
-		for (CArcFile* const pclArc : rArcList)
+		for (auto& archive : pObj->m_ArcList)
 		{
-			pclArc->SetArcID(dwArcID);
-			pclArc->SetEnt(rEnt);
-			pclArc->SetProg(prog);
-			pclArc->SetOpt(pOption);
+			archive->SetArcID(dwArcID);
+			archive->SetEnt(rEnt);
+			archive->SetProg(prog);
+			archive->SetOpt(pOption);
 
 			// View the archive filename
-			prog.SetArcName(pclArc->GetArcName());
+			prog.SetArcName(archive->GetArcName());
 
 			// Corresponding file
-			if (CExtract::Mount(pclArc))
+			if (CExtract::Mount(archive.get()))
 			{
 				dwArcID++;
-				pclArc->SetState(true);
+				archive->SetState(true);
 			}
 		}
 		//MessageBox(pObj->m_hWnd, "", "", MB_OK);
@@ -353,7 +344,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		// Determine entire filesize
 		std::vector<int> nSelects;
 		QWORD AllFileSize = 0;
-		std::vector<CArcFile*>& rArcList = pObj->m_ArcList;
+		auto& rArcList = pObj->m_ArcList;
 		if (pObj->m_dwExtractMode == EXTRACT_SELECT)
 		{
 			int nItem = -1;
@@ -380,7 +371,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		for (size_t i = 0; i < nSelects.size(); i++)
 		{
 			SFileInfo* pInfFile = rArcList[0]->GetFileInfo(nSelects[i]);
-			pclArc = rArcList[pInfFile->arcID];
+			pclArc = rArcList[pInfFile->arcID].get();
 			pclArc->SetProg(prog);
 
 			// Create destination folder name from the destination filename input

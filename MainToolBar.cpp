@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "res/ResExtractData.h"
+#include "ArcFile.h"
 #include "Common.h"
 #include "Option.h"
 #include "MainToolBar.h"
@@ -75,14 +76,14 @@ void CMainToolBar::CreateMenuHistory(int iItem)
 	DestroyMenu(hOpenMenu);
 }
 
-void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
+void CMainToolBar::AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archive_list)
 {
 	//for (int i = 0; i < (int)pclArcList.size(); i++) {
-	for (std::vector<CArcFile*>::iterator itrArc = pclArcList.begin(); itrArc != pclArcList.end(); )
+	for (auto itrArc = archive_list.begin(); itrArc != archive_list.end(); )
 	{
-		CArcFile* pclArc = *itrArc;
+		CArcFile* pclArc = itrArc->get();
 		// Turn off if there is any history
-		for (std::vector<YCString>::iterator itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); ++itrStr)
+		for (auto itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); ++itrStr)
 		{
 			if (pclArc->GetArcPath() == *itrStr)
 			{
@@ -99,8 +100,7 @@ void CMainToolBar::AddOpenHistory(std::vector<CArcFile*>& pclArcList)
 		// Close a file that isn't supported
 		if (!pclArc->GetState())
 		{
-			itrArc = pclArcList.erase(itrArc);
-			delete pclArc;
+			itrArc = archive_list.erase(itrArc);
 		}
 		else
 		{

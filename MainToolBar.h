@@ -1,7 +1,10 @@
 #pragma once
 
-#include "ArcFile.h"
 #include "Ctrl/ToolBar.h"
+#include <memory>
+#include <vector>
+
+class CArcFile;
 
 #define ID_TOOLBAR_OPEN_HISTORY 20000
 
@@ -11,7 +14,7 @@ class CMainToolBar : public CToolBar
 public:
 	HWND Create(HWND hWnd);
 	void CreateMenuHistory(int iItem);
-	void AddOpenHistory(std::vector<CArcFile*>& pclArcList);
+	void AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archive_list);
 	const std::vector<YCString>& GetHistory() const { return m_vcOpenHistoryList; }
 
 	void LoadIni() override;
