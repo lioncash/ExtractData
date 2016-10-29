@@ -20,7 +20,7 @@ void CWmvSearch::Mount(CArcFile* archive)
 		return;
 
 	// Amount of progress advanced by the search bar
-	QWORD search_offset = archive->GetArcPointer() - file_info.start - GetHedSize();
+	const u64 search_offset = archive->GetArcPointer() - file_info.start - GetHedSize();
 
 	// Get file size
 	archive->Seek(23, FILE_CURRENT);
