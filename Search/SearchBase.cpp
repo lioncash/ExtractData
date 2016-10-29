@@ -65,8 +65,8 @@ bool CSearchBase::SearchFot(CArcFile* pclArc)
 	DWORD FotSize = GetFotSize();
 	while (true)
 	{
-		BYTE buf[BUFSIZE];
-		DWORD dwReadSize = pclArc->Read(buf, BUFSIZE);
+		BYTE buf[SEARCH_BUFFER_SIZE];
+		DWORD dwReadSize = pclArc->Read(buf, SEARCH_BUFFER_SIZE);
 		
 		if (dwReadSize < FotSize)
 		{

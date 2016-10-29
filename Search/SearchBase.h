@@ -2,8 +2,7 @@
 
 #include "stdafx.h"
 #include "ArcFile.h"
-
-#define BUFSIZE 4096
+#include <cstddef>
 
 // Pattern string
 struct HF
@@ -12,10 +11,11 @@ struct HF
 	DWORD size;
 };
 
-
 class CSearchBase
 {
 public:
+	static constexpr size_t SEARCH_BUFFER_SIZE = 4096;
+
 	CSearchBase();
 	virtual ~CSearchBase();
 

@@ -406,9 +406,9 @@ bool CExtract::Search(CArcFile* pclArc)
 	{
 		bool ret = false;
 
-		// Read BUFSIZE segments
-		BYTE buf[BUFSIZE];
-		DWORD dwReadSize = pclArc->Read(buf, BUFSIZE);
+		// Read SEARCH_BUFFER_SIZE segments
+		BYTE buf[CSearchBase::SEARCH_BUFFER_SIZE];
+		DWORD dwReadSize = pclArc->Read(buf, CSearchBase::SEARCH_BUFFER_SIZE);
 
 		// Search ends when the reading amount is smaller than the header size
 		if (dwReadSize < maxHedSize)
