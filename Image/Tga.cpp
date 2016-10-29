@@ -91,53 +91,50 @@ bool CTga::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSi
 
 /// RLE Decompression
 ///
-/// @param pvDst     Storage location
-/// @param dwDstSize Storage location size
-/// @param pvSrc     Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param wBpp      Number of bits
+/// @param dst      Storage location
+/// @param dst_size Storage location size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param bpp      Number of bits
 ///
-bool CTga::DecompRLE(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, BYTE wBpp)
+bool CTga::DecompRLE(u8* dst, size_t dst_size, const u8* src, size_t src_size, u8 bpp)
 {
-	const BYTE* pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
-	BYTE*       pbtDst = reinterpret_cast<BYTE*>(pvDst);
-	DWORD       dwSrcPtr = 0;
-	DWORD       dwDstPtr = 0;
-	WORD        wByteCount = (wBpp >> 3);
+	size_t    src_ptr = 0;
+	size_t    dst_ptr = 0;
+	const u32 byte_count = (bpp >> 3);
 
-	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		DWORD dwLength = pbtSrc[dwSrcPtr++];
+		u32 length = src[src_ptr++];
 
-		if (dwLength & 0x80)
+		if (length & 0x80)
 		{
-			dwLength = (dwLength & 0x7F) + 1;
+			length = (length & 0x7F) + 1;
 
-			for (DWORD i = 0; i < dwLength; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], wByteCount);
+				memcpy(&dst[dst_ptr], &src[src_ptr], byte_count);
 
-				dwDstPtr += wByteCount;
+				dst_ptr += byte_count;
 			}
 
-			dwSrcPtr += wByteCount;
+			src_ptr += byte_count;
 		}
 		else
 		{
-			dwLength++;
+			length++;
 
-			dwLength *= wByteCount;
+			length *= byte_count;
 
-			memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength);
+			memcpy(&dst[dst_ptr], &src[src_ptr], length);
 
-			dwSrcPtr += dwLength;
-			dwDstPtr += dwLength;
+			src_ptr += length;
+			dst_ptr += length;
 		}
 
-		if (memcmp(&pbtSrc[dwSrcPtr + 8], "TRUEVISION-XFILE", 16) == 0)
+		if (memcmp(&src[src_ptr + 8], "TRUEVISION-XFILE", 16) == 0)
 		{
 			// End
-
 			break;
 		}
 	}

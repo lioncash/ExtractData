@@ -22,5 +22,5 @@ public:
 	bool Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
 
 private:
-	bool DecompRLE(void* dst, DWORD dstSize, const void* src, DWORD srcSize, BYTE bpp);
+	bool DecompRLE(u8* dst, size_t dst_size, const u8* src, size_t src_size, u8 bpp);
 };
