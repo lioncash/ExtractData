@@ -14,8 +14,8 @@ public:
 	void ReplaceAllFileSize(QWORD newFileSize);
 	void UpdatePercent(QWORD BufSize);
 	void UpdatePercent();
-	void SetArcName(YCString& pclArcName);
-	void SetFileName(YCString& pFileName);
+	void SetArcName(const YCString& pclArcName);
+	void SetFileName(const YCString& pFileName);
 	BOOL OnCancel();
 
 	HWND GetHandle()    const { return m_hDlg;  }

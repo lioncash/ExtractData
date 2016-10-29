@@ -61,13 +61,13 @@ void CProgBar::UpdatePercent()
 	UpdatePercent(m_AllFileSize - m_ProgSize);
 }
 
-void CProgBar::SetArcName(YCString& pclArcName)
+void CProgBar::SetArcName(const YCString& pclArcName)
 {
 	// Show the archive file name
 	SetWindowText(m_hDlgItem_archive, pclArcName);
 }
 
-void CProgBar::SetFileName(YCString& pFileName)
+void CProgBar::SetFileName(const YCString& pFileName)
 {
 	// Show the file name
 	SetWindowText(m_hDlgItem_archive, pFileName);
