@@ -102,7 +102,6 @@ SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
 	return Calculate(&clmbtSrc[0], (dwSrcSize + dwPadding));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
 /// Calculate MD5 Value
 ///
 /// @param pvSrc         Input Data
