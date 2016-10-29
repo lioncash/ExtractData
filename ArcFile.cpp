@@ -280,20 +280,17 @@ DWORD CArcFile::InitDecrypt()
 		return m_deckey;
 	}
 
-	SFileInfo* pInfFile = GetOpenFileInfo();
+	const SFileInfo* file_info = GetOpenFileInfo();
 
-	BYTE  abtHeader[12];
-	QWORD u64FilePtrSave = GetArcPointer();
-
-	if (u64FilePtrSave != pInfFile->start)
+	const QWORD current_pos = GetArcPointer();
+	if (current_pos != file_info->start)
 	{
-		SeekHed(pInfFile->start);
+		SeekHed(file_info->start);
 	}
 
-	ZeroMemory(abtHeader, sizeof(abtHeader));
-
+	BYTE abtHeader[12] = {};
 	Read(abtHeader, sizeof(abtHeader));
-	SeekHed(u64FilePtrSave);
+	SeekHed(current_pos);
 
 	return InitDecrypt(abtHeader);
 }
