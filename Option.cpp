@@ -520,7 +520,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			//
 
 			int y_Image = y;
-			ExtractGroupImage.Create(hWnd, _T("Output image format"), ID++, x, y_Image += 34, 240, 130);
+			ExtractGroupImage.Create(hWnd, _T("Output image format"), ID++, x, y_Image += 34, 240, 110);
 			ExtractRadioImage.Close();
 			ExtractRadioImage.Create(hWnd, _T("BMP"), ID++, x + xx, y_Image += 18, 50, 20);
 			ExtractRadioImage.Create(hWnd, _T("PNG"), ID++, x + xx, y_Image += 20, 50, 20);
