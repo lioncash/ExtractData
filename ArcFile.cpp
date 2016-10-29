@@ -308,35 +308,35 @@ DWORD CArcFile::InitDecrypt(const void* pvData)
 		return m_deckey;
 	}
 
-	SFileInfo*  pstFileInfo = GetOpenFileInfo();
+	const SFileInfo* file_info = GetOpenFileInfo();
 	const BYTE* pbtData = static_cast<const BYTE*>(pvData);
 
-	if (pstFileInfo->format == _T("OGG"))
+	if (file_info->format == _T("OGG"))
 	{
 		// Ogg Vorbis
 		m_deckey = *(DWORD*) &pbtData[0] ^ 0x5367674F;
 	}
-	else if (pstFileInfo->format == _T("PNG"))
+	else if (file_info->format == _T("PNG"))
 	{
 		// PNG
 		m_deckey = *(DWORD*) &pbtData[0] ^ 0x474E5089;
 	}
-	else if (pstFileInfo->format == _T("BMP"))
+	else if (file_info->format == _T("BMP"))
 	{
 		// BMP
 		m_deckey = (*(WORD*) &pbtData[6] << 16) | *(WORD*) &pbtData[8];
 	}
-	else if ((pstFileInfo->format == _T("JPG")) || (pstFileInfo->format == _T("JPEG")))
+	else if ((file_info->format == _T("JPG")) || (file_info->format == _T("JPEG")))
 	{
 		// JPEG
 		m_deckey = *(DWORD*) &pbtData[0] ^ 0xE0FFD8FF;
 	}
-	else if ((pstFileInfo->format == _T("MPG")) || (pstFileInfo->format == _T("MPEG")))
+	else if ((file_info->format == _T("MPG")) || (file_info->format == _T("MPEG")))
 	{
 		// MPEG
 		m_deckey = *(DWORD*) &pbtData[0] ^ 0xBA010000;
 	}
-	else if (pstFileInfo->format == _T("TLG"))
+	else if (file_info->format == _T("TLG"))
 	{
 		// TLG
 		m_deckey = *(DWORD*) &pbtData[4] ^ 0x7200302E;
