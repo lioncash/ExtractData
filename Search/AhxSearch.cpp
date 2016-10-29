@@ -8,28 +8,28 @@ CAhxSearch::CAhxSearch()
 	InitFot("AHXE(c)CRI", 10);
 }
 
-void CAhxSearch::Mount(CArcFile* pclArc)
+void CAhxSearch::Mount(CArcFile* archive)
 {
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Get file ssize
-	pclArc->Seek(GetHedSize() + 2, FILE_CURRENT);
-	pclArc->Read(&infFile.sizeOrg, 4);
-	infFile.sizeOrg = BitUtils::Swap32(infFile.sizeOrg) << 1;
-	pclArc->GetProg()->UpdatePercent(4);
+	archive->Seek(GetHedSize() + 2, FILE_CURRENT);
+	archive->Read(&file_info.sizeOrg, 4);
+	file_info.sizeOrg = BitUtils::Swap32(file_info.sizeOrg) << 1;
+	archive->GetProg()->UpdatePercent(4);
 
 	// Search footer
-	if (!SearchFot(pclArc))
+	if (!SearchFot(archive))
 		return;
 
 	// Get exit address
-	infFile.end = pclArc->GetArcPointer();
+	file_info.end = archive->GetArcPointer();
 
 	// Get compressedfile size
-	infFile.sizeCmp = infFile.end - infFile.start;
+	file_info.sizeCmp = file_info.end - file_info.start;
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".ahx"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".ahx"));
 }
