@@ -201,7 +201,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 			prog.SetArcName(pclArc->GetArcName());
 
 			// Corresponding file
-			if (CExtract::Mount(pclArc) == TRUE)
+			if (CExtract::Mount(pclArc))
 			{
 				dwArcID++;
 				pclArc->SetState(true);
