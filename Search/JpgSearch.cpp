@@ -22,7 +22,7 @@ void CJpgSearch::Mount(CArcFile* archive)
 	while (true)
 	{
 		// Get marker
-		BYTE marker[2];
+		u8 marker[2];
 		if (archive->Read(marker, 2) == 0)
 			return;
 
@@ -31,8 +31,8 @@ void CJpgSearch::Mount(CArcFile* archive)
 			break;
 
 		// Get the size of the data area
-		unsigned short length;
-		if (archive->Read(&length, sizeof(unsigned short)) == 0)
+		u16 length;
+		if (archive->Read(&length, sizeof(u16)) == 0)
 			return;
 		length = BitUtils::Swap16(length);
 
