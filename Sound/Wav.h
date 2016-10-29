@@ -27,6 +27,6 @@ private:
 		DWORD   DataSize;  // Number of bytes of waveform data
 	};
 
-	CArcFile* m_pclArc;
-	WAVHed m_wavHed;
+	CArcFile* m_pclArc = nullptr;
+	WAVHed m_wavHed{};
 };
