@@ -14,7 +14,7 @@ public:
 
 private:
 	// WAV Format
-	struct WAVHed
+	struct Header
 	{
 		u8  riff_id[4]; // "RIFF"
 		u32 file_size;  // Filesize
@@ -32,5 +32,5 @@ private:
 	};
 
 	CArcFile* m_archive = nullptr;
-	WAVHed m_wavHed{};
+	Header m_header{};
 };
