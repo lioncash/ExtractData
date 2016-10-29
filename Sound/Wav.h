@@ -7,12 +7,14 @@ class CArcFile;
 class CWav final
 {
 public:
-	void Init(CArcFile* pclArc, u32 dataSize, u32 freq, u16 channels, u16 bits);
+	void Init(CArcFile* archive, u32 data_size, u32 freq, u16 channels, u16 bits);
 	void Write();
 	void Write(u8* buf);
 	void Write(u8* buf, size_t size);
 
 private:
+	void InitHeader(u32 data_size, u32 freq, u16 channels, u16 bits);
+
 	// WAV Format
 	struct Header
 	{

@@ -2,12 +2,20 @@
 #include "../ArcFile.h"
 #include "Wav.h"
 
-void CWav::Init(CArcFile* archive, u32 dataSize, u32 freq, u16 channels, u16 bits)
+void CWav::Init(CArcFile* archive, u32 data_size, u32 freq, u16 channels, u16 bits)
 {
 	m_archive = archive;
 
+	InitHeader(data_size, freq, channels, bits);
+
+	m_archive->OpenFile(_T(".wav"));
+	m_archive->WriteFile(&m_header, sizeof(Header));
+}
+
+void CWav::InitHeader(u32 data_size, u32 freq, u16 channels, u16 bits)
+{
 	memcpy(m_header.riff_id, "RIFF", 4);
-	m_header.file_size = dataSize + 36;
+	m_header.file_size = data_size + 36;
 	memcpy(m_header.wave_id, "WAVE", 4);
 	memcpy(m_header.fmt_id, "fmt ", 4);
 	m_header.chunk_byte = 0x10; // Linear PCM always converted to 16
@@ -18,10 +26,7 @@ void CWav::Init(CArcFile* archive, u32 dataSize, u32 freq, u16 channels, u16 bit
 	m_header.block_size = (bits >> 3) * channels;
 	m_header.bits = bits;
 	memcpy(m_header.data_id, "data", 4);
-	m_header.data_size = dataSize;
-
-	m_archive->OpenFile(_T(".wav"));
-	m_archive->WriteFile(&m_header, sizeof(Header));
+	m_header.data_size = data_size;
 }
 
 void CWav::Write()
