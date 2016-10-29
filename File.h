@@ -18,10 +18,10 @@ public:
 	virtual bool OpenForRead(LPCTSTR pszFileName);
 	virtual bool OpenForWrite(LPCTSTR pszFileName);
 	virtual void Close();
-	virtual DWORD Read(LPVOID buf, DWORD size);
-	virtual DWORD ReadLine(LPVOID buf, DWORD dwBufSize, bool delete_line_code = false);
-	virtual DWORD Write(LPCVOID buf, DWORD size);
-	virtual void WriteLine(LPCVOID buf);
+	virtual DWORD Read(void* buf, DWORD size);
+	virtual DWORD ReadLine(void* buf, DWORD dwBufSize, bool delete_line_code = false);
+	virtual DWORD Write(const void* buf, DWORD size);
+	virtual void WriteLine(const void* buf);
 	virtual QWORD Seek(INT64 offset, DWORD SeekMode);
 	virtual QWORD SeekHed(INT64 offset = 0);
 	virtual QWORD SeekEnd(INT64 offset = 0);

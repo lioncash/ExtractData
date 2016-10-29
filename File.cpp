@@ -45,14 +45,14 @@ void CFile::Close()
 	}
 }
 
-DWORD CFile::Read(LPVOID buf, DWORD size)
+DWORD CFile::Read(void* buf, DWORD size)
 {
 	DWORD dwReadSize;
 	ReadFile(m_hFile, buf, size, &dwReadSize, nullptr);
 	return dwReadSize;
 }
 
-DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, bool delete_line_code)
+DWORD CFile::ReadLine(void* buf, DWORD dwBufSize, bool delete_line_code)
 {
 	LPBYTE pbyBuf = static_cast<LPBYTE>(buf);
 	LPBYTE pbyBufEnd = pbyBuf + dwBufSize;
@@ -97,14 +97,14 @@ DWORD CFile::ReadLine(LPVOID buf, DWORD dwBufSize, bool delete_line_code)
 	return dwTotalReadSize;
 }
 
-DWORD CFile::Write(LPCVOID buf, DWORD size)
+DWORD CFile::Write(const void* buf, DWORD size)
 {
 	DWORD dwWriteSize;
 	WriteFile(m_hFile, buf, size, &dwWriteSize, nullptr);
 	return dwWriteSize;
 }
 
-void CFile::WriteLine(LPCVOID buf)
+void CFile::WriteLine(const void* buf)
 {
 	LPCBYTE pbyBuf = static_cast<LPCBYTE>(buf);
 
