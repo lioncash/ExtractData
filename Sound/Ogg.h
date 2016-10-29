@@ -6,15 +6,15 @@
 
 struct VH
 {
-	BYTE pattern[4];
-	BYTE version;
-	BYTE type;
-	BYTE granpos[8];
-	DWORD serialno;
-	DWORD pageno;
-	DWORD checksum;
-	BYTE page_segments;
-	BYTE segment_table[256];
+	u8  pattern[4];
+	u8  version;
+	u8  type;
+	u8  granpos[8];
+	u32 serialno;
+	u32 pageno;
+	u32 checksum;
+	u8  page_segments;
+	u8  segment_table[256];
 };
 
 #pragma pack(pop, 1)
