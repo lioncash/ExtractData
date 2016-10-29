@@ -81,11 +81,11 @@ void CMainToolBar::AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archiv
 	//for (int i = 0; i < (int)pclArcList.size(); i++) {
 	for (auto itrArc = archive_list.begin(); itrArc != archive_list.end(); )
 	{
-		CArcFile* pclArc = itrArc->get();
+		const CArcFile* archive = itrArc->get();
 		// Turn off if there is any history
 		for (auto itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); ++itrStr)
 		{
-			if (pclArc->GetArcPath() == *itrStr)
+			if (archive->GetArcPath() == *itrStr)
 			{
 				m_vcOpenHistoryList.erase(itrStr);
 				break;
@@ -95,10 +95,10 @@ void CMainToolBar::AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archiv
 		if (m_vcOpenHistoryList.size() == 10)
 			m_vcOpenHistoryList.pop_back();
 		// Add to the history
-		m_vcOpenHistoryList.insert(m_vcOpenHistoryList.begin(), pclArc->GetArcPath());
+		m_vcOpenHistoryList.insert(m_vcOpenHistoryList.begin(), archive->GetArcPath());
 
 		// Close a file that isn't supported
-		if (!pclArc->GetState())
+		if (!archive->GetState())
 		{
 			itrArc = archive_list.erase(itrArc);
 		}
