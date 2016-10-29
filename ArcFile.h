@@ -41,14 +41,13 @@ public:
 		return Read(arr, bytes_to_read) == bytes_to_read;
 	}
 
+	u64 Seek(s64 offset, DWORD seek_mode);
+	u64 SeekHed(s64 offset = 0);
+	u64 SeekEnd(s64 offset = 0);
+	u64 SeekCur(s64 offset);
 
-	UINT64 Seek(INT64 n64Offset, DWORD dwSeekMode);
-	UINT64 SeekHed(INT64 n64Offset = 0);
-	UINT64 SeekEnd(INT64 n64Offset = 0);
-	UINT64 SeekCur(INT64 n64Offset);
-
-	UINT64 GetArcPointer();
-	UINT64 GetArcSize() const;
+	u64 GetArcPointer();
+	u64 GetArcSize() const;
 
 	// Output file operations
 	YCString CreateFileName(LPCTSTR pszReFileExt = nullptr);

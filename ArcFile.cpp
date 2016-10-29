@@ -151,43 +151,43 @@ BYTE* CArcFile::ReadHed()
 	return m_pHeader.data();
 }
 
-QWORD CArcFile::Seek(INT64 offset, DWORD SeekMode)
+u64 CArcFile::Seek(s64 offset, DWORD seek_mode)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
-	li.LowPart = SetFilePointer(m_hArcs[m_dwArcsID], li.LowPart, &li.HighPart, SeekMode);
+	li.LowPart = SetFilePointer(m_hArcs[m_dwArcsID], li.LowPart, &li.HighPart, seek_mode);
 
 	if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		li.QuadPart = -1;
 
-	return static_cast<QWORD>(li.QuadPart);
+	return static_cast<u64>(li.QuadPart);
 }
 
-QWORD CArcFile::SeekHed(INT64 offset)
+u64 CArcFile::SeekHed(s64 offset)
 {
 	return Seek(offset, FILE_BEGIN);
 }
 
-QWORD CArcFile::SeekEnd(INT64 offset)
+u64 CArcFile::SeekEnd(s64 offset)
 {
 	return Seek(-offset, FILE_END);
 }
 
-QWORD CArcFile::SeekCur(INT64 offset)
+u64 CArcFile::SeekCur(s64 offset)
 {
 	return Seek(offset, FILE_CURRENT);
 }
 
-QWORD CArcFile::GetArcPointer()
+u64 CArcFile::GetArcPointer()
 {
 	return Seek(0, FILE_CURRENT);
 }
 
-QWORD CArcFile::GetArcSize() const
+u64 CArcFile::GetArcSize() const
 {
 	LARGE_INTEGER li = {};
 	li.LowPart = GetFileSize(m_hArcs[m_dwArcsID], &reinterpret_cast<DWORD&>(li.HighPart));
-	return static_cast<QWORD>(li.QuadPart);
+	return static_cast<u64>(li.QuadPart);
 }
 
 ////////////////////////////////////////////////////////////////////////
