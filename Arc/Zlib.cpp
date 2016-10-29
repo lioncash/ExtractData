@@ -3,40 +3,41 @@
 #include "../Image.h"
 #include "Zlib.h"
 
-bool CZlib::Decode(CArcFile* pclArc)
+bool CZlib::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("zlib"))
 		return false;
 
-	DecompressFile(pclArc);
+	DecompressFile(archive);
 
 	return true;
 }
 
-void CZlib::DecompressFile(CArcFile* pclArc)
+void CZlib::DecompressFile(CArcFile* archive)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffer
-	YCMemory<BYTE> z_buf(pInfFile->sizeCmp);
-	YCMemory<BYTE> buf(pInfFile->sizeOrg);
+	std::vector<u8> z_buf(file_info->sizeCmp);
+	std::vector<u8> buf(file_info->sizeOrg);
 
 	// zlib Decompression
-	pclArc->Read(&z_buf[0], pInfFile->sizeCmp);
-	Decompress(&buf[0], &pInfFile->sizeOrg, &z_buf[0], pInfFile->sizeCmp);
+	archive->Read(z_buf.data(), z_buf.size());
+	Decompress(buf.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
 
-	if (lstrcmp(PathFindExtension(pInfFile->name), _T(".bmp")) == 0) {
+	if (lstrcmp(PathFindExtension(file_info->name), _T(".bmp")) == 0)
+	{
 		CImage image;
-		image.Init(pclArc, &buf[0]);
-		image.Write(pInfFile->sizeOrg);
+		image.Init(archive, buf.data());
+		image.Write(file_info->sizeOrg);
 	}
 	else
 	{
 		// Output
-		pclArc->OpenFile();
-		pclArc->WriteFile(&buf[0], pInfFile->sizeOrg);
+		archive->OpenFile();
+		archive->WriteFile(buf.data(), file_info->sizeOrg);
 	}
 }
 
