@@ -5,18 +5,6 @@
 class CPng final : public CImageBase
 {
 public:
-	enum
-	{
-		modeRead  = 0x00000000,
-		modeWrite = 0x00000001
-	};
-
-	struct  SMemory
-	{
-		BYTE* pbtData;
-		DWORD dwDataPtr;
-	};
-
 	CPng();
 	virtual ~CPng();
 
@@ -35,15 +23,24 @@ public:
 	bool Decompress();
 
 private:
+	enum class Mode
+	{
+		Read  = 0x00000000,
+		Write = 0x00000001
+	};
+
+	struct SMemory
+	{
+		BYTE* pbtData;
+		DWORD dwDataPtr;
+	};
+
 	bool OnInit(const YCString& rfclsFileName) override;
 	bool OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
 
 	void WriteLine(const void* pvBuffer) override;
 	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;
 	void OnWriteFinish() override;
-
-	void SetMode(DWORD dwMode);
-	DWORD GetMode() const;
 
 	static inline void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length);
 	static inline void PNGAPI WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
@@ -59,5 +56,5 @@ private:
 	DWORD       m_dwFlags;
 	int         m_nCompressLevel;
 
-	DWORD       m_dwMode;
+	Mode        m_mode = Mode::Read;
 };

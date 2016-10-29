@@ -8,7 +8,6 @@ CPng::CPng()
 	m_pstPNG = nullptr;
 	m_pstPNGInfo = nullptr;
 	m_nCompressLevel = 1;
-	m_dwMode = 0;
 }
 
 
@@ -39,29 +38,14 @@ void CPng::SetCallback()
 
 }
 
-/// Set mode
-void CPng::SetMode(DWORD dwMode)
-{
-	m_dwMode = dwMode;
-}
-
-/// Get mode
-///
-/// @return Mode
-///
-DWORD CPng::GetMode() const
-{
-	return m_dwMode;
-}
-
 /// Release PNG structure
 void CPng::Close()
 {
 	if (m_pstPNG != nullptr)
 	{
-		switch (GetMode())
+		switch (m_mode)
 		{
-		case modeRead: // Read mode
+		case Mode::Read: // Read mode
 			/*
 			if (m_pstPNGInfo != nullptr)
 			{
@@ -75,7 +59,7 @@ void CPng::Close()
 			*/
 			break;
 
-		case modeWrite: // Write mode
+		case Mode::Write: // Write mode
 			if (m_pstPNGInfo != nullptr)
 			{
 				png_write_end(m_pstPNG, m_pstPNGInfo);
