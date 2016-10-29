@@ -680,8 +680,8 @@ bool CArcFile::CheckDir(LPCTSTR pDirName)
 
 /// Return information to the appropriate file from the file name
 ///
-/// @param pszFileName      Target file name
-/// @param bCmpFileNameOnly Whether or not to compare just the file names
+/// @param filename              Target file name
+/// @param compare_filename_only Whether or not to compare just the file names
 ///
 /// @remark Linear search
 ///
