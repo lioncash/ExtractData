@@ -2,17 +2,11 @@
 #include "PngSearch.h"
 #include "Utils/BitUtils.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
 CPngSearch::CPngSearch()
 {
 	InitHed("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
 	InitFot("\x49\x45\x4E\x44\xAE\x42\x60\x82", 8);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
 
 void CPngSearch::Mount(CArcFile* archive)
 {
