@@ -7,28 +7,28 @@ CMpgSearch::CMpgSearch()
 	InitFot("\xFF\xFF\xFF\xFF\x00\x00\x01\xB9", 8);
 }
 
-void CMpgSearch::Mount(CArcFile* pclArc)
+void CMpgSearch::Mount(CArcFile* archive)
 {
 	// Corresponds to CVM
-	LPCTSTR pFileExt = (lstrcmpi(pclArc->GetArcExten(), _T(".cvm")) == 0) ? _T(".sfd") : _T(".mpg");
+	LPCTSTR file_extension = (lstrcmpi(archive->GetArcExten(), _T(".cvm")) == 0) ? _T(".sfd") : _T(".mpg");
 
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
-	pclArc->Seek(GetHedSize(), FILE_CURRENT);
-	pclArc->GetProg()->UpdatePercent(GetHedSize());
+	file_info.start = archive->GetArcPointer();
+	archive->Seek(GetHedSize(), FILE_CURRENT);
+	archive->GetProg()->UpdatePercent(GetHedSize());
 
 	// Get footer
-	if (!SearchFot(pclArc))
+	if (!SearchFot(archive))
 		return;
 
 	// Get exit address
-	infFile.end = pclArc->GetArcPointer();
+	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	infFile.sizeOrg = infFile.end - infFile.start;
-	infFile.sizeCmp = infFile.sizeOrg;
+	file_info.sizeOrg = file_info.end - file_info.start;
+	file_info.sizeCmp = file_info.sizeOrg;
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), pFileExt);
+	archive->AddFileInfo(file_info, GetCtFile(), file_extension);
 }
