@@ -20,13 +20,13 @@ bool CTga::Decode(CArcFile* archive, const u8* src, size_t src_size, const YCStr
 	// Decompression
 	std::vector<u8> src2;
 
-	switch (tga_header->btImageType)
+	switch (tga_header->image_type)
 	{
 	case 9:
 	case 10: // RLE Compression
-		src2.resize(((tga_header->wWidth * (tga_header->btDepth >> 3) + 3) & 0xFFFFFFFC) * tga_header->wHeight);
+		src2.resize(((tga_header->width * (tga_header->depth >> 3) + 3) & 0xFFFFFFFC) * tga_header->height);
 
-		DecompRLE(src2.data(), src2.size(), src, src_size, tga_header->btDepth);
+		DecompRLE(src2.data(), src2.size(), src, src_size, tga_header->depth);
 
 		src = src2.data();
 		src_size = src2.size();
@@ -35,15 +35,15 @@ bool CTga::Decode(CArcFile* archive, const u8* src, size_t src_size, const YCStr
 
 	CImage image;
 
-	if (tga_header->btDepth == 0)
+	if (tga_header->depth == 0)
 	{
-		image.Init(archive, tga_header->wWidth, tga_header->wHeight, 32, nullptr, 0, file_last_name);
+		image.Init(archive, tga_header->width, tga_header->height, 32, nullptr, 0, file_last_name);
 		image.WriteReverse(src, src_size);
 		image.Close();
 	}
 	else
 	{
-		image.Init(archive, tga_header->wWidth, tga_header->wHeight, tga_header->btDepth, nullptr, 0, file_last_name);
+		image.Init(archive, tga_header->width, tga_header->height, tga_header->depth, nullptr, 0, file_last_name);
 		image.Write(src, src_size);
 		image.Close();
 	}
@@ -67,11 +67,11 @@ bool CTga::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 	src_size -= sizeof(STGAHeader);
 
 	// Decompression
-	switch (tga_header.btDepth)
+	switch (tga_header.depth)
 	{
 	case 9:
 	case 10: // RLE
-		DecompRLE(dst, dst_size, src, src_size, tga_header.btDepth);
+		DecompRLE(dst, dst_size, src, src_size, tga_header.depth);
 		break;
 
 	default: // No Compression

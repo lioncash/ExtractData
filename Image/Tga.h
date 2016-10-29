@@ -5,16 +5,16 @@ class CTga final
 public:
 	struct STGAHeader
 	{
-		BYTE btID;
-		BYTE btColorMap;
-		BYTE btImageType;
-		BYTE abtCMInfo[5];
-		WORD wOriginX;
-		WORD wOriginY;
-		WORD wWidth;
-		WORD wHeight;
-		BYTE btDepth;
-		BYTE btParam;
+		u8  id;
+		u8  color_map;
+		u8  image_type;
+		u8  color_map_info[5];
+		u16 origin_x;
+		u16 origin_y;
+		u16 width;
+		u16 height;
+		u8  depth;
+		u8  descriptor;
 	};
 
 	bool Decode(CArcFile* archive, const u8* src, size_t src_size, const YCString& file_last_name = _T(""));

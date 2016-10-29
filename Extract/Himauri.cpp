@@ -314,7 +314,7 @@ bool CHimauri::Decode(CArcFile* pclArc)
 			CTga::STGAHeader* psttgahBase = (CTga::STGAHeader*) &clmbtDst[0];
 
 			// TGA Decompression
-			DWORD          dwDstSize2 = ((psttgahBase->wWidth * (psttgahBase->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahBase->wHeight;
+			DWORD          dwDstSize2 = ((psttgahBase->width * (psttgahBase->depth >> 3) + 3) & 0xFFFFFFFC) * psttgahBase->height;
 			YCMemory<BYTE> clmbtDst2(dwDstSize2);
 
 			CTga clTga;
@@ -356,7 +356,7 @@ bool CHimauri::Decode(CArcFile* pclArc)
 				CTga::STGAHeader* psttgahDiff = (CTga::STGAHeader*) &clmbtDstForDiff[0];
 
 				// TGA Decompression
-				DWORD          dwDstSizeForDiff2 = ((psttgahDiff->wWidth * (psttgahDiff->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahDiff->wHeight;
+				DWORD          dwDstSizeForDiff2 = ((psttgahDiff->width * (psttgahDiff->depth >> 3) + 3) & 0xFFFFFFFC) * psttgahDiff->height;
 				YCMemory<BYTE> clmbtDstForDiff2(dwDstSizeForDiff);
 				clTga.Decomp(&clmbtDstForDiff2[0], dwDstSizeForDiff, &clmbtDstForDiff[0], dwDstSizeForDiff);
 
@@ -374,7 +374,7 @@ bool CHimauri::Decode(CArcFile* pclArc)
 
 				// Output
 				CImage clImage;
-				clImage.Init(pclArc, psttgahBase->wWidth, psttgahBase->wHeight, psttgahBase->btDepth, NULL, 0, szLastName);
+				clImage.Init(pclArc, psttgahBase->width, psttgahBase->height, psttgahBase->depth, nullptr, 0, szLastName);
 				clImage.Write(&clmbtDstForCompose[0], dwDstSizeForCompose, progress);
 				clImage.Close();
 			}
