@@ -21,16 +21,16 @@ void CMidSearch::Mount(CArcFile* archive)
 	file_info.start = archive->GetArcPointer();
 
 	// Get the number of tracks
-	unsigned short tracks;
-	archive->SeekCur((GetHedSize() + 2));
-	archive->Read(&tracks, sizeof(unsigned short));
+	u16 tracks;
+	archive->SeekCur(GetHedSize() + 2);
+	archive->Read(&tracks, sizeof(u16));
 	tracks = BitUtils::Swap16(tracks);
 	archive->SeekCur(2);
 
 	// Get end positions
 	for (unsigned short cnt = 0; cnt < tracks; cnt++)
 	{
-		BYTE marker[4];
+		u8 marker[4];
 		archive->Read(marker, 4);
 
 		// Invalid MIDI
@@ -40,8 +40,8 @@ void CMidSearch::Mount(CArcFile* archive)
 		}
 
 		// Get track size
-		unsigned int track_size;
-		archive->Read(&track_size, sizeof(unsigned int));
+		u32 track_size;
+		archive->Read(&track_size, sizeof(u32));
 		track_size = BitUtils::Swap32(track_size);
 
 		// Advance to next track
