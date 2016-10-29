@@ -13,49 +13,49 @@ CMidSearch::CMidSearch()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Mount
 
-void CMidSearch::Mount(CArcFile* pclArc)
+void CMidSearch::Mount(CArcFile* archive)
 {
-	SFileInfo stFileInfo;
+	SFileInfo file_info;
 
 	// Get the head position
-	stFileInfo.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Get the number of tracks
-	unsigned short wTracks;
-	pclArc->SeekCur((GetHedSize() + 2));
-	pclArc->Read(&wTracks, sizeof(unsigned short));
-	wTracks = BitUtils::Swap16(wTracks);
-	pclArc->SeekCur(2);
+	unsigned short tracks;
+	archive->SeekCur((GetHedSize() + 2));
+	archive->Read(&tracks, sizeof(unsigned short));
+	tracks = BitUtils::Swap16(tracks);
+	archive->SeekCur(2);
 
 	// Get end positions
-	for (unsigned short wCnt = 0; wCnt < wTracks; wCnt++)
+	for (unsigned short cnt = 0; cnt < tracks; cnt++)
 	{
-		BYTE abtMark[4];
-		pclArc->Read(abtMark, 4);
+		BYTE marker[4];
+		archive->Read(marker, 4);
 
 		// Invalid MIDI
-		if (memcmp(abtMark, "MTrk", 4) != 0)
+		if (memcmp(marker, "MTrk", 4) != 0)
 		{
 			return;
 		}
 
 		// Get track size
-		unsigned int dwTrackSize;
-		pclArc->Read(&dwTrackSize, sizeof(unsigned int));
-		dwTrackSize = BitUtils::Swap32(dwTrackSize);
+		unsigned int track_size;
+		archive->Read(&track_size, sizeof(unsigned int));
+		track_size = BitUtils::Swap32(track_size);
 
 		// Advance to next track
-		pclArc->SeekCur(dwTrackSize);
+		archive->SeekCur(track_size);
 	}
 
-	stFileInfo.end = pclArc->GetArcPointer();
+	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	stFileInfo.sizeOrg = stFileInfo.end - stFileInfo.start;
-	stFileInfo.sizeCmp = stFileInfo.sizeOrg;
+	file_info.sizeOrg = file_info.end - file_info.start;
+	file_info.sizeCmp = file_info.sizeOrg;
 
 	// Update progress bar
-	pclArc->GetProg()->UpdatePercent(stFileInfo.sizeOrg);
+	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	pclArc->AddFileInfo(stFileInfo, GetCtFile(), _T(".mid"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".mid"));
 }

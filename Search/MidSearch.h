@@ -10,5 +10,5 @@ class CMidSearch final : public CSearchBase
 {
 public:
 	CMidSearch();
-	void Mount(CArcFile* pclArc) override;
+	void Mount(CArcFile* archive) override;
 };
