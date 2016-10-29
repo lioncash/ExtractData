@@ -6,25 +6,25 @@ CWavSearch::CWavSearch()
 	InitHed("RIFF****WAVE", 12);
 }
 
-void CWavSearch::Mount(CArcFile* pclArc)
+void CWavSearch::Mount(CArcFile* archive)
 {
-	SFileInfo infFile;
+	SFileInfo file_info;
 
 	// Get start address
-	infFile.start = pclArc->GetArcPointer();
+	file_info.start = archive->GetArcPointer();
 
 	// Get file size
-	pclArc->Seek(4, FILE_CURRENT);
-	pclArc->Read(&infFile.sizeOrg, 4);
-	infFile.sizeOrg += 8;
-	infFile.sizeCmp = infFile.sizeOrg;
+	archive->Seek(4, FILE_CURRENT);
+	archive->Read(&file_info.sizeOrg, 4);
+	file_info.sizeOrg += 8;
+	file_info.sizeCmp = file_info.sizeOrg;
 
 	// Get exit address
-	infFile.end = infFile.start + infFile.sizeOrg;
+	file_info.end = file_info.start + file_info.sizeOrg;
 
 	// Go to the end of the WAV file
-	pclArc->Seek(infFile.end, FILE_BEGIN);
-	pclArc->GetProg()->UpdatePercent(infFile.sizeOrg);
+	archive->Seek(file_info.end, FILE_BEGIN);
+	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	pclArc->AddFileInfo(infFile, GetCtFile(), _T(".wav"));
+	archive->AddFileInfo(file_info, GetCtFile(), _T(".wav"));
 }
