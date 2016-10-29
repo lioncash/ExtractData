@@ -2,75 +2,35 @@
 #include "File.h"
 #include "MD5.h"
 
+#include <array>
 #include <vector>
+
+namespace
+{
+constexpr std::array<int, 65> md5_table{{
+	0x00000000, 0xD76AA478, 0xE8C7B756, 0x242070DB,
+	0xC1BDCEEE, 0xF57C0FAF, 0x4787C62A, 0xA8304613,
+	0xFD469501, 0x698098D8, 0x8B44F7AF, 0xFFFF5BB1,
+	0x895CD7BE, 0x6B901122, 0xFD987193, 0xA679438E,
+	0x49B40821, 0xF61E2562, 0xC040B340, 0x265E5A51,
+	0xE9B6C7AA, 0xD62F105D, 0x02441453, 0xD8A1E681,
+	0xE7D3FBC8, 0x21E1CDE6, 0xC33707D6, 0xF4D50D87,
+	0x455A14ED, 0xA9E3E905, 0xFCEFA3F8, 0x676F02D9,
+	0x8D2A4C8A, 0xFFFA3942, 0x8771F681, 0x6D9D6122,
+	0xFDE5380C, 0xA4BEEA44, 0x4BDECFA9, 0xF6BB4B60,
+	0xBEBFBC70, 0x289B7EC6, 0xEAA127FA, 0xD4EF3085,
+	0x04881D05, 0xD9D4D039, 0xE6DB99E5, 0x1FA27CF8,
+	0xC4AC5665, 0xF4292244, 0x432AFF97, 0xAB9423A7,
+	0xFC93A039, 0x655B59C3, 0x8F0CCC92, 0xFFEFF47D,
+	0x85845DD1, 0x6FA87E4F, 0xFE2CE6E0, 0xA3014314,
+	0x4E0811A1, 0xF7537E82, 0xBD3AF235, 0x2AD7D2BB,
+	0xEB86D391,
+}};
+} // Anonymous namespace
 
 /// Constructor
 CMD5::CMD5()
 {
-	m_anTable[ 1] = 0xD76AA478;
-	m_anTable[ 2] = 0xE8C7B756;
-	m_anTable[ 3] = 0x242070DB;
-	m_anTable[ 4] = 0xC1BDCEEE;
-	m_anTable[ 5] = 0xF57C0FAF;
-	m_anTable[ 6] = 0x4787C62A;
-	m_anTable[ 7] = 0xA8304613;
-	m_anTable[ 8] = 0xFD469501;
-	m_anTable[ 9] = 0x698098D8;
-	m_anTable[10] = 0x8B44F7AF;
-	m_anTable[11] = 0xFFFF5BB1;
-	m_anTable[12] = 0x895CD7BE;
-	m_anTable[13] = 0x6B901122;
-	m_anTable[14] = 0xFD987193;
-	m_anTable[15] = 0xA679438E;
-	m_anTable[16] = 0x49B40821;
-	m_anTable[17] = 0xF61E2562;
-	m_anTable[18] = 0xC040B340;
-	m_anTable[19] = 0x265E5A51;
-	m_anTable[20] = 0xE9B6C7AA;
-	m_anTable[21] = 0xD62F105D;
-	m_anTable[22] = 0x02441453;
-	m_anTable[23] = 0xD8A1E681;
-	m_anTable[24] = 0xE7D3FBC8;
-	m_anTable[25] = 0x21E1CDE6;
-	m_anTable[26] = 0xC33707D6;
-	m_anTable[27] = 0xF4D50D87;
-	m_anTable[28] = 0x455A14ED;
-	m_anTable[29] = 0xA9E3E905;
-	m_anTable[30] = 0xFCEFA3F8;
-	m_anTable[31] = 0x676F02D9;
-	m_anTable[32] = 0x8D2A4C8A;
-	m_anTable[33] = 0xFFFA3942;
-	m_anTable[34] = 0x8771F681;
-	m_anTable[35] = 0x6D9D6122;
-	m_anTable[36] = 0xFDE5380C;
-	m_anTable[37] = 0xA4BEEA44;
-	m_anTable[38] = 0x4BDECFA9;
-	m_anTable[39] = 0xF6BB4B60;
-	m_anTable[40] = 0xBEBFBC70;
-	m_anTable[41] = 0x289B7EC6;
-	m_anTable[42] = 0xEAA127FA;
-	m_anTable[43] = 0xD4EF3085;
-	m_anTable[44] = 0x04881D05;
-	m_anTable[45] = 0xD9D4D039;
-	m_anTable[46] = 0xE6DB99E5;
-	m_anTable[47] = 0x1FA27CF8;
-	m_anTable[48] = 0xC4AC5665;
-	m_anTable[49] = 0xF4292244;
-	m_anTable[50] = 0x432AFF97;
-	m_anTable[51] = 0xAB9423A7;
-	m_anTable[52] = 0xFC93A039;
-	m_anTable[53] = 0x655B59C3;
-	m_anTable[54] = 0x8F0CCC92;
-	m_anTable[55] = 0xFFEFF47D;
-	m_anTable[56] = 0x85845DD1;
-	m_anTable[57] = 0x6FA87E4F;
-	m_anTable[58] = 0xFE2CE6E0;
-	m_anTable[59] = 0xA3014314;
-	m_anTable[60] = 0x4E0811A1;
-	m_anTable[61] = 0xF7537E82;
-	m_anTable[62] = 0xBD3AF235;
-	m_anTable[63] = 0x2AD7D2BB;
-	m_anTable[64] = 0xEB86D391;
 }
 
 /// Calculate MD5 Value
@@ -270,25 +230,25 @@ u32 CMD5::CalculateSub4(u32 x, u32 y, u32 z)
 /// Calculation Processing
 void CMD5::CalculateSub5(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub1(b, c, d) + m_adwX[k] + m_anTable[i], s);
+	a = b + RotateLeft(a + CalculateSub1(b, c, d) + m_adwX[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub6(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub2(b, c, d) + m_adwX[k] + m_anTable[i], s);
+	a = b + RotateLeft(a + CalculateSub2(b, c, d) + m_adwX[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub7(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub3(b, c, d) + m_adwX[k] + m_anTable[i], s);
+	a = b + RotateLeft(a + CalculateSub3(b, c, d) + m_adwX[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub4(b, c, d) + m_adwX[k] + m_anTable[i], s);
+	a = b + RotateLeft(a + CalculateSub4(b, c, d) + m_adwX[k] + md5_table[i], s);
 }
 
 /// Calculate Padding

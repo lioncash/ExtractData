@@ -32,7 +32,6 @@ protected:
 	void    MD5ToStrings(LPSTR md5_dst, const u32* md5);
 
 private:
-	int   m_anTable[65];
-	SMD5  m_stmd5Value;
-	u32   m_adwX[16];
+	SMD5 m_stmd5Value;
+	u32  m_adwX[16];
 };
