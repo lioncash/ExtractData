@@ -1,5 +1,6 @@
 #pragma	once
 
+#include "ExtractBase.h"
 #include "Image/Bmp.h"
 #include "Image/Png.h"
 

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../ExtractBase.h"
 #include "Ogg.h"
 
 #include <array>

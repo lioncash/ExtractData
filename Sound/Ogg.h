@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../ExtractBase.h"
+
 #pragma pack(push, 1)
 
 struct VH
