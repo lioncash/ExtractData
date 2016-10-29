@@ -106,29 +106,29 @@ bool CAhx::Decode(CArcFile* archive)
 		return false;
 
 	// Read AHX
-	YCMemory<BYTE> ahx_buf(file_info->sizeCmp);
-	archive->Read(&ahx_buf[0], file_info->sizeCmp);
+	std::vector<u8> ahx_buf(file_info->sizeCmp);
+	archive->Read(ahx_buf.data(), ahx_buf.size());
 
 	// Output to convert WAV to AHX
-	Decode(archive, &ahx_buf[0], file_info->sizeCmp);
+	Decode(archive, ahx_buf.data(), ahx_buf.size());
 
 	return true;
 }
 
-void CAhx::Decode(CArcFile* archive, LPBYTE ahx_buf, DWORD ahx_buf_len)
+void CAhx::Decode(CArcFile* archive, u8* ahx_buf, u32 ahx_buf_len)
 {
 	// Convert AHX to WAV
-	DWORD wav_buf_len = BitUtils::Swap32(*(LPDWORD)&ahx_buf[12]) * 2;
-	YCMemory<BYTE> wav_buf(wav_buf_len + 1152 * 16); // Advance //+ 1152 * 2); // margen = layer-2 frame size
+	u32 wav_buf_len = BitUtils::Swap32(*(u32*)&ahx_buf[12]) * 2;
+	std::vector<u8> wav_buf(wav_buf_len + 1152 * 16); // Advance //+ 1152 * 2); // margen = layer-2 frame size
 	wav_buf_len = Decompress(&wav_buf[0], ahx_buf, ahx_buf_len);
 
 	// Output
 	CWav wav;
-	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), ahx_buf[7], 16);
-	wav.Write(&wav_buf[0]);
+	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(u32*)&ahx_buf[8]), ahx_buf[7], 16);
+	wav.Write(wav_buf.data());
 }
 
-int CAhx::getbits(LPBYTE& src, int& bit_data, int& bit_rest, int bits)
+int CAhx::getbits(u8*& src, int& bit_data, int& bit_rest, int bits)
 {
 	while (bit_rest < 24)
 	{
@@ -137,10 +137,10 @@ int CAhx::getbits(LPBYTE& src, int& bit_data, int& bit_rest, int bits)
 		bit_rest += 8;
 	}
 
-	int ret = (bit_data >> (bit_rest - bits)) & ((1 << bits) - 1);
+	const int ret = (bit_data >> (bit_rest - bits)) & ((1 << bits) - 1);
 	bit_rest -= bits;
 
-	return (ret);
+	return ret;
 }
 
 void CAhx::dct(const double* src, double* dst0, double* dst1)
@@ -264,7 +264,7 @@ void CAhx::dct(const double* src, double* dst0, double* dst1)
 	dst1[15] = tmp[0][16 + 15];
 }
 
-int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
+int CAhx::Decompress(u8* dst, u8* src, int srclen)
 {
 	double powtable[64];
 	for (int i = 0; i < 64; i++)
@@ -330,7 +330,7 @@ int CAhx::Decompress(LPBYTE dst, LPBYTE src, int srclen)
 	double dctbuf[2][16][17];
 	short* dst_p = (short*)dst;
 	int bit_rest = 0, bit_data;
-	LPBYTE src_start = src;
+	u8* src_start = src;
 	int frame = 0;
 
 	while (src - src_start < srclen && getbits(src, bit_data, bit_rest, 12) == 0xfff)
