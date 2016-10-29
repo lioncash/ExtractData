@@ -17,7 +17,7 @@ public:
 		BYTE btParam;
 	};
 
-	bool Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
+	bool Decode(CArcFile* archive, const u8* src, size_t src_size, const YCString& file_last_name = _T(""));
 
 	bool Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 

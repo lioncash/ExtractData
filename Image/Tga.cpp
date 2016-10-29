@@ -5,51 +5,47 @@
 
 /// Decoding
 ///
-/// @param pclArc            Archive
-/// @param pvSrc             TGA data
-/// @param dwSrcSize         TGA data size
-/// @param rfclsFileLastName End of the filename
+/// @param archive        Archive
+/// @param src            TGA data
+/// @param src_size       TGA data size
+/// @param file_last_name End of the filename
 ///
-bool CTga::Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName)
+bool CTga::Decode(CArcFile* archive, const u8* src, size_t src_size, const YCString& file_last_name)
 {
-	const BYTE*       pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
-	const STGAHeader* psttgahSrc = (STGAHeader*)pvSrc;
+	const STGAHeader* tga_header = reinterpret_cast<const STGAHeader*>(src);
 
-	pbtSrc += sizeof(STGAHeader);
-	dwSrcSize -= sizeof(STGAHeader);
+	src += sizeof(STGAHeader);
+	src_size -= sizeof(STGAHeader);
 
 	// Decompression
+	std::vector<u8> src2;
 
-	YCMemory<BYTE> clmbtSrc2;
-
-	switch (psttgahSrc->btImageType)
+	switch (tga_header->btImageType)
 	{
 	case 9:
 	case 10: // RLE Compression
+		src2.resize(((tga_header->wWidth * (tga_header->btDepth >> 3) + 3) & 0xFFFFFFFC) * tga_header->wHeight);
 
-		DWORD dwSrcSize2 = ((psttgahSrc->wWidth * (psttgahSrc->btDepth >> 3) + 3) & 0xFFFFFFFC) * psttgahSrc->wHeight;
-		clmbtSrc2.resize(dwSrcSize2);
+		DecompRLE(src2.data(), src2.size(), src, src_size, tga_header->btDepth);
 
-		DecompRLE(&clmbtSrc2[0], dwSrcSize2, pbtSrc, dwSrcSize, psttgahSrc->btDepth);
-
-		pbtSrc = &clmbtSrc2[0];
-		dwSrcSize = dwSrcSize2;
+		src = src2.data();
+		src_size = src2.size();
 		break;
 	}
 
-	CImage clImage;
+	CImage image;
 
-	if (psttgahSrc->btDepth == 0)
+	if (tga_header->btDepth == 0)
 	{
-		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, 32, nullptr, 0, rfclsFileLastName);
-		clImage.WriteReverse(pbtSrc, dwSrcSize);
-		clImage.Close();
+		image.Init(archive, tga_header->wWidth, tga_header->wHeight, 32, nullptr, 0, file_last_name);
+		image.WriteReverse(src, src_size);
+		image.Close();
 	}
 	else
 	{
-		clImage.Init(pclArc, psttgahSrc->wWidth, psttgahSrc->wHeight, psttgahSrc->btDepth, nullptr, 0, rfclsFileLastName);
-		clImage.Write(pbtSrc, dwSrcSize);
-		clImage.Close();
+		image.Init(archive, tga_header->wWidth, tga_header->wHeight, tga_header->btDepth, nullptr, 0, file_last_name);
+		image.Write(src, src_size);
+		image.Close();
 	}
 
 	return true;
