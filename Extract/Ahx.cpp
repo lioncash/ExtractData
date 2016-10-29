@@ -90,32 +90,32 @@ std::array<std::array<double, 16>, 5> costable;
 std::array<double, 512 + 32> decwin;
 } // Anonymous namespace
 
-bool CAhx::Mount(CArcFile* pclArc)
+bool CAhx::Mount(CArcFile* archive)
 {
-	if (lstrcmpi(pclArc->GetArcExten(), _T(".ahx")) != 0)
+	if (lstrcmpi(archive->GetArcExten(), _T(".ahx")) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CAhx::Decode(CArcFile* pclArc)
+bool CAhx::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("AHX"))
 		return false;
 
 	// Read AHX
 	YCMemory<BYTE> ahx_buf(file_info->sizeCmp);
-	pclArc->Read(&ahx_buf[0], file_info->sizeCmp);
+	archive->Read(&ahx_buf[0], file_info->sizeCmp);
 
 	// Output to convert WAV to AHX
-	Decode(pclArc, &ahx_buf[0], file_info->sizeCmp);
+	Decode(archive, &ahx_buf[0], file_info->sizeCmp);
 
 	return true;
 }
 
-void CAhx::Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len)
+void CAhx::Decode(CArcFile* archive, LPBYTE ahx_buf, DWORD ahx_buf_len)
 {
 	// Convert AHX to WAV
 	DWORD wav_buf_len = BitUtils::Swap32(*(LPDWORD)&ahx_buf[12]) * 2;
@@ -124,7 +124,7 @@ void CAhx::Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len)
 
 	// Output
 	CWav wav;
-	wav.Init(pclArc, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), ahx_buf[7], 16);
+	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), ahx_buf[7], 16);
 	wav.Write(&wav_buf[0]);
 }
 

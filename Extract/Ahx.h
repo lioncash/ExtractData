@@ -5,10 +5,10 @@
 class CAhx final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
-	void Decode(CArcFile* pclArc, LPBYTE ahx_buf, DWORD ahx_buf_len);
+	void Decode(CArcFile* archive, LPBYTE ahx_buf, DWORD ahx_buf_len);
 	int Decompress(LPBYTE dst, LPBYTE src, int srclen);
 
 private:
