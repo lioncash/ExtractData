@@ -6,7 +6,7 @@ class CPng final : public CImageBase
 {
 public:
 	CPng();
-	virtual ~CPng();
+	~CPng() override;
 
 	void SetCompressLevel(int nCompressLevel);
 	int  GetCompressLevel() const;
