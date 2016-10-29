@@ -9,8 +9,8 @@ class CWav final
 public:
 	void Init(CArcFile* archive, u32 data_size, u32 freq, u16 channels, u16 bits);
 	void Write();
-	void Write(u8* buf);
-	void Write(u8* buf, size_t size);
+	void Write(const u8* buf);
+	void Write(const u8* buf, size_t size);
 
 private:
 	void InitHeader(u32 data_size, u32 freq, u16 channels, u16 bits);

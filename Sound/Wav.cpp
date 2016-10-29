@@ -34,12 +34,12 @@ void CWav::Write()
 	m_archive->ReadWrite(m_header.data_size);
 }
 
-void CWav::Write(u8* buf)
+void CWav::Write(const u8* buf)
 {
 	m_archive->WriteFile(buf, m_header.data_size);
 }
 
-void CWav::Write(u8* buf, size_t size)
+void CWav::Write(const u8* buf, size_t size)
 {
 	m_archive->WriteFile(buf, size);
 }
