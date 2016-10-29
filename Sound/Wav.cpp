@@ -2,9 +2,9 @@
 #include "../ArcFile.h"
 #include "Wav.h"
 
-void CWav::Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WORD bits)
+void CWav::Init(CArcFile* archive, DWORD dataSize, DWORD freq, WORD channels, WORD bits)
 {
-	m_pclArc = pclArc;
+	m_archive = archive;
 	WAVHed* wavHed = &m_wavHed;
 
 	memcpy(wavHed->RiffID, "RIFF", 4);
@@ -21,21 +21,21 @@ void CWav::Init(CArcFile* pclArc, DWORD dataSize, DWORD freq, WORD channels, WOR
 	memcpy(wavHed->DataID, "data", 4);
 	wavHed->DataSize = dataSize;
 
-	pclArc->OpenFile(_T(".wav"));
-	pclArc->WriteFile(wavHed, 44);
+	m_archive->OpenFile(_T(".wav"));
+	m_archive->WriteFile(wavHed, 44);
 }
 
 void CWav::Write()
 {
-	m_pclArc->ReadWrite(m_wavHed.DataSize);
+	m_archive->ReadWrite(m_wavHed.DataSize);
 }
 
 void CWav::Write(LPBYTE buf)
 {
-	m_pclArc->WriteFile(buf, m_wavHed.DataSize);
+	m_archive->WriteFile(buf, m_wavHed.DataSize);
 }
 
 void CWav::Write(LPBYTE buf, DWORD size)
 {
-	m_pclArc->WriteFile(buf, size);
+	m_archive->WriteFile(buf, size);
 }
