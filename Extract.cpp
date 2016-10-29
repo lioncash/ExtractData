@@ -293,7 +293,7 @@ bool CExtract::Search(CArcFile* pclArc)
 
 	std::vector<CSearchBase*>& SearchClass = m_SearchClass;
 	std::vector<CSearchBase*> Class;
-	DWORD maxHedSize = 0;
+	u32 max_header_size = 0;
 	for (int i = 0; i < (int)pOption->bSearch.size(); i++)
 	{
 		// Add class to use only
@@ -303,9 +303,9 @@ bool CExtract::Search(CArcFile* pclArc)
 			Class.push_back(SearchClass[i]);
 
 			// Keep looking for the maximum length of the header in the class to use
-			DWORD hedSize = SearchClass[i]->GetHedSize();
-			if (hedSize > maxHedSize)
-				maxHedSize = hedSize;
+			const u32 header_size = SearchClass[i]->GetHedSize();
+			if (header_size > max_header_size)
+				max_header_size = header_size;
 		}
 	}
 
@@ -407,21 +407,21 @@ bool CExtract::Search(CArcFile* pclArc)
 		bool ret = false;
 
 		// Read SEARCH_BUFFER_SIZE segments
-		BYTE buf[CSearchBase::SEARCH_BUFFER_SIZE];
-		DWORD dwReadSize = pclArc->Read(buf, CSearchBase::SEARCH_BUFFER_SIZE);
+		u8 buf[CSearchBase::SEARCH_BUFFER_SIZE];
+		const u32 read_size = pclArc->Read(buf, CSearchBase::SEARCH_BUFFER_SIZE);
 
 		// Search ends when the reading amount is smaller than the header size
-		if (dwReadSize < maxHedSize)
+		if (read_size < max_header_size)
 		{
-			pProg->UpdatePercent(dwReadSize);
+			pProg->UpdatePercent(read_size);
 			break;
 		}
 
-		DWORD dwSearchSize = dwReadSize - maxHedSize;
+		const u32 search_size = read_size - max_header_size;
 
 		for (int i = 0; i < (int)ctClass; i++)
 		{
-			if (Class[i]->Search(buf, dwSearchSize))
+			if (Class[i]->Search(buf, search_size))
 			{
 				offsets.emplace(static_cast<int>(Class[i]->GetOffset()), i);
 				ret = true;
@@ -433,7 +433,7 @@ bool CExtract::Search(CArcFile* pclArc)
 			for (const auto& entry : offsets)
 			{
 				// dwReadSize - offset, back to the first position found, has moved to the header file
-				pclArc->Seek(-((int)dwReadSize - entry.first), FILE_CURRENT);
+				pclArc->Seek(-((int)read_size - entry.first), FILE_CURRENT);
 				pProg->UpdatePercent(entry.first);
 
 				// Mount if the offset is less
@@ -447,9 +447,9 @@ bool CExtract::Search(CArcFile* pclArc)
 		}
 		else
 		{
-			pProg->UpdatePercent(dwSearchSize);
+			pProg->UpdatePercent(search_size);
 			// Prevent interruption of data
-			pclArc->Seek(-((int)maxHedSize - 1), FILE_CURRENT);
+			pclArc->Seek(-((int)max_header_size - 1), FILE_CURRENT);
 		}
 	}
 

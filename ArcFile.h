@@ -68,7 +68,7 @@ public:
 
 	// File information to be added to the list in the archive
 	void AddFileInfo(SFileInfo& infFile);
-	void AddFileInfo(SFileInfo& infFile, DWORD& ctFile, LPCTSTR pFileExt);
+	void AddFileInfo(SFileInfo& infFile, u32& ctFile, LPCTSTR pFileExt);
 
 	YCString SetFileFormat(const YCString& sFilePath);
 	YCString SetCommaFormat(DWORD dwSize);

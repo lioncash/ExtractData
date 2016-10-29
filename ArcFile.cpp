@@ -491,7 +491,7 @@ void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo)
 /// @param dwFile       File number
 /// @param pszFileExt   Extension
 
-void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo, DWORD& dwFile, LPCTSTR pszFileExt)
+void CArcFile::AddFileInfo(SFileInfo& rfstFileInfo, u32& dwFile, LPCTSTR pszFileExt)
 {
 	// Set filename
 	TCHAR szFileName[_MAX_FNAME];
