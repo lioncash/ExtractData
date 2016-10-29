@@ -10,3 +10,6 @@ When making derivative works, please follow the GPL.
 - zlib.lib and libpng.lib are needed
   - See the Libs directory for a readme on compiling these.
 
+## Long-term TODOs
+
+- Linux and macOS support.
