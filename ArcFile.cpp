@@ -105,44 +105,44 @@ DWORD CArcFile::Read(void* buf, DWORD size)
 	return dwReadSize;
 }
 
-bool CArcFile::ReadS8(int8_t* out)
+bool CArcFile::ReadS8(s8* out)
 {
-	return Read(out, sizeof(int8_t)) == sizeof(int8_t);
+	return Read(out, sizeof(s8)) == sizeof(s8);
 }
 
-bool CArcFile::ReadS16(int16_t* out)
+bool CArcFile::ReadS16(s16* out)
 {
-	return Read(out, sizeof(int16_t)) == sizeof(int16_t);
+	return Read(out, sizeof(s16)) == sizeof(s16);
 }
 
-bool CArcFile::ReadS32(int32_t* out)
+bool CArcFile::ReadS32(s32* out)
 {
-	return Read(out, sizeof(int32_t)) == sizeof(int32_t);
+	return Read(out, sizeof(s32)) == sizeof(s32);
 }
 
-bool CArcFile::ReadS64(int64_t* out)
+bool CArcFile::ReadS64(s64* out)
 {
-	return Read(out, sizeof(int64_t)) == sizeof(int64_t);
+	return Read(out, sizeof(s64)) == sizeof(s64);
 }
 
-bool CArcFile::ReadU8(uint8_t* out)
+bool CArcFile::ReadU8(u8* out)
 {
-	return Read(out, sizeof(uint8_t)) == sizeof(uint8_t);
+	return Read(out, sizeof(u8)) == sizeof(u8);
 }
 
-bool CArcFile::ReadU16(uint16_t* out)
+bool CArcFile::ReadU16(u16* out)
 {
-	return Read(out, sizeof(uint16_t)) == sizeof(uint16_t);
+	return Read(out, sizeof(u16)) == sizeof(u16);
 }
 
-bool CArcFile::ReadU32(uint32_t* out)
+bool CArcFile::ReadU32(u32* out)
 {
-	return Read(out, sizeof(uint32_t)) == sizeof(uint32_t);
+	return Read(out, sizeof(u32)) == sizeof(u32);
 }
 
-bool CArcFile::ReadU64(uint64_t* out)
+bool CArcFile::ReadU64(u64* out)
 {
-	return Read(out, sizeof(uint64_t)) == sizeof(uint64_t);
+	return Read(out, sizeof(u64)) == sizeof(u64);
 }
 
 BYTE* CArcFile::ReadHed()

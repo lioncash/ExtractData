@@ -22,14 +22,14 @@ public:
 	void Close();
 
 	DWORD Read(void* pvBuffer, DWORD dwReadSize);
-	bool ReadS8(int8_t* out);
-	bool ReadS16(int16_t* out);
-	bool ReadS32(int32_t* out);
-	bool ReadS64(int64_t* out);
-	bool ReadU8(uint8_t* out);
-	bool ReadU16(uint16_t* out);
-	bool ReadU32(uint32_t* out);
-	bool ReadU64(uint64_t* out);
+	bool ReadS8(s8* out);
+	bool ReadS16(s16* out);
+	bool ReadS32(s32* out);
+	bool ReadS64(s64* out);
+	bool ReadU8(u8* out);
+	bool ReadU16(u16* out);
+	bool ReadU32(u32* out);
+	bool ReadU64(u64* out);
 	BYTE* ReadHed();
 
 	template <typename T, size_t N>
