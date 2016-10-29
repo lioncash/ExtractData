@@ -203,7 +203,7 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 	pstHeader->adwUnKnown2[1] ^= 0x37ACF831;
 
 	// Prepare MD5 data
-	DWORD adwMD5Data[16];
+	u32 adwMD5Data[16];
 	adwMD5Data[0] = pstHeader->adwMD5[0];
 	adwMD5Data[1] = pstHeader->adwMD5[1];
 	adwMD5Data[2] = pstHeader->adwMD5[2];
@@ -214,11 +214,12 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 	clMD5.AppendPadding(adwMD5Data, 16, 48);
 
 	// Set initial values
-	DWORD adwInitMD5[4];
-	adwInitMD5[0] = 0xC74A2B01;
-	adwInitMD5[1] = 0xE7C8AB8F;
-	adwInitMD5[2] = 0xD8BEDC4E;
-	adwInitMD5[3] = 0x7302A4C5;
+	u32 adwInitMD5[4] = {
+		0xC74A2B01,
+		0xE7C8AB8F,
+		0xD8BEDC4E,
+		0x7302A4C5
+	};
 
 	// Calculate MD5
 	SMD5 stMD5 = clMD5.Calculate(adwMD5Data, sizeof(adwMD5Data), adwInitMD5);

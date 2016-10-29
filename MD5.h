@@ -2,8 +2,8 @@
 
 struct SMD5
 {
-	char  szABCD[32];
-	DWORD adwABCD[4];
+	char szABCD[32];
+	u32  adwABCD[4];
 };
 
 class CMD5
@@ -12,27 +12,27 @@ public:
 	CMD5();
 
 	SMD5    Calculate(LPCTSTR pszPathToFile);
-	SMD5    Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize = nullptr, bool alignment = false);
+	SMD5    Calculate(const void* src, u32 src_size, const u32* initialize = nullptr, bool alignment = false);
 
-	DWORD   CalculatePadding(DWORD dwSize);
-	void    AppendPadding(void* pvSrc, DWORD dwSrcSize, DWORD dwPadding);
+	u32     CalculatePadding(u32 size);
+	void    AppendPadding(void* src, u32 src_size, u32 padding);
 
 protected:
-	DWORD   CalculateSub1(DWORD dwX, DWORD dwY, DWORD dwZ);
-	DWORD   CalculateSub2(DWORD dwX, DWORD dwY, DWORD dwZ);
-	DWORD   CalculateSub3(DWORD dwX, DWORD dwY, DWORD dwZ);
-	DWORD   CalculateSub4(DWORD dwX, DWORD dwY, DWORD dwZ);
-	void    CalculateSub5(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI);
-	void    CalculateSub6(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI);
-	void    CalculateSub7(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI);
-	void    CalculateSub8(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI);
+	u32     CalculateSub1(u32 x, u32 y, u32 z);
+	u32     CalculateSub2(u32 x, u32 y, u32 z);
+	u32     CalculateSub3(u32 x, u32 y, u32 z);
+	u32     CalculateSub4(u32 x, u32 y, u32 z);
+	void    CalculateSub5(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i);
+	void    CalculateSub6(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i);
+	void    CalculateSub7(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i);
+	void    CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i);
 
-	DWORD   RotateLeft(DWORD dwA, DWORD dwS);
-	void    ValueToStr(LPSTR pszDstOfMD5, DWORD dwMD5);
-	void    MD5ToStrings(LPSTR pszDstOfMD5, const DWORD* pdwMD5);
+	u32     RotateLeft(u32 value, u32 shift);
+	void    ValueToStr(LPSTR md5_dst, u32 md5);
+	void    MD5ToStrings(LPSTR md5_dst, const u32* md5);
 
 private:
-	int     m_anTable[65];
-	SMD5    m_stmd5Value;
-	DWORD   m_adwX[16];
+	int   m_anTable[65];
+	SMD5  m_stmd5Value;
+	u32   m_adwX[16];
 };

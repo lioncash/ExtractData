@@ -2,6 +2,8 @@
 #include "File.h"
 #include "MD5.h"
 
+#include <vector>
+
 /// Constructor
 CMD5::CMD5()
 {
@@ -75,65 +77,61 @@ CMD5::CMD5()
 SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
 {
 	// Open file
-
-	CFile clfWork;
-
-	if (!clfWork.OpenForRead(pszPathToFile))
-	{
+	CFile file;
+	if (!file.OpenForRead(pszPathToFile))
 		return m_stmd5Value;
-	}
 
 	// Get file size
-	DWORD dwSrcSize = clfWork.GetFileSize();
+	const u32 src_size = file.GetFileSize();
 
 	// Get padding
-	DWORD dwPadding = CalculatePadding(dwSrcSize);
+	const u32 padding = CalculatePadding(src_size);
 
 	// Read buffer allocation
-	YCMemory<BYTE> clmbtSrc(dwSrcSize + dwPadding);
+	std::vector<u8> src(src_size + padding);
 
 	// Read file
-	clfWork.Read(&clmbtSrc[0], dwSrcSize);
+	file.Read(src.data(), src_size);
 
 	// Append padding
-	AppendPadding(&clmbtSrc[0], dwSrcSize, dwPadding);
+	AppendPadding(src.data(), src_size, padding);
 
 	// Calculate MD5
-	return Calculate(&clmbtSrc[0], (dwSrcSize + dwPadding));
+	return Calculate(src.data(), src_size + padding);
 }
 
 /// Calculate MD5 Value
 ///
-/// @param pvSrc         Input Data
-/// @param dwSrcSize     Input data size
-/// @param pdwInitialize Initialization
-/// @param alignment    Request alignment
+/// @param src        Input Data
+/// @param src_size   Input data size
+/// @param initialize Initialization
+/// @param alignment  Request alignment
 ///
 /// Remark: If bAlignment assumes that the input data is aligned on 64 bytes
 ///         then the efficiency is not good
 ///
-SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitialize, bool alignment)
+SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool alignment)
 {
-	const DWORD* pdwSrc = static_cast<const DWORD*>(pvSrc);
+	const auto* pdwSrc = static_cast<const u32*>(src);
 
 	// Alignment
-	YCMemory<BYTE> clmbtSrc;
+	std::vector<u8> clmbtSrc;
 
 	if (alignment)
 	{
 		// Alignment request
-		DWORD dwPadding = CalculatePadding(dwSrcSize);
-		clmbtSrc.resize(dwSrcSize + dwPadding);
-		memcpy(&clmbtSrc[0], pvSrc, dwSrcSize);
+		const u32 padding = CalculatePadding(src_size);
+		clmbtSrc.resize(src_size + padding);
+		memcpy(&clmbtSrc[0], src, src_size);
 
 		// Append padding
-		AppendPadding(&clmbtSrc[0], dwSrcSize, dwPadding);
+		AppendPadding(&clmbtSrc[0], src_size, padding);
 
-		pdwSrc = reinterpret_cast<const DWORD*>(&clmbtSrc[0]);
+		pdwSrc = reinterpret_cast<const u32*>(&clmbtSrc[0]);
 	}
 
 	// Set initial value
-	if (pdwInitialize == nullptr)
+	if (initialize == nullptr)
 	{
 		// Using the default initialization values
 
@@ -144,99 +142,99 @@ SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitial
 	}
 	else
 	{
-		m_stmd5Value.adwABCD[0] = pdwInitialize[0];
-		m_stmd5Value.adwABCD[1] = pdwInitialize[1];
-		m_stmd5Value.adwABCD[2] = pdwInitialize[2];
-		m_stmd5Value.adwABCD[3] = pdwInitialize[3];
+		m_stmd5Value.adwABCD[0] = initialize[0];
+		m_stmd5Value.adwABCD[1] = initialize[1];
+		m_stmd5Value.adwABCD[2] = initialize[2];
+		m_stmd5Value.adwABCD[3] = initialize[3];
 	}
 
-	for (DWORD i = 0, dwSrcPtr = 0 ; i < dwSrcSize ; i += 64, dwSrcPtr += 16)
+	for (u32 i = 0, src_ptr = 0; i < src_size; i += 64, src_ptr += 16)
 	{
-		for (int j = 0 ; j < 16 ; j++)
+		for (int j = 0; j < 16; j++)
 		{
 			// Copy
 
-			m_adwX[j] = pdwSrc[dwSrcPtr + j];
+			m_adwX[j] = pdwSrc[src_ptr + j];
 		}
 
 		// Save
-		DWORD dwA = m_stmd5Value.adwABCD[0];
-		DWORD dwB = m_stmd5Value.adwABCD[1];
-		DWORD dwC = m_stmd5Value.adwABCD[2];
-		DWORD dwD = m_stmd5Value.adwABCD[3];
+		u32 a = m_stmd5Value.adwABCD[0];
+		u32 b = m_stmd5Value.adwABCD[1];
+		u32 c = m_stmd5Value.adwABCD[2];
+		u32 d = m_stmd5Value.adwABCD[3];
 
-		CalculateSub5(dwA, dwB, dwC, dwD,  0,  7,  1);
-		CalculateSub5(dwD, dwA, dwB, dwC,  1, 12,  2);
-		CalculateSub5(dwC, dwD, dwA, dwB,  2, 17,  3);
-		CalculateSub5(dwB, dwC, dwD, dwA,  3, 22,  4);
-		CalculateSub5(dwA, dwB, dwC, dwD,  4,  7,  5);
-		CalculateSub5(dwD, dwA, dwB, dwC,  5, 12,  6);
-		CalculateSub5(dwC, dwD, dwA, dwB,  6, 17,  7);
-		CalculateSub5(dwB, dwC, dwD, dwA,  7, 22,  8);
-		CalculateSub5(dwA, dwB, dwC, dwD,  8,  7,  9);
-		CalculateSub5(dwD, dwA, dwB, dwC,  9, 12, 10);
-		CalculateSub5(dwC, dwD, dwA, dwB, 10, 17, 11);
-		CalculateSub5(dwB, dwC, dwD, dwA, 11, 22, 12);
-		CalculateSub5(dwA, dwB, dwC, dwD, 12,  7, 13);
-		CalculateSub5(dwD, dwA, dwB, dwC, 13, 12, 14);
-		CalculateSub5(dwC, dwD, dwA, dwB, 14, 17, 15);
-		CalculateSub5(dwB, dwC, dwD, dwA, 15, 22, 16);
+		CalculateSub5(a, b, c, d,  0,  7,  1);
+		CalculateSub5(d, a, b, c,  1, 12,  2);
+		CalculateSub5(c, d, a, b,  2, 17,  3);
+		CalculateSub5(b, c, d, a,  3, 22,  4);
+		CalculateSub5(a, b, c, d,  4,  7,  5);
+		CalculateSub5(d, a, b, c,  5, 12,  6);
+		CalculateSub5(c, d, a, b,  6, 17,  7);
+		CalculateSub5(b, c, d, a,  7, 22,  8);
+		CalculateSub5(a, b, c, d,  8,  7,  9);
+		CalculateSub5(d, a, b, c,  9, 12, 10);
+		CalculateSub5(c, d, a, b, 10, 17, 11);
+		CalculateSub5(b, c, d, a, 11, 22, 12);
+		CalculateSub5(a, b, c, d, 12,  7, 13);
+		CalculateSub5(d, a, b, c, 13, 12, 14);
+		CalculateSub5(c, d, a, b, 14, 17, 15);
+		CalculateSub5(b, c, d, a, 15, 22, 16);
 
-		CalculateSub6(dwA, dwB, dwC, dwD,  1,  5, 17);
-		CalculateSub6(dwD, dwA, dwB, dwC,  6,  9, 18);
-		CalculateSub6(dwC, dwD, dwA, dwB, 11, 14, 19);
-		CalculateSub6(dwB, dwC, dwD, dwA,  0, 20, 20);
-		CalculateSub6(dwA, dwB, dwC, dwD,  5,  5, 21);
-		CalculateSub6(dwD, dwA, dwB, dwC, 10,  9, 22);
-		CalculateSub6(dwC, dwD, dwA, dwB, 15, 14, 23);
-		CalculateSub6(dwB, dwC, dwD, dwA,  4, 20, 24);
-		CalculateSub6(dwA, dwB, dwC, dwD,  9,  5, 25);
-		CalculateSub6(dwD, dwA, dwB, dwC, 14,  9, 26);
-		CalculateSub6(dwC, dwD, dwA, dwB,  3, 14, 27);
-		CalculateSub6(dwB, dwC, dwD, dwA,  8, 20, 28);
-		CalculateSub6(dwA, dwB, dwC, dwD, 13,  5, 29);
-		CalculateSub6(dwD, dwA, dwB, dwC,  2,  9, 30);
-		CalculateSub6(dwC, dwD, dwA, dwB,  7, 14, 31);
-		CalculateSub6(dwB, dwC, dwD, dwA, 12, 20, 32);
+		CalculateSub6(a, b, c, d,  1,  5, 17);
+		CalculateSub6(d, a, b, c,  6,  9, 18);
+		CalculateSub6(c, d, a, b, 11, 14, 19);
+		CalculateSub6(b, c, d, a,  0, 20, 20);
+		CalculateSub6(a, b, c, d,  5,  5, 21);
+		CalculateSub6(d, a, b, c, 10,  9, 22);
+		CalculateSub6(c, d, a, b, 15, 14, 23);
+		CalculateSub6(b, c, d, a,  4, 20, 24);
+		CalculateSub6(a, b, c, d,  9,  5, 25);
+		CalculateSub6(d, a, b, c, 14,  9, 26);
+		CalculateSub6(c, d, a, b,  3, 14, 27);
+		CalculateSub6(b, c, d, a,  8, 20, 28);
+		CalculateSub6(a, b, c, d, 13,  5, 29);
+		CalculateSub6(d, a, b, c,  2,  9, 30);
+		CalculateSub6(c, d, a, b,  7, 14, 31);
+		CalculateSub6(b, c, d, a, 12, 20, 32);
 
-		CalculateSub7(dwA, dwB, dwC, dwD,  5,  4, 33);
-		CalculateSub7(dwD, dwA, dwB, dwC,  8, 11, 34);
-		CalculateSub7(dwC, dwD, dwA, dwB, 11, 16, 35);
-		CalculateSub7(dwB, dwC, dwD, dwA, 14, 23, 36);
-		CalculateSub7(dwA, dwB, dwC, dwD,  1,  4, 37);
-		CalculateSub7(dwD, dwA, dwB, dwC,  4, 11, 38);
-		CalculateSub7(dwC, dwD, dwA, dwB,  7, 16, 39);
-		CalculateSub7(dwB, dwC, dwD, dwA, 10, 23, 40);
-		CalculateSub7(dwA, dwB, dwC, dwD, 13,  4, 41);
-		CalculateSub7(dwD, dwA, dwB, dwC,  0, 11, 42);
-		CalculateSub7(dwC, dwD, dwA, dwB,  3, 16, 43);
-		CalculateSub7(dwB, dwC, dwD, dwA,  6, 23, 44);
-		CalculateSub7(dwA, dwB, dwC, dwD,  9,  4, 45);
-		CalculateSub7(dwD, dwA, dwB, dwC, 12, 11, 46);
-		CalculateSub7(dwC, dwD, dwA, dwB, 15, 16, 47);
-		CalculateSub7(dwB, dwC, dwD, dwA,  2, 23, 48);
+		CalculateSub7(a, b, c, d,  5,  4, 33);
+		CalculateSub7(d, a, b, c,  8, 11, 34);
+		CalculateSub7(c, d, a, b, 11, 16, 35);
+		CalculateSub7(b, c, d, a, 14, 23, 36);
+		CalculateSub7(a, b, c, d,  1,  4, 37);
+		CalculateSub7(d, a, b, c,  4, 11, 38);
+		CalculateSub7(c, d, a, b,  7, 16, 39);
+		CalculateSub7(b, c, d, a, 10, 23, 40);
+		CalculateSub7(a, b, c, d, 13,  4, 41);
+		CalculateSub7(d, a, b, c,  0, 11, 42);
+		CalculateSub7(c, d, a, b,  3, 16, 43);
+		CalculateSub7(b, c, d, a,  6, 23, 44);
+		CalculateSub7(a, b, c, d,  9,  4, 45);
+		CalculateSub7(d, a, b, c, 12, 11, 46);
+		CalculateSub7(c, d, a, b, 15, 16, 47);
+		CalculateSub7(b, c, d, a,  2, 23, 48);
 
-		CalculateSub8(dwA, dwB, dwC, dwD,  0,  6, 49);
-		CalculateSub8(dwD, dwA, dwB, dwC,  7, 10, 50);
-		CalculateSub8(dwC, dwD, dwA, dwB, 14, 15, 51);
-		CalculateSub8(dwB, dwC, dwD, dwA,  5, 21, 52);
-		CalculateSub8(dwA, dwB, dwC, dwD, 12,  6, 53);
-		CalculateSub8(dwD, dwA, dwB, dwC,  3, 10, 54);
-		CalculateSub8(dwC, dwD, dwA, dwB, 10, 15, 55);
-		CalculateSub8(dwB, dwC, dwD, dwA,  1, 21, 56);
-		CalculateSub8(dwA, dwB, dwC, dwD,  8,  6, 57);
-		CalculateSub8(dwD, dwA, dwB, dwC, 15, 10, 58);
-		CalculateSub8(dwC, dwD, dwA, dwB,  6, 15, 59);
-		CalculateSub8(dwB, dwC, dwD, dwA, 13, 21, 60);
-		CalculateSub8(dwA, dwB, dwC, dwD,  4,  6, 61);
-		CalculateSub8(dwD, dwA, dwB, dwC, 11, 10, 62);
-		CalculateSub8(dwC, dwD, dwA, dwB,  2, 15, 63);
-		CalculateSub8(dwB, dwC, dwD, dwA,  9, 21, 64);
+		CalculateSub8(a, b, c, d,  0,  6, 49);
+		CalculateSub8(d, a, b, c,  7, 10, 50);
+		CalculateSub8(c, d, a, b, 14, 15, 51);
+		CalculateSub8(b, c, d, a,  5, 21, 52);
+		CalculateSub8(a, b, c, d, 12,  6, 53);
+		CalculateSub8(d, a, b, c,  3, 10, 54);
+		CalculateSub8(c, d, a, b, 10, 15, 55);
+		CalculateSub8(b, c, d, a,  1, 21, 56);
+		CalculateSub8(a, b, c, d,  8,  6, 57);
+		CalculateSub8(d, a, b, c, 15, 10, 58);
+		CalculateSub8(c, d, a, b,  6, 15, 59);
+		CalculateSub8(b, c, d, a, 13, 21, 60);
+		CalculateSub8(a, b, c, d,  4,  6, 61);
+		CalculateSub8(d, a, b, c, 11, 10, 62);
+		CalculateSub8(c, d, a, b,  2, 15, 63);
+		CalculateSub8(b, c, d, a,  9, 21, 64);
 
-		m_stmd5Value.adwABCD[0] += dwA;
-		m_stmd5Value.adwABCD[1] += dwB;
-		m_stmd5Value.adwABCD[2] += dwC;
-		m_stmd5Value.adwABCD[3] += dwD;
+		m_stmd5Value.adwABCD[0] += a;
+		m_stmd5Value.adwABCD[1] += b;
+		m_stmd5Value.adwABCD[2] += c;
+		m_stmd5Value.adwABCD[3] += d;
 	}
 
 	// Convert to a string
@@ -246,103 +244,103 @@ SMD5 CMD5::Calculate(const void* pvSrc, DWORD dwSrcSize, const DWORD* pdwInitial
 }
 
 /// Calculation Processing
-DWORD CMD5::CalculateSub1(DWORD dwX, DWORD dwY, DWORD dwZ)
+u32 CMD5::CalculateSub1(u32 x, u32 y, u32 z)
 {
-	return ((dwX & dwY) | (~dwX & dwZ));
+	return (x & y) | (~x & z);
 }
 
 /// Calculation Processing
-DWORD CMD5::CalculateSub2(DWORD dwX, DWORD dwY, DWORD dwZ)
+u32 CMD5::CalculateSub2(u32 x, u32 y, u32 z)
 {
-	return ((dwX & dwZ) | (dwY & ~dwZ));
+	return (x & z) | (y & ~z);
 }
 
 /// Calculation Processing
-DWORD CMD5::CalculateSub3(DWORD dwX, DWORD dwY, DWORD dwZ)
+u32 CMD5::CalculateSub3(u32 x, u32 y, u32 z)
 {
-	return (dwX ^ dwY ^ dwZ);
+	return x ^ y ^ z;
 }
 
 /// Calculation Processing
-DWORD CMD5::CalculateSub4(DWORD dwX, DWORD dwY, DWORD dwZ)
+u32 CMD5::CalculateSub4(u32 x, u32 y, u32 z)
 {
-	return (dwY ^ (dwX | ~dwZ));
+	return y ^ (x | ~z);
 }
 
 /// Calculation Processing
-void CMD5::CalculateSub5(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
+void CMD5::CalculateSub5(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	dwA = dwB + RotateLeft(dwA + CalculateSub1(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
+	a = b + RotateLeft(a + CalculateSub1(b, c, d) + m_adwX[k] + m_anTable[i], s);
 }
 
 /// Calculation Processing
-void CMD5::CalculateSub6(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
+void CMD5::CalculateSub6(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	dwA = dwB + RotateLeft(dwA + CalculateSub2(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
+	a = b + RotateLeft(a + CalculateSub2(b, c, d) + m_adwX[k] + m_anTable[i], s);
 }
 
 /// Calculation Processing
-void CMD5::CalculateSub7(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
+void CMD5::CalculateSub7(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	dwA = dwB + RotateLeft(dwA + CalculateSub3(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
+	a = b + RotateLeft(a + CalculateSub3(b, c, d) + m_adwX[k] + m_anTable[i], s);
 }
 
 /// Calculation Processing
-void CMD5::CalculateSub8(DWORD& dwA, DWORD dwB, DWORD dwC, DWORD dwD, DWORD dwK, DWORD dwS, DWORD dwI)
+void CMD5::CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	dwA = dwB + RotateLeft(dwA + CalculateSub4(dwB, dwC, dwD) + m_adwX[dwK] + m_anTable[dwI], dwS);
+	a = b + RotateLeft(a + CalculateSub4(b, c, d) + m_adwX[k] + m_anTable[i], s);
 }
 
 /// Calculate Padding
 ///
-/// @param dwSize Size
+/// @param size Size
 ///
-DWORD CMD5::CalculatePadding(DWORD dwSize)
+u32 CMD5::CalculatePadding(u32 size)
 {
 	// Get padding
-	DWORD dwWork = (dwSize % 64);
-	DWORD dwPadding = (64 - dwWork);
+	const u32 work = size % 64;
+	u32 padding = 64 - work;
 
 	// Increase padding if 8 bytes or less.
-	if (dwPadding < 9)
+	if (padding < 9)
 	{
-		dwPadding += 64;
+		padding += 64;
 	}
 
-	return dwPadding;
+	return padding;
 }
 
 /// Append Padding
 ///
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input Data Size
-/// @param dwPadding Padding
+/// @param src      Input data
+/// @param src_size Input Data Size
+/// @param padding  Padding
 ///
-void CMD5::AppendPadding(void* pvSrc, DWORD dwSrcSize, DWORD dwPadding)
+void CMD5::AppendPadding(void* src, u32 src_size, u32 padding)
 {
-	BYTE* pbtSrc = static_cast<BYTE*>(pvSrc);
+	u8* byte_src = static_cast<u8*>(src);
 
 	// Append padding
-	pbtSrc[dwSrcSize] = 0x80;
-	ZeroMemory(&pbtSrc[dwSrcSize + 1], (dwPadding - 9));
+	byte_src[src_size] = 0x80;
+	ZeroMemory(&byte_src[src_size + 1], padding - 9);
 
 	// Additional data size (in bits)
-	UINT64 bitsize = static_cast<UINT64>(dwSrcSize) * 8;
-	std::memcpy(&pbtSrc[dwSrcSize + dwPadding - 8], &bitsize, sizeof(UINT64));
+	const auto bitsize = static_cast<u64>(src_size) * 8;
+	std::memcpy(&byte_src[src_size + padding - 8], &bitsize, sizeof(u64));
 }
 
 /// Circular Rotate Left
-DWORD CMD5::RotateLeft(DWORD dwA, DWORD dwS)
+u32 CMD5::RotateLeft(u32 value, u32 shift)
 {
-	return ((dwA << dwS) | (dwA >> (32 - dwS)));
+	return (value << shift) | (value >> (32 - shift));
 }
 
 /// MD5 value converted to a string of decimal digits
 ///
-/// @param pszDstOfMD5 Storage location of the string.
-/// @param dwMD5       MD5 value
+/// @param md5_dst Storage location of the string.
+/// @param md5     MD5 value
 ///
-void CMD5::ValueToStr(LPSTR pszDstOfMD5, DWORD dwMD5)
+void CMD5::ValueToStr(LPSTR md5_dst, u32 md5)
 {
 	static const char acHex[16] =
 	{
@@ -351,19 +349,19 @@ void CMD5::ValueToStr(LPSTR pszDstOfMD5, DWORD dwMD5)
 
 	for (int i = 0 ; i < 4 ; i++)
 	{
-		pszDstOfMD5[i * 2 + 0] = acHex[((dwMD5 >> 4) & 0x0F)];
-		pszDstOfMD5[i * 2 + 1] = acHex[(dwMD5 & 0x0F)];
+		md5_dst[i * 2 + 0] = acHex[((md5 >> 4) & 0x0F)];
+		md5_dst[i * 2 + 1] = acHex[(md5 & 0x0F)];
 
-		dwMD5 >>= 8;
+		md5 >>= 8;
 	}
 }
 
 /// MD5 value converted to a string of decimal digits
 ///
-/// @param pszDstOfMD5 Storage location of the string
-/// @param pdwMD5      MD5 value
+/// @param md5_dst Storage location of the string
+/// @param md5     MD5 value
 ///
-void CMD5::MD5ToStrings(LPSTR pszDstOfMD5, const DWORD* pdwMD5)
+void CMD5::MD5ToStrings(LPSTR md5_dst, const u32* md5)
 {
 	static const char acHex[16] =
 	{
@@ -372,14 +370,14 @@ void CMD5::MD5ToStrings(LPSTR pszDstOfMD5, const DWORD* pdwMD5)
 
 	for (int i = 0 ; i < 4 ; i++)
 	{
-		DWORD dwMD5 = pdwMD5[i];
+		u32 entry = md5[i];
 
 		for (int j = 0 ; j < 4 ; j++)
 		{
-			pszDstOfMD5[i * 8 + j * 2 + 0] = acHex[((dwMD5 >> 4) & 0x0F)];
-			pszDstOfMD5[i * 8 + j * 2 + 1] = acHex[(dwMD5 & 0x0F)];
+			md5_dst[i * 8 + j * 2 + 0] = acHex[((entry >> 4) & 0x0F)];
+			md5_dst[i * 8 + j * 2 + 1] = acHex[(entry & 0x0F)];
 
-			dwMD5 >>= 8;
+			entry >>= 8;
 		}
 	}
 }
