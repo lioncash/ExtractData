@@ -33,5 +33,5 @@ public:
 	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); }
 
 private:
-	int m_nBeginID;
+	int m_nBeginID = 0;
 };
