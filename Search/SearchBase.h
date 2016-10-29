@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 #include "ArcFile.h"
+
+#include <array>
 #include <cstddef>
 
 // Pattern string
@@ -44,7 +46,7 @@ public:
 	virtual void Mount(CArcFile* pclArc) = 0;
 
 private:
-	HF m_pattern[2];
+	std::array<HF, 2> m_pattern;
 	DWORD m_offset;
 	DWORD m_ctFile;
 	void InitPattern(const void* pattern, DWORD size, DWORD num);
