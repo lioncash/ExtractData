@@ -23,12 +23,12 @@ void CPngSearch::Mount(CArcFile* archive)
 	archive->SeekCur(GetHedSize());
 
 	// Search the file end
-	BYTE chunk_name[4];
+	u8 chunk_name[4];
 
 	do
 	{
 		// Get chunk length
-		DWORD length;
+		u32 length;
 		if (archive->Read(&length, 4) == 0)
 			return;
 
