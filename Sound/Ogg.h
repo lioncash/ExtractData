@@ -34,7 +34,7 @@ public:
 
 	void FixCRC(LPBYTE data, DWORD PageSize);
 
-	VH& GetHed() { return m_vheader; }
+	const VH& GetHed() const { return m_vheader; }
 
 private:
 	DWORD GetSegSize(const VH& vheader) const;
