@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "../ArcFile.h"
 #include "../Image.h"
 #include "LZSS.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ArcFile.h"
+class CArcFile;
 
 class CZlib
 {
