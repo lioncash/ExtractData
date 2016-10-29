@@ -57,32 +57,29 @@ bool CTga::Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YC
 
 /// Decompression of compressed TGAs
 ///
-/// @param pvDst     Storage location
-/// @param dwDstSize Storage location size
-/// @param pvSrc     Compressed TGA data
-/// @param dwSrcSize Compressed TGA data size
+/// @param dst      Storage location
+/// @param dst_size Storage location size
+/// @param src      Compressed TGA data
+/// @param src_size Compressed TGA data size
 ///
-bool CTga::Decomp(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTga::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	BYTE*             pbtDst = reinterpret_cast<BYTE*>(pvDst);
-	const BYTE*       pbtSrc = reinterpret_cast<const BYTE*>(pvSrc);
-
 	STGAHeader tga_header;
-	std::memcpy(&tga_header, pvSrc, sizeof(STGAHeader));
+	std::memcpy(&tga_header, src, sizeof(STGAHeader));
 
-	pbtSrc += sizeof(STGAHeader);
-	dwSrcSize -= sizeof(STGAHeader);
+	src += sizeof(STGAHeader);
+	src_size -= sizeof(STGAHeader);
 
 	// Decompression
 	switch (tga_header.btDepth)
 	{
 	case 9:
 	case 10: // RLE
-		DecompRLE(pbtDst, dwDstSize, pbtSrc, dwSrcSize, tga_header.btDepth);
+		DecompRLE(dst, dst_size, src, src_size, tga_header.btDepth);
 		break;
 
 	default: // No Compression
-		memcpy(pbtDst, pbtSrc, dwSrcSize);
+		memcpy(dst, src, src_size);
 		break;
 	}
 

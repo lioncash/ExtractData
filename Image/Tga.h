@@ -19,7 +19,7 @@ public:
 
 	bool Decode(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize, const YCString& rfclsFileLastName = _T(""));
 
-	bool Decomp(void* dst, DWORD dstSize, const void* src, DWORD srcSize);
+	bool Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 
 private:
 	bool DecompRLE(u8* dst, size_t dst_size, const u8* src, size_t src_size, u8 bpp);
