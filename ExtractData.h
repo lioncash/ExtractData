@@ -1,12 +1,15 @@
 #pragma once
 
-#include "Common.h"
-#include "MainListView.h"
+#include "Base/YCString.h"
 #include "Extract.h"
 #include "WindowBase.h"
 
 #define EXTRACT_SELECT  0
 #define EXTRACT_ALL     1
+
+class CArcFile;
+class CMainListView;
+struct SOption;
 
 class CExtractData : public CWindowBase, public CExtract
 {
