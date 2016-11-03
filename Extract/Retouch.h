@@ -27,5 +27,5 @@ private:
 
 	bool DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey);
 
-	bool DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompGYU(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 };

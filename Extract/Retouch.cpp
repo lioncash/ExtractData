@@ -357,16 +357,16 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 
 /// GYU Decompression
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-bool CRetouch::DecompGYU(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CRetouch::DecompGYU(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
 	// LZSS Decompression
-	CLZSS clLZSS;
-	clLZSS.Decomp(pvDst, dwDstSize, pvSrc, dwSrcSize, 4096, 4078, 3);
+	CLZSS lzss;
+	lzss.Decomp(dst, dst_size, src, src_size, 4096, 4078, 3);
 
 	return true;
 }

@@ -60,19 +60,16 @@ bool CLZSS::Decomp(CArcFile* archive, size_t dic_size, size_t dic_ptr, size_t le
 
 /// Extract from memory
 ///
-/// @param pvDst        Destination
+/// @param dst          Destination
 /// @param dst_size     Destination size
-/// @param pvSrc        Compressed data
+/// @param src          Compressed data
 /// @param src_size     Compressed data size
 /// @param dic_size     Dictionary size
 /// @param dic_ptr      Initial address to the dictionary position (dictionary pointer)
 /// @param length_offset Length offset
 ///
-bool CLZSS::Decomp(void* pvDst, size_t dst_size, const void* pvSrc, size_t src_size, size_t dic_size, size_t dic_ptr, size_t length_offset)
+bool CLZSS::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size, size_t dic_size, size_t dic_ptr, size_t length_offset)
 {
-	BYTE*       pbtDst = static_cast<BYTE*>(pvDst);
-	const BYTE* pbtSrc = static_cast<const BYTE*>(pvSrc);
-
 	// Allocate dictionary buffer
 	std::vector<u8> dictionary(dic_size);
 
@@ -87,14 +84,14 @@ bool CLZSS::Decomp(void* pvDst, size_t dst_size, const void* pvSrc, size_t src_s
 		if (bit_count == 0)
 		{
 			// Finished reading 8-bits
-			flags = pbtSrc[src_ptr++];
+			flags = src[src_ptr++];
 			bit_count = 8;
 		}
 
 		if (flags & 1)
 		{
 			// Non-compressed data
-			pbtDst[dst_ptr] = dictionary[dic_ptr] = pbtSrc[src_ptr];
+			dst[dst_ptr] = dictionary[dic_ptr] = src[src_ptr];
 
 			dst_ptr++;
 			src_ptr++;
@@ -105,8 +102,8 @@ bool CLZSS::Decomp(void* pvDst, size_t dst_size, const void* pvSrc, size_t src_s
 		else
 		{
 			// Compressed data
-			const u8 low = pbtSrc[src_ptr++];
-			const u8 high = pbtSrc[src_ptr++];
+			const u8 low = src[src_ptr++];
+			const u8 high = src[src_ptr++];
 
 			size_t back = ((high & 0xF0) << 4) | low;
 			size_t length = (high & 0x0F) + length_offset;
@@ -119,7 +116,7 @@ bool CLZSS::Decomp(void* pvDst, size_t dst_size, const void* pvSrc, size_t src_s
 
 			for (size_t j = 0; j < length; j++)
 			{
-				pbtDst[dst_ptr] = dictionary[dic_ptr] = dictionary[back];
+				dst[dst_ptr] = dictionary[dic_ptr] = dictionary[back];
 
 				dst_ptr++;
 				dic_ptr++;
