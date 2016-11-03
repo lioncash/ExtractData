@@ -2,29 +2,29 @@
 #include "../Sound/Wav.h"
 #include "TrH.h"
 
-bool CTrH::Mount(CArcFile* pclArc)
+bool CTrH::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".px")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
+	if (archive->GetArcExten() != _T(".px") || memcmp(archive->GetHed(), "fPX ", 4) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 // Function to convert to WAV
-bool CTrH::Decode(CArcFile* pclArc)
+bool CTrH::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if ((file_info->format != _T("PX")) || (memcmp(pclArc->GetHed(), "fPX ", 4) != 0))
+	if (file_info->format != _T("PX") || memcmp(archive->GetHed(), "fPX ", 4) != 0)
 		return false;
 
 	// Read px header
-	PXHed pxHed;
-	pclArc->Read(&pxHed, sizeof(PXHed));
+	PXHed header;
+  archive->Read(&header, sizeof(PXHed));
 
 	// Output
 	CWav wav;
-	wav.Init(pclArc, file_info->sizeOrg - 44, pxHed.freq, pxHed.channels, pxHed.bits);
+	wav.Init(archive, file_info->sizeOrg - 44, header.freq, header.channels, header.bits);
 	wav.Write();
 
 	return true;
