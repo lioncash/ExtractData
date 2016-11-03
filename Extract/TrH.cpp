@@ -20,7 +20,7 @@ bool CTrH::Decode(CArcFile* archive)
 
 	// Read px header
 	PXHed header;
-  archive->Read(&header, sizeof(PXHed));
+	archive->Read(&header, sizeof(PXHed));
 
 	// Output
 	CWav wav;
