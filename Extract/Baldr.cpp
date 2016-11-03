@@ -6,10 +6,10 @@ namespace
 
 struct SPACFileInfo
 {
-	char  szFileName[64];
-	DWORD dwOffset;
-	DWORD dwFileSize;
-	DWORD dwCompFileSize;
+	char filename[64];
+	u32  offset;
+	u32  file_size;
+	u32  compressed_file_size;
 };
 
 } // Anonymous namespace
@@ -30,12 +30,12 @@ bool CBaldr::Mount(CArcFile* pclArc)
 		return false;
 
 	// Get filecount
-	DWORD dwFiles;
+	u32 dwFiles;
 	pclArc->Seek(4, FILE_BEGIN);
 	pclArc->Read(&dwFiles, 4);
 
 	// Get flags
-	DWORD dwFlags;
+	u32 dwFlags;
 	pclArc->Read(&dwFlags, 4);
 
 	// Get compressed formats
@@ -62,11 +62,11 @@ bool CBaldr::Mount(CArcFile* pclArc)
 	pclArc->Read(&clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles));
 
 	// Get file info
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (u32 i = 0; i < dwFiles; i++)
 	{
 		// Get filename
 		char szFileName[65];
-		memcpy(szFileName, clmpacfiIndex[i].szFileName, 64);
+		memcpy(szFileName, clmpacfiIndex[i].filename, 64);
 		szFileName[64] = '\0';
 
 		if (strlen(szFileName) <= 4)
@@ -78,9 +78,9 @@ bool CBaldr::Mount(CArcFile* pclArc)
 		// Add to listview
 		SFileInfo stFileInfo;
 		stFileInfo.name = szFileName;
-		stFileInfo.sizeOrg = clmpacfiIndex[i].dwFileSize;
-		stFileInfo.sizeCmp = clmpacfiIndex[i].dwCompFileSize;
-		stFileInfo.start = clmpacfiIndex[i].dwOffset;
+		stFileInfo.sizeOrg = clmpacfiIndex[i].file_size;
+		stFileInfo.sizeCmp = clmpacfiIndex[i].compressed_file_size;
+		stFileInfo.start = clmpacfiIndex[i].offset;
 		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
 		stFileInfo.format = clsFormat;
 
