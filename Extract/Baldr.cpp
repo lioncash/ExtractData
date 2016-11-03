@@ -16,78 +16,78 @@ struct SPACFileInfo
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CBaldr::Mount(CArcFile* pclArc)
+bool CBaldr::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pac"))
+	if (archive->GetArcExten() != _T(".pac"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "PAC", 3) != 0)
+	if (memcmp(archive->GetHed(), "PAC", 3) != 0)
 		return false;
 
-	if (memcmp(&pclArc->GetHed()[72], "\0\0\0\0", 4) != 0)
+	if (memcmp(&archive->GetHed()[72], "\0\0\0\0", 4) != 0)
 		return false;
 
 	// Get filecount
-	u32 dwFiles;
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->Seek(4, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	// Get flags
-	u32 dwFlags;
-	pclArc->Read(&dwFlags, 4);
+	u32 flags;
+	archive->ReadU32(&flags);
 
 	// Get compressed formats
-	YCString clsFormat;
-	switch (dwFlags)
+	YCString format;
+	switch (flags)
 	{
 	case 0: // No compression
 		break;
 
 	case 1: // LZSS
-		clsFormat = _T("LZ");
+		format = _T("LZ");
 		break;
 
 	case 2: // Unknown
 		break;
 
 	case 3: // ZLIB
-		clsFormat = _T("zlib");
+		format = _T("zlib");
 		break;
 	}
 
 	// Get index
-	YCMemory<SPACFileInfo> clmpacfiIndex(dwFiles);
-	pclArc->Read(&clmpacfiIndex[0], (sizeof(SPACFileInfo) * dwFiles));
+	std::vector<SPACFileInfo> file_indices(num_files);
+	archive->Read(file_indices.data(), sizeof(SPACFileInfo) * num_files);
 
 	// Get file info
-	for (u32 i = 0; i < dwFiles; i++)
+	for (const auto& entry : file_indices)
 	{
 		// Get filename
-		char szFileName[65];
-		memcpy(szFileName, clmpacfiIndex[i].filename, 64);
-		szFileName[64] = '\0';
+		char filename[65];
+		memcpy(filename, entry.filename, 64);
+		filename[64] = '\0';
 
-		if (strlen(szFileName) <= 4)
+		if (strlen(filename) <= 4)
 		{
-			pclArc->SeekHed();
+			archive->SeekHed();
 			return false;
 		}
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeOrg = clmpacfiIndex[i].file_size;
-		stFileInfo.sizeCmp = clmpacfiIndex[i].compressed_file_size;
-		stFileInfo.start = clmpacfiIndex[i].offset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		stFileInfo.format = clsFormat;
+		SFileInfo file_info;
+		file_info.name = filename;
+		file_info.sizeOrg = entry.file_size;
+		file_info.sizeCmp = entry.compressed_file_size;
+		file_info.start = entry.offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.format = format;
 
-//		if ((stFileInfo.sizeOrg != infFile.sizeCmp) && (lstrcmp(PathFindExtension(infFile.name), _T(".wav")) != 0))
+//		if (file_info.sizeOrg != infFile.sizeCmp && lstrcmp(PathFindExtension(infFile.name), _T(".wav")) != 0)
 //			infFile.format = _T("LZ");
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
