@@ -5,13 +5,13 @@
 class CFateFD final : public CKrkr
 {
 public:
-	bool  OnCheckDecrypt(CArcFile* pclArc) override;
-	DWORD OnInitDecrypt(CArcFile* pclArc) override;
-	DWORD OnDecrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey) override;
+	bool  OnCheckDecrypt(CArcFile* archive) override;
+	DWORD OnInitDecrypt(CArcFile* archive) override;
+	DWORD OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key) override;
 
 private:
-	BYTE  m_abtKey[6];
-	DWORD m_adwOffset[6];
+	BYTE  m_key[6];
+	DWORD m_offset[6];
 
 	// Decode Info
 	struct DecodeInfo

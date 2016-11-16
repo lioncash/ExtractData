@@ -3,11 +3,11 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CFateFD::OnCheckDecrypt(CArcFile* pclArc)
+bool CFateFD::OnCheckDecrypt(CArcFile* archive)
 {
-	if (pclArc->GetArcName() != _T("video.xp3"))
+	if (archive->GetArcName() != _T("video.xp3"))
 		return false;
 
 	return CheckTpm("9C5BB86A5BBD1B77A311EC504DB45653");
@@ -15,47 +15,47 @@ bool CFateFD::OnCheckDecrypt(CArcFile* pclArc)
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
+DWORD CFateFD::OnInitDecrypt(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->name == _T("fd_op01.mpg"))
 	{
 		// OP1
 
-		m_abtKey[0] = 0xCE;
-		m_abtKey[1] = 0x94;
-		m_abtKey[2] = 0xB3;
-		m_abtKey[3] = 0x94;
-		m_abtKey[4] = 0xF8;
-		m_abtKey[5] = 0x94;
+		m_key[0] = 0xCE;
+		m_key[1] = 0x94;
+		m_key[2] = 0xB3;
+		m_key[3] = 0x94;
+		m_key[4] = 0xF8;
+		m_key[5] = 0x94;
 
-		m_adwOffset[0] = 0;
-		m_adwOffset[1] = 0xB6B - file_info->start;
-		m_adwOffset[2] = 0x7036 - file_info->start;
-		m_adwOffset[3] = 0x7037 - file_info->start;
-		m_adwOffset[4] = 0xAF27 - file_info->start;
-		m_adwOffset[5] = 0xAF28 - file_info->start;
+		m_offset[0] = 0;
+		m_offset[1] = 0xB6B - file_info->start;
+		m_offset[2] = 0x7036 - file_info->start;
+		m_offset[3] = 0x7037 - file_info->start;
+		m_offset[4] = 0xAF27 - file_info->start;
+		m_offset[5] = 0xAF28 - file_info->start;
 	}
 	else if (file_info->name == _T("fd_op02.mpg"))
 	{
 		// OP2
 
-		m_abtKey[0] = 0x5A;
-		m_abtKey[1] = 0x21;
-		m_abtKey[2] = 0xFE;
-		m_abtKey[3] = 0x21;
-		m_abtKey[4] = 0xDB;
-		m_abtKey[5] = 0x21;
+		m_key[0] = 0x5A;
+		m_key[1] = 0x21;
+		m_key[2] = 0xFE;
+		m_key[3] = 0x21;
+		m_key[4] = 0xDB;
+		m_key[5] = 0x21;
 
-		m_adwOffset[0] = 0;
-		m_adwOffset[1] = 0x552036D - file_info->start;
-		m_adwOffset[2] = 0x552254A - file_info->start;
-		m_adwOffset[3] = 0x552254B - file_info->start;
-		m_adwOffset[4] = 0x552CDF6 - file_info->start;
-		m_adwOffset[5] = 0x552CDF7 - file_info->start;
+		m_offset[0] = 0;
+		m_offset[1] = 0x552036D - file_info->start;
+		m_offset[2] = 0x552254A - file_info->start;
+		m_offset[3] = 0x552254B - file_info->start;
+		m_offset[4] = 0x552CDF6 - file_info->start;
+		m_offset[5] = 0x552CDF7 - file_info->start;
 	}
 	else
 	{
@@ -69,40 +69,40 @@ DWORD CFateFD::OnInitDecrypt(CArcFile* pclArc)
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CFateFD::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CFateFD::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		if ((dwOffset + i) < m_adwOffset[1])
+		if ((offset + i) < m_offset[1])
 		{
-			pbtTarget[i] ^= m_abtKey[0];
+			target[i] ^= m_key[0];
 		}
-		else if ((dwOffset + i) < m_adwOffset[2])
+		else if ((offset + i) < m_offset[2])
 		{
-			pbtTarget[i] ^= m_abtKey[1];
+			target[i] ^= m_key[1];
 		}
-		else if ((dwOffset + i) < m_adwOffset[3])
+		else if ((offset + i) < m_offset[3])
 		{
-			pbtTarget[i] ^= m_abtKey[2];
+			target[i] ^= m_key[2];
 		}
-		else if ((dwOffset + i) < m_adwOffset[4])
+		else if ((offset + i) < m_offset[4])
 		{
-			pbtTarget[i] ^= m_abtKey[3];
+			target[i] ^= m_key[3];
 		}
-		else if ((dwOffset + i) < m_adwOffset[5])
+		else if ((offset + i) < m_offset[5])
 		{
-			pbtTarget[i] ^= m_abtKey[4];
+			target[i] ^= m_key[4];
 		}
 		else
 		{
-			pbtTarget[i] ^= m_abtKey[5];
+			target[i] ^= m_key[5];
 		}
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
