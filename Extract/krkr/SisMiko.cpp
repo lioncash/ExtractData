@@ -3,24 +3,24 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CSisMiko::OnCheckDecrypt(CArcFile* pclArc)
+bool CSisMiko::OnCheckDecrypt(CArcFile* archive)
 {
-	return pclArc->CheckExe( _T("SisuMiko.exe") );
+	return archive->CheckExe( _T("SisuMiko.exe") );
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CSisMiko::OnInitDecrypt(CArcFile* pclArc)
+DWORD CSisMiko::OnInitDecrypt(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	LPCTSTR          pszFileExt = PathFindExtension(file_info->name);
-	DWORD            dwKey = pclArc->GetOpenFileInfo()->key;
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	LPCTSTR          file_ext = PathFindExtension(file_info->name);
+	DWORD            key = archive->GetOpenFileInfo()->key;
 
-	if ((lstrcmp(pszFileExt, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
+	if ((lstrcmp(file_ext, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
 	{
 		// Files we don't decrypt
 		SetDecryptRequirement(false);
@@ -28,29 +28,28 @@ DWORD CSisMiko::OnInitDecrypt(CArcFile* pclArc)
 	}
 
 	// Size to decrypt
-	if ((lstrcmp(pszFileExt, _T(".ks")) != 0) && (lstrcmp(pszFileExt, _T(".tjs")) != 0) && (lstrcmp(pszFileExt, _T(".asd")) != 0))
+	if ((lstrcmp(file_ext, _T(".ks")) != 0) && (lstrcmp(file_ext, _T(".tjs")) != 0) && (lstrcmp(file_ext, _T(".asd")) != 0))
 	{
 		SetDecryptSize(256);
 	}
 
 	// Decryption Key
-	return ~((dwKey << 16) | (dwKey >> 16));
+	return ~((key << 16) | (key >> 16));
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CSisMiko::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CSisMiko::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	// Decrypt
-	for (DWORD i = 0; i < dwTargetSize; i += 4)
+	for (size_t i = 0; i < target_size; i += 4)
 	{
-		*(DWORD*)&pbtTarget[i] ^= dwDecryptKey;
+		*(DWORD*)&target[i] ^= decrypt_key;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
