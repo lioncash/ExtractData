@@ -1,37 +1,25 @@
 #include "stdafx.h"
 #include "WindRP.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool CWindRP::Mount(CArcFile* pclArc)
+bool CWindRP::Mount(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("WindRP.exe")))
+	if (!archive->CheckExe(_T("WindRP.exe")))
 		return false;
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool CWindRP::Decode(CArcFile* pclArc)
+bool CWindRP::Decode(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("WindRP.exe")))
+	if (!archive->CheckExe(_T("WindRP.exe")))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
-/// Initialize Mount Key
-///
-/// @param pclArc Archive
-///
-void CWindRP::InitMountKey(CArcFile* pclArc)
+void CWindRP::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\xFC\x0B\x51\x21\xD5\x31\x0A\xC6\x92\xA0\xC6\x85\x58\xB2\x21\x88\xAC\xCC\x09\xB8\xC6\x6F\x87\x53\xCB\x83\xDE\xA4\xB6\xA0\xAE\x88" },
 		{ _T("bg"),     "\xA8\x16\xE5\xA4\x6D\x6A\x3F\xE3\xE4\x13\x0F\x1C\x1A\x36\x13\x93\xC9\x18\x18\x0F\x0E\x0F\x28\x55\xFD\xAE\x00\xB7\xF1\xF0\x9C\x87" },
@@ -43,16 +31,12 @@ void CWindRP::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\xE2\xD7\x8F\x24\xB9\x5E\x15\x8F\x99\x08\x36\xD4\xA9\xA6\xB0\x3B\x95\xAB\xC1\x35\x7D\x60\x99\x14\xCE\x51\x10\xDB\xCF\xB5\x6E\xF1" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
-/// Initialize Decode Key
-///
-/// @param pclArc Archive
-///
-void CWindRP::InitDecodeKey(CArcFile* pclArc)
+void CWindRP::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x93\x99\x64\x8D\x1D\x52\xF4\x75\x3B\xA1\x89\xBD\xA6\x83\xB3\x16\x2B\xE8\xA1\x05\x16\x77\xC7\xEA\x00\x15\x50\xB3\xD7\xE6\x1B\xDF" },
 		{ _T("bg"),     "\xC1\x88\x09\xA0\xBC\x4F\x4D\xDA\x9B\x35\x8F\xC1\x39\x4F\x9E\xCA\x96\x78\x64\xC5\x9B\xF8\xF1\xC3\x51\xEE\x47\xAA\x3F\x2A\xBD\x14" },
@@ -64,5 +48,5 @@ void CWindRP::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x20\xDF\xEC\x87\x9C\x2A\x88\x07\xB7\x35\xD2\x79\xD1\x87\x3C\x61\xBF\x73\x4C\xBE\xD9\xFD\xE0\x39\x68\x83\x3C\xEE\x46\xD7\xAD\x97" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
