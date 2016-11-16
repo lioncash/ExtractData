@@ -5,13 +5,13 @@
 class CTlg final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc, LPBYTE src);
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
+	bool Decode(CArcFile* archive, LPBYTE src);
 
 private:
-	bool DecompTLG5(CArcFile* pclArc, LPBYTE src);
-	bool DecompTLG6(CArcFile* pclArc, LPBYTE src);
+	bool DecompTLG5(CArcFile* archive, LPBYTE src);
+	bool DecompTLG6(CArcFile* archive, LPBYTE src);
 	DWORD DecompLZSS(LPBYTE out, LPBYTE in, DWORD insize, LPBYTE dic, DWORD initialr);
 	void ComposeColors(LPBYTE outp, LPBYTE upper, LPBYTE const* buf, DWORD width, DWORD colors);
 

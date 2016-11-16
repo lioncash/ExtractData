@@ -21,25 +21,25 @@ char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT*2*128][TVP_TLG6_GOLOMB_
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTlg::Mount(CArcFile* pclArc)
+bool CTlg::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".tlg"))
+	if (archive->GetArcExten() != _T(".tlg"))
 		return false;
 
-	BYTE* pbtHeader = pclArc->GetHed();
+	const BYTE* header = archive->GetHed();
 
-	if (memcmp(pbtHeader, "TLG0.0\x00sds\x1a", 11) == 0)
+	if (memcmp(header, "TLG0.0\x00sds\x1a", 11) == 0)
 	{
-		pbtHeader += 15;
+		header += 15;
 	}
 
-	if (memcmp(pbtHeader, "TLG5.0\x00raw\x1a", 11) == 0)
+	if (memcmp(header, "TLG5.0\x00raw\x1a", 11) == 0)
 	{
 		// OK
 	}
-	else if (memcmp(pbtHeader, "TLG6.0\x00raw\x1a", 11) == 0)
+	else if (memcmp(header, "TLG6.0\x00raw\x1a", 11) == 0)
 	{
 		// OK
 	}
@@ -50,28 +50,28 @@ bool CTlg::Mount(CArcFile* pclArc)
 		return false;
 	}
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CTlg::Decode(CArcFile* pclArc)
+bool CTlg::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("TLG"))
 		return false;
 
 	YCMemory<BYTE> buf(file_info->sizeOrg);
-	pclArc->Read(&buf[0], file_info->sizeOrg);
+  archive->Read(&buf[0], file_info->sizeOrg);
 
-	return Decode(pclArc, &buf[0]);
+	return Decode(archive, &buf[0]);
 }
 
-bool CTlg::Decode(CArcFile* pclArc, LPBYTE src)
+bool CTlg::Decode(CArcFile* archive, LPBYTE src)
 {
 	if (memcmp(src, "TLG", 3) != 0)
 	{
-		pclArc->InitDecrypt( src );
-		pclArc->Decrypt(src, pclArc->GetOpenFileInfo()->sizeOrg);
+		archive->InitDecrypt(src);
+		archive->Decrypt(src, archive->GetOpenFileInfo()->sizeOrg);
 	}
 
 	// Check for TLG0.0 sds
@@ -80,16 +80,16 @@ bool CTlg::Decode(CArcFile* pclArc, LPBYTE src)
 
 	// Check for TLG raw data
 	if (!memcmp(src, "TLG5.0\x00raw\x1a", 11))
-		return DecompTLG5(pclArc, &src[11]);
+		return DecompTLG5(archive, &src[11]);
 	if (!memcmp(src, "TLG6.0\x00raw\x1a", 11))
-		return DecompTLG6(pclArc, &src[11]);
+		return DecompTLG6(archive, &src[11]);
 
-	pclArc->OpenFile();
-	pclArc->WriteFile(src, pclArc->GetOpenFileInfo()->sizeCmp);
+	archive->OpenFile();
+	archive->WriteFile(src, archive->GetOpenFileInfo()->sizeCmp);
 	return true;
 }
 
-bool CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
+bool CTlg::DecompTLG5(CArcFile* archive, LPBYTE src)
 {
 	BYTE colors = src[0];
 	LONG width = *(LPLONG)&src[1];
@@ -164,13 +164,13 @@ bool CTlg::DecompTLG5(CArcFile* pclArc, LPBYTE src)
 
 	// BMP Output
 	CImage image;
-	image.Init(pclArc, width, height, colors << 3);
+	image.Init(archive, width, height, colors << 3);
 	image.WriteReverse(&dst[0], dstSize);
 
 	return true;
 }
 
-bool CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
+bool CTlg::DecompTLG6(CArcFile* archive, LPBYTE src)
 {
 	BYTE colors = src[0];
 
@@ -313,7 +313,7 @@ bool CTlg::DecompTLG6(CArcFile* pclArc, LPBYTE src)
 		bpp = 32;
 
 	CImage image;
-	image.Init(pclArc, width, height, bpp);
+	image.Init(archive, width, height, bpp);
 	image.WriteReverse(&dst[0], dstSize);
 
 	return true;
@@ -539,12 +539,9 @@ void CTlg::TVPTLG6DecodeGolombValues(LPBYTE pixelbuf, DWORD pixel_count, LPBYTE 
 	case (N<<1)+1: \
 	TVP_TLG6_DO_CHROMA_DECODE_PROTO2(R, G, B, IA, {in+=step;}) break;
 
-void CTlg::TVPTLG6DecodeLineGeneric(LPDWORD prevline, DWORD *curline, DWORD width, DWORD start_block, DWORD block_limit, LPBYTE filtertypes, DWORD skipblockbytes, LPDWORD in, DWORD initialp, DWORD oddskip, DWORD dir)
+void CTlg::TVPTLG6DecodeLineGeneric(LPDWORD prevline, DWORD* curline, DWORD width, DWORD start_block, DWORD block_limit, LPBYTE filtertypes, DWORD skipblockbytes, LPDWORD in, DWORD initialp, DWORD oddskip, DWORD dir)
 {
-	/*
-		Chroma/luminosity decoding
-		(this does reordering, color correlation filter, MED/AVG  at a time)
-	*/
+	// Chroma/luminosity decoding (this does reordering, color correlation filter, MED/AVG  at a time)
 	DWORD p, up;
 
 	if (start_block)
@@ -664,8 +661,8 @@ DWORD CTlg::avg(DWORD a, DWORD b, DWORD c, DWORD v)
 
 void CTlg::InitTLG6Table()
 {
-	/* Table which indicates first set bit position + 1. */
-	/* This may be replaced by BSF (IA32 instrcution). */
+	// Table which indicates first set bit position + 1.
+	// This may be replaced by BSF (IA32 instruction).
 
 	for (int i = 0; i < TVP_TLG6_LeadingZeroTable_SIZE; i++)
 	{
