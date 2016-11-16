@@ -3,24 +3,24 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTokiPaku::OnCheckDecrypt(CArcFile* pclArc)
+bool CTokiPaku::OnCheckDecrypt(CArcFile* archive)
 {
-//	return CheckTpm( "510BE09DF50DB143E90D3837D416FD0F" );
-	return CheckTpm( "A9D18BCE341E20D25DB4DBFAAE7FBF5B" );
+//	return CheckTpm("510BE09DF50DB143E90D3837D416FD0F");
+	return CheckTpm("A9D18BCE341E20D25DB4DBFAAE7FBF5B");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
+DWORD CTokiPaku::OnInitDecrypt(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	LPCTSTR          pszFileExt = PathFindExtension(file_info->name);
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	LPCTSTR          file_ext = PathFindExtension(file_info->name);
 
-	if (lstrcmp(pszFileExt, _T(".dll")) == 0)
+	if (lstrcmp(file_ext, _T(".dll")) == 0)
 	{
 		// Don't decrypt
 		SetDecryptRequirement(false);
@@ -28,36 +28,35 @@ DWORD CTokiPaku::OnInitDecrypt(CArcFile* pclArc)
 	}
 
 	// Size to decrypt
-	if ((lstrcmp(pszFileExt, _T(".ks")) != 0) && (lstrcmp(pszFileExt, _T(".tjs")) != 0) && (lstrcmp(pszFileExt, _T(".asd")) != 0))
+	if ((lstrcmp(file_ext, _T(".ks")) != 0) && (lstrcmp(file_ext, _T(".tjs")) != 0) && (lstrcmp(file_ext, _T(".asd")) != 0))
 	{
 		SetDecryptSize(256);
 	}
 
 	// Decryption Key
-	DWORD dwDecryptKey = 0xFFFFFFFF;
-	BYTE* pbtKey = &(BYTE&)dwDecryptKey;
-	for (int i = 0; i < lstrlen(pszFileExt); i++)
+	DWORD decrypt_key = 0xFFFFFFFF;
+	BYTE* key = (BYTE*)&decrypt_key;
+	for (int i = 0; i < lstrlen(file_ext); i++)
 	{
-		pbtKey[i] = ~pszFileExt[i];
+		key[i] = ~file_ext[i];
 	}
 
-	return dwDecryptKey;
+	return decrypt_key;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CTokiPaku::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CTokiPaku::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	// Decrypt
-	for (DWORD i = 0; i < dwTargetSize; i += 4)
+	for (size_t i = 0; i < target_size; i += 4)
 	{
-		*(DWORD*)&pbtTarget[i] ^= dwDecryptKey;
+		*(DWORD*)&target[i] ^= decrypt_key;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
