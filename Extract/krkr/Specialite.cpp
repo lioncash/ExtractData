@@ -3,38 +3,38 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CSpecialite::OnCheckDecrypt(CArcFile* pclArc)
+bool CSpecialite::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("F78FF15C0BD396080BCDF431AED59211");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CSpecialite::OnInitDecrypt(CArcFile* pclArc)
+DWORD CSpecialite::OnInitDecrypt(CArcFile* archive)
 {
 	return 0xAF;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CSpecialite::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CSpecialite::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	BYTE btDecryptKey = (BYTE)dwDecryptKey;
+	BYTE byte_decrypt_key = (BYTE)decrypt_key;
 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptKey;
-		pbtTarget[i] += 1;
+		target[i] ^= byte_decrypt_key;
+		target[i] += 1;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
