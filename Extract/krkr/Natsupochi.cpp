@@ -3,37 +3,37 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNatsupochi::OnCheckDecrypt(CArcFile* pclArc)
+bool CNatsupochi::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("B1CCCE8E4048B563B316D8BAEDF7E2B1");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CNatsupochi::OnInitDecrypt(CArcFile* pclArc)
+DWORD CNatsupochi::OnInitDecrypt(CArcFile* archive)
 {
-	return (pclArc->GetOpenFileInfo()->key >> 3);
+	return archive->GetOpenFileInfo()->key >> 3;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CNatsupochi::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CNatsupochi::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	BYTE btDecryptKey = (BYTE)(dwDecryptKey & 0xFF);
+	BYTE byte_decrypt_key = (BYTE)(decrypt_key & 0xFF);
 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptKey;
+		target[i] ^= byte_decrypt_key;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
