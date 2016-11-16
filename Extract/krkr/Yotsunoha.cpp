@@ -3,41 +3,41 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CYotsunoha::OnCheckDecrypt(CArcFile* pclArc)
+bool CYotsunoha::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("AAF0A99EAF4018CB1AA5E0D9065C2239");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CYotsunoha::OnInitDecrypt(CArcFile* pclArc)
+DWORD CYotsunoha::OnInitDecrypt(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Decryption key
-	return (((file_info->key >> 8) & 0xFF) ^ (file_info->key & 0xFF));
+	return ((file_info->key >> 8) & 0xFF) ^ (file_info->key & 0xFF);
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CYotsunoha::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CYotsunoha::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
 	// Decryption
-	BYTE btDecryptKey = (BYTE)dwDecryptKey;
+	BYTE byte_decrypt_key = (BYTE)decrypt_key;
 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptKey;
+		target[i] ^= byte_decrypt_key;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
