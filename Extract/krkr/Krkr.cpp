@@ -9,23 +9,23 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CKrkr::Mount(CArcFile* pclArc)
+bool CKrkr::Mount(CArcFile* archive)
 {
-	DWORD dwOffset;
+	DWORD offset;
 
 	// XP3
-	if (memcmp(pclArc->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
+	if (memcmp(archive->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
 	{
 		// XP3
 
-		dwOffset = 0;
+		offset = 0;
 	}
 	// EXE type
-	else if (memcmp(pclArc->GetHed(), "MZ", 2) == 0)
+	else if (memcmp(archive->GetHed(), "MZ", 2) == 0)
 	{
-		if (!FindXP3FromExecuteFile(pclArc, &dwOffset))
+		if (!FindXP3FromExecuteFile(archive, &offset))
 		{
 			return false;
 		}
@@ -35,84 +35,84 @@ bool CKrkr::Mount(CArcFile* pclArc)
 		return false;
 	}
 
-	m_pclArc = pclArc;
+	m_archive = archive;
 
 	// Set MD5 value for tpm
-	SetMD5ForTpm(pclArc);
+	SetMD5ForTpm(archive);
 
 	// Check if archive can be decoded
 
 	// Archive can't be decoded
-	if (!OnCheckDecrypt(pclArc))
+	if (!OnCheckDecrypt(archive))
 	{
 		return false;
 	}
 
 	// Get index position
-	INT64 n64IndexPos;
-	pclArc->SeekHed(11 + dwOffset);
-	pclArc->Read(&n64IndexPos, 8);
-	pclArc->SeekCur(n64IndexPos - 19);
+	INT64 index_pos;
+	archive->SeekHed(11 + offset);
+	archive->Read(&index_pos, 8);
+	archive->SeekCur(index_pos - 19);
 
-	BYTE abtWork[256];
-	pclArc->Read(abtWork, sizeof(abtWork));
+	BYTE work[256];
+	archive->Read(work, sizeof(work));
 
-	switch (abtWork[0])
+	switch (work[0])
 	{
 	case 0x80:
-		n64IndexPos = *(INT64*)&abtWork[9];
+		index_pos = *(INT64*)&work[9];
 		break;
 	}
 
 	// Read the index header
-	BYTE btCmpIndex;
+	BYTE cmp_index;
 
-	pclArc->SeekHed(n64IndexPos + dwOffset);
-	pclArc->Read(&btCmpIndex, 1);
+	archive->SeekHed(index_pos + offset);
+	archive->Read(&cmp_index, 1);
 
-	UINT64 u64CompIndexSize;
-	UINT64 u64IndexSize;
+	UINT64 comp_index_size;
+	UINT64 index_size;
 
 	// Index is compressed
-	if (btCmpIndex)
+	if (cmp_index)
 	{
-		pclArc->Read(&u64CompIndexSize, 8);
+		archive->Read(&comp_index_size, 8);
 	}
 
-	pclArc->Read(&u64IndexSize, 8);
+	archive->Read(&index_size, 8);
 
 	// Ensure buffer
-	YCMemory<BYTE> clmbtIndex(u64IndexSize);
-	DWORD dwIndexPtr = 0;
+	YCMemory<BYTE> index(index_size);
+	DWORD index_ptr = 0;
 
 	// If the index header is compressed, decompress it
-	if (btCmpIndex)
+	if (cmp_index)
 	{
-		CZlib clZlib;
+		CZlib zlib;
 
 		// Ensure buffer
-		YCMemory<BYTE> clmbtCompIndex(u64CompIndexSize);
+		YCMemory<BYTE> comp_index(comp_index_size);
 
 		// zlib Decompression
-		pclArc->Read(&clmbtCompIndex[0], u64CompIndexSize);
-		clZlib.Decompress(&clmbtIndex[0], u64IndexSize, &clmbtCompIndex[0], u64CompIndexSize);
+		archive->Read(&comp_index[0], comp_index_size);
+		zlib.Decompress(&index[0], index_size, &comp_index[0], comp_index_size);
 	}
 	else // Index is not compressed
 	{
-		pclArc->Read(&clmbtIndex[0], u64IndexSize);
+		archive->Read(&index[0], index_size);
 	}
 
 	// Get index file information
-	for (UINT64 i = 0; i < u64IndexSize;)
+	for (UINT64 i = 0; i < index_size;)
 	{
 		// "File" Chunk
-		FileChunk stFileChunk;
+		FileChunk file_chunk;
 
-		memcpy(stFileChunk.name, &clmbtIndex[i], 4);
+		memcpy(file_chunk.name, &index[i], 4);
 
-		stFileChunk.size = *(UINT64*)&clmbtIndex[i + 4];
+		file_chunk.size = *(UINT64*)&index[i + 4];
 
-		if (memcmp(stFileChunk.name, "File", 4) != 0)
+		if (memcmp(file_chunk.name, "File", 4) != 0)
 		{
 			break;
 		}
@@ -120,91 +120,91 @@ bool CKrkr::Mount(CArcFile* pclArc)
 		i += 12;
 
 		// "info" Chunk
-		InfoChunk stInfoChunk;
+		InfoChunk info_chunk;
 
-		memcpy(stInfoChunk.name, &clmbtIndex[i], 4);
+		memcpy(info_chunk.name, &index[i], 4);
 
-		stInfoChunk.size = *(UINT64*)&clmbtIndex[i + 4];
-		stInfoChunk.protect = *(DWORD*)&clmbtIndex[i + 12];
-		stInfoChunk.orgSize = *(UINT64*)&clmbtIndex[i + 16];
-		stInfoChunk.arcSize = *(UINT64*)&clmbtIndex[i + 24];
-		stInfoChunk.nameLen = *(WORD*)&clmbtIndex[i + 32];
-		stInfoChunk.filename = (wchar_t*)&clmbtIndex[i + 34];
+		info_chunk.size = *(UINT64*)&index[i + 4];
+		info_chunk.protect = *(DWORD*)&index[i + 12];
+		info_chunk.orgSize = *(UINT64*)&index[i + 16];
+		info_chunk.arcSize = *(UINT64*)&index[i + 24];
+		info_chunk.nameLen = *(WORD*)&index[i + 32];
+		info_chunk.filename = (wchar_t*)&index[i + 34];
 
-		if (memcmp(stInfoChunk.name, "info", 4) != 0)
+		if (memcmp(info_chunk.name, "info", 4) != 0)
 		{
 			break;
 		}
 
-		i += 12 + stInfoChunk.size;
+		i += 12 + info_chunk.size;
 
 		// "segm" Chunk
-		SegmChunk stSegmChunk;
+		SegmChunk segm_chunk;
 
-		memcpy(stSegmChunk.name, &clmbtIndex[i], 4);
+		memcpy(segm_chunk.name, &index[i], 4);
 
-		stSegmChunk.size = *(UINT64*)&clmbtIndex[i + 4];
+		segm_chunk.size = *(UINT64*)&index[i + 4];
 
-		if (memcmp(stSegmChunk.name, "segm", 4) != 0)
+		if (memcmp(segm_chunk.name, "segm", 4) != 0)
 		{
 			break;
 		}
 
 		i += 12;
 
-		SFileInfo stFileInfo;
+		SFileInfo file_info;
 
-		UINT64 u64SegmCount = (stSegmChunk.size / 28);
+		const UINT64 segm_count = (segm_chunk.size / 28);
 
-		for (UINT64 j = 0; j < u64SegmCount; j++)
+		for (UINT64 j = 0; j < segm_count; j++)
 		{
-			stSegmChunk.comp = *(DWORD*)&clmbtIndex[i];
-			stSegmChunk.start = *(UINT64*)&clmbtIndex[i + 4] + dwOffset;
-			stSegmChunk.orgSize = *(UINT64*)&clmbtIndex[i + 12];
-			stSegmChunk.arcSize = *(UINT64*)&clmbtIndex[i + 20];
+			segm_chunk.comp = *(DWORD*)&index[i];
+			segm_chunk.start = *(UINT64*)&index[i + 4] + offset;
+			segm_chunk.orgSize = *(UINT64*)&index[i + 12];
+			segm_chunk.arcSize = *(UINT64*)&index[i + 20];
 
-			stFileInfo.bCmps.push_back(stSegmChunk.comp);
-			stFileInfo.starts.push_back(stSegmChunk.start);
-			stFileInfo.sizesOrg.push_back(stSegmChunk.orgSize);
-			stFileInfo.sizesCmp.push_back(stSegmChunk.arcSize);
+			file_info.bCmps.push_back(segm_chunk.comp);
+			file_info.starts.push_back(segm_chunk.start);
+			file_info.sizesOrg.push_back(segm_chunk.orgSize);
+			file_info.sizesCmp.push_back(segm_chunk.arcSize);
 
 			i += 28;
 		}
 
 		// Check for any other chunks
-		UINT64 u64Remainder = stFileChunk.size - 12 - stInfoChunk.size - 12 - stSegmChunk.size;
+		const UINT64 remainder = file_chunk.size - 12 - info_chunk.size - 12 - segm_chunk.size;
 
-		if (u64Remainder > 0)
+		if (remainder > 0)
 		{
 			// "adlr" Chunk
-			if (memcmp(&clmbtIndex[i], "adlr", 4) == 0)
+			if (memcmp(&index[i], "adlr", 4) == 0)
 			{
-				AdlrChunk stAdlrChunk;
+				AdlrChunk adlr_chunk;
 
-				memcpy(stAdlrChunk.name, &clmbtIndex[i], 4);
+				memcpy(adlr_chunk.name, &index[i], 4);
 
-				stAdlrChunk.size = *(UINT64*)&clmbtIndex[i + 4];
-				stAdlrChunk.key = *(DWORD*)&clmbtIndex[i + 12];
+				adlr_chunk.size = *(UINT64*)&index[i + 4];
+				adlr_chunk.key = *(DWORD*)&index[i + 12];
 
-				stFileInfo.key = stAdlrChunk.key;
+				file_info.key = adlr_chunk.key;
 			}
 
-			i += u64Remainder;
+			i += remainder;
 		}
 
 		// Store and show the stucture in a listview
-		stFileInfo.name.Copy(stInfoChunk.filename, stInfoChunk.nameLen);
-		stFileInfo.sizeOrg = stInfoChunk.orgSize;
-		stFileInfo.sizeCmp = stInfoChunk.arcSize;
-		stFileInfo.start = stFileInfo.starts[0];
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		file_info.name.Copy(info_chunk.filename, info_chunk.nameLen);
+		file_info.sizeOrg = info_chunk.orgSize;
+		file_info.sizeCmp = info_chunk.arcSize;
+		file_info.start = file_info.starts[0];
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		if (stSegmChunk.comp)
+		if (segm_chunk.comp)
 		{
-			stFileInfo.format = _T("zlib");
+			file_info.format = _T("zlib");
 		}
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -212,101 +212,101 @@ bool CKrkr::Mount(CArcFile* pclArc)
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CKrkr::Decode(CArcFile* pclArc)
+bool CKrkr::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if ((pclArc->GetArcExten() != _T(".xp3")) && (pclArc->GetArcExten() != _T(".exe")))
+	if ((archive->GetArcExten() != _T(".xp3")) && (archive->GetArcExten() != _T(".exe")))
 		return false;
 
-	YCString clsFileExt = PathFindExtension(file_info->name);
-	clsFileExt.MakeLower();
+	YCString file_ext = PathFindExtension(file_info->name);
+	file_ext.MakeLower();
 
-	InitDecrypt(pclArc);
+	InitDecrypt(archive);
 
 	//char s[256];
 	//_stprintf(s, "%08X", pInfFile->key);
 	//MessageBox(NULL, s, "", 0);
 
 	// Ensure buffer
-	DWORD dwBufferSize = pclArc->GetBufSize();
-	YCMemory<BYTE> clmbtBuffer;
+	DWORD buffer_size = archive->GetBufSize();
+	YCMemory<BYTE> buffer;
 
 	// Whether or not it's bound to memory
 	bool compose_memory = false;
 
 	// TLS, OGG (fix CRC), BMP
-	if ((clsFileExt == _T(".tlg")) ||
-	    ((clsFileExt == _T(".ogg")) && pclArc->GetOpt()->bFixOgg) ||
-	    (clsFileExt == _T(".bmp")))
+	if ((file_ext == _T(".tlg")) ||
+	    ((file_ext == _T(".ogg")) && archive->GetOpt()->bFixOgg) ||
+	    (file_ext == _T(".bmp")))
 	{
-		clmbtBuffer.resize(file_info->sizeOrg + 3);
+		buffer.resize(file_info->sizeOrg + 3);
 		compose_memory = true;
 	}
 	// TJS, KS, ASD, TXT
-	else if ((m_dwDecryptKey == 0) &&
-	   pclArc->GetOpt()->bEasyDecrypt && (
-	   (clsFileExt == _T(".tjs")) ||
-	   (clsFileExt == _T(".ks")) ||
-	   (clsFileExt == _T(".asd")) ||
-	   (clsFileExt == _T(".txt"))))
+	else if (m_decrypt_key == 0 &&
+	   archive->GetOpt()->bEasyDecrypt && (
+	   (file_ext == _T(".tjs")) ||
+	   (file_ext == _T(".ks")) ||
+	   (file_ext == _T(".asd")) ||
+	   (file_ext == _T(".txt"))))
 	{
-		clmbtBuffer.resize(file_info->sizeOrg + 3);
+		buffer.resize(file_info->sizeOrg + 3);
 		compose_memory = true;
 	}
 	else // Other
 	{
-		clmbtBuffer.resize(dwBufferSize + 3);
+		buffer.resize(buffer_size + 3);
 	}
 
 	// Create output file
 	if (!compose_memory)
 	{
-		pclArc->OpenFile();
+		archive->OpenFile();
 	}
 
-	DWORD dwBufferPtr = 0;
-	DWORD dwBufferSizeBase = dwBufferSize;
-	DWORD dwWroteSize = 0;
+	DWORD buffer_ptr = 0;
+	const DWORD buffer_size_base = buffer_size;
+	DWORD total_wrote_size = 0;
 
 	for (size_t i = 0; i < file_info->starts.size(); i++)
 	{
-		dwBufferSize = dwBufferSizeBase;
+		buffer_size = buffer_size_base;
 
-		pclArc->SeekHed(file_info->starts[i]);
+		archive->SeekHed(file_info->starts[i]);
 
 		// Compressed data
 		if (file_info->bCmps[i])
 		{
-			CZlib clZlib;
+			CZlib zlib;
 
 			// Ensure buffer
-			DWORD dwSrcSize = file_info->sizesCmp[i];
-			YCMemory<BYTE> clmbtSrc(dwSrcSize);
+			const DWORD src_size = file_info->sizesCmp[i];
+			YCMemory<BYTE> src(src_size);
 
-			DWORD dwDstSize = file_info->sizesOrg[i];
-			YCMemory<BYTE> clmbtDst(dwDstSize + 3);
+			const DWORD dst_size = file_info->sizesOrg[i];
+			YCMemory<BYTE> dst(dst_size + 3);
 
 			// zlib Decompression
-			pclArc->Read(&clmbtSrc[0], dwSrcSize);
-			clZlib.Decompress(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+			archive->Read(&src[0], src_size);
+			zlib.Decompress(&dst[0], dst_size, &src[0], src_size);
 
-			DWORD dwDataSize = Decrypt(&clmbtDst[0], dwDstSize, dwWroteSize);
+			const DWORD data_size = Decrypt(&dst[0], dst_size, total_wrote_size);
 
 			if (compose_memory)
 			{
-				memcpy(&clmbtBuffer[dwBufferPtr], &clmbtDst[0], dwDataSize);
+				memcpy(&buffer[buffer_ptr], &dst[0], data_size);
 
-				dwBufferPtr += dwDataSize;
+				buffer_ptr += data_size;
 			}
 			else // Output
 			{
-				pclArc->WriteFile(&clmbtDst[0], dwDataSize, dwDstSize);
+				archive->WriteFile(&dst[0], data_size, dst_size);
 			}
 
-			dwWroteSize += dwDstSize;
+			total_wrote_size += dst_size;
 		}
 		else // Uncompressed data
 		{
@@ -314,70 +314,70 @@ bool CKrkr::Decode(CArcFile* pclArc)
 			{
 				// Bound to the buffer
 
-				DWORD dwDstSize = file_info->sizesOrg[i];
-				pclArc->Read(&clmbtBuffer[dwBufferPtr], dwDstSize);
+				const DWORD dst_size = file_info->sizesOrg[i];
+				archive->Read(&buffer[buffer_ptr], dst_size);
 
-				DWORD dwDataSize = Decrypt(&clmbtBuffer[dwBufferPtr], dwDstSize, dwWroteSize);
+				const DWORD data_size = Decrypt(&buffer[buffer_ptr], dst_size, total_wrote_size);
 
-				dwBufferPtr += dwDataSize;
-				dwWroteSize += dwDstSize;
+				buffer_ptr += data_size;
+				total_wrote_size += dst_size;
 			}
 			else
 			{
-				DWORD dwDstSize = file_info->sizesOrg[i];
+				const DWORD dst_size = file_info->sizesOrg[i];
 
-				for (DWORD dwWroteSizes = 0; dwWroteSizes != dwDstSize; dwWroteSizes += dwBufferSize)
+				for (DWORD wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 				{
 					// Adjust buffer size
-					pclArc->SetBufSize(&dwBufferSize, dwWroteSizes, dwDstSize);
-					pclArc->Read(&clmbtBuffer[0], dwBufferSize);
+					archive->SetBufSize(&buffer_size, wrote_size, dst_size);
+					archive->Read(&buffer[0], buffer_size);
 
-					DWORD dwDataSize = Decrypt(&clmbtBuffer[0], dwBufferSize, dwWroteSize);
+					const DWORD data_size = Decrypt(&buffer[0], buffer_size, total_wrote_size);
 
-					pclArc->WriteFile(&clmbtBuffer[0], dwDataSize);
-					dwWroteSize += dwBufferSize;
+					archive->WriteFile(&buffer[0], data_size);
+					total_wrote_size += buffer_size;
 				}
 			}
 		}
 	}
-
+  
 	// Convert TLG to BMP
-	if (clsFileExt == _T(".tlg"))
+	if (file_ext == _T(".tlg"))
 	{
-		CTlg clTLG;
-		clTLG.Decode(pclArc, &clmbtBuffer[0]);
+		CTlg tlg;
+		tlg.Decode(archive, &buffer[0]);
 	}
 	// Fix CRC of OGG files
-	else if (clsFileExt == _T(".ogg") && pclArc->GetOpt()->bFixOgg)
+	else if (file_ext == _T(".ogg") && archive->GetOpt()->bFixOgg)
 	{
-		COgg clOGG;
-		clOGG.Decode(pclArc, &clmbtBuffer[0]);
+		COgg ogg;
+		ogg.Decode(archive, &buffer[0]);
 	}
 	// BMP output (PNG conversion)
-	else if (clsFileExt == _T(".bmp"))
+	else if (file_ext == _T(".bmp"))
 	{
-		CImage clImage;
-		clImage.Init(pclArc, &clmbtBuffer[0]);
-		clImage.Write(file_info->sizeOrg);
+		CImage image;
+		image.Init(archive, &buffer[0]);
+		image.Write(file_info->sizeOrg);
 	}
 	// Text file
-	else if (m_dwDecryptKey == 0 &&
-	    pclArc->GetOpt()->bEasyDecrypt && (
-	    (clsFileExt == _T(".tjs")) ||
-	    (clsFileExt == _T(".ks")) ||
-	    (clsFileExt == _T(".asd")) ||
-	    (clsFileExt == _T(".txt"))))
+	else if (m_decrypt_key == 0 &&
+	    archive->GetOpt()->bEasyDecrypt && (
+	    (file_ext == _T(".tjs")) ||
+	    (file_ext == _T(".ks")) ||
+	    (file_ext == _T(".asd")) ||
+	    (file_ext == _T(".txt"))))
 	{
-		DWORD dwDstSize = file_info->sizeOrg;
+		const DWORD dst_size = file_info->sizeOrg;
 
 		SetDecryptRequirement(true);
 
-		m_dwDecryptKey = pclArc->InitDecryptForText(&clmbtBuffer[0], dwDstSize);
+		m_decrypt_key = archive->InitDecryptForText(&buffer[0], dst_size);
 
-		DWORD dwDataSize = Decrypt(&clmbtBuffer[0], dwDstSize, 0);
+		const DWORD data_size = Decrypt(&buffer[0], dst_size, 0);
 
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtBuffer[0], dwDataSize, dwDstSize);
+		archive->OpenFile();
+		archive->WriteFile(&buffer[0], data_size, dst_size);
 	}
 
 	return true;
@@ -385,95 +385,95 @@ bool CKrkr::Decode(CArcFile* pclArc)
 
 /// Extraction
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CKrkr::Extract(CArcFile* pclArc)
+bool CKrkr::Extract(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	DWORD dwBufferSize = pclArc->GetBufSize();
-	DWORD dwBufferSizeBase = dwBufferSize;
+	DWORD buffer_size = archive->GetBufSize();
+	const DWORD buffer_size_base = buffer_size;
 
-	YCMemory<BYTE> clmbtBuffer(dwBufferSize);
+	YCMemory<BYTE> buffer(buffer_size);
 
-	pclArc->OpenFile();
+	archive->OpenFile();
 
 	for (size_t i = 0; i < file_info->starts.size(); i++)
 	{
-		dwBufferSize = dwBufferSizeBase;
+		buffer_size = buffer_size_base;
 
-		pclArc->SeekHed(file_info->starts[i]);
+		archive->SeekHed(file_info->starts[i]);
 
-		DWORD dwDstSize = file_info->sizesOrg[i];
+		const DWORD dst_size = file_info->sizesOrg[i];
 
-		for (DWORD dwWroteSizes = 0; dwWroteSizes != dwDstSize; dwWroteSizes += dwBufferSize)
+		for (DWORD wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 		{
 			// Adjust buffer size
 
-			pclArc->SetBufSize(&dwBufferSize, dwWroteSizes, dwDstSize);
+			archive->SetBufSize(&buffer_size, wrote_size, dst_size);
 
-			pclArc->Read(&clmbtBuffer[0], dwBufferSize);
-			pclArc->WriteFile(&clmbtBuffer[0], dwBufferSize);
+			archive->Read(&buffer[0], buffer_size);
+			archive->WriteFile(&buffer[0], buffer_size);
 		}
 	}
 
-	pclArc->CloseFile();
+	archive->CloseFile();
 
 	return true;
 }
 
 /// Set MD5 value for tpm in the archive folder
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CKrkr::SetMD5ForTpm(CArcFile* pclArc)
+void CKrkr::SetMD5ForTpm(CArcFile* archive)
 {
-	if (pclArc->CheckMD5OfSet())
+	if (archive->CheckMD5OfSet())
 	{
 		// If it has already been set
 		return;
 	}
 
 	// Get directory path to the archive
-	TCHAR szBasePathToTpm[MAX_PATH];
+	TCHAR base_path_to_tpm[MAX_PATH];
 
-	lstrcpy(szBasePathToTpm, pclArc->GetArcPath());
-	PathRemoveFileSpec(szBasePathToTpm);
+	lstrcpy(base_path_to_tpm, archive->GetArcPath());
+	PathRemoveFileSpec(base_path_to_tpm);
 
 	// Get the tpm file path
-	CFindFile clFindFile;
-	std::vector<YCString> tpm_paths = clFindFile.DoFind(szBasePathToTpm, _T("*.tpm"));
+	CFindFile find_file;
+	std::vector<YCString> tpm_paths = find_file.DoFind(base_path_to_tpm, _T("*.tpm"));
 
 	// Set the tpm MD5 value
-	CMD5 clmd5Tpm;
+	CMD5 md5;
 
 	for (const auto& path : tpm_paths)
 	{
-		pclArc->SetMD5(clmd5Tpm.Calculate(path));
+		archive->SetMD5(md5.Calculate(path));
 	}
 
-	pclArc->SetMD5OfFlag(true);
+	archive->SetMD5OfFlag(true);
 }
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CKrkr::OnCheckDecrypt(CArcFile* pclArc)
+bool CKrkr::OnCheckDecrypt(CArcFile* archive)
 {
 	return true;
 }
 
 /// Verifies that the MD5 value of tpm in the archive folder matches
 ///
-/// @param pszMD5 MD5
+/// @param md5 MD5
 ///
-bool CKrkr::CheckTpm(const char* pszMD5) const
+bool CKrkr::CheckTpm(const char* md5) const
 {
 	// Comparison
-	for (size_t i = 0; i < m_pclArc->GetMD5().size(); i++)
+	for (size_t i = 0; i < m_archive->GetMD5().size(); i++)
 	{
-		if (memcmp(pszMD5, m_pclArc->GetMD5()[i].szABCD, 32) == 0)
+		if (memcmp(md5, m_archive->GetMD5()[i].szABCD, 32) == 0)
 		{
 			// Matches
 			return true;
@@ -485,11 +485,11 @@ bool CKrkr::CheckTpm(const char* pszMD5) const
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CKrkr::InitDecrypt(CArcFile* pclArc)
+void CKrkr::InitDecrypt(CArcFile* archive)
 {
-	m_pclArc = pclArc;
+	m_archive = archive;
 
 	// Enable decryption request
 	SetDecryptRequirement(true);
@@ -498,86 +498,86 @@ void CKrkr::InitDecrypt(CArcFile* pclArc)
 	SetDecryptSize(0);
 
 	// Call the initialization function that has been overwritten
-	m_dwDecryptKey = OnInitDecrypt(pclArc);
+	m_decrypt_key = OnInitDecrypt(archive);
 }
 
 /// By default, use simple decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CKrkr::OnInitDecrypt(CArcFile* pclArc)
+DWORD CKrkr::OnInitDecrypt(CArcFile* archive)
 {
-	DWORD dwDecryptKey = pclArc->InitDecrypt();
+	const DWORD decrypt_key = archive->InitDecrypt();
 
 	// Unencrypted
-	if (dwDecryptKey == 0)
+	if (decrypt_key == 0)
 	{
 		SetDecryptRequirement(false);
 	}
 
-	return dwDecryptKey;
+	return decrypt_key;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Decoding size
-/// @param dwOffset     Offset of data to be decoded
+/// @param target      Data to be decoded
+/// @param target_size Decoding size
+/// @param offset      Offset of data to be decoded
 ///
-DWORD CKrkr::Decrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset)
+DWORD CKrkr::Decrypt(BYTE* target, DWORD target_size, DWORD offset)
 {
 	// No decryption requests
 	if (!m_bDecrypt)
 	{
-		return dwTargetSize;
+		return target_size;
 	}
 
-	DWORD dwDecryptSize = m_dwDecryptSize;
+	DWORD decrypt_size = m_decrypt_size;
 
 	// Decoding size has not been set
-	if (dwDecryptSize == 0)
+	if (decrypt_size == 0)
 	{
-		return OnDecrypt(pbtTarget, dwTargetSize, dwOffset, m_dwDecryptKey);
+		return OnDecrypt(target, target_size, offset, m_decrypt_key);
 	}
 	else // Decoding size has been set
 	{
 		// Don't decode anymore
-		if (dwOffset >= dwDecryptSize)
+		if (offset >= decrypt_size)
 		{
-			return dwTargetSize;
+			return target_size;
 		}
 
 		// Size is larger than the predetermined decryption data size
-		if (dwDecryptSize > dwTargetSize)
+		if (decrypt_size > target_size)
 		{
-			dwDecryptSize = dwTargetSize;
+			decrypt_size = target_size;
 		}
 
-		OnDecrypt(pbtTarget, dwDecryptSize, dwOffset, m_dwDecryptKey);
+		OnDecrypt(target, decrypt_size, offset, m_decrypt_key);
 
-		return dwTargetSize;
+		return target_size;
 	}
 }
 
 /// By default, use simple decoding
 ///
-/// Remark: The dwDecryptKey returns the value from OnInitDecrypt
+/// Remark: The decrypt_key returns the value from OnInitDecrypt
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CKrkr::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CKrkr::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	m_pclArc->Decrypt(pbtTarget, dwTargetSize);
+	m_archive->Decrypt(target, target_size);
 
-	return dwTargetSize;
+	return target_size;
 }
 
 /// Set decryption request
 ///
-/// @param bDecrypt Decryption request
+/// @param decrypt Decryption request
 ///
 void CKrkr::SetDecryptRequirement(bool decrypt)
 {
@@ -586,67 +586,67 @@ void CKrkr::SetDecryptRequirement(bool decrypt)
 
 /// Set decoding size
 ///
-/// @param dwDecryptSize - Decoding size
+/// @param decrypt_size - Decoding size
 ///
-void CKrkr::SetDecryptSize(DWORD dwDecryptSize)
+void CKrkr::SetDecryptSize(DWORD decrypt_size)
 {
-	m_dwDecryptSize = dwDecryptSize;
+	m_decrypt_size = decrypt_size;
 }
 
 /// Get the offset for the location of the archive within an EXE file.
 ///
 /// Remark: KiriKiri allows its resources to be stored within an executable
 ///
-/// @param pclArc    Archive
-/// @param pdwOffset Offset within archive
+/// @param archive Archive
+/// @param offset  Offset within archive
 ///
-bool CKrkr::FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset)
+bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset)
 {
 	// Is not a kirikiri executable
-	if (pclArc->GetArcSize() <= 0x200000)
+	if (archive->GetArcSize() <= 0x200000)
 	{
 		return false;
 	}
 
-	*pdwOffset = 16;
+	*offset = 16;
 
-	pclArc->SeekHed(16);
+	archive->SeekHed(16);
 
-	BYTE abtBuffer[4096];
-	DWORD dwReadSize;
+	BYTE buffer[4096];
+	DWORD read_size;
 
 	do
 	{
-		dwReadSize = pclArc->Read(abtBuffer, sizeof(abtBuffer));
+		read_size = archive->Read(buffer, sizeof(buffer));
 
-		for (DWORD i = 0, j = 0; i < (dwReadSize / 16); i++, j += 16)
+		for (DWORD i = 0, j = 0; i < (read_size / 16); i++, j += 16)
 		{
 			// Found XP3 archive
-			if (memcmp(&abtBuffer[j], "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
+			if (memcmp(&buffer[j], "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
 			{
-				*pdwOffset += j;
+				*offset += j;
 				return true;
 			}
 		}
 
-		*pdwOffset += dwReadSize;
+		*offset += read_size;
 
-		if (*pdwOffset >= 0x500000)
+		if (*offset >= 0x500000)
 		{
 			// Truncate search
 			break;
 		}
 
 		// If canceled
-		if (pclArc->GetProg()->OnCancel())
+		if (archive->GetProg()->OnCancel())
 		{
 			throw - 1;
 		}
-	} while (dwReadSize == sizeof(abtBuffer));
+	} while (read_size == sizeof(buffer));
 
 	// No XP3 archive
-	*pdwOffset = 0;
-	pclArc->SeekHed();
+	*offset = 0;
+	archive->SeekHed();
 
 	return false;
 }

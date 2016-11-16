@@ -6,9 +6,9 @@
 class CKrkr : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-	bool Extract(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
+	bool Extract(CArcFile* archive) override;
 
 protected:
 	// File chunk
@@ -50,34 +50,34 @@ protected:
 	};
 
 	//  Check whether or not it can be decoded
-	virtual bool OnCheckDecrypt(CArcFile* pclArc);
+	virtual bool OnCheckDecrypt(CArcFile* archive);
 
 	// Check tpm
-	bool CheckTpm(const char* pszMD5) const;
+	bool CheckTpm(const char* md5) const;
 
 	// Set decryption key
-	void InitDecrypt(CArcFile* pclArc);
-	virtual DWORD OnInitDecrypt(CArcFile* pclArc);
+	void InitDecrypt(CArcFile* archive);
+	virtual DWORD OnInitDecrypt(CArcFile* archive);
 
 	// Decoding
-	DWORD Decrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset);
-	virtual DWORD OnDecrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey);
+	DWORD Decrypt(BYTE* target, DWORD target_size, DWORD offset);
+	virtual DWORD OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key);
 
 	// Set decryption request
 	void SetDecryptRequirement(bool decrypt);
 
 	// Set decryption size
-	void SetDecryptSize(DWORD dwDecryptSize);
+	void SetDecryptSize(DWORD decrypt_size);
 
 	// Find XP3 from within an EXE file
-	bool FindXP3FromExecuteFile(CArcFile* pclArc, DWORD* pdwOffset);
+	bool FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset);
 
 private:
 	bool        m_bDecrypt;      // Decryption request
-	DWORD       m_dwDecryptKey;
-	DWORD       m_dwDecryptSize; // Decryption size
-	YCString    m_clsTpmPath;
-	CArcFile*   m_pclArc;
+	DWORD       m_decrypt_key;
+	DWORD       m_decrypt_size; // Decryption size
+	YCString    m_tpm_path;
+	CArcFile*   m_archive;
 
-	void SetMD5ForTpm(CArcFile* pclArc);
+	void SetMD5ForTpm(CArcFile* archive);
 };
