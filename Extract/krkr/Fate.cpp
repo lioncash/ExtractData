@@ -3,50 +3,50 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CFate::OnCheckDecrypt(CArcFile* pclArc)
+bool CFate::OnCheckDecrypt(CArcFile* archive)
 {
-	static const std::array<const char*, 2> apszMD5 = {{
+	static const std::array<const char*, 2> md5 = {{
 		"4BE5F676CE80429B3245DA9E721FE23B",
 		"7570E3AFA14F221268DCC48CAEE1277F",
 	}};
 
-	return std::any_of(apszMD5.begin(), apszMD5.end(), [this](const char* str) { return CheckTpm(str); });
+	return std::any_of(md5.begin(), md5.end(), [this](const char* str) { return CheckTpm(str); });
 }
 
 /// Initialization of Decryption Routine
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CFate::OnInitDecrypt(CArcFile* pclArc)
+DWORD CFate::OnInitDecrypt(CArcFile* archive)
 {
 	return 0x36;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CFate::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CFate::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= dwDecryptKey;
+		target[i] ^= decrypt_key;
 
-		if ((dwOffset + i) == 0x13)
+		if ((offset + i) == 0x13)
 		{
-			pbtTarget[i] ^= 0x01;
+			target[i] ^= 0x01;
 		}
 
-		if ((dwOffset + i) == 0x2EA29)
+		if ((offset + i) == 0x2EA29)
 		{
-			pbtTarget[i] ^= 0x03;
+			target[i] ^= 0x03;
 		}
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
