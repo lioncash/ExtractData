@@ -1,37 +1,25 @@
 #include "stdafx.h"
 #include "Haruoto.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool CHaruoto::Mount(CArcFile* pclArc)
+bool CHaruoto::Mount(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("haruoto.exe")))
+	if (!archive->CheckExe(_T("haruoto.exe")))
 		return false;
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool CHaruoto::Decode(CArcFile* pclArc)
+bool CHaruoto::Decode(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("haruoto.exe")))
+	if (!archive->CheckExe(_T("haruoto.exe")))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
-/// Initialize Mount Key
-///
-/// @param pclArc Archive
-///
-void CHaruoto::InitMountKey(CArcFile* pclArc)
+void CHaruoto::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x6A\xE9\x0C\x8F\xCF\x05\x91\x36\xFC\xD7\xD5\x02\x92\xE7\xEB\xAA\x9D\x85\x95\xD7\x4B\x93\xE1\x56\x6E\x10\x80\xFC\xB1\x63\xE9\x57" },
 		{ _T("bg"),     "\x3E\x63\xB9\x37\xC9\x3F\x6F\xF9\x97\x5C\x3F\xD2\xF7\x41\x47\x55\x5E\xF9\x15\xC9\x29\xE2\x41\x55\x13\x35\xCB\xEB\x77\x58\x34\xF5" },
@@ -43,16 +31,12 @@ void CHaruoto::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x2A\x6A\x46\xAB\x22\x1E\x14\x45\x04\x20\xD6\x68\x26\xDE\xF2\xCE\x86\xCC\xBF\x65\x88\x2F\x1C\x7C\x70\xA9\xD2\xAE\xA1\x87\xAA\x8C" }
 	};
 
-	SetKey( pclArc, astKeyInfo );
+  SetKey(archive, key_info);
 }
 
-/// Initialize Decode Key
-///
-/// @param pclArc Archive
-///
-void CHaruoto::InitDecodeKey(CArcFile* pclArc)
+void CHaruoto::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x9D\x6C\x31\x1A\x49\x4A\xA6\x44\xE3\xEC\x31\x15\xE3\x5A\x68\xB1\x08\xBF\x75\x91\x19\x3D\xA9\xAC\x5C\x6F\xDE\x69\xD5\xBD\x90\x42"},
 		{ _T("bg"),     "\x46\xE6\x5E\xC1\xC7\x7A\x24\xAC\x10\x3E\xB8\x10\x46\x36\xBF\xED\x96\x4B\x2C\x59\xF2\x19\xDF\xA8\x8B\x79\xFD\x5B\x12\xCC\x0D\xC9"},
@@ -64,5 +48,5 @@ void CHaruoto::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\xC8\xB4\xFB\xD3\xCE\xA6\xD5\xF4\x28\x29\x5D\xEA\x55\x2B\x75\x05\x9F\x43\x0D\x63\xD4\x77\xBE\x26\xC1\xCC\x2C\x5B\x71\x91\x18\xA4"}
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
