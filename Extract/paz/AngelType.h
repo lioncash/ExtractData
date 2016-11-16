@@ -5,10 +5,10 @@
 class CAngelType final : public CPaz
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 protected:
-	void InitMountKey(CArcFile* pclArc) override;
-	void InitDecodeKey(CArcFile* pclArc) override;
+	void InitMountKey(CArcFile* archive) override;
+	void InitDecodeKey(CArcFile* archive) override;
 };
