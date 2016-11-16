@@ -1,37 +1,25 @@
 #include "stdafx.h"
 #include "ef_trial.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool Cef_trial::Mount(CArcFile* pclArc)
+bool Cef_trial::Mount(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("ef_trial.exe")))
+	if (!archive->CheckExe(_T("ef_trial.exe")))
 		return false;
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool Cef_trial::Decode(CArcFile* pclArc)
+bool Cef_trial::Decode(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("ef_trial.exe")))
+	if (!archive->CheckExe(_T("ef_trial.exe")))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
-/// Initialize mount key
-///
-/// @param pclArc Archive
-///
-void Cef_trial::InitMountKey(CArcFile* pclArc)
+void Cef_trial::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x37\xE8\x78\x4D\xEA\xB4\x88\x3C\x4F\x52\x35\xDC\xC6\x02\x97\x5E\x4F\x15\xBF\x7D\xF8\xA4\x99\xD0\xE8\x71\x4C\xAC\xC4\xAC\xD9\x47" },
 		{ _T("bg"),     "\x35\x71\xB4\xF4\x41\xAA\x16\x22\x4E\x1F\xCF\xE8\x71\x71\x55\xE3\xE6\xC0\xCA\x17\x5B\xC4\xC1\xA6\xDE\x07\x80\x0A\x21\x16\x7C\x9D" },
@@ -43,16 +31,12 @@ void Cef_trial::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x7E\x32\xD4\xA7\x2F\x0C\xAE\x61\xB8\xAA\x15\xA2\xDC\xA5\x97\xC0\xA9\xAC\xAF\xAF\x00\xD4\xD1\xF1\xCB\x1E\xE6\x16\x77\xDD\x0B\x86" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
-/// Initialize decode key
-///
-/// @param pclArc Archive
-///
-void Cef_trial::InitDecodeKey(CArcFile* pclArc)
+void Cef_trial::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x46\x79\xA3\xCE\x7F\x4E\xD6\x9D\x62\x0E\x42\x95\x1D\x19\x1D\x05\xCB\xEC\x7B\x25\x89\xF3\xCB\x82\x1E\x8D\xD9\xFD\x04\xF4\x10\x18" },
 		{ _T("bg"),     "\x85\xD5\xAA\x49\xC1\x57\xAE\x1A\x44\x48\x5A\xDB\xFF\x37\xD3\x98\x5B\x41\xCB\x24\x23\x41\xEB\xE3\x17\x30\xAD\x2E\xCB\x70\x7F\xFA" },
@@ -64,5 +48,5 @@ void Cef_trial::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x5B\x69\xEB\xD2\x82\x35\xE9\x28\x17\x0F\x84\x23\x17\x5E\x56\x69\x1B\xAB\xCE\x9A\x86\x11\xD4\x5D\x4E\xDE\xE5\x01\x28\x1D\x75\x66" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
