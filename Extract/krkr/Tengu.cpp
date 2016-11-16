@@ -3,18 +3,18 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTengu::OnCheckDecrypt(CArcFile* pclArc)
+bool CTengu::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("CE093BB86595E62ADBCB1280CA6583EF");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CTengu::OnInitDecrypt(CArcFile* pclArc)
+DWORD CTengu::OnInitDecrypt(CArcFile* archive)
 {
 	// Decryption Key
 	return 0x08;
@@ -22,46 +22,46 @@ DWORD CTengu::OnInitDecrypt(CArcFile* pclArc)
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CTengu::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CTengu::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	BYTE btDecryptKey = (BYTE)dwDecryptKey;
+	BYTE byte_decrypt_key = (BYTE)decrypt_key;
 
-	// Decryption 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	// Decryption
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptKey;
+		target[i] ^= byte_decrypt_key;
 	}
 
-	if (memcmp(pbtTarget, "\xFE\xFE\x01\xFF\xFE", 5) != 0)
+	if (memcmp(target, "\xFE\xFE\x01\xFF\xFE", 5) != 0)
 	{
-		return	dwTargetSize;
+		return target_size;
 	}
 
 	// Temporary Copy
-	YCMemory<BYTE> clmbtTemporary(dwTargetSize);
-	memcpy(&clmbtTemporary[0], pbtTarget, dwTargetSize);
-	ZeroMemory(pbtTarget, dwTargetSize);
+	YCMemory<BYTE> temporary(target_size);
+	memcpy(&temporary[0], target, target_size);
+	ZeroMemory(target, target_size);
 
 	// Decryption 
-	for (DWORD i = 5, j = 0; i < dwTargetSize; i += 2, j += 2)
+	for (size_t i = 5, j = 0; i < target_size; i += 2, j += 2)
 	{
-		WORD wWork1 = *(WORD*)&clmbtTemporary[i];
-		WORD wWork2 = wWork1;
+		WORD work1 = *(WORD*)&temporary[i];
+		WORD work2 = work1;
 
-		wWork1 = (wWork1 & 0x5555) << 1;
-		wWork2 = (wWork2 & 0xAAAA) >> 1;
+		work1 = (work1 & 0x5555) << 1;
+		work2 = (work2 & 0xAAAA) >> 1;
 
-		*(WORD*)&pbtTarget[j] = (wWork1 | wWork2);
+		*(WORD*)&target[j] = (work1 | work2);
 	}
 
 	// Convert to a multi-byte character
-	YCStringA clsWork = (wchar_t*)pbtTarget;
-	strcpy((char*)pbtTarget, clsWork);
+	YCStringA work = (wchar_t*)target;
+	strcpy((char*)target, work);
 
-	return (DWORD)clsWork.GetLength();
+	return (DWORD)work.GetLength();
 }
