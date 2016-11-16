@@ -5,10 +5,10 @@
 class CHimesyo final : public CKrkr
 {
 public:
-	bool  OnCheckDecrypt(CArcFile* pclArc) override;
-	DWORD OnInitDecrypt(CArcFile* pclArc) override;
-	DWORD OnDecrypt(BYTE* pvTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey) override;
+	bool  OnCheckDecrypt(CArcFile* archive) override;
+	DWORD OnInitDecrypt(CArcFile* archive) override;
+	DWORD OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key) override;
 
 private:
-	DWORD m_dwChangeDecryptKey;
+	DWORD m_change_decrypt_key;
 };
