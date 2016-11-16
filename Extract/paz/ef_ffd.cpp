@@ -1,37 +1,25 @@
 #include "stdafx.h"
 #include "ef_ffd.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool Cef_ffd::Mount(CArcFile* pclArc)
+bool Cef_ffd::Mount(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("ef_ffd.exe")))
+	if (!archive->CheckExe(_T("ef_ffd.exe")))
 		return false;
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool Cef_ffd::Decode(CArcFile* pclArc)
+bool Cef_ffd::Decode(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("ef_ffd.exe")))
+	if (!archive->CheckExe(_T("ef_ffd.exe")))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
-/// Initialize mount key
-///
-/// @param pclArc Archive
-///
-void Cef_ffd::InitMountKey(CArcFile* pclArc)
+void Cef_ffd::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x9C\xD4\x50\x29\x8F\x0A\x0B\x33\x9F\x85\xE8\xD8\xAE\x59\x72\x03\x42\x21\x5A\x25\x78\x1E\x0D\x6B\x79\xE4\xAC\xD1\x22\x55\x22\xF0" },
 		{ _T("bg"),     "\xAF\xA7\x0C\x31\x21\x35\x49\x28\x1C\xDB\xDF\xE8\x05\xA4\xFE\xF1\x1C\x7E\xE0\x9E\x4F\xB8\x40\xAA\x8C\x16\x36\xB6\x4C\x26\x24\x6A" },
@@ -43,16 +31,12 @@ void Cef_ffd::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x2D\x6D\x3E\x50\xDB\xF9\x5F\xF9\xAC\x64\xD9\x7A\x0B\xA1\x1E\x91\x83\xBC\x0B\xA7\xD2\x99\xA7\x9E\x78\x3F\x35\x8D\x87\x77\x6B\x2A" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
-/// Initialize decode key
-///
-/// @param pclArc Archive
-///
-void Cef_ffd::InitDecodeKey(CArcFile* pclArc)
+void Cef_ffd::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x67\x71\x7C\x99\x60\x31\xC8\x70\x98\x91\xDF\xA1\x4E\x8A\xA5\x12\x19\x8A\x52\xA2\xD4\x94\x09\x55\x17\xF0\xD5\x75\xDF\x22\xB3\x55" },
 		{ _T("bg"),     "\x35\xF4\x8B\x89\x9B\x42\xB1\x40\xE2\x5D\xD3\x97\x51\xB4\xF8\x8B\xB4\x84\x60\x60\x3A\x63\xFF\x2E\xBE\x46\x52\x60\x5A\xDF\x53\xD8" },
@@ -64,5 +48,5 @@ void Cef_ffd::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x91\x60\x0A\x03\x84\xBA\xED\xE1\x42\xB7\x9C\xFE\x17\xAE\x5F\x94\x1D\xFD\x1C\xF8\x4F\xCB\x0F\x66\x1E\x53\xE3\xC0\x3A\x81\xE4\xF5" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
