@@ -3,41 +3,41 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CFlyingShine::OnCheckDecrypt(CArcFile* pclArc)
+bool CFlyingShine::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("2FAA3AF83558C93EC2C44F06DD727ED5");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CFlyingShine::OnInitDecrypt(CArcFile* pclArc)
+DWORD CFlyingShine::OnInitDecrypt(CArcFile* archive)
 {
-	return pclArc->GetOpenFileInfo()->key & 0xFFFF;
+	return archive->GetOpenFileInfo()->key & 0xFFFF;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CFlyingShine::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CFlyingShine::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	BYTE btDecryptkey1 = (BYTE)((dwDecryptKey >> 8) & 0xFF);
-	BYTE btDecryptkey2 = (BYTE)((dwDecryptKey & 0xFF) % 8);
+	BYTE decrypt_key1 = (BYTE)((decrypt_key >> 8) & 0xFF);
+	BYTE decrypt_key2 = (BYTE)((decrypt_key & 0xFF) % 8);
 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptkey1;
+		target[i] ^= decrypt_key1;
 
 		// Rotate Right
-		pbtTarget[i] = (pbtTarget[i] >> btDecryptkey2) | (pbtTarget[i] << (8 - btDecryptkey2));
+		target[i] = (target[i] >> decrypt_key2) | (target[i] << (8 - decrypt_key2));
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
