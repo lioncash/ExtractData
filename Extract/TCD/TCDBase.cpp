@@ -4,245 +4,237 @@
 #include "Extract/TCD/TCDBase.h"
 #include "Utils/BitUtils.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool CTCDBase::Mount(CArcFile* pclArc)
+bool CTCDBase::Mount(CArcFile* archive)
 {
 	return false;
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool CTCDBase::Decode(CArcFile* pclArc)
+bool CTCDBase::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format == _T("TCT"))
-		return DecodeTCT(pclArc);
+		return DecodeTCT(archive);
 
 	if (file_info->format == _T("TSF"))
-		return DecodeTSF(pclArc);
+		return DecodeTSF(archive);
 
 	if (file_info->format == _T("SPD"))
-		return DecodeSPD(pclArc);
+		return DecodeSPD(archive);
 
 	if (file_info->format == _T("OGG"))
-		return DecodeOgg(pclArc);
+		return DecodeOgg(archive);
 
 	return false;
 }
 
 /// Decode TCT
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCDBase::DecodeTCT(CArcFile* pclArc)
+bool CTCDBase::DecodeTCT(CArcFile* archive)
 {
 	// TSF Decoding routine
 
-	return DecodeTSF(pclArc);
+	return DecodeTSF(archive);
 }
 
 /// Decode TSF
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCDBase::DecodeTSF(CArcFile* pclArc)
+bool CTCDBase::DecodeTSF(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Adjust input buffer
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	const DWORD src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// Ensure output buffer
-	DWORD dwDstSize = *(DWORD*)&clmbtSrc[0];
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const DWORD dst_size = *(DWORD*)&src[0];
+	YCMemory<BYTE> dst(dst_size);
 
 	// Decompress
-	DecompLZSS(&clmbtDst[0], dwDstSize, &clmbtSrc[4], (dwSrcSize - 4));
+	DecompLZSS(&dst[0], dst_size, &src[4], (src_size - 4));
 
 	// Decode
-	Decrypt(&clmbtDst[0], dwDstSize);
+	Decrypt(&dst[0], dst_size);
 
 	// Output
-	pclArc->OpenFile();
-	pclArc->WriteFile(&clmbtDst[0], dwDstSize, dwSrcSize);
+	archive->OpenFile();
+	archive->WriteFile(&dst[0], dst_size, src_size);
 
 	return true;
 }
 
 /// Decode SPD
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCDBase::DecodeSPD(CArcFile* pclArc)
+bool CTCDBase::DecodeSPD(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	const DWORD src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// Get header info
-	DWORD dwDataSize = *(DWORD*)&clmbtSrc[16];
+	const DWORD data_size = *(DWORD*)&src[16];
 
-	long lWidth = *(long*)&clmbtSrc[8] - ((dwDataSize & 0x04DF) << 2);
-	long lHeight = *(long*)&clmbtSrc[12] - ((dwDataSize >> 2) & 0xF731);
-	WORD wBpp = *(WORD*)&clmbtSrc[6];
+	const long width = *(long*)&src[8] - ((data_size & 0x04DF) << 2);
+	const long height = *(long*)&src[12] - ((data_size >> 2) & 0xF731);
+	WORD bpp = *(WORD*)&src[6];
 
-	DWORD dwFlags = *(DWORD*)&clmbtSrc[4] - ((dwDataSize << 4) & 0xFFFF);
+	const DWORD flags = *(DWORD*)&src[4] - ((data_size << 4) & 0xFFFF);
 
 	// Ensure output buffer
-	DWORD dwDstSize = dwDataSize;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const DWORD dst_size = data_size;
+	YCMemory<BYTE> dst(dst_size);
 
-	DWORD dwDstSize2 = lWidth * lHeight * 4;
-	YCMemory<BYTE> clmbtDst2;
+	const DWORD dst_size2 = width * height * 4;
+	YCMemory<BYTE> dst2;
 
-	BYTE* pbtUnLZSSBuffer = &clmbtSrc[0];
-	DWORD dwUnLZSSBufferSize = dwSrcSize;
+	BYTE* unlzss_buffer = &src[0];
+	DWORD unlzss_buffer_size = src_size;
 
-	BYTE* pbtDstForFinal = &clmbtDst[0];
-	DWORD dwDstSizeForFinal = dwDstSize;
+	BYTE* output_buffer = &dst[0];
+	DWORD output_buffer_size = dst_size;
 
 	// Decompression
 
-	if ((dwFlags & 0xFF00) == 0)
+	if ((flags & 0xFF00) == 0)
 	{
-		DecompLZSS(&clmbtDst[0], dwDstSize, &clmbtSrc[20], (dwSrcSize - 20));
+		DecompLZSS(&dst[0], dst_size, &src[20], (src_size - 20));
 
 		// Ensure buffer to perform the following decompression
 
-		clmbtDst2.resize(dwDstSize2);
+		dst2.resize(dst_size2);
 
-		pbtUnLZSSBuffer = &clmbtDst[0];
-		dwUnLZSSBufferSize = dwDstSize;
+		unlzss_buffer = &dst[0];
+		unlzss_buffer_size = dst_size;
 
-		pbtDstForFinal = &clmbtDst2[0];
-		dwDstSizeForFinal = dwDstSize2;
+		output_buffer = &dst2[0];
+		output_buffer_size = dst_size2;
 	}
 
-	switch (dwFlags & 0xFFFF)
+	switch (flags & 0xFFFF)
 	{
 	case 0: // RLE0
-		wBpp = 32;
-		DecompRLE0(&pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize);
+		bpp = 32;
+		DecompRLE0(&output_buffer[0], output_buffer_size, &unlzss_buffer[0], unlzss_buffer_size);
 		break;
 
 	case 1: // No compression
-		pbtDstForFinal = pbtUnLZSSBuffer;
-		dwDstSizeForFinal = dwUnLZSSBufferSize;
+		output_buffer = unlzss_buffer;
+		output_buffer_size = unlzss_buffer_size;
 		break;
 
 	case 2: // RLE2
-		wBpp = 32;
-		DecompRLE2(&pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize);
+		bpp = 32;
+		DecompRLE2(&output_buffer[0], output_buffer_size, &unlzss_buffer[0], unlzss_buffer_size);
 		break;
 
 	case 257: // Compression Transformation
-		DecompSPD(&pbtDstForFinal[0], dwDstSizeForFinal, &pbtUnLZSSBuffer[0], dwUnLZSSBufferSize, lWidth);
+		DecompSPD(&output_buffer[0], output_buffer_size, &unlzss_buffer[0], unlzss_buffer_size, width);
 		break;
 
 	default: // Unknown
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 		return true;
 	}
 
 	// Output
 
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-	clImage.WriteReverse(pbtDstForFinal, dwDstSizeForFinal, dwSrcSize);
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(output_buffer, output_buffer_size, src_size);
 
 	return true;
 }
 
 /// Decode Ogg Vorbis
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCDBase::DecodeOgg(CArcFile* pclArc)
+bool CTCDBase::DecodeOgg(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	const DWORD src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// Fix the CRC of Ogg Vorbis on output
-	COgg clOgg;
-	clOgg.Decode(pclArc, &clmbtSrc[0]);
+	COgg ogg;
+	ogg.Decode(archive, &src[0]);
 
 	return true;
 }
 
 /// Decompress LZSS
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst       Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_size)
 {
-	BYTE* pbtDst = (BYTE*)pvDst;
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
+	BYTE* byte_dst = (BYTE*)dst;
+	const BYTE* byte_src = (const BYTE*)src;
 
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	DWORD src_ptr = 0;
+	DWORD dst_ptr = 0;
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		BYTE btFlags = pbtSrc[dwSrcPtr++];
+		BYTE flags = byte_src[src_ptr++];
 
-		for (DWORD i = 0; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize); i++)
+		for (DWORD i = 0; (i < 8) && (src_ptr < src_size) && (dst_ptr < dst_size); i++)
 		{
-			if (btFlags & 1)
+			if (flags & 1)
 			{
 				// No compression
 
-				pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
+				byte_dst[dst_ptr++] = byte_src[src_ptr++];
 			}
 			else
 			{
 				// Is compressed 
 
-				WORD wWork = *(WORD*)&pbtSrc[dwSrcPtr];
+				const WORD work = *(WORD*)&byte_src[src_ptr];
 
-				WORD wLength = (wWork & 0x0F) + 3;
-				WORD wBack = (wWork >> 4);
+				WORD length = (work & 0x0F) + 3;
+				const WORD back = work >> 4;
 
-				DWORD dwBackPtr = (dwDstPtr - wBack);
+				DWORD back_ptr = dst_ptr - back;
 
-				if ((dwDstPtr + wLength) > dwDstSize)
+				if (dst_ptr + length > dst_size)
 				{
-					wLength = dwDstSize - dwDstPtr;
+					length = dst_size - dst_ptr;
 				}
 
-				for (DWORD j = 0; j < wLength; j++)
+				for (size_t j = 0; j < length; j++)
 				{
-					pbtDst[dwDstPtr++] = pbtDst[dwBackPtr++];
+					byte_dst[dst_ptr++] = byte_dst[back_ptr++];
 				}
 
-				dwSrcPtr += 2;
+				src_ptr += 2;
 			}
 
-			btFlags >>= 1;
+			flags >>= 1;
 		}
 	}
 
@@ -251,62 +243,62 @@ bool CTCDBase::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 
 /// Decode RLE (Type 0)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE* pbtDst = (BYTE*)pvDst;
+	const BYTE* byte_src = (const BYTE*)src;
+	BYTE* byte_dst = (BYTE*)dst;
 
-	DWORD dwOffset = *(DWORD*)&pbtSrc[0];
-	DWORD dwPixelCount = *(DWORD*)&pbtSrc[4];
-	DWORD dwZeroFlag = *(DWORD*)&pbtSrc[8];
+	const DWORD offset = *(DWORD*)&byte_src[0];
+	const DWORD pixel_count = *(DWORD*)&byte_src[4];
+	const DWORD zero_flag = *(DWORD*)&byte_src[8];
 
-	bool is_zero = dwZeroFlag == 0;
+	bool is_zero = zero_flag == 0;
 
-	DWORD dwSrcHeaderPtr = 12;
-	DWORD dwSrcDataPtr = dwOffset;
-	DWORD dwDstPtr = 0;
+	DWORD src_header_ptr = 12;
+	DWORD src_data_ptr = offset;
+	DWORD dst_ptr = 0;
 
-	while ((dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
 	{
-		DWORD dwLength = *(DWORD*)&pbtSrc[dwSrcHeaderPtr];
+		const DWORD length = *(DWORD*)&byte_src[src_header_ptr];
 
-		dwSrcHeaderPtr += 4;
+		src_header_ptr += 4;
 
-		if ((dwDstPtr + (dwLength * 4)) > dwDstSize)
+		if ((dst_ptr + (length * 4)) > dst_size)
 		{
 			MessageBox(nullptr, _T("Output buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 		}
 
 		if (is_zero)
 		{
-			for (DWORD i = 0; i < dwLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 4; j++)
 				{
-					pbtDst[dwDstPtr++] = 0x00;
+					byte_dst[dst_ptr++] = 0x00;
 				}
 			}
 		}
 		else
 		{
-			if ((dwSrcDataPtr + (dwLength * 3)) > dwSrcSize)
+			if ((src_data_ptr + (length * 3)) > src_size)
 			{
 				MessageBox(nullptr, _T("Input buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < dwLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 3; j++)
 				{
-					pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
 				}
 
-				pbtDst[dwDstPtr++] = 0xFF;
+				byte_dst[dst_ptr++] = 0xFF;
 			}
 		}
 
@@ -318,27 +310,27 @@ bool CTCDBase::DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD
 
 /// Decode RLE (Type 2)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CTCDBase::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCDBase::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
 {
 	return false;
 }
 
 /// Decompress SPD
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
-/// @param lWidth    Image width
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
+/// @param width    Image width
 ///
-bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
+bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_size, long width)
 {
-	static const BYTE abtKey1[256] = {
+	static const BYTE key1[256] = {
 		0x10, 0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1, 0xF0,
 		0x08, 0x08, 0x07, 0x07, 0x06, 0x06, 0x05, 0x05, 0xFB, 0xFB, 0xFA, 0xFA, 0xF9, 0xF9, 0xF8, 0xF8,
 		0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -357,7 +349,7 @@ bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE
 	};
 
-	static const BYTE abtKey2[1024] = {
+	static const BYTE key2[1024] = {
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
@@ -424,7 +416,7 @@ bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00
 	};
 
-	static const BYTE abtKey3[128] = {
+	static const BYTE key3[128] = {
 		0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
 		0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
 		0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
@@ -435,114 +427,113 @@ bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 		0x04, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00
 	};
 
-	long alKey4[28];
-	long lWork;
+	long key4[28];
 
-	for (DWORD i = 0; i < 16; i++)
+	for (size_t i = 0; i < 16; i++)
 	{
-		alKey4[i] = -3;
+		key4[i] = -3;
 	}
 
-	lWork = ~(lWidth * 3) + 1;
+	const long work = ~(width * 3) + 1;
 
-	for (DWORD i = 16; i < 24; i++)
+	for (size_t i = 16; i < 24; i++)
 	{
-		alKey4[i] = lWork;
+		key4[i] = work;
 	}
 
-	for (DWORD i = 24; i < 26; i++)
+	for (size_t i = 24; i < 26; i++)
 	{
-		alKey4[i] = (lWork - 3);
+		key4[i] = (work - 3);
 	}
 
-	for (DWORD i = 26; i < 28; i++)
+	for (size_t i = 26; i < 28; i++)
 	{
-		alKey4[i] = (lWork + 3);
+		key4[i] = (work + 3);
 	}
 
 	// Decompress
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE* pbtDst = (BYTE*)pvDst;
+	const BYTE* byte_src = (const BYTE*)src;
+	BYTE* byte_dst = (BYTE*)dst;
 
-	DWORD dwSrcPtr = 20;
-	DWORD dwDstPtr = 0;
-	DWORD dwOffset = 24;
+	DWORD src_ptr = 20;
+	DWORD dst_ptr = 0;
+	DWORD offset = 24;
 
-	for (DWORD i = 0; i < 3; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
-		pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr + i];
+		byte_dst[dst_ptr++] = byte_src[src_ptr + i];
 	}
 
-	while (dwDstPtr < dwDstSize)
+	while (dst_ptr < dst_size)
 	{
-		DWORD dwSrcPtrTemp = dwSrcPtr + (dwOffset >> 3);
-		DWORD dwShift = (dwOffset & 7);
+		const DWORD src_ptr_temp = src_ptr + (offset >> 3);
+		DWORD shift = (offset & 7);
 
-		DWORD dwData = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 0];
-		DWORD dwKeyPtr = *(DWORD*)&pbtSrc[dwSrcPtrTemp + 1];
+		DWORD data = *(DWORD*)&byte_src[src_ptr_temp + 0];
+		DWORD key_ptr = *(DWORD*)&byte_src[src_ptr_temp + 1];
 
-		dwData = BitUtils::Swap32(dwData); 
-		dwData = (dwData << dwShift) | (dwKeyPtr >> (32 - dwShift));
-		dwKeyPtr = (dwData >> 27);
+		data = BitUtils::Swap32(data); 
+		data = (data << shift) | (key_ptr >> (32 - shift));
+		key_ptr = (data >> 27);
 
-		if (dwKeyPtr > 0x1B)
+		if (key_ptr > 0x1B)
 		{
-			dwData >>= 5;
+			data >>= 5;
 
 			for (DWORD i = 0; i < 3; i++)
 			{
-				pbtDst[dwDstPtr++] = (BYTE)((dwData >> (i * 8)) & 0xFF);
+				byte_dst[dst_ptr++] = (BYTE)((data >> (i * 8)) & 0xFF);
 			}
 
-			dwOffset += 0x1B;
+			offset += 0x1B;
 		}
 		else
 		{
-			DWORD dwBackPtr = dwDstPtr + alKey4[dwKeyPtr];
+			DWORD back_ptr = dst_ptr + key4[key_ptr];
 
-			for (DWORD i = 0; i < 3; i++)
+			for (size_t i = 0; i < 3; i++)
 			{
-				pbtDst[dwDstPtr + i] = pbtDst[dwBackPtr++];
+				byte_dst[dst_ptr + i] = byte_dst[back_ptr++];
 			}
 
-			dwShift = *(DWORD*)&abtKey3[dwKeyPtr * 4] >> 1;
+			shift = *(DWORD*)&key3[key_ptr * 4] >> 1;
 
-			dwOffset += dwShift;
+			offset += shift;
 
-			if (*(DWORD*)&abtKey3[dwKeyPtr * 4] & 1)
+			if (*(DWORD*)&key3[key_ptr * 4] & 1)
 			{
-				BYTE btPrevKey1 = 0;
+				BYTE prev_key1 = 0;
 
-				dwShift += 8;
+				shift += 8;
 
-				dwData = BitUtils::RotateLeft(dwData, dwShift);
+				data = BitUtils::RotateLeft(data, shift);
 
-				dwKeyPtr = (dwData & 0xFF);
-				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
-				dwOffset += dwShift;
+				key_ptr = (data & 0xFF);
+				shift = *(DWORD*)&key2[key_ptr * 4];
+				offset += shift;
 
-				btPrevKey1 = abtKey1[dwKeyPtr];
-				pbtDst[dwDstPtr++] += btPrevKey1;
+				prev_key1 = key1[key_ptr];
+				byte_dst[dst_ptr++] += prev_key1;
 
-				dwData = BitUtils::RotateLeft(dwData, dwShift);
+				data = BitUtils::RotateLeft(data, shift);
 
-				dwKeyPtr = (dwData & 0xFF);
-				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
-				dwOffset += dwShift;
+				key_ptr = (data & 0xFF);
+				shift = *(DWORD*)&key2[key_ptr * 4];
+				offset += shift;
 
-				pbtDst[dwDstPtr++] += btPrevKey1 + abtKey1[dwKeyPtr];
+				byte_dst[dst_ptr++] += prev_key1 + key1[key_ptr];
 
-				dwData = BitUtils::RotateLeft(dwData, dwShift);
+				data = BitUtils::RotateLeft(data, shift);
 
-				dwKeyPtr = (dwData & 0xFF);
-				dwShift = *(DWORD*)&abtKey2[dwKeyPtr * 4];
-				dwOffset += dwShift;
+				key_ptr = (data & 0xFF);
+				shift = *(DWORD*)&key2[key_ptr * 4];
+				offset += shift;
 
-				pbtDst[dwDstPtr++] += btPrevKey1 + abtKey1[dwKeyPtr];
+				byte_dst[dst_ptr++] += prev_key1 + key1[key_ptr];
 			}
 			else
 			{
-				dwDstPtr += 3;
+				dst_ptr += 3;
 			}
 		}
 	}
@@ -552,14 +543,14 @@ bool CTCDBase::DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 /// Decryption
 ///
-/// @param pvData     Data
-/// @param dwDataSize Data size
+/// @param data      Data
+/// @param data_size Data size
 ///
-bool CTCDBase::Decrypt(void* pvData, DWORD dwDataSize)
+bool CTCDBase::Decrypt(void* data, DWORD data_size)
 {
-	BYTE* const pbtData = static_cast<BYTE*>(pvData);
+	BYTE* const pbtData = static_cast<BYTE*>(data);
 
-	for (DWORD i = 0; i < dwDataSize; i++)
+	for (size_t i = 0; i < data_size; i++)
 	{
 		pbtData[i] = BitUtils::RotateRight(pbtData[i], 1);
 	}

@@ -9,19 +9,19 @@
 class CTCDBase : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 protected:
-	virtual bool DecodeTCT(CArcFile* pclArc);
-	virtual bool DecodeTSF(CArcFile* pclArc);
-	virtual bool DecodeSPD(CArcFile* pclArc);
-	virtual bool DecodeOgg(CArcFile* pclArc);
+	virtual bool DecodeTCT(CArcFile* archive);
+	virtual bool DecodeTSF(CArcFile* archive);
+	virtual bool DecodeSPD(CArcFile* archive);
+	virtual bool DecodeOgg(CArcFile* archive);
 
-	virtual bool DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual bool DecompRLE0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual bool DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	virtual bool DecompSPD(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth);
+	virtual bool DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_size);
+	virtual bool DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_size);
+	virtual bool DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size);
+	virtual bool DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_size, long width);
 
-	virtual bool Decrypt(void* pvData, DWORD dwDataSize);
+	virtual bool Decrypt(void* data, DWORD data_size);
 };
