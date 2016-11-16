@@ -1,37 +1,25 @@
 #include "stdafx.h"
 #include "BSFre.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool CBSFre::Mount(CArcFile* pclArc)
+bool CBSFre::Mount(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("BSF.exe")))
+	if (!archive->CheckExe(_T("BSF.exe")))
 		return false;
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
-/// Decode
-///
-/// @param pclArc Archive
-///
-bool CBSFre::Decode(CArcFile* pclArc)
+bool CBSFre::Decode(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("BSF.exe")))
+	if (!archive->CheckExe(_T("BSF.exe")))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
-/// Initialize mount key
-///
-/// @param pclArc Archive
-///
-void CBSFre::InitMountKey(CArcFile* pclArc)
+void CBSFre::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\xCF\x1F\x01\x9B\xE4\x48\xDB\x6B\x3F\x0A\x64\x7B\xBA\x94\xE4\x87\x67\xDA\xF7\x36\xC4\xFC\x70\x8D\x6D\x32\x84\x47\x08\x06\x28\xDD" },
 		{ _T("bg"),     "\x2E\x97\x37\xFD\x0F\xB1\x44\x26\x93\x63\xBA\x36\xB9\xF0\x24\xA0\xEC\xC0\x4A\x12\x1A\x21\xE9\x43\x46\x9C\xCF\xB0\x50\x84\x09\x02" },
@@ -43,16 +31,12 @@ void CBSFre::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x13\x56\xEE\x41\x4C\x1B\xD8\x2E\x6E\x3B\x38\xED\x3D\xA1\x99\xEF\x31\x92\x28\xB2\xC7\xB3\xAD\xD1\x54\x8E\xE1\x00\x11\x74\xE4\xB5" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
-/// Initialize decode key
-///
-/// @param pclArc Archive
-///
-void CBSFre::InitDecodeKey(CArcFile* pclArc)
+void CBSFre::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\xBC\xAB\x1F\xC6\x61\x18\xC3\x2D\x11\xC3\x48\xD7\x07\x36\x6D\x76\x5E\x84\xC8\xE7\xA1\xA2\xAF\x76\x02\xC6\x30\xFA\xFA\x76\xD0\x95" },
 		{ _T("bg"),     "\x1E\x1F\xD8\xC2\xD7\xD9\xF6\x92\xCB\x39\xD7\xB3\xB3\xD0\xA5\x1E\x55\x2E\xFA\x1D\x76\x1D\x33\x6F\x6E\xDC\xBD\x44\x2D\x12\x40\xDB" },
@@ -64,5 +48,5 @@ void CBSFre::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\xE9\x31\x7D\x7F\xE8\x15\x32\x46\xB3\xBB\xE7\xFE\xA2\xD4\x65\xB9\x32\xD2\x9E\xBD\x2E\x68\x38\xEC\x8C\xFF\x20\xFB\xAB\xEE\xED\x51" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
