@@ -3,37 +3,37 @@
 
 /// Determine if decryption is possible
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CBraban::OnCheckDecrypt(CArcFile* pclArc)
+bool CBraban::OnCheckDecrypt(CArcFile* archive)
 {
 	return CheckTpm("C42B141D42FCBCDA29850FA9E9FE3FF2");
 }
 
 /// Initialization of the decryption process
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-DWORD CBraban::OnInitDecrypt(CArcFile* pclArc)
+DWORD CBraban::OnInitDecrypt(CArcFile* archive)
 {
-	return ((pclArc->GetOpenFileInfo()->key ^ 0xFF) & 0xFF) - 1;
+	return ((archive->GetOpenFileInfo()->key ^ 0xFF) & 0xFF) - 1;
 }
 
 /// Decryption Process
 ///
-/// @param pbtTarget    Data to be decoded
-/// @param dwTargetSize Data size
-/// @param dwOffset     Location of data to be decoded
-/// @param dwDecryptKey Decryption key
+/// @param target      Data to be decoded
+/// @param target_size Data size
+/// @param offset      Location of data to be decoded
+/// @param decrypt_key Decryption key
 ///
-DWORD CBraban::OnDecrypt(BYTE* pbtTarget, DWORD dwTargetSize, DWORD dwOffset, DWORD dwDecryptKey)
+DWORD CBraban::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
 {
-	BYTE btDecryptkey = (BYTE) dwDecryptKey;
+	BYTE byte_decrypt_key = (BYTE) decrypt_key;
 
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= btDecryptkey;
+		target[i] ^= byte_decrypt_key;
 	}
 
-	return dwTargetSize;
+	return target_size;
 }
