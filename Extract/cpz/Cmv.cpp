@@ -3,93 +3,89 @@
 #include "JBP1.h"
 #include "Cmv.h"
 
-/// Mount
-///
-/// @param pclArc Archive
-///
-bool CCmv::Mount(CArcFile* pclArc)
+bool CCmv::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".cmv"))
+	if (archive->GetArcExten() != _T(".cmv"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "CMV", 3) != 0)
+	if (memcmp(archive->GetHed(), "CMV", 3) != 0)
 		return false;
 
 	// Read Header
-	BYTE abtHeader[44];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
+	BYTE header[44];
+	archive->Read(header, sizeof(header));
 
 	// Get offset
-	DWORD dwOffset = *(DWORD*)&abtHeader[4];
+	const DWORD offset = *(DWORD*)&header[4];
 
 	// Get index size
-	DWORD dwIndexSize = *(DWORD*)&abtHeader[4] - 44;
+	const DWORD index_size = *(DWORD*)&header[4] - 44;
 
 	// Get file count
-	DWORD dwFiles = *(DWORD*)&abtHeader[16] + 1;
+	const DWORD file_count = *(DWORD*)&header[16] + 1;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD          dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	DWORD          index_ptr = 0;
+	archive->Read(&index[0], index_size);
 
 	// Get archive name
-	TCHAR szArcName[_MAX_FNAME];
-	lstrcpy(szArcName, pclArc->GetArcName());
-	PathRenameExtension(szArcName, _T("_"));
+	TCHAR archive_name[_MAX_FNAME];
+	lstrcpy(archive_name, archive->GetArcName());
+	PathRenameExtension(archive_name, _T("_"));
 
 	// Get file info
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < file_count; i++)
 	{
-		TCHAR szFileExt[_MAX_EXT];
-		DWORD dwType = *(DWORD*)&clmbtIndex[12];
+		TCHAR file_ext[_MAX_EXT];
+		const DWORD type = *(DWORD*)&index[12];
 
-		switch (dwType)
+		switch (type)
 		{
 		case 0: // Ogg Vorbis
-			lstrcpy(szFileExt, _T(".ogg"));
+			lstrcpy(file_ext, _T(".ogg"));
 			break;
 
 		case 2: // JBP
-			lstrcpy(szFileExt, _T(".jbp"));
+			lstrcpy(file_ext, _T(".jbp"));
 			break;
 		}
 
 		// Create the file name serial number
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s%06u%s"), szArcName, i, szFileExt);
+		TCHAR filename[_MAX_FNAME];
+		_stprintf(filename, _T("%s%06u%s"), archive_name, i, file_ext);
 
 		// Add to list view
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeCmp = *(DWORD*)&clmbtIndex[dwIndexPtr + 4];
-		stFileInfo.sizeOrg = *(DWORD*)&clmbtIndex[dwIndexPtr + 8];
-		stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 16] + dwOffset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		pclArc->AddFileInfo(stFileInfo);
-		dwIndexPtr += 20;
+		SFileInfo file_info;
+		file_info.name = filename;
+		file_info.sizeCmp = *(DWORD*)&index[index_ptr + 4];
+		file_info.sizeOrg = *(DWORD*)&index[index_ptr + 8];
+		file_info.start = *(DWORD*)&index[index_ptr + 16] + offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
+		index_ptr += 20;
 	}
 
 	return true;
 }
 
-bool CCmv::Decode(CArcFile* pclArc)
+bool CCmv::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("JBP"))
 		return false;
 
 	YCMemory<BYTE> src(file_info->sizeCmp);
-	pclArc->Read(&src[0], file_info->sizeCmp);
+	archive->Read(&src[0], file_info->sizeCmp);
 
-	LONG width = *(LPWORD)&src[0x10];
-	LONG height = *(LPWORD)&src[0x12];
-	WORD bpp = *(LPWORD)&src[0x14];
-	WORD colors = bpp >> 3;
+	const LONG width = *(LPWORD)&src[0x10];
+	const LONG height = *(LPWORD)&src[0x12];
+	const WORD bpp = *(LPWORD)&src[0x14];
+	const WORD colors = bpp >> 3;
 
-	DWORD dstSize = width * height * colors;
-	YCMemory<BYTE> dst(dstSize);
+	const DWORD dst_size = width * height * colors;
+	YCMemory<BYTE> dst(dst_size);
 
 	if (memcmp(&src[0], "JBP1", 4) == 0)
 	{
@@ -97,13 +93,13 @@ bool CCmv::Decode(CArcFile* pclArc)
 		jbp1.Decomp(&dst[0], &src[0]);
 
 		CImage image;
-		image.Init(pclArc, width, height, bpp);
-		image.WriteReverse(&dst[0], dstSize);
+		image.Init(archive, width, height, bpp);
+		image.WriteReverse(&dst[0], dst_size);
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(&src[0], file_info->sizeCmp);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], file_info->sizeCmp);
 	}
 
 	return true;
