@@ -3,17 +3,17 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEntisGLS::Mount(CArcFile* pclArc)
+bool CEntisGLS::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".noa"))
+	if (archive->GetArcExten() != _T(".noa"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "Entis\x1A\0\0", 8) != 0)
+	if (memcmp(archive->GetHed(), "Entis\x1A\0\0", 8) != 0)
 		return false;
 
-//	if( memcmp( pclArc->GetHed(), ""
+//	if( memcmp( archive->GetHed(), ""
 
 
 	//  Read 64 bytes - Header check
@@ -43,9 +43,9 @@ bool CEntisGLS::Mount(CArcFile* pclArc)
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEntisGLS::Decode(CArcFile* pclArc)
+bool CEntisGLS::Decode(CArcFile* archive)
 {
 	return false;
 }
