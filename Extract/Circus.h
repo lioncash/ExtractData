@@ -5,37 +5,37 @@
 class CCircus final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
 	struct SPCMHeader
 	{
-		char  szIdentifier[4]; // Identifier
-		DWORD dwDataSize;      // Data Size
-		DWORD dwFlags;         // Flags
-		WORD  wFormatID;       // Format ID
-		WORD  wChannels;       // Number of channels
-		DWORD dwFreq;          // Sampling rate
-		DWORD dwBps;           // Data Rate
-		WORD  wBlockSize;      // Block size
-		WORD  wBits;           // Number of bits
+		char  identifier[4]; // Identifier
+		DWORD data_size;     // Data Size
+		DWORD flags;         // Flags
+		WORD  format_id;     // Format ID
+		WORD  channels;      // Number of channels
+		DWORD freq;          // Sampling rate
+		DWORD bps;           // Data Rate
+		WORD  block_size;    // Block size
+		WORD  bits;          // Number of bits
 	};
 
-	bool MountPCK(CArcFile* pclArc);
-	bool MountVoiceDat(CArcFile* pclArc);
-	bool MountCRX(CArcFile* pclArc);
-	bool MountPCM(CArcFile* pclArc);
+	bool MountPCK(CArcFile* archive);
+	bool MountVoiceDat(CArcFile* archive);
+	bool MountCRX(CArcFile* archive);
+	bool MountPCM(CArcFile* archive);
 
-	bool DecodeCRX(CArcFile* pclArc);
-	bool DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	bool DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	bool DecodePCM(CArcFile* pclArc);
-	bool DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader);
-	bool DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader);
+	bool DecodeCRX(CArcFile* archive);
+	bool DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size);
+	bool DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size);
+	bool DecodePCM(CArcFile* archive);
+	bool DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header);
+	bool DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header);
 
-	bool DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	bool DecompCRX2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp, WORD wFlags);
-	bool DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	bool DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
+	bool DecompCRX2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size, long width, long height, WORD bpp, WORD flags);
+	bool DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
+	bool DecompPCM2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
 };

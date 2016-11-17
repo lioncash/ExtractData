@@ -7,20 +7,20 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::Mount(CArcFile* pclArc)
+bool CCircus::Mount(CArcFile* archive)
 {
-	if (MountPCK(pclArc))
+	if (MountPCK(archive))
 		return true;
 
-	if (MountVoiceDat(pclArc))
+	if (MountVoiceDat(archive))
 		return true;
 
-	if (MountCRX(pclArc))
+	if (MountCRX(archive))
 		return true;
 
-	if (MountPCM(pclArc))
+	if (MountPCM(archive))
 		return true;
 
 	return false;
@@ -28,43 +28,43 @@ bool CCircus::Mount(CArcFile* pclArc)
 
 /// PCK Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::MountPCK(CArcFile* pclArc)
+bool CCircus::MountPCK(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".PCK"))
+	if (archive->GetArcExten() != _T(".PCK"))
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	DWORD files;
+	archive->Read(&files, 4);
 
 	// Get index size
-	DWORD dwIndexSize = dwFiles * 64;
+	const DWORD index_size = files * 64;
 
 	// Read index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->SeekCur(dwFiles * 8);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	archive->SeekCur(files * 8);
+	archive->Read(&index[0], index_size);
 
 	// Store file information in memory
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
 		// Get filename
-		char szFileName[57];
-		memcpy(szFileName, &clmbtIndex[i * 64], 56);
+		char file_name[57];
+		memcpy(file_name, &index[i * 64], 56);
 
-		szFileName[56] = '\0';
+		file_name[56] = '\0';
 
 		// Store file information in memory
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeCmp = *(DWORD*) &clmbtIndex[i * 64 + 60];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.start = *(DWORD*) &clmbtIndex[i * 64 + 56];
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *(DWORD*) &index[i * 64 + 60];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *(DWORD*) &index[i * 64 + 56];
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -72,54 +72,54 @@ bool CCircus::MountPCK(CArcFile* pclArc)
 
 /// voice.dat Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::MountVoiceDat(CArcFile* pclArc)
+bool CCircus::MountVoiceDat(CArcFile* archive)
 {
-	if (lstrcmpi(pclArc->GetArcName(), _T("voice.dat")) != 0)
+	if (lstrcmpi(archive->GetArcName(), _T("voice.dat")) != 0)
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "tskforce", 8) == 0)
+	if (memcmp(archive->GetHed(), "tskforce", 8) == 0)
 	{
 		// Not the right archive
 		return false;
 	}
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	DWORD files;
+	archive->Read(&files, 4);
 
 	// Get index size
-	DWORD dwIndexSize = dwFiles * 52;
+	DWORD index_size = files * 52;
 
 	// Read index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	archive->Read(&index[0], index_size);
 
 	// Store file information in memory
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
 		// Get file name
-		char szFileName[49];
-		memcpy(szFileName, &clmbtIndex[i * 52], 48);
-		szFileName[48] = '\0';
+		char file_name[49];
+		memcpy(file_name, &index[i * 52], 48);
+		file_name[48] = '\0';
 
-		if (strcmpi(PathFindExtensionA(szFileName), ".pcm") != 0)
+		if (strcmpi(PathFindExtensionA(file_name), ".pcm") != 0)
 		{
 			// Unsupported archive
-			pclArc->SeekCur(-(INT64)(4 + dwIndexSize));
+			archive->SeekCur(-(INT64)(4 + index_size));
 			return false;
 		}
 
 		// Store file information in memory
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(DWORD*) &clmbtIndex[i * 52 + 48];
-		stFileInfo.end = (i < (dwFiles - 1)) ? *(DWORD*) &clmbtIndex[(i + 1) * 52 + 48] : pclArc->GetArcSize();
-		stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(DWORD*) &index[i * 52 + 48];
+		file_info.end = (i < (files - 1)) ? *(DWORD*) &index[(i + 1) * 52 + 48] : archive->GetArcSize();
+		file_info.sizeCmp = file_info.end - file_info.start;
+		file_info.sizeOrg = file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -127,44 +127,44 @@ bool CCircus::MountVoiceDat(CArcFile* pclArc)
 
 /// CRX Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::MountCRX(CArcFile* pclArc)
+bool CCircus::MountCRX(CArcFile* archive)
 {
-	if (lstrcmpi(pclArc->GetArcExten(), _T(".CRX")) != 0)
+	if (lstrcmpi(archive->GetArcExten(), _T(".CRX")) != 0)
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "CRXG", 4) != 0)
+	if (memcmp(archive->GetHed(), "CRXG", 4) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// PCM Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::MountPCM(CArcFile* pclArc)
+bool CCircus::MountPCM(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pcm"))
+	if (archive->GetArcExten() != _T(".pcm"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "XPCM", 4) != 0)
+	if (memcmp(archive->GetHed(), "XPCM", 4) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::Decode(CArcFile* pclArc)
+bool CCircus::Decode(CArcFile* archive)
 {
-	if (DecodeCRX(pclArc))
+	if (DecodeCRX(archive))
 		return true;
 
-	if (DecodePCM(pclArc))
+	if (DecodePCM(archive))
 		return true;
 
 	return false;
@@ -172,37 +172,37 @@ bool CCircus::Decode(CArcFile* pclArc)
 
 /// CRX Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::DecodeCRX(CArcFile* pclArc)
+bool CCircus::DecodeCRX(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("CRX"))
 		return false;
 
 	// Ensure input buffer exists
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	const DWORD src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// Determine CRX type
-	WORD wType = *(WORD*) &clmbtSrc[12];
+	const WORD type = *(WORD*) &src[12];
 
-	switch (wType)
+	switch (type)
 	{
 	case 1: // LZSS compression type
-		DecodeCRX1(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeCRX1(archive, &src[0], src_size);
 		break;
 
 	case 2: // ZLIB compression type
-		DecodeCRX2(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeCRX2(archive, &src[0], src_size);
 		break;
 
 	default: // Unknown compression format
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 	}
 
 	return true;
@@ -210,143 +210,139 @@ bool CCircus::DecodeCRX(CArcFile* pclArc)
 
 /// CRX Decoding (Type 1)
 ///
-/// @param pclArc    Archive
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param archive  Archive
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CCircus::DecodeCRX1(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*) pvSrc;
-
 	// Get header information
-	long  lWidth = *(WORD*) &pbtSrc[8];
-	long  lHeight = *(WORD*) &pbtSrc[10];
-	DWORD dwPalletSize = *(WORD*) &pbtSrc[16] * 3;
-	WORD  wBpp = (dwPalletSize == 0) ? 24 : 8;
-	DWORD dwSrcDataOffset = 20 + dwPalletSize;
+	const long width = *(WORD*) &src[8];
+	const long height = *(WORD*) &src[10];
+	DWORD pallet_size = *(WORD*) &src[16] * 3;
+	const WORD bpp = (pallet_size == 0) ? 24 : 8;
+	const DWORD src_data_offset = 20 + pallet_size;
 
 	// Ensure the output buffer exists
-	YCMemory<BYTE> clmbtPallet;
-	BYTE*          pbtPallet = nullptr;
-	DWORD          dwDstSize = lWidth * lHeight * (wBpp >> 3);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	YCMemory<BYTE> pallet;
+	BYTE*          pallet_ptr = nullptr;
+	const DWORD    dst_size = width * height * (bpp >> 3);
+	YCMemory<BYTE> dst(dst_size);
 
 	// Get palette
-	if (wBpp == 8)
+	if (bpp == 8)
 	{
 		// Expand the palette
 
-		DWORD dwPalletSize2 = dwPalletSize;
-		dwPalletSize = 1024;
-		clmbtPallet.resize(dwPalletSize, 0);
+		const DWORD pallet_size2 = pallet_size;
+		pallet_size = 1024;
+		pallet.resize(pallet_size, 0);
 
-		for (DWORD i = 0, j = 0; (i < dwPalletSize) && (j < dwPalletSize2); i += 4, j += 3)
+		for (DWORD i = 0, j = 0; (i < pallet_size) && (j < pallet_size2); i += 4, j += 3)
 		{
-			clmbtPallet[i + 0] = pbtSrc[20 + j + 2];
-			clmbtPallet[i + 1] = pbtSrc[20 + j + 1];
-			clmbtPallet[i + 2] = pbtSrc[20 + j + 0];
-			clmbtPallet[i + 3] = 0;
+			pallet[i + 0] = src[20 + j + 2];
+			pallet[i + 1] = src[20 + j + 1];
+			pallet[i + 2] = src[20 + j + 0];
+			pallet[i + 3] = 0;
 		}
 
-		pbtPallet = &clmbtPallet[0];
+		pallet_ptr = &pallet[0];
 	}
 
 	// LZSS decompression
-	DecompLZSS(&clmbtDst[0], dwDstSize, &pbtSrc[dwSrcDataOffset], (dwSrcSize - dwSrcDataOffset));
+	DecompLZSS(&dst[0], dst_size, &src[src_data_offset], (src_size - src_data_offset));
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp, pbtPallet, dwPalletSize);
-	clImage.WriteReverse(&clmbtDst[0], dwDstSize, dwSrcSize);
+	CImage image;
+	image.Init(archive, width, height, bpp, pallet_ptr, pallet_size);
+	image.WriteReverse(&dst[0], dst_size, src_size != 0);
 
 	return true;
 }
 
 /// CRX Decoding (Type 2)
 ///
-/// @param pclArc   Archive
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param archive  Archive
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*) pvSrc;
-
 	// Get header information
-	long  lWidth = *(WORD*)&pbtSrc[8];
-	long  lHeight = *(WORD*)&pbtSrc[10];
-	DWORD dwPalletSize = *(WORD*)&pbtSrc[16] * 3;
-	WORD  wFlags = *(WORD*)&pbtSrc[18];
-	WORD  wBpp;
-	DWORD dwSrcDataOffset = 20 + dwPalletSize;
+	const long width = *(WORD*)&src[8];
+	const long height = *(WORD*)&src[10];
+	DWORD pallet_size = *(WORD*)&src[16] * 3;
+	const WORD flags = *(WORD*)&src[18];
+	WORD  bpp;
+	DWORD src_data_offset = 20 + pallet_size;
 
-	switch (dwPalletSize)
+	switch (pallet_size)
 	{
 	case 0:
-		wBpp = 24;
+		bpp = 24;
 		break;
 
 	case 3:
-		wBpp = 32;
-		dwSrcDataOffset = 20;
+		bpp = 32;
+		src_data_offset = 20;
 		break;
 
 	default:
-		wBpp = 8;
+		bpp = 8;
 	}
 
 	// Ensure the output buffer exists
-	YCMemory<BYTE> clmbtPallet;
-	BYTE*          pbtPallet = nullptr;
+	YCMemory<BYTE> pallet;
+	BYTE*          pallet_ptr = nullptr;
 
-	DWORD          dwDstSize = lWidth * lHeight * 4;//(wBpp >> 3);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	DWORD          dst_size = width * height * 4;//(bpp >> 3);
+	YCMemory<BYTE> dst(dst_size);
 
-	DWORD          dwDstSize2 = lWidth * lHeight * (wBpp >> 3);
-	YCMemory<BYTE> clmbtDst2(dwDstSize2);
+	DWORD          dst_size2 = width * height * (bpp >> 3);
+	YCMemory<BYTE> dst2(dst_size2);
 
 	// Get palette
-	if (wBpp == 8)
+	if (bpp == 8)
 	{
 		// Expand the palette
 
-		DWORD dwPalletSize2 = dwPalletSize;
-		dwPalletSize = 1024;
-		clmbtPallet.resize(dwPalletSize, 0);
+		const DWORD pallet_size2 = pallet_size;
+		pallet_size = 1024;
+		pallet.resize(pallet_size, 0);
 
-		for( DWORD i = 0, j = 0 ; (i < dwPalletSize) && (j < dwPalletSize2) ; i += 4, j += 3 )
+		for (DWORD i = 0, j = 0; (i < pallet_size) && (j < pallet_size2); i += 4, j += 3)
 		{
-			clmbtPallet[i + 0] = pbtSrc[20 + j + 2];
-			clmbtPallet[i + 1] = pbtSrc[20 + j + 1];
-			clmbtPallet[i + 2] = pbtSrc[20 + j + 0];
-			clmbtPallet[i + 3] = 0;
+			pallet[i + 0] = src[20 + j + 2];
+			pallet[i + 1] = src[20 + j + 1];
+			pallet[i + 2] = src[20 + j + 0];
+			pallet[i + 3] = 0;
 		}
 
-		pbtPallet = &clmbtPallet[0];
+		pallet_ptr = &pallet[0];
 	}
 
 	// Decompression
-	if (wBpp == 8)
+	if (bpp == 8)
 	{
 		// zlib decompression
 
-		CZlib clZlib;
-		clZlib.Decompress(&clmbtDst2[0], &dwDstSize2, &pbtSrc[dwSrcDataOffset], (dwSrcSize - dwSrcDataOffset));
+		CZlib zlib;
+		zlib.Decompress(&dst2[0], &dst_size2, &src[src_data_offset], src_size - src_data_offset);
 	}
 	else
 	{
 		// zlib decompression
-		CZlib clZlib;
+		CZlib zlib;
 
-		while( 1 )
+		while (true)
 		{
-			int nResult = clZlib.Decompress(&clmbtDst[0], &dwDstSize, &pbtSrc[dwSrcDataOffset], (dwSrcSize - dwSrcDataOffset));
+			const int result = zlib.Decompress(&dst[0], &dst_size, &src[src_data_offset], src_size - src_data_offset);
 
-			if (nResult == Z_BUF_ERROR)
+			if (result == Z_BUF_ERROR)
 			{
 				// Insufficient output buffer size
-				dwDstSize = dwDstSize * 2;
-				clmbtDst.resize(dwDstSize);
+				dst_size = dst_size * 2;
+				dst.resize(dst_size);
 			}
 			else
 			{
@@ -355,57 +351,57 @@ bool CCircus::DecodeCRX2(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 		}
 
 		// CRX Decompression
-		DecompCRX2(&clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize, lWidth, lHeight, wBpp, wFlags);
+		DecompCRX2(&dst2[0], dst_size2, &dst[0], dst_size, width, height, bpp, flags);
 	}
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp, pbtPallet, dwPalletSize);
-	clImage.WriteReverse(&clmbtDst2[0], dwDstSize2, dwSrcSize);
+	CImage image;
+	image.Init(archive, width, height, bpp, pallet_ptr, pallet_size);
+	image.WriteReverse(&dst2[0], dst_size2, src_size != 0);
 
 	return true;
 }
 
 /// PCM Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircus::DecodePCM(CArcFile* pclArc)
+bool CCircus::DecodePCM(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("PCM"))
 		return false;
 
 	// Read header
-	SPCMHeader stPCMHeader;
-	pclArc->Read(&stPCMHeader, sizeof(SPCMHeader));
+	SPCMHeader pcm_header;
+	archive->Read(&pcm_header, sizeof(SPCMHeader));
 
 	// Output
-	switch (stPCMHeader.dwFlags & 0xFF)
+	switch (pcm_header.flags & 0xFF)
 	{
 	case 0: // Uncompressed
 		{
-		CWav clWav;
-		clWav.Init(pclArc, stPCMHeader.dwDataSize, stPCMHeader.dwFreq, stPCMHeader.wChannels, stPCMHeader.wBits);
-		clWav.Write();
+		CWav wav;
+		wav.Init(archive, pcm_header.data_size, pcm_header.freq, pcm_header.channels, pcm_header.bits);
+		wav.Write();
 		break;
 		}
 
 //	case 1:
-		DecodePCM1(pclArc, stPCMHeader);
+		DecodePCM1(archive, pcm_header);
 		break;
 
 	case 2:
-		DecodePCM2(pclArc, stPCMHeader);
+		DecodePCM2(archive, pcm_header);
 		break;
 
 //	case 3:
 		break;
 
 	default: // Unknown format
-		pclArc->SeekCur(-(INT64)sizeof(SPCMHeader));
-		pclArc->OpenFile();
-		pclArc->ReadWrite();
+		archive->SeekCur(-(INT64)sizeof(SPCMHeader));
+		archive->OpenFile();
+		archive->ReadWrite();
 	}
 
 	return true;
@@ -413,147 +409,144 @@ bool CCircus::DecodePCM(CArcFile* pclArc)
 
 /// PCM Decoding (Type 1)
 ///
-/// @param pclArc        Archive
-/// @param rfstPCMHeader PCM header
+/// @param archive        Archive
+/// @param pcm_header PCM header
 ///
-bool CCircus::DecodePCM1(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
+bool CCircus::DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header)
 {
 	// Get input data size
-	DWORD dwSrcSize;
-	pclArc->Read( &dwSrcSize, 4 );
+	DWORD src_size;
+	archive->Read(&src_size, 4);
 
 	// Ensure buffer exists 
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	YCMemory<BYTE> src(src_size);
 
-	DWORD          dwDstSize = rfstPCMHeader.dwDataSize;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const DWORD    dst_size = pcm_header.data_size;
+	YCMemory<BYTE> dst(dst_size);
 
-	DWORD          dwDstSize2 = dwDstSize;
-	YCMemory<BYTE> clmbtDst2(dwDstSize2);
+	const DWORD    dst_size2 = dst_size;
+	YCMemory<BYTE> dst2(dst_size2);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// LZSS Decompression
-	DecompLZSS(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+	DecompLZSS(&dst[0], dst_size, &src[0], src_size);
 
 	// VQ Decompression
-	DecompPCM1(&clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize);
+	DecompPCM1(&dst2[0], dst_size2, &dst[0], dst_size);
 
 	// Output
-	CWav clWav;
-	clWav.Init(pclArc, rfstPCMHeader.dwDataSize, rfstPCMHeader.dwFreq, rfstPCMHeader.wChannels, rfstPCMHeader.wBits);
-	clWav.Write(&clmbtDst[0], dwDstSize);
+	CWav wav;
+	wav.Init(archive, pcm_header.data_size, pcm_header.freq, pcm_header.channels, pcm_header.bits);
+	wav.Write(&dst[0], dst_size);
 
 	return true;
 }
 
 /// PCM Decoding (Type 2)
 ///
-/// @param pclArc        Archive
-/// @param rfstPCMHeader PCM header
+/// @param archive    Archive
+/// @param pcm_header PCM header
 ///
-bool CCircus::DecodePCM2(CArcFile* pclArc, const SPCMHeader& rfstPCMHeader)
+bool CCircus::DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header)
 {
 	// Ensure buffer exists
-	DWORD          dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader);
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
+	const DWORD    src_size = archive->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader);
+	YCMemory<BYTE> src(src_size);
 
-	DWORD          dwDstSize = rfstPCMHeader.dwDataSize;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const DWORD    dst_size = pcm_header.data_size;
+	YCMemory<BYTE> dst(dst_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(&src[0], src_size);
 
 	// Decompression
-	DecompPCM2(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+	DecompPCM2(&dst[0], dst_size, &src[0], src_size);
 
 	// Output
-	CWav clWav;
-	clWav.Init(pclArc, rfstPCMHeader.dwDataSize, rfstPCMHeader.dwFreq, rfstPCMHeader.wChannels, rfstPCMHeader.wBits);
-	clWav.Write(&clmbtDst[0], dwDstSize);
+	CWav wav;
+	wav.Init(archive, pcm_header.data_size, pcm_header.freq, pcm_header.channels, pcm_header.bits);
+	wav.Write(&dst[0], dst_size);
 
 	return true;
 }
 
 /// LZSS Decompression
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	DWORD src_ptr = 0;
+	DWORD dst_ptr = 0;
+	DWORD flags = 0;
 
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwFlags = 0;
-
-	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		dwFlags >>= 1;
+		flags >>= 1;
 
-		if ((dwFlags & 0x0100) == 0)
+		if ((flags & 0x0100) == 0)
 		{
-			dwFlags = 0xFF00 | pbtSrc[dwSrcPtr++];
+			flags = 0xFF00 | src[src_ptr++];
 		}
 
 		// Uncompressed data
-		if (dwFlags & 1)
+		if (flags & 1)
 		{
-			pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
+			dst[dst_ptr++] = src[src_ptr++];
 		}
 		else // Compressed data
 		{
-			DWORD dwLength;
-			DWORD dwBack;
+			DWORD length;
+			DWORD back;
 
-			BYTE  btData = pbtSrc[dwSrcPtr++];
+			const BYTE data = src[src_ptr++];
 
-			if (btData >= 0xC0)
+			if (data >= 0xC0)
 			{
-				dwBack = ((btData & 3) << 8) | pbtSrc[dwSrcPtr++];
-				dwLength = ((btData >> 2) & 0x0F) + 4;
+				back = ((data & 3) << 8) | src[src_ptr++];
+				length = ((data >> 2) & 0x0F) + 4;
 			}
-			else if (btData >= 0x80)
+			else if (data >= 0x80)
 			{
-				dwBack = btData & 0x1F;
-				dwLength = ((btData >> 5) & 3) + 2;
+				back = data & 0x1F;
+				length = ((data >> 5) & 3) + 2;
 
-				if (dwBack == 0)
+				if (back == 0)
 				{
-					dwBack = pbtSrc[dwSrcPtr++];
+					back = src[src_ptr++];
 				}
 			}
-			else if (btData == 0x7F)
+			else if (data == 0x7F)
 			{
-				dwLength = *(WORD*)&pbtSrc[dwSrcPtr] + 2;
-				dwSrcPtr += 2;
+				length = *(WORD*)&src[src_ptr] + 2;
+				src_ptr += 2;
 
-				dwBack = *(WORD*)&pbtSrc[dwSrcPtr];
-				dwSrcPtr += 2;
+				back = *(WORD*)&src[src_ptr];
+				src_ptr += 2;
 			}
 			else
 			{
-				dwLength = btData + 4;
+				length = data + 4;
 
-				dwBack = *(WORD*)&pbtSrc[dwSrcPtr];
-				pbtSrc += 2;
+				back = *(WORD*)&src[src_ptr];
+				src += 2;
 			}
 
-			if ((dwDstPtr + dwLength) > dwDstSize)
+			if ((dst_ptr + length) > dst_size)
 			{
-				dwLength = dwDstSize - dwDstPtr;
+				length = dst_size - dst_ptr;
 			}
 
-			for (DWORD i = 0; i < dwLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
-				pbtDst[dwDstPtr] = pbtDst[dwDstPtr - dwBack];
+				dst[dst_ptr] = dst[dst_ptr - back];
 
-				dwDstPtr++;
+				dst_ptr++;
 			}
 		}
 	}
@@ -563,150 +556,147 @@ bool CCircus::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 /// CRX Decompression (Type 2)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Bit depth
-/// @param wFlags    Flags
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Bit depth
+/// @param flags    Flags
 ///
 bool CCircus::DecompCRX2(
-	void*       pvDst,
-	DWORD       dwDstSize,
-	const void* pvSrc,
-	DWORD       dwSrcSize,
-	long        lWidth,
-	long        lHeight,
-	WORD        wBpp,
-	WORD        wFlags
+	u8*       dst,
+	DWORD     dst_size,
+	const u8* src,
+	DWORD     src_size,
+	long      width,
+	long      height,
+	WORD      bpp,
+	WORD      flags
 	)
 {
-	WORD  wColors = wBpp >> 3;
-	DWORD dwLineSize = lWidth * wColors;
+	const WORD  colors = bpp >> 3;
+	const DWORD line_size = width * colors;
 
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	DWORD src_ptr = 0;
+	DWORD dst_ptr = 0;
+	DWORD dst_ptr_prev = 0;
+	DWORD dst_ptr_temp = 0;
 
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwDstPtrPrev = 0;
-	DWORD dwDstPtrTemp = 0;
-
-	for (long i = 0; i < lHeight; i++)
+	for (long i = 0; i < height; i++)
 	{
-		BYTE btData = pbtSrc[dwSrcPtr++];
+		u8 data = src[src_ptr++];
 
-		switch( btData )
+		switch (data)
 		{
 		case 0:
 
-			dwDstPtrTemp = dwDstPtr;
+			dst_ptr_temp = dst_ptr;
 
 			// Output one pixel
-			for (DWORD j = 0; j < wColors; j++)
+			for (DWORD j = 0; j < colors; j++)
 			{
-				pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++];
+				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 
 			// Difference between the previous pixel
-			for (long j = 0; j < (lWidth - 1); j++)
+			for (long j = 0; j < (width - 1); j++)
 			{
-				for (DWORD k = 0; k < wColors; k++)
+				for (DWORD k = 0; k < colors; k++)
 				{
-					pbtDst[dwDstPtrTemp] = pbtSrc[dwSrcPtr++] + pbtDst[dwDstPtrTemp - wColors];
-					dwDstPtrTemp++;
+					dst[dst_ptr_temp] = src[src_ptr++] + dst[dst_ptr_temp - colors];
+					dst_ptr_temp++;
 				}
 			}
 			break;
 
 		case 1:
-			dwDstPtrTemp = dwDstPtr;
+			dst_ptr_temp = dst_ptr;
 
 			// Difference between the previous line
-			for (long j = 0; j < lWidth; j++)
+			for (long j = 0; j < width; j++)
 			{
-				for (DWORD k = 0; k < wColors; k++)
+				for (DWORD k = 0; k < colors; k++)
 				{
-					pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++] + pbtDst[dwDstPtrPrev++];
+					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
 			}
 			break;
 
 		case 2:
-			dwDstPtrTemp = dwDstPtr;
+			dst_ptr_temp = dst_ptr;
 
 			// Output one pixel
-			for (DWORD j = 0; j < wColors; j++)
+			for (DWORD j = 0; j < colors; j++)
 			{
-				pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++];
+				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 
 			// Difference between the previous line
-			for (long j = 0; j < (lWidth - 1); j++)
+			for (long j = 0; j < (width - 1); j++)
 			{
-				for (DWORD k = 0; k < wColors; k++)
+				for (DWORD k = 0; k < colors; k++)
 				{
-					pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++] + pbtDst[dwDstPtrPrev++];
+					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
 			}
 			break;
 
 		case 3:
-			dwDstPtrTemp = dwDstPtr;
-			dwDstPtrPrev += wColors;
+			dst_ptr_temp = dst_ptr;
+			dst_ptr_prev += colors;
 
 			// Difference between the previous line
-			for (int j = 0; j < (lWidth - 1); j++)
+			for (int j = 0; j < (width - 1); j++)
 			{
-				for (DWORD k = 0; k < wColors; k++)
+				for (DWORD k = 0; k < colors; k++)
 				{
-					pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++] + pbtDst[dwDstPtrPrev++];
+					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
 			}
 
 			// Output one pixel
-			for (int j = 0; j < wColors; j++)
+			for (int j = 0; j < colors; j++)
 			{
-				pbtDst[dwDstPtrTemp++] = pbtSrc[dwSrcPtr++];
+				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 			break;
 
 		case 4:
-			for (int j = 0; j < wColors; j++)
+			for (int j = 0; j < colors; j++)
 			{
-				long lWidthTemp = lWidth;
+				long width_temp = width;
 
-				dwDstPtrTemp = (dwDstPtr + j);
+				dst_ptr_temp = (dst_ptr + j);
 
-				while (lWidthTemp > 0)
+				while (width_temp > 0)
 				{
 					// Output one byte
 
-					btData = pbtSrc[dwSrcPtr++];
+					data = src[src_ptr++];
 
-					pbtDst[dwDstPtrTemp] = btData;
+					dst[dst_ptr_temp] = data;
 
-					dwDstPtrTemp += wColors;
+					dst_ptr_temp += colors;
 
-					if (--lWidthTemp == 0)
+					if (--width_temp == 0)
 					{
 						break;
 					}
 
-					if (btData == pbtSrc[dwSrcPtr])
+					if (data == src[src_ptr])
 					{
-						dwSrcPtr++;
+						src_ptr++;
 
-						BYTE btLength = pbtSrc[dwSrcPtr++];
+						const u8 length = src[src_ptr++];
 
-						lWidthTemp -= btLength;
+						width_temp -= length;
 
-						for (int k = 0; k < btLength; k++)
+						for (int k = 0; k < length; k++)
 						{
-							pbtDst[dwDstPtrTemp] = btData;
-							dwDstPtrTemp += wColors;
+							dst[dst_ptr_temp] = data;
+							dst_ptr_temp += colors;
 						}
 					}
 				}
@@ -714,22 +704,22 @@ bool CCircus::DecompCRX2(
 			break;
 		}
 
-		dwDstPtrPrev = dwDstPtr;
-		dwDstPtr += dwLineSize;
+		dst_ptr_prev = dst_ptr;
+		dst_ptr += line_size;
 	}
 
-	switch (wFlags)
+	switch (flags)
 	{
 	case 0: // Data is stored in the order ABGR (It is necessary to fix the order of BGRA)
-		if (wBpp == 32)
+		if (bpp == 32)
 		{
-			for (long i = 0; i < (lWidth * lHeight * 4); i += 4)
+			for (long i = 0; i < (width * height * 4); i += 4)
 			{
-				BYTE btWork = pbtDst[i + 0];
-				pbtDst[i + 0] = pbtDst[i + 1];
-				pbtDst[i + 1] = pbtDst[i + 2];
-				pbtDst[i + 2] = pbtDst[i + 3];
-				pbtDst[i + 3] = ~btWork;
+				const u8 work = dst[i + 0];
+				dst[i + 0] = dst[i + 1];
+				dst[i + 1] = dst[i + 2];
+				dst[i + 2] = dst[i + 3];
+				dst[i + 3] = ~work;
 			}
 		}
 
@@ -744,25 +734,22 @@ bool CCircus::DecompCRX2(
 
 /// PCM Extraction (Type 1)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	DWORD src_ptr = 0;
+	DWORD dst_ptr = 0;
 
 	// Create tables
-	static const DWORD adwTable[8] = {
+	static const DWORD table[8] = {
 		0x800, 0x800, 0x800, 0x100, 0x100, 0x100, 0x200, 0x400
 	};
 
-	static const DWORD adwTable2[8192] = {
+	static const DWORD table2[8192] = {
 		0x00001000, 0x00000000, 0x00000FFF, 0x00000006, 0x00000FFF, 0x0000000C, 0x00000FFF, 0x00000012, 0x00000FFF, 0x00000019, 0x00000FFF, 0x0000001F, 0x00000FFF, 0x00000025, 0x00000FFF, 0x0000002B, 0x00000FFF, 0x00000032, 0x00000FFF, 0x00000038, 0x00000FFF, 0x0000003E, 0x00000FFF, 0x00000045, 0x00000FFF, 0x0000004B, 0x00000FFF, 0x00000051, 0x00000FFF, 0x00000057, 0x00000FFE, 0x0000005E,
 		0x00000FFE, 0x00000064, 0x00000FFE, 0x0000006A, 0x00000FFE, 0x00000071, 0x00000FFE, 0x00000077, 0x00000FFE, 0x0000007D, 0x00000FFD, 0x00000083, 0x00000FFD, 0x0000008A, 0x00000FFD, 0x00000090, 0x00000FFD, 0x00000096, 0x00000FFC, 0x0000009D, 0x00000FFC, 0x000000A3, 0x00000FFC, 0x000000A9, 0x00000FFC, 0x000000AF, 0x00000FFB, 0x000000B6, 0x00000FFB, 0x000000BC, 0x00000FFB, 0x000000C2,
 		0x00000FFB, 0x000000C8, 0x00000FFA, 0x000000CF, 0x00000FFA, 0x000000D5, 0x00000FFA, 0x000000DB, 0x00000FF9, 0x000000E2, 0x00000FF9, 0x000000E8, 0x00000FF9, 0x000000EE, 0x00000FF8, 0x000000F4, 0x00000FF8, 0x000000FB, 0x00000FF7, 0x00000101, 0x00000FF7, 0x00000107, 0x00000FF7, 0x0000010D, 0x00000FF6, 0x00000114, 0x00000FF6, 0x0000011A, 0x00000FF5, 0x00000120, 0x00000FF5, 0x00000127,
@@ -1022,22 +1009,22 @@ bool CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 	};
 
 	WORD awTable[65536 * 2];
-	WORD wLow = 0;
-	WORD wHigh = 1;
+	WORD low = 0;
+	WORD high = 1;
 
 	for (size_t i = 0; i < ArrayUtils::ArraySize(awTable); i += 2)
 	{
-		awTable[i + 0] = wLow--;
-		awTable[i + 1] = wHigh++;
+		awTable[i + 0] = low--;
+		awTable[i + 1] = high++;
 	}
 
 	// Decode
-	DWORD dwDstSizeOfHalf = (dwDstSize >> 1);
+	const DWORD dst_size_half = dst_size >> 1;
 	BYTE abtTable1[4096];
 	BYTE abtTable2[4096];
 	BYTE abtTable3[4096];
 
-	while (dwSrcPtr < dwDstSizeOfHalf)
+	while (src_ptr < dst_size_half)
 	{
 		// TODO: Unfinished ?
 	}
@@ -1047,44 +1034,40 @@ bool CCircus::DecompPCM1(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD 
 
 /// PCM Extraction (Type 2)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CCircus::DecompPCM2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircus::DecompPCM2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	DWORD src_ptr = 0;
+	DWORD dst_ptr = 0;
 
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	DWORD channel = 0;
+	DWORD table[6] = {};
 
-	char  cData;
-	DWORD dwChannel = 0;
-	DWORD adwTable[6] = {};
-
-	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		cData = (char)pbtSrc[dwSrcPtr++];
+		const char data = static_cast<char>(src[src_ptr++]);
 		
-		adwTable[dwChannel * 3 + 0] += cData << (adwTable[dwChannel * 3 + 1] & 0xFF);
+		table[channel * 3 + 0] += data << (table[channel * 3 + 1] & 0xFF);
 
-		if (cData == 0x00)
+		if (data == 0x00)
 		{
-			if (adwTable[dwChannel * 3 + 1] != 0)
-				adwTable[dwChannel * 3 + 1]--;
+			if (table[channel * 3 + 1] != 0)
+				table[channel * 3 + 1]--;
 		}
-		else if (cData == 0x7F || cData == -0x80)
+		else if (data == 0x7F || data == -0x80)
 		{
-			if (adwTable[dwChannel * 3 + 1] != 8)
-				adwTable[dwChannel * 3 + 1]++;
+			if (table[channel * 3 + 1] != 8)
+				table[channel * 3 + 1]++;
 		}
 
-		pbtDst[dwDstPtr++] = (BYTE)(adwTable[dwChannel * 3 + 0] & 0xFF);
-		pbtDst[dwDstPtr++] = (BYTE)((adwTable[dwChannel * 3 + 0] >> 8) & 0xFF);
+		dst[dst_ptr++] = static_cast<u8>(table[channel * 3 + 0]);
+		dst[dst_ptr++] = static_cast<u8>(table[channel * 3 + 0] >> 8);
 
-		dwChannel = 1 - dwChannel;
+		channel = 1 - channel;
 	}
 
 	return true;
