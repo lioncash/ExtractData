@@ -2,90 +2,90 @@
 #include "../Image.h"
 #include "InnocentGrey.h"
 
-bool CInnocentGrey::Mount(CArcFile* pclArc)
+bool CInnocentGrey::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".dat")) || (memcmp(pclArc->GetHed(), "PACKDAT.", 8) != 0))
+	if (archive->GetArcExten() != _T(".dat") || memcmp(archive->GetHed(), "PACKDAT.", 8) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(8, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->Seek(8, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	DWORD index_size = ctFile * 48;
+	const size_t index_size = num_files * 48;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Seek(4, FILE_CURRENT);
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Seek(4, FILE_CURRENT);
+	archive->Read(index.data(), index.size());
+	u8* index_ptr = index.data();
 
-	for (DWORD i = 0; i < ctFile; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[32];
-		memcpy(szFileName, pIndex, 32);
+		TCHAR file_name[32];
+		memcpy(file_name, index_ptr, 32);
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&pIndex[32];
-		infFile.sizeOrg = *(LPDWORD)&pIndex[40];
-		infFile.sizeCmp = *(LPDWORD)&pIndex[44];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		infFile.title = _T("InnocentGrey");
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(u32*)&index_ptr[32];
+		file_info.sizeOrg = *(u32*)&index_ptr[40];
+		file_info.sizeCmp = *(u32*)&index_ptr[44];
+		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.title = _T("InnocentGrey");
+		archive->AddFileInfo(file_info);
 
-		pIndex += 48;
+		index_ptr += 48;
 	}
 
 	return true;
 }
 
-bool CInnocentGrey::Decode(CArcFile* pclArc)
+bool CInnocentGrey::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if ((file_info->title != _T("InnocentGrey")) || (pclArc->GetArcExten() != _T(".dat")) || (file_info->format != _T("S")))
+	if (file_info->title != _T("InnocentGrey") || archive->GetArcExten() != _T(".dat") || file_info->format != _T("S"))
 		return false;
 
 	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		YCMemory<BYTE> buf(file_info->sizeOrg);
-		pclArc->Read(&buf[0], file_info->sizeOrg);
+		std::vector<u8> buffer(file_info->sizeOrg);
+		archive->Read(buffer.data(), buffer.size());
 
 		// Decryption
-		for (DWORD i = 0; i < file_info->sizeOrg; i++)
+		for (size_t i = 0; i < buffer.size(); i++)
 		{
-			buf[i] ^= 0xFF;
+			buffer[i] ^= 0xFF;
 		}
 
 		// Output
 		CImage image;
-		image.Init(pclArc, &buf[0]);
-		image.Write(file_info->sizeOrg);
+		image.Init(archive, buffer.data());
+		image.Write(buffer.size());
 	}
 	else
 	{
 		// Ensure Buffer
-		DWORD BufSize = pclArc->GetBufSize();
-		YCMemory<BYTE> buf(BufSize);
+		DWORD buffer_size = archive->GetBufSize();
+		std::vector<u8> buffer(buffer_size);
 
 		// Create output file
-		pclArc->OpenFile();
+		archive->OpenFile();
 
-		for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
+		for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 		{
 			// Get buffer size
-			pclArc->SetBufSize(&BufSize, WriteSize);
+			archive->SetBufSize(&buffer_size, write_size);
 
 			// Decode output
-			pclArc->Read(&buf[0], BufSize);
-			for (DWORD i = 0; i < BufSize; i++)
-				buf[i] ^= 0xFF;
-			pclArc->WriteFile(&buf[0], BufSize);
+			archive->Read(buffer.data(), buffer_size);
+			for (size_t i = 0; i < buffer_size; i++)
+				buffer[i] ^= 0xFF;
+			archive->WriteFile(buffer.data(), buffer_size);
 		}
 	}
 
