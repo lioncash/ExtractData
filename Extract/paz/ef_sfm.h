@@ -9,22 +9,22 @@
 class CEFsfm final : public CHaruotoFD
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool IsSupported(CArcFile* pclArc) const;
+	bool IsSupported(CArcFile* archive) const;
 
-	void InitMountKey(CArcFile* pclArc) override;
-	void InitDecodeKey(CArcFile* pclArc) override;
+	void InitMountKey(CArcFile* archive) override;
+	void InitDecodeKey(CArcFile* archive) override;
 
-	DWORD InitMovieTable(void* pvTable) override;
+	DWORD InitMovieTable(void* table) override;
 
-	void DecodeMovieData(void* pvTarget, DWORD dwSize) override;
+	void DecodeMovieData(void* target, DWORD size) override;
 
-	DWORD GetMovieBufSize(CArcFile* pclArc) override;
+	DWORD GetMovieBufSize(CArcFile* archive) override;
 
-	BYTE  m_btKey;
-	BYTE  m_aabtMovieTable[256][256];
-	DWORD m_dwMovieTableID;
+	BYTE  m_key;
+	BYTE  m_movie_table[256][256];
+	DWORD m_movie_table_id;
 };

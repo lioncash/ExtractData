@@ -3,47 +3,47 @@
 
 /// Check if files are supported
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFsfm::IsSupported(CArcFile* pclArc) const
+bool CEFsfm::IsSupported(CArcFile* archive) const
 {
-	return memcmp(pclArc->GetHed(), "ef_sfm", 6) == 0;
+	return memcmp(archive->GetHed(), "ef_sfm", 6) == 0;
 }
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFsfm::Mount(CArcFile* pclArc)
+bool CEFsfm::Mount(CArcFile* archive)
 {
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
 	// Skip 32 bytes
-	pclArc->SeekHed(32);
+	archive->SeekHed(32);
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFsfm::Decode(CArcFile* pclArc)
+bool CEFsfm::Decode(CArcFile* archive)
 {
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
 /// Initialize Mount Key
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CEFsfm::InitMountKey(CArcFile* pclArc)
+void CEFsfm::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\xA3\x5C\xF8\x00\x38\x16\xBD\x7D\x1E\x59\x57\x02\xED\xE4\x07\x08\x21\x45\x76\x38\xF9\x04\x66\x8C\xA9\xCD\x15\x4B\xF8\xDC\x34\xAC" },
 		{ _T("bg"),     "\xB6\xA8\xCE\x49\x40\x08\x93\xC1\x32\xD3\xCF\x45\xE2\xF4\xA3\xD3\x11\x46\xF0\x26\xA2\x8F\x99\xDD\x43\x04\x02\x96\xBD\x51\xBC\xDA" },
@@ -55,16 +55,16 @@ void CEFsfm::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),    "\xB3\x25\x8D\x86\x56\xFF\x2F\x27\xA4\x93\xB1\x4B\x97\xB9\xFB\x99\x94\x4B\xDA\x46\xF6\xB4\xCF\xC8\x15\x74\x21\x50\xE3\x76\x55\x79" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
 /// Initialize Decode Key
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CEFsfm::InitDecodeKey(CArcFile* pclArc)
+void CEFsfm::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),    "\x3A\x75\xBD\x84\x3F\xC8\x08\x98\xF4\x41\x72\xF1\xD5\x1A\x2C\xFA\xFE\x1A\x2D\xBA\xC7\xF6\x2E\xB0\xF2\xBD\x12\xE4\x0F\x65\x16\xC1" },
 		{ _T("bg"),     "\x24\x2F\x87\xDB\x7C\xA3\x78\x5B\x60\xF6\xC6\xC2\xB0\x84\x1E\xC0\xBC\xF6\xDA\x17\x1F\xE8\x39\xD4\xB7\xDA\x13\xED\x4A\x15\xA3\x30" },
@@ -76,24 +76,24 @@ void CEFsfm::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),    "\x2A\xCA\x1A\x43\xC0\x38\x86\xA1\x42\x9E\x65\xAC\xEB\x67\x38\x1A\x2A\x9F\x5F\xF5\x68\x9A\xB3\xC5\xF9\x24\xF2\xBB\x16\x09\xF1\xD2" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 
-	m_dwMovieTableID = 0;
+	m_movie_table_id = 0;
 }
 
 /// Initialize Movie Table
 ///
-/// @param pvTable Table
+/// @param table Table
 ///
-DWORD CEFsfm::InitMovieTable(void* pvTable)
+DWORD CEFsfm::InitMovieTable(void* table)
 {
-	const BYTE* pbtTable = static_cast<const BYTE*>(pvTable);
+	const BYTE* byte_table = static_cast<const BYTE*>(table);
 
 	for (DWORD i = 0; i < 256; i++)
 	{
 		for (DWORD j = 0; j < 256; j++)
 		{
-			m_aabtMovieTable[i][*pbtTable++] = j;
+			m_movie_table[i][*byte_table++] = static_cast<BYTE>(j);
 		}
 	}
 
@@ -102,26 +102,26 @@ DWORD CEFsfm::InitMovieTable(void* pvTable)
 
 /// Decode Movie Data
 ///
-/// @param pvTarget - Data to be decoded
-/// @param dwSize   - Decoding size
+/// @param target - Data to be decoded
+/// @param size   - Decoding size
 ///
-void CEFsfm::DecodeMovieData(void* pvTarget, DWORD dwSize)
+void CEFsfm::DecodeMovieData(void* target, DWORD size)
 {
-	BYTE* pbtTarget = (BYTE*)pvTarget;
+	BYTE* byte_target = (BYTE*)target;
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] = m_aabtMovieTable[m_dwMovieTableID][pbtTarget[i]];
+		byte_target[i] = m_movie_table[m_movie_table_id][byte_target[i]];
 	}
 
-	m_dwMovieTableID = ((m_dwMovieTableID + 1) & 0xFF);
+	m_movie_table_id = (m_movie_table_id + 1) & 0xFF;
 }
 
 /// Get Movie Buffer Size
 ///
-/// @param pclArc - Archive
+/// @param archive - Archive
 ///
-DWORD CEFsfm::GetMovieBufSize(CArcFile* pclArc)
+DWORD CEFsfm::GetMovieBufSize(CArcFile* archive)
 {
 	return 65536;
 }
