@@ -4,71 +4,67 @@
 
 /// Decompress LZSS
 ///
-/// @param pvDst      Destination
-/// @param dwDstSize  Destination size
-/// @param pvFlags    Flag data
-/// @param dwFlagSize Flag data size
-/// @param pvSrc      Compressed data
-/// @param dwSrcSize  Compressed data size
+/// @param dst        Destination
+/// @param dst_size   Destination size
+/// @param flags      Flag data
+/// @param flags_size Flag data size
+/// @param src        Compressed data
+/// @param src_size   Compressed data size
 ///
-void CPB::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvFlags, DWORD dwFlagsSize, const void* pvSrc, DWORD dwSrcSize)
+void CPB::DecompLZSS(u8* dst, DWORD dst_size, const u8* flags, DWORD flags_size, const u8* src, DWORD src_size)
 {
 	// Initialize Dictionary
-	DWORD dwDicSize = 2048;
-	YCMemory<BYTE> clmbtDic(dwDicSize);
-	ZeroMemory(&clmbtDic[0], dwDicSize);
-	DWORD dwDicPtr = 2014;
+	constexpr DWORD dictionary_size = 2048;
+	std::vector<BYTE> dictionary(dictionary_size);
+	DWORD dictionary_ptr = 2014;
 
 	// Decompress
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	const BYTE* pbtFlags = (const BYTE*)pvFlags;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-	DWORD       dwSrcPtr = 0;
-	DWORD       dwFlagsPtr = 0;
-	DWORD       dwDstPtr = 0;
-	BYTE        btCode = 0x80;
+	DWORD src_ptr = 0;
+	DWORD flags_ptr = 0;
+	DWORD dst_ptr = 0;
+	BYTE  code = 0x80;
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) && (dwFlagsPtr < dwFlagsSize))
+	while (src_ptr < src_size && dst_ptr < dst_size && flags_ptr < flags_size)
 	{
-		if (btCode == 0)
+		if (code == 0)
 		{
-			dwFlagsPtr++;
-			btCode = 0x80;
+			flags_ptr++;
+			code = 0x80;
 		}
 
 		// Is Compressed
-		if (pbtFlags[dwFlagsPtr] & btCode)
+		if (flags[flags_ptr] & code)
 		{
-			WORD  wWork = *(WORD*)&pbtSrc[dwSrcPtr];
+			const WORD work = *(WORD*)&src[src_ptr];
 
-			DWORD dwBack = (wWork >> 5);
-			DWORD dwLength = (wWork & 0x1F) + 3;
+			DWORD back = work >> 5;
+			DWORD length = (work & 0x1F) + 3;
 
 			// Adjust so that the buffer is not exceeded
-			if ((dwDstPtr + dwLength) > dwDstSize)
+			if (dst_ptr + length > dst_size)
 			{
-				dwLength = (dwDstSize - dwDstPtr);
+				length = dst_size - dst_ptr;
 			}
 
 			// Dictionary Reference
-			for (DWORD i = 0; i < dwLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
-				pbtDst[dwDstPtr + i] = clmbtDic[dwDicPtr++] = clmbtDic[dwBack++];
+				dst[dst_ptr + i] = dictionary[dictionary_ptr++] = dictionary[back++];
 
-				dwDicPtr &= (dwDicSize - 1);
-				dwBack &= (dwDicSize - 1);
+				dictionary_ptr &= (dictionary_size - 1);
+				back &= (dictionary_size - 1);
 			}
 
-			dwSrcPtr += 2;
-			dwDstPtr += dwLength;
+			src_ptr += 2;
+			dst_ptr += length;
 		}
 		else // Not compressed
 		{
-			pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = pbtSrc[dwSrcPtr++];
+			dst[dst_ptr++] = dictionary[dictionary_ptr++] = src[src_ptr++];
 
-			dwDicPtr &= (dwDicSize - 1);
+			dictionary_ptr &= (dictionary_size - 1);
 		}
 
-		btCode >>= 1;
+		code >>= 1;
 	}
 }
