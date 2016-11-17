@@ -8,18 +8,18 @@ bool CIzumo::Mount(CArcFile* archive)
 		return false;
 
 	// Get index size (Starting address of the first file)
-	DWORD index_size;
+	u32 index_size;
 	archive->Seek(4, FILE_BEGIN);
-	archive->Read(&index_size, 4);
+	archive->ReadU32(&index_size);
 
 	// Get number of bytes to be skipped
-	DWORD dummy;
-	archive->Read(&dummy, 4);
-	const DWORD skip = dummy << 3;
+	u32 dummy;
+	archive->ReadU32(&dummy);
+	const u32 skip = dummy << 3;
 
 	// Get file count
-	DWORD num_files;
-	archive->Read(&num_files, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Skip unknown data
 	archive->Seek(skip, FILE_CURRENT);
@@ -28,33 +28,33 @@ bool CIzumo::Mount(CArcFile* archive)
 	index_size -= 16 + skip;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE index_ptr = &index[0];
-	archive->Read(index_ptr, index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
+	u8* index_ptr = index.data();
 
 	// Get filename index
-	LPBYTE file_name_index = index_ptr + (num_files << 4);
+	u8* file_name_index = index_ptr + (num_files << 4);
 
 	// Remove unneeded filenames 
-	for (DWORD i = 1; i < dummy; i++)
+	for (u32 i = 1; i < dummy; i++)
 	{
 		file_name_index += file_name_index[0] + 1;
 	}
 
-	for (DWORD i = 0; i < num_files; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
 		TCHAR file_name[256];
-		const BYTE len = *file_name_index++;
+		const u8 len = *file_name_index++;
 		memcpy(file_name, file_name_index, len);
 		file_name[len] = _T('\0');
 
 		// Add to list view
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(LPDWORD)&index_ptr[4];
+		file_info.sizeOrg = *(u32*)&index_ptr[4];
 		file_info.sizeCmp = file_info.sizeOrg;
-		file_info.start = *(LPDWORD)&index_ptr[0];
+		file_info.start = *(u32*)&index_ptr[0];
 		file_info.end = file_info.start + file_info.sizeCmp;
 		archive->AddFileInfo(file_info);
 
