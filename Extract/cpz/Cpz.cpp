@@ -7,23 +7,23 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::Mount(CArcFile* pclArc)
+bool CCpz::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".cpz"))
+	if (archive->GetArcExten() != _T(".cpz"))
 		return false;
 
-	if (MountCpz1(pclArc))
+	if (MountCpz1(archive))
 		return true;
 
-	if (MountCpz2(pclArc))
+	if (MountCpz2(archive))
 		return true;
 
-	if (MountCpz3(pclArc))
+	if (MountCpz3(archive))
 		return true;
 
-	if (MountCpz5(pclArc))
+	if (MountCpz5(archive))
 		return true;
 
 	return false;
@@ -31,43 +31,43 @@ bool CCpz::Mount(CArcFile* pclArc)
 
 /// CPZ1 Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::MountCpz1(CArcFile* pclArc)
+bool CCpz::MountCpz1(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ1", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ1", 4) != 0)
 		return false;
 
 	// Read header
-	BYTE abtHeader[16];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
-	DWORD dwFiles = *(DWORD*)&abtHeader[4];
-	DWORD dwIndexSize = *(DWORD*)&abtHeader[8];
+	BYTE header[16];
+	archive->Read(header, sizeof(header));
+	const DWORD files = *(DWORD*)&header[4];
+	const DWORD index_size = *(DWORD*)&header[8];
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD          dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	DWORD          index_ptr = 0;
+	archive->Read(&index[0], index_size);
 
 	// Decrypt the index
-	Decrypt1(&clmbtIndex[0], dwIndexSize);
-	DWORD dwOffset = (dwIndexSize + 16);
+	Decrypt1(&index[0], index_size);
+	const DWORD offset = (index_size + 16);
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
-		TCHAR szFileName[256];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr + 24]);
+		TCHAR file_name[256];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr + 24]);
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeCmp = *(DWORD*)&clmbtIndex[dwIndexPtr + 4];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 8] + dwOffset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		pclArc->AddFileInfo(stFileInfo);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *(DWORD*)&index[index_ptr + 4];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *(DWORD*)&index[index_ptr + 8] + offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
+		index_ptr += *(DWORD*)&index[index_ptr + 0];
 	}
 
 	return true;
@@ -75,45 +75,46 @@ bool CCpz::MountCpz1(CArcFile* pclArc)
 
 /// CPZ2 Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::MountCpz2(CArcFile* pclArc)
+bool CCpz::MountCpz2(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ2", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ2", 4) != 0)
 		return false;
 
 	// Read header
-	BYTE abtHeader[20];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
-	DWORD dwFiles = *(DWORD*)&abtHeader[4] ^ 0xE47C59F3;
-	DWORD dwIndexSize = *(DWORD*)&abtHeader[8] ^ 0x3F71DE2A;
-	DWORD dwKey = *(DWORD*)&abtHeader[16] ^ 0x77777777 ^ 0x37A9F45B;
+	BYTE header[20];
+	archive->Read(header, sizeof(header));
+
+	const DWORD files = *(DWORD*)&header[4] ^ 0xE47C59F3;
+	const DWORD index_size = *(DWORD*)&header[8] ^ 0x3F71DE2A;
+	const DWORD key = *(DWORD*)&header[16] ^ 0x77777777 ^ 0x37A9F45B;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	DWORD index_ptr = 0;
+	archive->Read(&index[0], index_size);
 
 	// Decrypt index
-	Decrypt2(&clmbtIndex[0], dwIndexSize, dwKey);
-	DWORD dwOffset = (dwIndexSize + 20);
+	Decrypt2(&index[0], index_size, key);
+	const DWORD offset = index_size + 20;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
-		TCHAR szFileName[256];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr + 24]);
+		TCHAR file_name[256];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr + 24]);
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeCmp = *(DWORD*)&clmbtIndex[dwIndexPtr + 4];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 8] + dwOffset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		stFileInfo.key = *(DWORD*)&clmbtIndex[dwIndexPtr + 20] ^ 0x796C3AFD;
-		pclArc->AddFileInfo(stFileInfo);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *(DWORD*)&index[index_ptr + 4];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *(DWORD*)&index[index_ptr + 8] + offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.key = *(DWORD*)&index[index_ptr + 20] ^ 0x796C3AFD;
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
+		index_ptr += *(DWORD*)&index[index_ptr + 0];
 	}
 
 	return true;
@@ -121,57 +122,57 @@ bool CCpz::MountCpz2(CArcFile* pclArc)
 
 /// CPZ3 Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::MountCpz3(CArcFile* pclArc)
+bool CCpz::MountCpz3(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ3", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ3", 4) != 0)
 		return false;
 
 	// Read header
-	BYTE abtHeader[20];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
+	BYTE header[20];
+	archive->Read(header, sizeof(header));
 
-	DWORD dwFiles = *(DWORD*)&abtHeader[4] ^ 0x5E9C4F37;
-	DWORD dwIndexSize = *(DWORD*)&abtHeader[8] ^ 0xF32AED17;
-	DWORD dwKey = *(DWORD*)&abtHeader[16] ^ 0xDDDDDDDD ^ 0x7BF4A539;
+	const DWORD files = *(DWORD*)&header[4] ^ 0x5E9C4F37;
+	const DWORD index_size = *(DWORD*)&header[8] ^ 0xF32AED17;
+	const DWORD key = *(DWORD*)&header[16] ^ 0xDDDDDDDD ^ 0x7BF4A539;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	DWORD index_ptr = 0;
+	archive->Read(&index[0], index_size);
 
 	// Decrypt index
-	Decrypt3(&clmbtIndex[0], dwIndexSize, dwKey);
-	DWORD dwOffset = (dwIndexSize + 20);
+	Decrypt3(&index[0], index_size, key);
+	const DWORD offset = (index_size + 20);
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
-		TCHAR szFileName[_MAX_FNAME];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr + 24]);
+		TCHAR file_name[_MAX_FNAME];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr + 24]);
 
 		// ファイル数が多いので、フォルダ名を付けてフォルダ分割できるように変更
 		// プリミティブリンク用の処理なので、他タイトルで不具合出るかも
-		YCString clsDirName;
-		LPTSTR   pszDirNameEndPos = _tcschr(szFileName, _T('-'));
+		YCString dir_name;
+		LPTSTR   dir_name_end_pos = _tcschr(file_name, _T('-'));
 
-		if (pszDirNameEndPos != nullptr)
+		if (dir_name_end_pos != nullptr)
 		{
-			clsDirName.Append(szFileName, (pszDirNameEndPos + 3 - szFileName));
-			clsDirName += _T("\\");
+			dir_name.Append(file_name, (dir_name_end_pos + 3 - file_name));
+			dir_name += _T("\\");
 		}
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = clsDirName + szFileName;
-		stFileInfo.sizeCmp = *(DWORD*)&clmbtIndex[dwIndexPtr + 4];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 8] + dwOffset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		stFileInfo.key = *(DWORD*)&clmbtIndex[dwIndexPtr + 20] ^ 0xC7F5DA63;
-		pclArc->AddFileInfo(stFileInfo);
+		SFileInfo file_info;
+		file_info.name = dir_name + file_name;
+		file_info.sizeCmp = *(DWORD*)&index[index_ptr + 4];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *(DWORD*)&index[index_ptr + 8] + offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.key = *(DWORD*)&index[index_ptr + 20] ^ 0xC7F5DA63;
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
+		index_ptr += *(DWORD*)&index[index_ptr + 0];
 	}
 
 	return true;
@@ -179,42 +180,42 @@ bool CCpz::MountCpz3(CArcFile* pclArc)
 
 /// CPZ5 Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::MountCpz5(CArcFile* pclArc)
+bool CCpz::MountCpz5(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ5", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ5", 4) != 0)
 		return false;
 
 	// Get header
-	SCPZ5Header* pstHeader = (SCPZ5Header*)pclArc->GetHed();
-	pclArc->SeekCur(sizeof(SCPZ5Header));
+	SCPZ5Header* header = (SCPZ5Header*)archive->GetHed();
+	archive->SeekCur(sizeof(SCPZ5Header));
 
 	// Decrypt header
-	pstHeader->dwDirs ^= 0xFE3A53D9;
-	pstHeader->dwTotalDirIndexSize ^= 0x37F298E7;
-	pstHeader->dwTotalFileIndexSize ^= 0x7A6F3A2C;
-	pstHeader->adwMD5[0] ^= 0x43DE7C19;
-	pstHeader->adwMD5[1] ^= 0xCC65F415;
-	pstHeader->adwMD5[2] ^= 0xD016A93C;
-	pstHeader->adwMD5[3] ^= 0x97A3BA9A;
-	pstHeader->dwIndexKey ^= 0xAE7D39BF;
-	pstHeader->adwUnKnown2[0] ^= 0xFB73A955;
-	pstHeader->adwUnKnown2[1] ^= 0x37ACF831;
+	header->dwDirs ^= 0xFE3A53D9;
+	header->dwTotalDirIndexSize ^= 0x37F298E7;
+	header->dwTotalFileIndexSize ^= 0x7A6F3A2C;
+	header->adwMD5[0] ^= 0x43DE7C19;
+	header->adwMD5[1] ^= 0xCC65F415;
+	header->adwMD5[2] ^= 0xD016A93C;
+	header->adwMD5[3] ^= 0x97A3BA9A;
+	header->dwIndexKey ^= 0xAE7D39BF;
+	header->adwUnKnown2[0] ^= 0xFB73A955;
+	header->adwUnKnown2[1] ^= 0x37ACF831;
 
 	// Prepare MD5 data
-	u32 adwMD5Data[16];
-	adwMD5Data[0] = pstHeader->adwMD5[0];
-	adwMD5Data[1] = pstHeader->adwMD5[1];
-	adwMD5Data[2] = pstHeader->adwMD5[2];
-	adwMD5Data[3] = pstHeader->adwMD5[3];
+	u32 md5_data[16];
+	md5_data[0] = header->adwMD5[0];
+	md5_data[1] = header->adwMD5[1];
+	md5_data[2] = header->adwMD5[2];
+	md5_data[3] = header->adwMD5[3];
 
 	// Add padding
-	CMD5 clMD5;
-	clMD5.AppendPadding(adwMD5Data, 16, 48);
+	CMD5 md5;
+	md5.AppendPadding(md5_data, 16, 48);
 
 	// Set initial values
-	u32 adwInitMD5[4] = {
+	const u32 init_md5[4] = {
 		0xC74A2B01,
 		0xE7C8AB8F,
 		0xD8BEDC4E,
@@ -222,141 +223,140 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 	};
 
 	// Calculate MD5
-	SMD5 stMD5 = clMD5.Calculate(adwMD5Data, sizeof(adwMD5Data), adwInitMD5);
-	pstHeader->adwMD5[0] = stMD5.adwABCD[3];
-	pstHeader->adwMD5[1] = stMD5.adwABCD[1];
-	pstHeader->adwMD5[2] = stMD5.adwABCD[2];
-	pstHeader->adwMD5[3] = stMD5.adwABCD[0];
+	const SMD5 md5_result = md5.Calculate(md5_data, sizeof(md5_data), init_md5);
+	header->adwMD5[0] = md5_result.adwABCD[3];
+	header->adwMD5[1] = md5_result.adwABCD[1];
+	header->adwMD5[2] = md5_result.adwABCD[2];
+	header->adwMD5[3] = md5_result.adwABCD[0];
 
 	// Read index
-	DWORD          dwIndexSize = (pstHeader->dwTotalDirIndexSize + pstHeader->dwTotalFileIndexSize);
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	DWORD          index_size = (header->dwTotalDirIndexSize + header->dwTotalFileIndexSize);
+	YCMemory<BYTE> index(index_size);
+	archive->Read(&index[0], index_size);
 
 	// Decode entire directory index
-	const BYTE* pbtDecryptTable;
-	Decrypt5(&clmbtIndex[0], dwIndexSize, (pstHeader->dwIndexKey ^ 0x3795B39A));
-	pbtDecryptTable = InitDecryptWithTable5(pstHeader->dwIndexKey, pstHeader->adwMD5[1]);
-	DecryptWithTable5(&clmbtIndex[0], pstHeader->dwTotalDirIndexSize, pbtDecryptTable, 0x3A);
+	Decrypt5(&index[0], index_size, (header->dwIndexKey ^ 0x3795B39A));
+	const BYTE* decryption_table = InitDecryptWithTable5(header->dwIndexKey, header->adwMD5[1]);
+	DecryptWithTable5(&index[0], header->dwTotalDirIndexSize, decryption_table, 0x3A);
 
 	// Set key
-	DWORD adwKey[4];
-	adwKey[0] = pstHeader->adwMD5[0] ^ (pstHeader->dwIndexKey + 0x76A3BF29);
-	adwKey[1] = pstHeader->adwMD5[1] ^ pstHeader->dwIndexKey;
-	adwKey[2] = pstHeader->adwMD5[2] ^ (pstHeader->dwIndexKey + 0x10000000);
-	adwKey[3] = pstHeader->adwMD5[3] ^ pstHeader->dwIndexKey;
+	DWORD key[4];
+	key[0] = header->adwMD5[0] ^ (header->dwIndexKey + 0x76A3BF29);
+	key[1] = header->adwMD5[1] ^ header->dwIndexKey;
+	key[2] = header->adwMD5[2] ^ (header->dwIndexKey + 0x10000000);
+	key[3] = header->adwMD5[3] ^ header->dwIndexKey;
 
 	// Decrypt the total directory index
-	DWORD dwKeyPtr = 0;
-	DWORD dwSeed = 0x76548AEF;
-	BYTE* pbtWork = &clmbtIndex[0];
+	DWORD key_ptr = 0;
+	DWORD seed = 0x76548AEF;
+	BYTE* work_ptr = &index[0];
 
-	for (DWORD i = 0; i < (pstHeader->dwTotalDirIndexSize >> 2); i++)
+	for (DWORD i = 0; i < (header->dwTotalDirIndexSize >> 2); i++)
 	{
-		DWORD dwWork = (*(DWORD*)pbtWork ^ adwKey[dwKeyPtr++]) - 0x4A91C262;
+		const DWORD work = (*(DWORD*)work_ptr ^ key[key_ptr++]) - 0x4A91C262;
 
-		*(DWORD*)pbtWork = _lrotl(dwWork, 3) - dwSeed;
+		*(DWORD*)work_ptr = _lrotl(work, 3) - seed;
 
-		dwKeyPtr &= 3;
-		pbtWork += 4;
-		dwSeed += 0x10FB562A;
+		key_ptr &= 3;
+		work_ptr += 4;
+		seed += 0x10FB562A;
 	}
 
-	for (DWORD i = 0; i < (pstHeader->dwTotalDirIndexSize & 3); i++)
+	for (DWORD i = 0; i < (header->dwTotalDirIndexSize & 3); i++)
 	{
-		*pbtWork++ = ((adwKey[dwKeyPtr++] >> 6) ^ *pbtWork) + 0x37;
+		*work_ptr++ = ((key[key_ptr++] >> 6) ^ *work_ptr) + 0x37;
 
-		dwKeyPtr &= 3;
+		key_ptr &= 3;
 	}
 
 	// Initialize decryption table
-	pbtDecryptTable = InitDecryptWithTable5(pstHeader->dwIndexKey, pstHeader->adwMD5[2]);
+	decryption_table = InitDecryptWithTable5(header->dwIndexKey, header->adwMD5[2]);
 
 	// Get file information
-	BYTE* pbtCurrentDirIndex = &clmbtIndex[0];
+	BYTE* current_dir_index_ptr = &index[0];
 
-	for (DWORD i = 0; i < pstHeader->dwDirs; i++)
+	for (DWORD i = 0; i < header->dwDirs; i++)
 	{
-		BYTE* pbtNextDirIndex = pbtCurrentDirIndex + *(DWORD*)&pbtCurrentDirIndex[0];
-		DWORD dwCurrentFileIndexOffset = *(DWORD*)&pbtCurrentDirIndex[8];
-		DWORD dwNextFileIndexOffset;
+		BYTE* next_dir_index_ptr = current_dir_index_ptr + *(DWORD*)&current_dir_index_ptr[0];
+		const DWORD current_file_index_offset = *(DWORD*)&current_dir_index_ptr[8];
+		DWORD next_file_index_offset;
 
-		if ((i + 1) >= pstHeader->dwDirs)
+		if ((i + 1) >= header->dwDirs)
 		{
 			// The last directory
 
-			dwNextFileIndexOffset = pstHeader->dwTotalFileIndexSize;
+			next_file_index_offset = header->dwTotalFileIndexSize;
 		}
 		else
 		{
-			dwNextFileIndexOffset = *(DWORD*)&pbtNextDirIndex[8];
+			next_file_index_offset = *(DWORD*)&next_dir_index_ptr[8];
 		}
 
 		// Decrypt the current file index
-		DWORD dwCurrentFileIndexSize = (dwNextFileIndexOffset - dwCurrentFileIndexOffset);
-		BYTE* pbtCurrentFileIndex = &clmbtIndex[pstHeader->dwTotalDirIndexSize + dwCurrentFileIndexOffset];
-		DecryptWithTable5(pbtCurrentFileIndex, dwCurrentFileIndexSize, pbtDecryptTable, 0x7E);
+		const DWORD current_file_index_size = (next_file_index_offset - current_file_index_offset);
+		BYTE* current_file_index = &index[header->dwTotalDirIndexSize + current_file_index_offset];
+		DecryptWithTable5(current_file_index, current_file_index_size, decryption_table, 0x7E);
 
 		// Set key
-		DWORD dwEntryKey = *(DWORD*)&pbtCurrentDirIndex[12];
-		adwKey[0] = pstHeader->adwMD5[0] ^ dwEntryKey;
-		adwKey[1] = pstHeader->adwMD5[1] ^ (dwEntryKey + 0x112233);
-		adwKey[2] = pstHeader->adwMD5[2] ^ dwEntryKey;
-		adwKey[3] = pstHeader->adwMD5[3] ^ (dwEntryKey + 0x34258765);
+		const DWORD entry_key = *(DWORD*)&current_dir_index_ptr[12];
+		key[0] = header->adwMD5[0] ^ entry_key;
+		key[1] = header->adwMD5[1] ^ (entry_key + 0x112233);
+		key[2] = header->adwMD5[2] ^ entry_key;
+		key[3] = header->adwMD5[3] ^ (entry_key + 0x34258765);
 
 		// Decrypt current file index
-		dwSeed = 0x2A65CB4E;
-		pbtWork = pbtCurrentFileIndex;
-		dwKeyPtr = 0;
+		seed = 0x2A65CB4E;
+		work_ptr = current_file_index;
+		key_ptr = 0;
 
-		for (DWORD j = 0; (j < dwCurrentFileIndexSize >> 2); j++)
+		for (DWORD j = 0; (j < current_file_index_size >> 2); j++)
 		{
-			*(DWORD*)pbtWork = _lrotl((*(DWORD*)pbtWork ^ adwKey[dwKeyPtr++]) - dwSeed, 2) + 0x37A19E8B;
+			*(DWORD*)work_ptr = _lrotl((*(DWORD*)work_ptr ^ key[key_ptr++]) - seed, 2) + 0x37A19E8B;
 
-			dwKeyPtr &= 3;
-			pbtWork += 4;
-			dwSeed -= 0x139FA9B;
+			key_ptr &= 3;
+			work_ptr += 4;
+			seed -= 0x139FA9B;
 		}
 
-		for (DWORD j = 0; j < (dwCurrentFileIndexSize & 3); j++)
+		for (DWORD j = 0; j < (current_file_index_size & 3); j++)
 		{
-			*pbtWork++ = (*pbtWork ^ (BYTE)(adwKey[dwKeyPtr++] >> 4)) + 5;
+			*work_ptr++ = (*work_ptr ^ (BYTE)(key[key_ptr++] >> 4)) + 5;
 
-			dwKeyPtr &= 3;
+			key_ptr &= 3;
 		}
 
 		// Get file information
-		BYTE* pbtFileEntry = pbtCurrentFileIndex;
+		BYTE* file_entry = current_file_index;
 
-		for (DWORD j = 0; j < *(DWORD*)&pbtCurrentDirIndex[4]; j++)
+		for (DWORD j = 0; j < *(DWORD*)&current_dir_index_ptr[4]; j++)
 		{
 			// Get file name
-			TCHAR szFileName[_MAX_FNAME];
-			if (strcmp((char*)&pbtCurrentDirIndex[16], "root") == 0)
+			TCHAR file_name[_MAX_FNAME];
+			if (strcmp((char*)&current_dir_index_ptr[16], "root") == 0)
 			{
-				_stprintf(szFileName, _T("%s"), &pbtFileEntry[24]);
+				_stprintf(file_name, _T("%s"), &file_entry[24]);
 			}
 			else
 			{
-				_stprintf(szFileName, _T("%s\\%s"), &pbtCurrentDirIndex[16], &pbtFileEntry[24]);
+				_stprintf(file_name, _T("%s\\%s"), &current_dir_index_ptr[16], &file_entry[24]);
 			}
 
 			// Additional file information
-			SFileInfo stFileInfo;
-			stFileInfo.name = szFileName;
-			stFileInfo.start = *(UINT64*)&pbtFileEntry[4] + sizeof(SCPZ5Header)+dwIndexSize;
-			stFileInfo.sizeCmp = *(DWORD*)&pbtFileEntry[12];
-			stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-			stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-			stFileInfo.key = (pstHeader->dwIndexKey ^ (*(DWORD*)&pbtCurrentDirIndex[12] + *(DWORD*)&pbtFileEntry[20])) + pstHeader->dwDirs + 0xA3D61785;
-			pclArc->AddFileInfo(stFileInfo);
+			SFileInfo file_info;
+			file_info.name = file_name;
+			file_info.start = *(UINT64*)&file_entry[4] + sizeof(SCPZ5Header)+index_size;
+			file_info.sizeCmp = *(DWORD*)&file_entry[12];
+			file_info.sizeOrg = file_info.sizeCmp;
+			file_info.end = file_info.start + file_info.sizeCmp;
+			file_info.key = (header->dwIndexKey ^ (*(DWORD*)&current_dir_index_ptr[12] + *(DWORD*)&file_entry[20])) + header->dwDirs + 0xA3D61785;
+			archive->AddFileInfo(file_info);
 
 			// Go to the next file entry
-			pbtFileEntry += *(DWORD*)&pbtFileEntry[0];
+			file_entry += *(DWORD*)&file_entry[0];
 		}
 
 		// Go to the next directory entry
-		pbtCurrentDirIndex = pbtNextDirIndex;
+		current_dir_index_ptr = next_dir_index_ptr;
 	}
 
 	return true;
@@ -364,23 +364,23 @@ bool CCpz::MountCpz5(CArcFile* pclArc)
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::Decode(CArcFile* pclArc)
+bool CCpz::Decode(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".cpz"))
+	if (archive->GetArcExten() != _T(".cpz"))
 		return false;
 
-	if (DecodeCpz1(pclArc))
+	if (DecodeCpz1(archive))
 		return true;
 
-	if (DecodeCpz2(pclArc))
+	if (DecodeCpz2(archive))
 		return true;
 
-	if (DecodeCpz3(pclArc))
+	if (DecodeCpz3(archive))
 		return true;
 
-	if (DecodeCpz5(pclArc))
+	if (DecodeCpz5(archive))
 		return true;
 
 	return false;
@@ -388,43 +388,43 @@ bool CCpz::Decode(CArcFile* pclArc)
 
 /// CPZ1 Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::DecodeCpz1(CArcFile* pclArc)
+bool CCpz::DecodeCpz1(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ1", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ1", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ1
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	DWORD          src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
+	archive->Read(&src[0], src_size);
 
 	// Decryption
-	Decrypt1(&clmbtSrc[0], dwSrcSize);
+	Decrypt1(&src[0], src_size);
 
 	// Output
 	if (file_info->format == _T("PB2"))
 	{
-		CPB2A clPB2A;
-		clPB2A.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
+		CPB2A pb2a;
+		pb2a.Decode(archive, &src[0], src_size);
 	}
 	else if (file_info->format == _T("MSK"))
 	{
-		long  lWidth = *(long*)&clmbtSrc[8];
-		long  lHeight = *(long*)&clmbtSrc[12];
-		DWORD dwDstSize = (lWidth * lHeight);
+		const long  width = *(long*)&src[8];
+		const long  height = *(long*)&src[12];
+		const DWORD dst_size = width * height;
 
-		CImage clImage;
-		clImage.Init(pclArc, lWidth, lHeight, 8);
-		clImage.WriteReverse(&clmbtSrc[16], dwDstSize);
+		CImage image;
+		image.Init(archive, width, height, 8);
+		image.WriteReverse(&src[16], dst_size);
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 	}
 
 	return true;
@@ -432,43 +432,43 @@ bool CCpz::DecodeCpz1(CArcFile* pclArc)
 
 /// CPZ2 Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::DecodeCpz2(CArcFile* pclArc)
+bool CCpz::DecodeCpz2(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ2", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ2", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ2
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	DWORD          src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
+	archive->Read(&src[0], src_size);
 
 	// Decryption
-	Decrypt2(&clmbtSrc[0], dwSrcSize, file_info->key);
+	Decrypt2(&src[0], src_size, file_info->key);
 
 	// Output
 	if (file_info->format == _T("PB2"))
 	{
-		CPB2A clPB2A;
-		clPB2A.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
+		CPB2A pb2a;
+		pb2a.Decode(archive, &src[0], src_size);
 	}
 	else if (file_info->format == _T("MSK"))
 	{
-		long  lWidth = *(long*)&clmbtSrc[8];
-		long  lHeight = *(long*)&clmbtSrc[12];
-		DWORD dwDstSize = (lWidth * lHeight);
+		const long  width = *(long*)&src[8];
+		const long  height = *(long*)&src[12];
+		const DWORD dst_size = width * height;
 
-		CImage clImage;
-		clImage.Init(pclArc, lWidth, lHeight, 8);
-		clImage.WriteReverse(&clmbtSrc[16], dwDstSize);
+		CImage image;
+		image.Init(archive, width, height, 8);
+		image.WriteReverse(&src[16], dst_size);
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 	}
 
 	return true;
@@ -476,32 +476,32 @@ bool CCpz::DecodeCpz2(CArcFile* pclArc)
 
 /// CPZ3 Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::DecodeCpz3(CArcFile* pclArc)
+bool CCpz::DecodeCpz3(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ3", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ3", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ3
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	DWORD          src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
+	archive->Read(&src[0], src_size);
 
 	// Decryption
-	Decrypt3(&clmbtSrc[0], dwSrcSize, file_info->key);
+	Decrypt3(&src[0], src_size, file_info->key);
 
 	if (file_info->format == _T("PB3"))
 	{
-		CPB3B clPB3B;
-		clPB3B.Decode(pclArc, &clmbtSrc[0], dwSrcSize, OnDecrypt3FromPB3B);
+		CPB3B pb3b;
+		pb3b.Decode(archive, &src[0], src_size, OnDecrypt3FromPB3B);
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 	}
 
 	return true;
@@ -509,34 +509,34 @@ bool CCpz::DecodeCpz3(CArcFile* pclArc)
 
 /// CPZ5 Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCpz::DecodeCpz5(CArcFile* pclArc)
+bool CCpz::DecodeCpz5(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "CPZ5", 4) != 0)
+	if (memcmp(archive->GetHed(), "CPZ5", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	SCPZ5Header*     pstCPZ5Header = (SCPZ5Header*)pclArc->GetHed();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	SCPZ5Header*     cpz5_header = (SCPZ5Header*)archive->GetHed();
 
 	// Read CPZ5
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	DWORD          src_size = file_info->sizeCmp;
+	YCMemory<BYTE> src(src_size);
+	archive->Read(&src[0], src_size);
 
 	// Decryption
-	const BYTE* pbtTable = InitDecryptWithTable5(pstCPZ5Header->adwMD5[3], pstCPZ5Header->dwIndexKey);
-	DecryptOfData5(&clmbtSrc[0], dwSrcSize, pbtTable, pstCPZ5Header->adwMD5, file_info->key);
+	const BYTE* table = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
+	DecryptOfData5(&src[0], src_size, table, cpz5_header->adwMD5, file_info->key);
 
 	if (file_info->format == _T("PB3"))
 	{
-		CPB3B clPB3B;
-		clPB3B.Decode(pclArc, &clmbtSrc[0], dwSrcSize, OnDecrypt5FromPB3B);
+		CPB3B pb3b;
+		pb3b.Decode(archive, &src[0], src_size, OnDecrypt5FromPB3B);
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], src_size);
 	}
 
 	return true;
@@ -544,28 +544,28 @@ bool CCpz::DecodeCpz5(CArcFile* pclArc)
 
 /// Decryption function 1
 ///
-/// @param pbtTarget Decoded data
-/// @param dwSize    Decoding size
+/// @param target Decoded data
+/// @param size   Decoding size
 ///
-void CCpz::Decrypt1(BYTE* pbtTarget, DWORD dwSize)
+void CCpz::Decrypt1(BYTE* target, DWORD size)
 {
-	static const BYTE abtCrypt[] = "掴乱跨虎規日壅諺庫誤絞豪股誇砧後口糊己交\x8B\xFE謙倖規弭胡綿戸湖候誇騎";
+	static const BYTE crypt[] = "掴乱跨虎規日壅諺庫誤絞豪股誇砧後口糊己交\x8B\xFE謙倖規弭胡綿戸湖候誇騎";
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] = (pbtTarget[i] ^ abtCrypt[i & 63]) - 0x6C;
+		target[i] = (target[i] ^ crypt[i & 63]) - 0x6C;
 	}
 }
 
 /// Decryption function 2
 ///
-/// @param pbtTarget Decoded data
-/// @param dwSize    Decoding size
-/// @param dwKey     Key
+/// @param target Decoded data
+/// @param size   Decoding size
+/// @param key    Key
 ///
-void CCpz::Decrypt2(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey)
+void CCpz::Decrypt2(BYTE* target, DWORD size, DWORD key)
 {
-	static const DWORD adwCrypt[] =
+	static const DWORD crypt[] =
 	{
 		0x3A68CDBF, 0xD3C3A711, 0x8414876E, 0x657BEFDB,
 		0xCDD7C125, 0x09328580, 0x288FFEDD, 0x99EBF13A,
@@ -573,41 +573,41 @@ void CCpz::Decrypt2(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey)
 		0xC5B71015, 0xA913046F, 0x2D6FD2BD, 0x68C8BE19
 	};
 
-	DWORD dwShift = dwKey ^ 0x50000000;
+	DWORD shift = key ^ 0x50000000;
 	for (int i = 0; i < 7; i++)
 	{
-		dwShift = (dwShift >> 4) ^ dwKey;
+		shift = (shift >> 4) ^ key;
 	}
-	dwShift = (dwShift & 0x0F) + 8;
+	shift = (shift & 0x0F) + 8;
 
-	DWORD dwTablePtr = 0;
-	for (DWORD i = 0; i < (dwSize >> 2); i++)
+	DWORD table_ptr = 0;
+	for (DWORD i = 0; i < (size >> 2); i++)
 	{
-		DWORD dwWork = ((adwCrypt[dwTablePtr++] + dwKey) ^ *(DWORD*)pbtTarget) - 0x15C3E7;
+		const DWORD work = ((crypt[table_ptr++] + key) ^ *(DWORD*)target) - 0x15C3E7;
 
-		*(DWORD*)pbtTarget = (dwWork << (32 - dwShift)) | (dwWork >> dwShift);
+		*(DWORD*)target = (work << (32 - shift)) | (work >> shift);
 
-		dwTablePtr &= 0x0F;
-		pbtTarget += 4;
+		table_ptr &= 0x0F;
+		target += 4;
 	}
 
-	for (DWORD i = 0, j = 0; i < (dwSize & 3); i++, j += 4)
+	for (DWORD i = 0, j = 0; i < (size & 3); i++, j += 4)
 	{
-		*pbtTarget++ = (((adwCrypt[dwTablePtr++] + dwKey) >> j) ^ *pbtTarget) + 0x37;
+		*target++ = (((crypt[table_ptr++] + key) >> j) ^ *target) + 0x37;
 
-		dwTablePtr &= 0x0F;
+		table_ptr &= 0x0F;
 	}
 }
 
 /// Decryption function 3
 ///
-/// @param pbtTarget Decoded data
-/// @param dwSize    Decoding size
-/// @param dwKey     Key
+/// @param target Decoded data
+/// @param size   Decoding size
+/// @param key    Key
 ///
-void CCpz::Decrypt3(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey)
+void CCpz::Decrypt3(BYTE* target, DWORD size, DWORD key)
 {
-	static const DWORD adwCrypt[] =
+	static const DWORD crypt[] =
 	{
 		0x4D0D4A5E, 0xB3ABF3E1, 0x3C37336D, 0x86C3F5F3,
 		0x7D4F9B89, 0x58D7DE11, 0x6367778D, 0xA5F34629,
@@ -615,201 +615,199 @@ void CCpz::Decrypt3(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey)
 		0xD9AF04F5, 0x5D3B687F, 0xC1C7A6FD, 0xFC502289
 	};
 
-	DWORD adwTable[16];
+	DWORD table[16];
 	for (int i = 0; i < 16; i++)
 	{
-		adwTable[i] = adwCrypt[i] + dwKey;
+		table[i] = crypt[i] + key;
 	}
 
-	DWORD dwShift = dwKey;
+	DWORD shift = key;
 	for (int i = 0; i < 7; i++)
 	{
-		dwShift = (dwShift >> 4) ^ dwKey;
+		shift = (shift >> 4) ^ key;
 	}
 
-	dwShift = ((dwShift ^ 0xFFFFFFFD) & 0x0F) + 8;
+	shift = ((shift ^ 0xFFFFFFFD) & 0x0F) + 8;
 
-	DWORD dwTablePtr = 3;
-	for (DWORD i = 0; i < (dwSize >> 2); i++)
+	DWORD table_ptr = 3;
+	for (DWORD i = 0; i < (size >> 2); i++)
 	{
-		DWORD dwWork = (adwTable[dwTablePtr++] ^ *(DWORD*)pbtTarget) + 0x6E58A5C2;
+		const DWORD work = (table[table_ptr++] ^ *(DWORD*)target) + 0x6E58A5C2;
 
-		*(DWORD*)pbtTarget = (dwWork << dwShift) | (dwWork >> (32 - dwShift));
+		*(DWORD*)target = (work << shift) | (work >> (32 - shift));
 
-		dwTablePtr &= 0x0F;
-		pbtTarget += 4;
+		table_ptr &= 0x0F;
+		target += 4;
 	}
 
-	for (DWORD i = (dwSize & 3); i > 0; i--)
+	for (DWORD i = (size & 3); i > 0; i--)
 	{
-		*pbtTarget++ = ((adwTable[dwTablePtr++] >> (i * 4)) ^ *pbtTarget) + 0x52;
+		*target++ = ((table[table_ptr++] >> (i * 4)) ^ *target) + 0x52;
 
-		dwTablePtr &= 0x0F;
+		table_ptr &= 0x0F;
 	}
 }
 
 /// Decryption function 5
 ///
-/// @param pbtTarget Decoded data
-/// @param dwSize    Decoding size
-/// @param dwKey     Key
+/// @param target Decoded data
+/// @param size   Decoding size
+/// @param key    Key
 ///
-void CCpz::Decrypt5(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey)
+void CCpz::Decrypt5(BYTE* target, DWORD size, DWORD key)
 {
-	static const DWORD adwCrypt[] =
+	static const DWORD crypt[] =
 	{
 		0xCD90F089, 0xE982B782, 0xA282AB88, 0xCD82718E, 0x52838A83, 0xA882AA82, 0x7592648E, 0xB582AB82,
 		0xE182BF82, 0xDC82A282, 0x4281B782, 0xED82F48E, 0xBF82EA82, 0xA282E182, 0xB782DC82, 0x6081E682,
 		0xC6824181, 0xA482A282, 0xE082A982, 0xF48EA482, 0xBF82C182, 0xA282E182, 0xB582DC82, 0xF481BD82
 	};
 
-	DWORD adwTable[24];
+	DWORD table[24];
 	for (DWORD i = 0; i < 24; i++)
 	{
-		adwTable[i] = (adwCrypt[i] - dwKey);
+		table[i] = (crypt[i] - key);
 	}
 
-	DWORD dwShift = dwKey;
+	DWORD shift = key;
 	for (DWORD i = 0; i < 3; i++)
 	{
-		dwShift = (dwShift >> 8) ^ dwKey;
+		shift = (shift >> 8) ^ key;
 	}
-	dwShift = ((dwShift ^ 0xFFFFFFFB) & 0x0F) + 7;
+	shift = ((shift ^ 0xFFFFFFFB) & 0x0F) + 7;
 
-	DWORD dwTablePtr = 5;
-	for (DWORD i = 0; i < (dwSize >> 2); i++)
+	DWORD table_ptr = 5;
+	for (DWORD i = 0; i < (size >> 2); i++)
 	{
-		DWORD dwWork = (adwTable[dwTablePtr++] ^ *(DWORD*)pbtTarget) + 0x784C5962;
+		const DWORD work = (table[table_ptr++] ^ *(DWORD*)target) + 0x784C5962;
 
-		*(DWORD*)pbtTarget = _lrotr(dwWork, dwShift) + 0x01010101;
+		*(DWORD*)target = _lrotr(work, shift) + 0x01010101;
 
-		dwTablePtr %= 24;
-		pbtTarget += 4;
+		table_ptr %= 24;
+		target += 4;
 	}
 
-	for (DWORD i = (dwSize & 3); i > 0; i--)
+	for (DWORD i = (size & 3); i > 0; i--)
 	{
-		*pbtTarget++ = ((adwTable[dwTablePtr++] >> (i * 4)) ^ *pbtTarget) - 0x79;
+		*target++ = ((table[table_ptr++] >> (i * 4)) ^ *target) - 0x79;
 
-		dwTablePtr %= 24;
+		table_ptr %= 24;
 	}
 }
 
 /// Initialization of decryption function 5 with a table
 ///
-/// @param dwKey   Key
-/// @param dwSeed  Seed
+/// @param key   Key
+/// @param seed  Seed
 ///
-const BYTE* CCpz::InitDecryptWithTable5(DWORD dwKey, DWORD dwSeed)
+const BYTE* CCpz::InitDecryptWithTable5(DWORD key, DWORD seed)
 {
-	static BYTE abtDecryptTable[256];
+	static BYTE decryption_table[256];
 
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		abtDecryptTable[i] = (BYTE)i;
+		decryption_table[i] = static_cast<BYTE>(i);
 	}
 
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		std::swap(abtDecryptTable[(dwKey >> 16) & 0xFF], abtDecryptTable[dwKey & 0xFF]);
-		std::swap(abtDecryptTable[(dwKey >> 8) & 0xFF], abtDecryptTable[(dwKey >> 24) & 0xFF]);
+		std::swap(decryption_table[(key >> 16) & 0xFF], decryption_table[key & 0xFF]);
+		std::swap(decryption_table[(key >> 8) & 0xFF], decryption_table[(key >> 24) & 0xFF]);
 
-		dwKey = dwSeed + _lrotr(dwKey, 2) * 0x1A743125;
+		key = seed + _lrotr(key, 2) * 0x1A743125;
 	}
 
-	return abtDecryptTable;
+	return decryption_table;
 }
 
 /// Decoding function 5 with a table
 ///
-/// @param pbtTarget       Decoded data
-/// @param dwSize          Decoding size
-/// @param pbtDecryptTable Decryption table
-/// @param dwKey           Key
+/// @param target           Decoded data
+/// @param size             Decoding size
+/// @param decryption_table Decryption table
+/// @param key              Key
 ///
-void CCpz::DecryptWithTable5(BYTE* pbtTarget, DWORD dwSize, const BYTE* pbtDecryptTable, DWORD dwKey)
+void CCpz::DecryptWithTable5(BYTE* target, DWORD size, const BYTE* decryption_table, DWORD key)
 {
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] = pbtDecryptTable[pbtTarget[i] ^ dwKey];
+		target[i] = decryption_table[target[i] ^ key];
 	}
 }
 
 /// Decoding CPZ5 data
 ///
-/// @param pbtTarget       Decoded data
-/// @param dwSize          Decoding size
-/// @param pbtDecryptTable Decryption table
-/// @param dwKey           Key
-/// @param dwSeed          Seed
+/// @param target           Decoded data
+/// @param size             Decoding size
+/// @param decryption_table Decryption table
+/// @param key              Key
+/// @param seed             Seed
 ///
-void CCpz::DecryptOfData5(BYTE* pbtTarget, DWORD dwSize, const BYTE* pbtDecryptTable, const DWORD* pdwKey, DWORD dwSeed)
+void CCpz::DecryptOfData5(BYTE* target, DWORD size, const BYTE* decryption_table, const DWORD* key, DWORD seed)
 {
-	static const DWORD adwCrypt[] =
+	static const DWORD crypt[] =
 	{
 		0xCD90F089, 0xE982B782, 0xA282AB88, 0xCD82718E, 0x52838A83, 0xA882AA82, 0x7592648E, 0xB582AB82,
 		0xE182BF82, 0xDC82A282, 0x4281B782, 0xED82F48E, 0xBF82EA82, 0xA282E182, 0xB782DC82, 0x6081E682,
 		0xC6824181, 0xA482A282, 0xE082A982, 0xF48EA482, 0xBF82C182, 0xA282E182, 0xB582DC82, 0xF481BD82
 	};
 
-	static const BYTE* pbtCrypt = (const BYTE*)adwCrypt;
+	static const BYTE* byte_crypt = (const BYTE*)crypt;
 
-	DWORD adwTable[24];
-	BYTE* pbtTable = (BYTE*)adwTable;
-	DWORD dwKey = (pdwKey[1] >> 2);
+	DWORD table[24];
+	BYTE* byte_table = (BYTE*)table;
+	DWORD key_value = key[1] >> 2;
 
-	for (DWORD i = 0; i < 96; i++)
+	for (size_t i = 0; i < 96; i++)
 	{
-		pbtTable[i] = pbtDecryptTable[pbtCrypt[i]] ^ (BYTE)dwKey;
+		byte_table[i] = decryption_table[byte_crypt[i]] ^ (BYTE)key_value;
 	}
 
-	for (DWORD i = 0; i < 24; i++)
+	for (size_t i = 0; i < 24; i++)
 	{
-		adwTable[i] ^= dwSeed;
+		table[i] ^= seed;
 	}
 
-	DWORD dwTablePtr = 9;
-	dwKey = 0x2547A39E;
+	DWORD table_ptr = 9;
+	key_value = 0x2547A39E;
 
-	for (DWORD i = 0; i < (dwSize >> 2); i++)
+	for (DWORD i = 0; i < (size >> 2); i++)
 	{
-		*(DWORD*)pbtTarget = pdwKey[dwKey & 3] ^ ((*(DWORD*)pbtTarget ^ adwTable[(dwKey >> 6) & 0x0F] ^ (adwTable[dwTablePtr++] >> 1)) - dwSeed);
+		*(DWORD*)target = key[key_value & 3] ^ ((*(DWORD*)target ^ table[(key_value >> 6) & 0x0F] ^ (table[table_ptr++] >> 1)) - seed);
 
-		dwTablePtr &= 0x0F;
-		dwKey += *(DWORD*)pbtTarget + dwSeed;
+		table_ptr &= 0x0F;
+		key_value += *(DWORD*)target + seed;
 
-		pbtTarget += 4;
+		target += 4;
 	}
 
-	DecryptWithTable5(pbtTarget, (dwSize & 3), pbtDecryptTable, 0xBC);
+	DecryptWithTable5(target, size & 3, decryption_table, 0xBC);
 }
 
 /// Callback function 3 from PB3B
 ///
-/// @param pbtTarget    Data
-/// @param dwSize       Size
-/// @param pclArc       Archive
-/// @param rfstFileInfo File info
+/// @param target      Data
+/// @param target_size Size
+/// @param archive     Archive
+/// @param file_info   File info
 ///
-void CCpz::OnDecrypt3FromPB3B(BYTE* pbtTarget, DWORD dwTargetSize, CArcFile* pclArc, const SFileInfo& rfstFileInfo)
+void CCpz::OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info)
 {
-	Decrypt3(pbtTarget, dwTargetSize, rfstFileInfo.key);
+	Decrypt3(target, target_size, file_info.key);
 }
 
 /// Callback function 5 from PB3B
 ///
 ///
-/// @param pbtTarget    Data
-/// @param dwSize       Size
-/// @param pclArc       Archive
-/// @param rfstFileInfo File info
+/// @param target       Data
+/// @param target_size  Size
+/// @param archive      Archive
+/// @param file_info    File info
 ///
-void CCpz::OnDecrypt5FromPB3B(BYTE* pbtTarget, DWORD dwTargetSize, CArcFile* pclArc, const SFileInfo& rfstFileInfo)
+void CCpz::OnDecrypt5FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info)
 {
-	const SCPZ5Header* pstCPZ5Header = (SCPZ5Header*)pclArc->GetHed();
-	const BYTE*         pbtTable;
+	const SCPZ5Header* cpz5_header = (SCPZ5Header*)archive->GetHed();
+	const BYTE*        pbtTable = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
 
-	pbtTable = InitDecryptWithTable5(pstCPZ5Header->adwMD5[3], pstCPZ5Header->dwIndexKey);
-
-	DecryptOfData5(pbtTarget, dwTargetSize, pbtTable, pstCPZ5Header->adwMD5, rfstFileInfo.key);
+	DecryptOfData5(target, target_size, pbtTable, cpz5_header->adwMD5, file_info.key);
 }

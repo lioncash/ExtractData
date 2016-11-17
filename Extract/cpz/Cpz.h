@@ -5,8 +5,8 @@
 class CCpz final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
 	struct SCPZ5Header
@@ -21,26 +21,26 @@ private:
 		DWORD adwUnKnown2[3];             // Unknown
 	};
 
-	bool MountCpz1(CArcFile* pclArc);
-	bool MountCpz2(CArcFile* pclArc);
-	bool MountCpz3(CArcFile* pclArc);
-	bool MountCpz5(CArcFile* pclArc);
+	bool MountCpz1(CArcFile* archive);
+	bool MountCpz2(CArcFile* archive);
+	bool MountCpz3(CArcFile* archive);
+	bool MountCpz5(CArcFile* archive);
 
-	bool DecodeCpz1(CArcFile* pclArc);
-	bool DecodeCpz2(CArcFile* pclArc);
-	bool DecodeCpz3(CArcFile* pclArc);
-	bool DecodeCpz5(CArcFile* pclArc);
+	bool DecodeCpz1(CArcFile* archive);
+	bool DecodeCpz2(CArcFile* archive);
+	bool DecodeCpz3(CArcFile* archive);
+	bool DecodeCpz5(CArcFile* archive);
 
-	static void Decrypt1(BYTE* pbtTarget, DWORD dwSize);
-	static void Decrypt2(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey);
-	static void Decrypt3(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey);
-	static void Decrypt5(BYTE* pbtTarget, DWORD dwSize, DWORD dwKey);
+	static void Decrypt1(BYTE* target, DWORD size);
+	static void Decrypt2(BYTE* target, DWORD size, DWORD key);
+	static void Decrypt3(BYTE* target, DWORD size, DWORD key);
+	static void Decrypt5(BYTE* target, DWORD size, DWORD key);
 
-	static const BYTE* InitDecryptWithTable5(DWORD dwKey, DWORD dwSeed);
-	static void DecryptWithTable5(BYTE* pbtTarget, DWORD dwSize, const BYTE* pbtDecryptTable, DWORD dwKey);
-	static void DecryptOfData5(BYTE* pbtTarget, DWORD dwSize, const BYTE* pbtDecryptTable, const DWORD* pdwKey, DWORD dwSeed);
+	static const BYTE* InitDecryptWithTable5(DWORD key, DWORD seed);
+	static void DecryptWithTable5(BYTE* target, DWORD size, const BYTE* decryption_table, DWORD key);
+	static void DecryptOfData5(BYTE* target, DWORD size, const BYTE* decryption_table, const DWORD* pdwKey, DWORD seed);
 
 	// Callback function from PB3B
-	static void OnDecrypt3FromPB3B(BYTE* pbtTarget, DWORD dwTargetSize, CArcFile* pclArc, const SFileInfo& rfstFileInfo);
-	static void OnDecrypt5FromPB3B(BYTE* pbtTarget, DWORD dwTargetSize, CArcFile* pclArc, const SFileInfo& rfstFileInfo);
+	static void OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info);
+	static void OnDecrypt5FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info);
 };
