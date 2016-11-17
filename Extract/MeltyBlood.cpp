@@ -2,97 +2,98 @@
 #include "MeltyBlood.h"
 
 // Function that gets file information from MELTY BLOOD *.data files
-bool CMeltyBlood::Mount(CArcFile* pclArc)
+bool CMeltyBlood::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetHed()[0] != 0x00) && (pclArc->GetHed()[0] != 0x01))
+	if (archive->GetHed()[0] != 0x00 && archive->GetHed()[0] != 0x01)
 		return false;
 
-	if ((pclArc->GetArcName().Left(5) != _T("data0")) || (pclArc->GetArcExten() != _T(".p")))
+	if (archive->GetArcName().Left(5) != _T("data0") || archive->GetArcExten() != _T(".p"))
 		return false;
 
-	DWORD deckey = 0xE3DF59AC;
+	constexpr u32 decryption_key = 0xE3DF59AC;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
-	ctFile ^= deckey;
+	u32 num_files;
+	archive->Seek(4, FILE_BEGIN);
+	archive->ReadU32(&num_files);
+	num_files ^= decryption_key;
 
 	// Get index size from file count
-	DWORD index_size = ctFile * 68;
+	const u32 index_size = num_files * 68;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index_size);
 
-	for (int i = 0; i < (int)ctFile; i++)
+	u8* index_ptr = index.data();
+
+	for (size_t i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[60];
-		memcpy(szFileName, pIndex, 60);
+		std::array<TCHAR, 60> file_name;
+		memcpy(file_name.data(), index_ptr, file_name.size());
 		
 		// Decrypt filename
-		for (int j = 0; j < 59; j++)
+		for (size_t j = 0; j < 59; j++)
 		{
-			szFileName[j] ^= i * j * 3 + 61;
+			file_name[j] ^= i * j * 3 + 61;
 		}
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeOrg = *(LPDWORD)&pIndex[64] ^ deckey;
-		infFile.sizeCmp = infFile.sizeOrg;
-		infFile.start = *(LPDWORD)&pIndex[60];
-		infFile.end = infFile.start + infFile.sizeOrg;
-		infFile.title = _T("MeltyBlood");
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name.data();
+		file_info.sizeOrg = *(u32*)&index_ptr[64] ^ decryption_key;
+		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.start = *(u32*)&index_ptr[60];
+		file_info.end = file_info.start + file_info.sizeOrg;
+		file_info.title = _T("MeltyBlood");
+		archive->AddFileInfo(file_info);
 
-		pIndex += 68;
+		index_ptr += 68;
 	}
 
 	return true;
 }
 
 // Extraction function
-bool CMeltyBlood::Decode(CArcFile* pclArc)
+bool CMeltyBlood::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("MeltyBlood"))
 		return false;
 
 	// Create output file
-	pclArc->OpenFile();
+	archive->OpenFile();
 
-	// Decodes data range 0x00`0x2173, Output
-	Decrypt(pclArc);
+	// Decodes data range 0x00~0x2173, Output
+	Decrypt(archive);
 
 	// Output earlier than 0x2173
 	if (file_info->sizeOrg > 0x2173)
-		pclArc->ReadWrite(file_info->sizeOrg - 0x2173);
+		archive->ReadWrite(file_info->sizeOrg - 0x2173);
 
 	return true;
 }
 
 // Data decryption function
-void CMeltyBlood::Decrypt(CArcFile* pclArc)
+void CMeltyBlood::Decrypt(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffer
-	int lim = (file_info->sizeOrg < 0x2173) ? file_info->sizeOrg : 0x2173;
-	YCMemory<BYTE> buf(lim);
+	const size_t buffer_size = (file_info->sizeOrg < 0x2173) ? file_info->sizeOrg : 0x2173;
+	std::vector<u8> buffer(buffer_size);
 
-	pclArc->Read(&buf[0], lim);
+	archive->Read(buffer.data(), buffer_size);
 
 	// Decryption
-	int keylen = (int) file_info->name.GetLength();
+	const int key_length = file_info->name.GetLength();
 	
-	for (int i = 0; i < lim; i++)
+	for (size_t i = 0; i < buffer_size; i++)
 	{
-		buf[i] ^= file_info->name[i % keylen] + i + 3;
+		buffer[i] ^= file_info->name[i % key_length] + i + 3;
 	}
 
-	pclArc->WriteFile(&buf[0], lim);
+	archive->WriteFile(buffer.data(), buffer_size);
 }
