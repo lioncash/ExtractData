@@ -4,15 +4,15 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPaz::Mount(CArcFile* pclArc)
+bool CPaz::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".paz"))
+	if (archive->GetArcExten() != _T(".paz"))
 		return false;
 
 	// Initialize Mount Key
-	InitMountKey(pclArc);
+	InitMountKey(archive);
 
 	// Initialize Table
 	InitTable();
@@ -22,66 +22,66 @@ bool CPaz::Mount(CArcFile* pclArc)
 	DecodeTable2();
 
 	// Get index size
-	DWORD dwIndexSize;
-	pclArc->Read(&dwIndexSize, 4);
-	Decrypt(&dwIndexSize, 4);
+	DWORD index_size;
+	archive->Read(&index_size, 4);
+	Decrypt(&index_size, 4);
 
 	// Get index
-	DWORD dwIndexPtr = 0;
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	DWORD index_ptr = 0;
+	YCMemory<BYTE> index(index_size);
+	archive->Read(&index[0], index_size);
 
 	// Decode Index
-	Decrypt(&clmbtIndex[0], dwIndexSize);
-	DecodeData(&clmbtIndex[0], dwIndexSize);
+	Decrypt(&index[0], index_size);
+	DecodeData(&index[0], index_size);
 
 	// Get file count
-	DWORD dwFiles = *(DWORD*)&clmbtIndex[0];
-	dwIndexPtr += 4;
+	const DWORD files = *(DWORD*)&index[0];
+	index_ptr += 4;
 
 	// Initialization table for decoding movies
-	if (pclArc->GetArcName() == _T("mov.paz"))
+	if (archive->GetArcName() == _T("mov.paz"))
 	{
-		dwIndexPtr += InitMovieTable(&clmbtIndex[dwIndexPtr]);
+		index_ptr += InitMovieTable(&index[index_ptr]);
 	}
 
 	// Get file info
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (DWORD i = 0; i < files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[_MAX_FNAME];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr]);
-		dwIndexPtr += lstrlen(szFileName) + 1;
+		TCHAR file_name[_MAX_FNAME];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr]);
+		index_ptr += lstrlen(file_name) + 1;
 
 		// Add .ogg extension if voice.paz (Don't know why they don't have extensions)
 
-		if (pclArc->GetArcName().Left(5) == _T("voice"))
+		if (archive->GetArcName().Left(5) == _T("voice"))
 		{
-			if (lstrcmp(PathFindExtension(szFileName), _T("")) == 0)
+			if (lstrcmp(PathFindExtension(file_name), _T("")) == 0)
 			{
-				lstrcat(szFileName, _T(".ogg"));
+				lstrcat(file_name, _T(".ogg"));
 			}
 		}
 
-		DWORD dwType = *(DWORD*)&clmbtIndex[dwIndexPtr + 20];
+		const DWORD type = *(DWORD*)&index[index_ptr + 20];
 
 		// Add to list view
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.sizeOrg = (dwType == 1) ? *(DWORD*)&clmbtIndex[dwIndexPtr + 8] : *(DWORD*)&clmbtIndex[dwIndexPtr + 12];
-		stFileInfo.dwSizeOrg2 = *(DWORD*)&clmbtIndex[dwIndexPtr + 16];
-		stFileInfo.sizeCmp = (dwType == 1) ? *(DWORD*)&clmbtIndex[dwIndexPtr + 16] : stFileInfo.sizeOrg;
-		stFileInfo.start = *(DWORD*)&clmbtIndex[dwIndexPtr + 0];
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeOrg = (type == 1) ? *(DWORD*)&index[index_ptr + 8] : *(DWORD*)&index[index_ptr + 12];
+		file_info.dwSizeOrg2 = *(DWORD*)&index[index_ptr + 16];
+		file_info.sizeCmp = (type == 1) ? *(DWORD*)&index[index_ptr + 16] : file_info.sizeOrg;
+		file_info.start = *(DWORD*)&index[index_ptr + 0];
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		if (dwType == 1)
+		if (type == 1)
 		{
-			stFileInfo.format = _T("zlib");
+			file_info.format = _T("zlib");
 		}
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 24;
+		index_ptr += 24;
 	}
 
 	return true;
@@ -89,15 +89,15 @@ bool CPaz::Mount(CArcFile* pclArc)
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPaz::Decode(CArcFile* pclArc)
+bool CPaz::Decode(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".paz"))
+	if (archive->GetArcExten() != _T(".paz"))
 		return false;
 
 	// Initialize decryption key
-	InitDecodeKey(pclArc);
+	InitDecodeKey(archive);
 
 	// Initialize Table
 	InitTable();
@@ -107,96 +107,94 @@ bool CPaz::Decode(CArcFile* pclArc)
 	DecodeTable2();
 
 	// Create output file
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (lstrcmpi(PathFindExtension(pstFileInfo->name), _T(".sc")) == 0)
+	if (lstrcmpi(PathFindExtension(file_info->name), _T(".sc")) == 0)
 	{
-		pclArc->OpenScriptFile();
+		archive->OpenScriptFile();
 	}
 	else
 	{
-		pclArc->OpenFile();
+		archive->OpenFile();
 	}
 
 	// Output
 
-	if (pstFileInfo->format == _T("zlib"))
+	if (file_info->format == _T("zlib"))
 	{
 		// ZLIB
 
-		DWORD dwSrcSize = pstFileInfo->sizeCmp;
-		DWORD dwDstSize = pstFileInfo->sizeOrg;
+		const DWORD src_size = file_info->sizeCmp;
+		const DWORD dst_size = file_info->sizeOrg;
 
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		YCMemory<BYTE> clmbtDst(dwDstSize);
+		YCMemory<BYTE> src(src_size);
+		YCMemory<BYTE> dst(dst_size);
 
 		// Decrypt
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
-		Decrypt(&clmbtSrc[0], dwSrcSize);
-		DecodeData(&clmbtSrc[0], dwSrcSize);
-		Decrypt2(&clmbtSrc[0], dwSrcSize);
+		archive->Read(&src[0], src_size);
+		Decrypt(&src[0], src_size);
+		DecodeData(&src[0], src_size);
+		Decrypt2(&src[0], src_size);
 
 		// Decompress
-		CZlib clZlib;
-		clZlib.Decompress(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+		CZlib zlib;
+		zlib.Decompress(&dst[0], dst_size, &src[0], src_size);
 
 		// Output
-		pclArc->WriteFile(&clmbtDst[0], dwDstSize);
+		archive->WriteFile(&dst[0], dst_size);
 	}
 	else
 	{
-		if (pclArc->GetArcName() == _T("mov.paz"))
+		if (archive->GetArcName() == _T("mov.paz"))
 		{
 			// Movie
-			DWORD dwBufferSize = GetMovieBufSize(pclArc);
-			YCMemory<BYTE> clmbtBuffer(dwBufferSize);
+			DWORD buffer_size = GetMovieBufSize(archive);
+			YCMemory<BYTE> buffer(buffer_size);
 
-			for (DWORD dwWriteTotal = 0; dwWriteTotal != pstFileInfo->sizeOrg; dwWriteTotal += dwBufferSize)
+			for (DWORD total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
 			{
 				// Get buffer size
-				pclArc->SetBufSize(&dwBufferSize, dwWriteTotal, pstFileInfo->dwSizeOrg2);
+				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
 
 				// Read
-				pclArc->Read(&clmbtBuffer[0], dwBufferSize);
+				archive->Read(&buffer[0], buffer_size);
 
 				// Decrypt
-				Decrypt(&clmbtBuffer[0], dwBufferSize);
-				DecodeMovieData(&clmbtBuffer[0], dwBufferSize);
-				Decrypt2(&clmbtBuffer[0], dwBufferSize);
+				Decrypt(&buffer[0], buffer_size);
+				DecodeMovieData(&buffer[0], buffer_size);
+				Decrypt2(&buffer[0], buffer_size);
 
 				// Adjust buffer size
-				pclArc->SetBufSize(&dwBufferSize, dwWriteTotal, pstFileInfo->sizeOrg);
+				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
 
 				// Write
-				pclArc->WriteFile(&clmbtBuffer[0], dwBufferSize);
+				archive->WriteFile(&buffer[0], buffer_size);
 			}
 		}
 		else
 		{
 			// Other data
+			DWORD buffer_size = archive->GetBufSize();
+			YCMemory<BYTE> buffer(buffer_size);
 
-			DWORD dwBufferSize = pclArc->GetBufSize();
-
-			YCMemory<BYTE> clmbtBuffer(dwBufferSize);
-
-			for (DWORD dwWriteTotal = 0; dwWriteTotal != pstFileInfo->sizeOrg; dwWriteTotal += dwBufferSize)
+			for (DWORD total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
 			{
 				// Adjust buffer size
-				pclArc->SetBufSize(&dwBufferSize, dwWriteTotal, pstFileInfo->dwSizeOrg2);
+				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
 
 				// Read
-				pclArc->Read(&clmbtBuffer[0], dwBufferSize);
+				archive->Read(&buffer[0], buffer_size);
 
 				// Decrypt
-				Decrypt(&clmbtBuffer[0], dwBufferSize);
-				DecodeData(&clmbtBuffer[0], dwBufferSize);
-				Decrypt2(&clmbtBuffer[0], dwBufferSize);
+				Decrypt(&buffer[0], buffer_size);
+				DecodeData(&buffer[0], buffer_size);
+				Decrypt2(&buffer[0], buffer_size);
 
 				// Adjust buffer size
-				pclArc->SetBufSize(&dwBufferSize, dwWriteTotal, pstFileInfo->sizeOrg);
+				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
 
 				// Write
-				pclArc->WriteFile(&clmbtBuffer[0], dwBufferSize);
+				archive->WriteFile(&buffer[0], buffer_size);
 			}
 		}
 	}
@@ -207,7 +205,7 @@ bool CPaz::Decode(CArcFile* pclArc)
 /// Initialize Table
 void CPaz::InitTable()
 {
-	static const DWORD dwTable[1042] =
+	static const DWORD table[1042] =
 	{
 		0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344, 0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89, 0x452821E6, 0x38D01377, 0xBE5466CF, 0x34E90C6C, 0xC0AC29B7, 0xC97C50DD, 0x3F84D5B5, 0xB5470917,
 		0x9216D5D9, 0x8979FB1B, 0xD1310BA6, 0x98DFB5AC, 0x2FFD72DB, 0xD01ADFB7, 0xB8E1AFED, 0x6A267E96, 0xBA7C9045, 0xF12C7F99, 0x24A19947, 0xB3916CF7, 0x0801F2E2, 0x858EFC16, 0x636920D8, 0x71574E69,
@@ -277,25 +275,25 @@ void CPaz::InitTable()
 		0x578FDFE3, 0x3AC372E6
 	};
 
-	memcpy(m_adwTable, dwTable, sizeof(dwTable));
+	memcpy(m_table, table, sizeof(table));
 	//4168
 
 }
 
 /// Initialize Movie Table
 ///
-/// @param pvTable - Table
+/// @param table Table
 ///
 /// @return table size
 ///
-DWORD CPaz::InitMovieTable(void* pvTable)
+DWORD CPaz::InitMovieTable(void* table)
 {
-	const BYTE* pbtTable = (const BYTE*)pvTable;
-	BYTE* pbtMovieTable = GetMovieTable();
+	const BYTE* byte_table = (const BYTE*)table;
+	BYTE* movie_table = GetMovieTable();
 
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		pbtMovieTable[pbtTable[i]] = i;
+		movie_table[byte_table[i]] = static_cast<BYTE>(i);
 	}
 
 	return 256;
@@ -303,46 +301,46 @@ DWORD CPaz::InitMovieTable(void* pvTable)
 
 /// Get base archive file name
 ///
-/// @param pszDst     Destination
-/// @param pszArcName Archive file name
+/// @params dst          Destination
+/// @param  archive_name Archive file name
 ///
-void CPaz::GetBaseArcName(LPTSTR pszDst, LPCTSTR pszArcName)
+void CPaz::GetBaseArcName(LPTSTR dst, LPCTSTR archive_name)
 {
 	// Remove .paz
-	TCHAR szBaseArcName[_MAX_FNAME];
-	lstrcpy(szBaseArcName, pszArcName);
-	PathRemoveExtension(szBaseArcName);
+	TCHAR base_archive_name[_MAX_FNAME];
+	lstrcpy(base_archive_name, archive_name);
+	PathRemoveExtension(base_archive_name);
 
 	// Remove 1~9
-	LPTSTR szBaseArcNameEnd = &szBaseArcName[lstrlen(szBaseArcName) - 1];
+	LPTSTR base_archive_name_end = &base_archive_name[lstrlen(base_archive_name) - 1];
 
-	for (TCHAR cNumber = _T('1'); cNumber <= _T('9'); cNumber++)
+	for (TCHAR number = _T('1'); number <= _T('9'); number++)
 	{
-		if (*szBaseArcNameEnd == cNumber)
+		if (*base_archive_name_end == number)
 		{
-			*szBaseArcNameEnd = _T('\0');
+			*base_archive_name_end = _T('\0');
 		}
 	}
 
-	lstrcpy(pszDst, szBaseArcName);
+	lstrcpy(dst, base_archive_name);
 }
 
 /// Set Key
 ///
-/// @param pclArc     Archive
-/// @param pstKeyInfo Key info
+/// @param archive  Archive
+/// @param key_info Key info
 ///
-DWORD CPaz::SetKey(CArcFile* pclArc, const SKeyInfo* pstKeyInfo)
+DWORD CPaz::SetKey(CArcFile* archive, const SKeyInfo* key_info)
 {
-	TCHAR szBaseArcName[_MAX_FNAME];
+	TCHAR base_archive_name[_MAX_FNAME];
 
-	GetBaseArcName(szBaseArcName, pclArc->GetArcName());
+	GetBaseArcName(base_archive_name, archive->GetArcName());
 
 	for (DWORD i = 0; i < 8; i++)
 	{
-		if (pstKeyInfo[i].clsType.CompareNoCase(szBaseArcName) == 0)
+		if (key_info[i].type.CompareNoCase(base_archive_name) == 0)
 		{
-			memcpy(m_abtKey, pstKeyInfo[i].abtKey, 32);
+			memcpy(m_key, key_info[i].key, 32);
 
 			return i;
 		}
@@ -355,40 +353,40 @@ DWORD CPaz::SetKey(CArcFile* pclArc, const SKeyInfo* pstKeyInfo)
 void CPaz::DecodeTable1()
 {
 	// Decrypt 72 byte table
-	DWORD* pdwTable = GetTable();
-	DWORD dwKeyPtr = 0;
+	DWORD* table = GetTable();
+	DWORD key_ptr = 0;
 
 	for (DWORD i = 0; i < 18; i++)
 	{
-		DWORD dwWork = 0;
+		DWORD work = 0;
 
 		for (DWORD j = 0; j < 4; j++)
 		{
-			dwWork <<= 8;
-			dwWork |= (-m_abtKey[dwKeyPtr++]) & 0xFF;
+			work <<= 8;
+			work |= (-m_key[key_ptr++]) & 0xFF;
 
-			dwKeyPtr &= 31;
+			key_ptr &= 31;
 		}
 
-		pdwTable[i] ^= dwWork;
+		table[i] ^= work;
 	}
 }
 
 /// Decrypt table 2
 void CPaz::DecodeTable2()
 {
-	DWORD* pdwTable = GetTable();
-	DWORD dwValue1 = 0;
-	DWORD dwValue2 = 0;
-	DWORD dwTablePtr = 0;
+	DWORD* table = GetTable();
+	DWORD value1 = 0;
+	DWORD value2 = 0;
+	DWORD table_ptr = 0;
 
 	// Decrypt 72 byte table
-	for (dwTablePtr = 0; dwTablePtr < 18;)
+	for (table_ptr = 0; table_ptr < 18;)
 	{
-		DecodeValue(&dwValue1, &dwValue2, pdwTable);
+		DecodeValue(&value1, &value2, table);
 
-		pdwTable[dwTablePtr++] = dwValue1;
-		pdwTable[dwTablePtr++] = dwValue2;
+		table[table_ptr++] = value1;
+		table[table_ptr++] = value2;
 	}
 
 	// Decrypt 4096 byte table
@@ -396,125 +394,120 @@ void CPaz::DecodeTable2()
 	{
 		for (DWORD j = 0; j < 128; j++)
 		{
-			DecodeValue(&dwValue1, &dwValue2, pdwTable);
+			DecodeValue(&value1, &value2, table);
 
-			pdwTable[dwTablePtr++] = dwValue1;
-			pdwTable[dwTablePtr++] = dwValue2;
+			table[table_ptr++] = value1;
+			table[table_ptr++] = value2;
 		}
 	}
 }
 
 /// Decode Data
 ///
-/// @param pvTarget Data to be decoded
-/// @param dwSize   Decoding size
+/// @param target Data to be decoded
+/// @param size   Decoding size
 ///
-void CPaz::DecodeData(void* pvTarget, DWORD dwSize)
+void CPaz::DecodeData(void* target, DWORD size)
 {
-	BYTE* pbtTarget = (BYTE*)pvTarget;
-	const DWORD* pdwTable = GetTable();
+	BYTE* byte_target = (BYTE*)target;
+	const DWORD* table = GetTable();
 
-	for (DWORD i = 0; i < dwSize; i += 8)
+	for (size_t i = 0; i < size; i += 8)
 	{
-		DWORD dwValue1 = *(DWORD*)&pbtTarget[i + 0];
-		DWORD dwValue2 = *(DWORD*)&pbtTarget[i + 4];
+		DWORD value1 = *(DWORD*)&byte_target[i + 0];
+		DWORD value2 = *(DWORD*)&byte_target[i + 4];
 
-		for (DWORD j = 17; j > 1; j--)
+		for (size_t j = 17; j > 1; j--)
 		{
-			DWORD dwWork;
-
-			dwWork = dwValue1 ^ pdwTable[j];
-			dwValue1 = DecodeValueByTable(dwWork, pdwTable) ^ dwValue2;
-			dwValue2 = dwWork;
+			const DWORD work = value1 ^ table[j];
+			value1 = DecodeValueByTable(work, table) ^ value2;
+			value2 = work;
 		}
 
-		*(DWORD*)&pbtTarget[i + 0] = pdwTable[0] ^ dwValue2;
-		*(DWORD*)&pbtTarget[i + 4] = pdwTable[1] ^ dwValue1;
+		*(DWORD*)&byte_target[i + 0] = table[0] ^ value2;
+		*(DWORD*)&byte_target[i + 4] = table[1] ^ value1;
 	}
 }
 
 /// Decode Movie Data
 ///
-/// @param pvTarget Data to be decoded
-/// @param dwSize   Decoding size
+/// @param target Data to be decoded
+/// @param size   Decoding size
 ///
-void CPaz::DecodeMovieData(void* pvTarget, DWORD dwSize)
+void CPaz::DecodeMovieData(void* target, DWORD size)
 {
-	BYTE* pbtTarget = (BYTE*)pvTarget;
-	BYTE* pbtMovieTable = GetMovieTable();
+	BYTE* byte_target = (BYTE*)target;
+	const BYTE* movie_table = GetMovieTable();
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] = pbtMovieTable[pbtTarget[i]];
+		byte_target[i] = movie_table[byte_target[i]];
 	}
 }
 
 /// Decode value by table
 ///
-/// @param dwValue Input data
-/// @param pvTable Table
+/// @param value Input data
+/// @param table Table
 ///
-DWORD CPaz::DecodeValueByTable(DWORD dwValue, const void* pvTable)
+DWORD CPaz::DecodeValueByTable(DWORD value, const DWORD* table)
 {
-	DWORD dwResult;
-	const DWORD* pdwTable = static_cast<const DWORD*>(pvTable);
+	DWORD result;
 
-	dwResult = pdwTable[((dwValue >> 24) & 0xFF) + 18];
-	dwResult += pdwTable[((dwValue >> 16) & 0xFF) + 274];
-	dwResult ^= pdwTable[((dwValue >> 8) & 0xFF) + 530];
-	dwResult += pdwTable[(dwValue & 0xFF) + 786];
+	result = table[((value >> 24) & 0xFF) + 18];
+	result += table[((value >> 16) & 0xFF) + 274];
+	result ^= table[((value >> 8) & 0xFF) + 530];
+	result += table[(value & 0xFF) + 786];
 
-	return dwResult;
+	return result;
 }
 
 /// Decode Value
 ///
-/// @param pdwValue1 - Target data 1
-/// @param pdwValue2 - Target data 2
-/// @param pvTable   - Table
+/// @param value1 Target data 1
+/// @param value2 Target data 2
+/// @param table  Table
 ///
-void CPaz::DecodeValue(DWORD* pdwValue1, DWORD* pdwValue2, const void* pvTable)
+void CPaz::DecodeValue(DWORD* value1, DWORD* value2, const DWORD* table)
 {
-	const DWORD* pdwTable = static_cast<const DWORD*>(pvTable);
+	DWORD work1 = *value1;
+	DWORD work2 = *value2;
 
-	DWORD dwWork1 = *pdwValue1;
-	DWORD dwWork2 = *pdwValue2;
-
-	for (DWORD i = 0; i < 16; i++)
+	for (size_t i = 0; i < 16; i++)
 	{
-		DWORD dwValue = dwWork1 ^ pdwTable[i];
+		const DWORD value = work1 ^ table[i];
 
-		dwWork1 = DecodeValueByTable(dwValue, pdwTable) ^ dwWork2;
-		dwWork2 = dwValue;
+		work1 = DecodeValueByTable(value, table) ^ work2;
+		work2 = value;
 	}
 
-	*pdwValue1 = pdwTable[17] ^ dwWork2;
-	*pdwValue2 = pdwTable[16] ^ dwWork1;
+	*value1 = table[17] ^ work2;
+	*value2 = table[16] ^ work1;
 }
 
 /// Get Table
 DWORD* CPaz::GetTable()
 {
-	return m_adwTable;
+	return m_table;
 }
 
 /// Get Movie Table
 BYTE* CPaz::GetMovieTable()
 {
-	return m_abtMovieTable;
+	return m_movie_table;
 }
 
 /// Get Key
 BYTE* CPaz::GetKey()
 {
-	return m_abtKey;
+	return m_key;
 }
 
 /// Get Movie Buffer Size
 ///
-/// @param pclArc - Archive
+/// @param archive - Archive
 ///
-DWORD CPaz::GetMovieBufSize(CArcFile*pclArc)
+DWORD CPaz::GetMovieBufSize(CArcFile* archive)
 {
-	return pclArc->GetBufSize();
+	return archive->GetBufSize();
 }
