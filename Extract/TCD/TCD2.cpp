@@ -5,111 +5,111 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCD2::Mount(CArcFile* pclArc)
+bool CTCD2::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".TCD"))
+	if (archive->GetArcExten() != _T(".TCD"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "TCD2", 4) != 0)
+	if (memcmp(archive->GetHed(), "TCD2", 4) != 0)
 		return false;
 
-	pclArc->SeekHed(4);
+	archive->SeekHed(4);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	DWORD files;
+	archive->Read(&files, 4);
 
 	// Get index info
-	STCD2IndexInfo astTCD2IndexInfo[5];
-	pclArc->Read(astTCD2IndexInfo, (sizeof(STCD2IndexInfo)* 5));
+	STCD2IndexInfo tcd2_index_info[5];
+	archive->Read(tcd2_index_info, (sizeof(STCD2IndexInfo)* 5));
 
 	// Create key table
-	static BYTE abtKey[5] =
+	static constexpr BYTE key[5] =
 	{
 		0x1F, 0x61, 0x43, 0x76, 0x76
 	};
 
 	// Create extension table
-	static YCString aclsFileExt[5] =
+	static const YCString file_exts[5] =
 	{
 		_T(".tct"), _T(".tsf"), _T(".spd"), _T(".ogg"), _T(".wav")
 	};
 
 	// Read index
-	for (DWORD dwFileType = 0; dwFileType < 5; dwFileType++)
+	for (DWORD file_type = 0; file_type < 5; file_type++)
 	{
-		if (astTCD2IndexInfo[dwFileType].dwFileSize == 0)
+		if (tcd2_index_info[file_type].file_size == 0)
 		{
 			// Index doesn't exist
 			continue;
 		}
 
 		// Go to index
-		pclArc->SeekHed(astTCD2IndexInfo[dwFileType].dwIndexOffset);
+		archive->SeekHed(tcd2_index_info[file_type].index_offset);
 
 		// Folder name
-		DWORD dwAllDirNameLength = astTCD2IndexInfo[dwFileType].dwDirNameLength;
-		YCMemory<BYTE> clmbtAllDirName(dwAllDirNameLength);
-		pclArc->Read(&clmbtAllDirName[0], dwAllDirNameLength);
+		const DWORD all_dir_name_length = tcd2_index_info[file_type].dir_name_length;
+		YCMemory<BYTE> all_dir_names(all_dir_name_length);
+		archive->Read(&all_dir_names[0], all_dir_name_length);
 
 		// Decode folder name
-		for (DWORD i = 0; i < dwAllDirNameLength; i++)
+		for (size_t i = 0; i < all_dir_name_length; i++)
 		{
-			clmbtAllDirName[i] -= abtKey[dwFileType];
+			all_dir_names[i] -= key[file_type];
 		}
 
 		// Get folder info
-		YCMemory<STCD2DirInfo> clmstTCD2DirInfo(astTCD2IndexInfo[dwFileType].dwDirCount);
-		pclArc->Read(&clmstTCD2DirInfo[0], (sizeof(STCD2DirInfo)* astTCD2IndexInfo[dwFileType].dwDirCount));
+		YCMemory<STCD2DirInfo> tcd2_dir_info(tcd2_index_info[file_type].dir_count);
+		archive->Read(&tcd2_dir_info[0], (sizeof(STCD2DirInfo)* tcd2_index_info[file_type].dir_count));
 
 		// File name
-		DWORD          dwAllFileNameLength = astTCD2IndexInfo[dwFileType].dwFileNameLength;
-		YCMemory<BYTE> clmbtAllFileName(dwAllFileNameLength);
-		pclArc->Read(&clmbtAllFileName[0], dwAllFileNameLength);
+		const DWORD    all_file_name_length = tcd2_index_info[file_type].file_name_length;
+		YCMemory<BYTE> all_file_names(all_file_name_length);
+		archive->Read(&all_file_names[0], all_file_name_length);
 
 		// Decode file name
-		for (DWORD i = 0; i < dwAllFileNameLength; i++)
+		for (size_t i = 0; i < all_file_name_length; i++)
 		{
-			clmbtAllFileName[i] -= abtKey[dwFileType];
+			all_file_names[i] -= key[file_type];
 		}
 
 		// File offset
-		DWORD           dwAllFileOffsetLength = (astTCD2IndexInfo[dwFileType].dwFileCount + 1);
-		YCMemory<DWORD> clmdwAllFileOffset(dwAllFileOffsetLength);
-		pclArc->Read(&clmdwAllFileOffset[0], (sizeof(DWORD)* dwAllFileOffsetLength));
+		const DWORD     all_file_offset_length = (tcd2_index_info[file_type].file_count + 1);
+		YCMemory<DWORD> all_file_offsets(all_file_offset_length);
+		archive->Read(&all_file_offsets[0], (sizeof(DWORD)* all_file_offset_length));
 
 		// Store info
-		DWORD dwDirNamePtr = 0;
-		for (DWORD dwDir = 0; dwDir < astTCD2IndexInfo[dwFileType].dwDirCount; dwDir++)
+		DWORD dir_name_ptr = 0;
+		for (DWORD dir = 0; dir < tcd2_index_info[file_type].dir_count; dir++)
 		{
 			// Get folder name
-			char szDirName[_MAX_DIR];
-			strcpy(szDirName, (char*)&clmbtAllDirName[dwDirNamePtr]);
-			dwDirNamePtr += strlen(szDirName) + 1;
+			char dir_name[_MAX_DIR];
+			strcpy(dir_name, (char*)&all_dir_names[dir_name_ptr]);
+			dir_name_ptr += strlen(dir_name) + 1;
 
-			DWORD dwFileNamePtr = 0;
-			for (DWORD dwFile = 0; dwFile < clmstTCD2DirInfo[dwDir].dwFileCount; dwFile++)
+			DWORD file_name_ptr = 0;
+			for (DWORD file = 0; file < tcd2_dir_info[dir].file_count; file++)
 			{
 				// Get file name
-				char szFileName[_MAX_FNAME];
-				strcpy(szFileName, (char*)&clmbtAllFileName[clmstTCD2DirInfo[dwDir].dwFileNameOffset + dwFileNamePtr]);
-				dwFileNamePtr += strlen(szFileName) + 1;
+				char file_name[_MAX_FNAME];
+				strcpy(file_name, (char*)&all_file_names[tcd2_dir_info[dir].file_name_offset + file_name_ptr]);
+				file_name_ptr += strlen(file_name) + 1;
 
 				// Folder name + File name + Extension
-				TCHAR szFullName[_MAX_PATH];
-				_stprintf(szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType].GetString());
+				TCHAR full_name[_MAX_PATH];
+				_stprintf(full_name, _T("%s\\%s%s"), dir_name, file_name, file_exts[file_type].GetString());
 
 				// Store info
-				SFileInfo stFileInfo;
-				stFileInfo.name = szFullName;
-				stFileInfo.start = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 0];
-				stFileInfo.end = clmdwAllFileOffset[clmstTCD2DirInfo[dwDir].dwFileOffset + dwFile + 1];
-				stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-				stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+				SFileInfo file_info;
+				file_info.name = full_name;
+				file_info.start = all_file_offsets[tcd2_dir_info[dir].file_offset + file + 0];
+				file_info.end = all_file_offsets[tcd2_dir_info[dir].file_offset + file + 1];
+				file_info.sizeCmp = file_info.end - file_info.start;
+				file_info.sizeOrg = file_info.sizeCmp;
 
-				pclArc->AddFileInfo(stFileInfo);
+				archive->AddFileInfo(file_info);
 			}
 		}
 	}
@@ -119,60 +119,60 @@ bool CTCD2::Mount(CArcFile* pclArc)
 
 /// RLE Decompression (Type 2)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CTCD2::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCD2::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	const BYTE* byte_src = (const BYTE*)src;
+	BYTE*       byte_dst = (BYTE*)dst;
 
-	DWORD dwOffset = *(DWORD*)&pbtSrc[0];
-	DWORD dwPixelCount = *(DWORD*)&pbtSrc[4];
+	const DWORD offset = *(DWORD*)&byte_src[0];
+	const DWORD pixel_count = *(DWORD*)&byte_src[4];
 
-	DWORD dwSrcHeaderPtr = 8;
-	DWORD dwSrcDataPtr = dwOffset;
-	DWORD dwDstPtr = 0;
+	DWORD src_header_ptr = 8;
+	DWORD src_data_ptr = offset;
+	DWORD dst_ptr = 0;
 
-	while ((dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
 	{
-		BYTE btWork = pbtSrc[dwSrcHeaderPtr++];
-		WORD wLength;
+		const BYTE work = byte_src[src_header_ptr++];
+		WORD length;
 
-		switch (btWork)
+		switch (work)
 		{
 		case 0: // Fill in 0
-			wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
-			for (DWORD i = 0; i < wLength; i++)
+			length = byte_src[src_header_ptr++] + 1;
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 4; j++)
 				{
-					pbtDst[dwDstPtr++] = 0x00;
+					byte_dst[dst_ptr++] = 0x00;
 				}
 			}
 			break;
 
 		case 1: // Alpha value 0xFF
-			wLength = pbtSrc[dwSrcHeaderPtr++] + 1;
-			for (DWORD i = 0; i < wLength; i++)
+			length = byte_src[src_header_ptr++] + 1;
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 3; j++)
 				{
-					pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
 				}
 
-				pbtDst[dwDstPtr++] = 0xFF;
+				byte_dst[dst_ptr++] = 0xFF;
 			}
 			break;
 
 		default: // Alpha values 0x01~0xFE
 			for (DWORD j = 0; j < 3; j++)
 			{
-				pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+				byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
 			}
-			pbtDst[dwDstPtr++] = ~(btWork - 1);
+			byte_dst[dst_ptr++] = ~(work - 1);
 			break;
 		}
 	}
