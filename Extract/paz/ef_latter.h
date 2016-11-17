@@ -5,31 +5,31 @@
 class CEFLatter final : public CHaruotoFD
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool IsSupported(CArcFile* pclArc);
+	bool IsSupported(CArcFile* archive);
 
-	void InitMountKey(CArcFile* pclArc) override;
-	void InitDecodeKey(CArcFile* pclArc) override;
+	void InitMountKey(CArcFile* archive) override;
+	void InitDecodeKey(CArcFile* archive) override;
 
-	DWORD InitMovieTable(void* pvTable) override;
+	DWORD InitMovieTable(void* table) override;
 
-	void Decrypt(void* pvTarget, DWORD dwSize) override;
-	void Decrypt2(void * pvTarget, DWORD dwSize) override;
+	void Decrypt(void* target, DWORD size) override;
+	void Decrypt2(void * target, DWORD size) override;
 
-	void SetDecryptKey2(CArcFile* pclArc);
+	void SetDecryptKey2(CArcFile* archive);
 
-	void DecodeMovieData(void* pvTarget, DWORD dwSize) override;
+	void DecodeMovieData(void* target, DWORD size) override;
 
-	BYTE  m_btKey;
+	BYTE  m_key;
 
-	char  m_szKey[256];
-	BYTE  m_abtKeyTable[256];
-	DWORD m_dwKeyTableIndex1;
-	DWORD m_dwKeyTableIndex2;
+	char  m_key_string[256];
+	BYTE  m_key_table[256];
+	DWORD m_key_table_index1;
+	DWORD m_key_table_index2;
 
-	BYTE  m_abtMovieDecodeTable[65536];
-	DWORD m_dwMovieDecodeTablePtr;
+	BYTE  m_movie_decode_table[65536];
+	DWORD m_movie_decode_table_ptr;
 };

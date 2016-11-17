@@ -3,56 +3,56 @@
 
 /// Check if files are supported
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFLatter::IsSupported(CArcFile* pclArc)
+bool CEFLatter::IsSupported(CArcFile* archive)
 {
 	// Get header
-	BYTE abtHeader[32];
-	memcpy(abtHeader, pclArc->GetHed(), sizeof(abtHeader));
+	BYTE header[32];
+	memcpy(header, archive->GetHed(), sizeof(header));
 
 	// Get decryption key
-	m_btKey = abtHeader[9];
+	m_key = header[9];
 
 	// Decryption
-	Decrypt(abtHeader, sizeof(abtHeader));
-	return memcmp(abtHeader, "ef_latter", 9) == 0;
+	Decrypt(header, sizeof(header));
+	return memcmp(header, "ef_latter", 9) == 0;
 }
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFLatter::Mount(CArcFile* pclArc)
+bool CEFLatter::Mount(CArcFile* archive)
 {
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
 	// Skip 32 bytes
-	pclArc->SeekHed(32);
+	archive->SeekHed(32);
 
-	return CPaz::Mount(pclArc);
+	return CPaz::Mount(archive);
 }
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEFLatter::Decode(CArcFile* pclArc)
+bool CEFLatter::Decode(CArcFile* archive)
 {
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
-	return CPaz::Decode(pclArc);
+	return CPaz::Decode(archive);
 }
 
 /// Initialize Mount Key
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CEFLatter::InitMountKey(CArcFile* pclArc)
+void CEFLatter::InitMountKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),   "\x07\x81\x2B\x53\xAF\xA3\x2B\x3B\x2D\xA8\x5A\xBB\x5C\x50\x50\x8B\xF3\xCD\xC3\x23\x84\xF4\x9F\xE8\x24\xFB\x74\xA7\x46\xD9\x1B\x1B" },
 		{ _T("bg"),    "\x1A\x59\x52\xD9\x1E\xE4\xDA\x31\xCF\xC6\xA0\xA7\x94\xE5\x41\xA6\xBD\x37\xBB\xDF\xD0\xED\x4B\x3E\xAB\x8D\x4E\x1A\x9B\xF6\xC5\x8B" },
@@ -64,16 +64,16 @@ void CEFLatter::InitMountKey(CArcFile* pclArc)
 		{ _T("mov"),   "\xC2\xEA\xFF\xAB\x99\xCE\xE2\x4B\x9A\xA5\xFD\xEE\x5A\xCA\x77\xCA\x6A\xF3\x71\x15\xD9\x14\x48\x37\xD3\x22\x43\xD1\xBB\x36\x72\x2F" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 }
 
 /// Initialize Decode Key
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CEFLatter::InitDecodeKey(CArcFile* pclArc)
+void CEFLatter::InitDecodeKey(CArcFile* archive)
 {
-	static const SKeyInfo astKeyInfo[] =
+	static const SKeyInfo key_info[] =
 	{
 		{ _T("scr"),   "\xD3\xE0\x5D\x33\x9F\x4E\xC7\x9D\xCB\xB4\x18\xFE\xBD\xCA\x7D\x1B\x36\x45\xCD\x47\x31\xE3\x2A\x2C\xF1\x04\x5A\xE5\x28\x09\xAB\xA0" },
 		{ _T("bg"),    "\x9D\xFD\xE2\x56\xE0\x70\x79\x4E\x3F\x46\x8D\x49\xC6\x68\x22\x32\x00\x2D\x7B\x0A\x47\x2C\x90\x17\x9B\x44\x0B\x61\xE1\xD9\x98\x1F" },
@@ -85,234 +85,215 @@ void CEFLatter::InitDecodeKey(CArcFile* pclArc)
 		{ _T("mov"),   "\xA6\x11\x55\x3D\xED\xDC\xDE\x84\x15\xCE\xE6\x97\x44\x7B\x6E\xB3\x3F\xE5\x5F\x1E\x19\x3D\x13\xAF\x88\x2E\x55\xFF\xA1\x86\x70\xCB" }
 	};
 
-	SetKey(pclArc, astKeyInfo);
+	SetKey(archive, key_info);
 
-	SetDecryptKey2(pclArc);
+	SetDecryptKey2(archive);
 }
 
 /// Initialize Movie Table
 ///
-/// @param pvTable table
+/// @param table table
 ///
 /// @return table size
 ///
-DWORD CEFLatter::InitMovieTable(void* pvTable)
+DWORD CEFLatter::InitMovieTable(void* table)
 {
-	BYTE* pbtMovieTable = GetMovieTable();
+	BYTE* movie_table = GetMovieTable();
 
-	memcpy(pbtMovieTable, pvTable, 256);
+	memcpy(movie_table, table, 256);
 
 	return 256;
 }
 
 /// Set decryption key
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-void CEFLatter::SetDecryptKey2(CArcFile* pclArc)
+void CEFLatter::SetDecryptKey2(CArcFile* archive)
 {
-	BYTE btWork;
-
 	// Get base archive file name
-	TCHAR szBaseArcName[_MAX_FNAME];
-	GetBaseArcName(szBaseArcName, pclArc->GetArcName());
+	TCHAR base_archive_name[_MAX_FNAME];
+	GetBaseArcName(base_archive_name, archive->GetArcName());
 
 	// Get base key
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	LPCTSTR pszFileExt = PathFindExtension(file_info->name);
-	YCStringA clsBaseKey;
+	LPCTSTR file_ext = PathFindExtension(file_info->name);
+	YCStringA base_key;
 
-	if ((lstrcmpi(pszFileExt, _T(".png")) == 0) || (lstrcmpi(pszFileExt, _T(".png-")) == 0))
+	if ((lstrcmpi(file_ext, _T(".png")) == 0) || (lstrcmpi(file_ext, _T(".png-")) == 0))
 	{
-		clsBaseKey = "957277W1";
+		base_key = "957277W1";
 	}
-	else if (lstrcmpi(pszFileExt, _T(".ogg")) == 0)
+	else if (lstrcmpi(file_ext, _T(".ogg")) == 0)
 	{
-		clsBaseKey = "m24lX440";
+		base_key = "m24lX440";
 	}
-	else if (lstrcmpi(pszFileExt, _T(".sc")) == 0)
+	else if (lstrcmpi(file_ext, _T(".sc")) == 0)
 	{
-		clsBaseKey = "A00U43Mj";
+		base_key = "A00U43Mj";
 	}
-	else if (lstrcmpi(pszFileExt, _T(".avi")) == 0)
+	else if (lstrcmpi(file_ext, _T(".avi")) == 0)
 	{
-		clsBaseKey = "8fO1Xj6g";
+		base_key = "8fO1Xj6g";
 	}
 
 	// No need to decode
-	if (clsBaseKey.IsEmpty())
+	if (base_key.IsEmpty())
 	{
-		strcpy(m_szKey, "");
+		strcpy(m_key_string, "");
 
 		return;
 	}
 
 	// Get file name (Lower-case)
-	TCHAR szFileName[_MAX_FNAME];
+	TCHAR file_name[_MAX_FNAME];
 
-	lstrcpy(szFileName, file_info->name);
+	lstrcpy(file_name, file_info->name);
 
-	if (lstrcmpi(szBaseArcName, _T("voice")) == 0)
+	if (lstrcmpi(base_archive_name, _T("voice")) == 0)
 	{
-		if (lstrcmp(PathFindExtension(szFileName), _T(".ogg")) == 0)
+		if (lstrcmp(PathFindExtension(file_name), _T(".ogg")) == 0)
 		{
 			// .ogg extension is added when you open the voice archive
 
-			PathRemoveExtension(szFileName);
+			PathRemoveExtension(file_name);
 		}
 	}
 
-	CharLower(szFileName);
+	CharLower(file_name);
 
 	// Create Key
-	sprintf(m_szKey, "%s %08X %s", szFileName, file_info->sizeOrg, clsBaseKey.GetString());
+	sprintf(m_key_string, "%s %08X %s", file_name, file_info->sizeOrg, base_key.GetString());
 
 	// Create Table
-	if ((clsBaseKey == "8fO1Xj6g") && (lstrcmpi(pszFileExt, _T(".avi")) == 0))
+	if (base_key == "8fO1Xj6g" && lstrcmpi(file_ext, _T(".avi")) == 0)
 	{
 		// Movie File
 
 		// Construct RC4 Table
 
-		const BYTE* pbtMovieTable = GetMovieTable();
-		BYTE abtRC4Table[256];
+		const BYTE* const movie_table = GetMovieTable();
+		BYTE rc4_table[256];
 
-		const char* pszKey = m_szKey;
-		size_t dwKeyLength = strlen(m_szKey);
+		const char* const key = m_key_string;
+		const size_t key_length = strlen(m_key_string);
 
-		for (DWORD i = 0; i < 256; i++)
+		for (size_t i = 0; i < 256; i++)
 		{
-			abtRC4Table[i] = pbtMovieTable[i] ^ pszKey[i % dwKeyLength];
+			rc4_table[i] = movie_table[i] ^ key[i % key_length];
 		}
 
 		// Initialize Table
-		BYTE abtKeyTable[256];
+		BYTE key_table[256];
 
-		for (DWORD i = 0; i < 256; i++)
+		for (size_t i = 0; i < 256; i++)
 		{
-			abtKeyTable[i] = i;
+			key_table[i] = static_cast<BYTE>(i);
 		}
 
 		// Construct table
-		for (DWORD dwIndex1 = 0, dwIndex2 = 0; dwIndex1 < 256; dwIndex1++)
+		for (size_t index1 = 0, index2 = 0; index1 < 256; index1++)
 		{
-			dwIndex2 = ((dwIndex2 + abtKeyTable[dwIndex1] + abtRC4Table[dwIndex1]) & 0xFF);
+			index2 = (index2 + key_table[index1] + rc4_table[index1]) & 0xFF;
 
-			btWork = abtKeyTable[dwIndex1];
-			abtKeyTable[dwIndex1] = abtKeyTable[dwIndex2];
-			abtKeyTable[dwIndex2] = btWork;
+			std::swap(key_table[index1], key_table[index2]);
 		}
 
 		// Construct movie decoding table
-		DWORD dwWork;
-
-		for (DWORD i = 0, dwIndex1 = 0, dwIndex2 = 0; i < 65536; i++)
+		for (size_t i = 0, index1 = 0, index2 = 0; i < 65536; i++)
 		{
-			dwIndex1 = ((dwIndex1 + 1) & 0xFF);
-			dwIndex2 = ((dwIndex2 + abtKeyTable[dwIndex1]) & 0xFF);
+			index1 = (index1 + 1) & 0xFF;
+			index2 = (index2 + key_table[index1]) & 0xFF;
 
-			btWork = abtKeyTable[dwIndex1];
-			abtKeyTable[dwIndex1] = abtKeyTable[dwIndex2];
-			abtKeyTable[dwIndex2] = btWork;
+			std::swap(key_table[index1], key_table[index2]);
 
-			dwWork = ((abtKeyTable[dwIndex1] + abtKeyTable[dwIndex2]) & 0xFF);
+			const DWORD work = (key_table[index1] + key_table[index2]) & 0xFF;
 
-			m_abtMovieDecodeTable[i] = abtKeyTable[dwWork];
+			m_movie_decode_table[i] = key_table[work];
 		}
 
-		strcpy(m_szKey, "");
+		strcpy(m_key_string, "");
 
-		m_dwMovieDecodeTablePtr = 0;
+		m_movie_decode_table_ptr = 0;
 	}
 	else
 	{
 		// Initialize Table
-		for (DWORD i = 0; i < 256; i++)
+		for (size_t i = 0; i < 256; i++)
 		{
-			m_abtKeyTable[i] = i;
+			m_key_table[i] = static_cast<BYTE>(i);
 		}
 
 		// Construct Table
-		const char* pszKey = m_szKey;
-		size_t dwKeyLength = strlen(m_szKey);
+		const char* const key = m_key_string;
+		const size_t key_length = strlen(m_key_string);
 
-		for (DWORD dwIndex1 = 0, dwIndex2 = 0; dwIndex1 < 256; dwIndex1++)
+		for (size_t index1 = 0, index2 = 0; index1 < 256; index1++)
 		{
-			dwIndex2 = ((dwIndex2 + m_abtKeyTable[dwIndex1] + pszKey[dwIndex1 % dwKeyLength]) & 0xFF);
+			index2 = (index2 + m_key_table[index1] + key[index1 % key_length]) & 0xFF;
 
-			btWork = m_abtKeyTable[dwIndex1];
-			m_abtKeyTable[dwIndex1] = m_abtKeyTable[dwIndex2];
-			m_abtKeyTable[dwIndex2] = btWork;
+			std::swap(m_key_table[index1], m_key_table[index2]);
 		}
 
-		m_dwKeyTableIndex1 = 0;
-		m_dwKeyTableIndex2 = 0;
+		m_key_table_index1 = 0;
+		m_key_table_index2 = 0;
 	}
 }
 
 /// Decryption
 ///
-/// @param pvTarget Data to be decoded
-/// @param dwSize   Decoding size
+/// @param target Data to be decoded
+/// @param size   Decoding size
 ///
-void CEFLatter::Decrypt(void* pvTarget, DWORD dwSize)
+void CEFLatter::Decrypt(void* target, DWORD size)
 {
-	BYTE* pbtTarget = (BYTE*)pvTarget;
+	BYTE* byte_target = (BYTE*)target;
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] ^= m_btKey;
+		byte_target[i] ^= m_key;
 	}
 }
 
 /// Decryption
 ///
-/// @param pvTarget Data to be decoded
-/// @param dwSize   Decoding size
+/// @param target Data to be decoded
+/// @param size   Decoding size
 ///
-void CEFLatter::Decrypt2(void* pvTarget, DWORD dwSize)
+void CEFLatter::Decrypt2(void* target, DWORD size)
 {
-	BYTE btWork;
-	DWORD dwWork;
-
-	BYTE* pbtTarget = (BYTE*)pvTarget;
-
-	if (strcmp(m_szKey, "") == 0)
-	{
+	if (strcmp(m_key_string, "") == 0)
 		return;
-	}
 
-	// Decrypt
+	BYTE* byte_target = (BYTE*)target;
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		m_dwKeyTableIndex1 = ((m_dwKeyTableIndex1 + 1) & 0xFF);
-		m_dwKeyTableIndex2 = ((m_dwKeyTableIndex2 + m_abtKeyTable[m_dwKeyTableIndex1]) & 0xFF);
+		m_key_table_index1 = ((m_key_table_index1 + 1) & 0xFF);
+		m_key_table_index2 = ((m_key_table_index2 + m_key_table[m_key_table_index1]) & 0xFF);
 
-		btWork = m_abtKeyTable[m_dwKeyTableIndex1];
-		m_abtKeyTable[m_dwKeyTableIndex1] = m_abtKeyTable[m_dwKeyTableIndex2];
-		m_abtKeyTable[m_dwKeyTableIndex2] = btWork;
+		std::swap(m_key_table[m_key_table_index1], m_key_table[m_key_table_index2]);
 
-		dwWork = ((m_abtKeyTable[m_dwKeyTableIndex1] + m_abtKeyTable[m_dwKeyTableIndex2]) & 0xFF);
+		const DWORD work = ((m_key_table[m_key_table_index1] + m_key_table[m_key_table_index2]) & 0xFF);
 
-		pbtTarget[i] ^= m_abtKeyTable[dwWork];
+		byte_target[i] ^= m_key_table[work];
 	}
 }
 
 /// Decode Movie Data
 ///
-/// @param pvTarget Data to be decoded
-/// @param dwSize   Decoding size
+/// @param target Data to be decoded
+/// @param size   Decoding size
 ///
-void CEFLatter::DecodeMovieData(void* pvTarget, DWORD dwSize)
+void CEFLatter::DecodeMovieData(void* target, DWORD size)
 {
-	BYTE* pbtTarget = (BYTE*)pvTarget;
+	BYTE* byte_target = (BYTE*)target;
 
-	for (DWORD i = 0; i < dwSize; i++)
+	for (size_t i = 0; i < size; i++)
 	{
-		pbtTarget[i] ^= m_abtMovieDecodeTable[m_dwMovieDecodeTablePtr];
+		byte_target[i] ^= m_movie_decode_table[m_movie_decode_table_ptr];
 
-		m_dwMovieDecodeTablePtr = ((m_dwMovieDecodeTablePtr + 1) & 0xFFFF);
+		m_movie_decode_table_ptr = ((m_movie_decode_table_ptr + 1) & 0xFFFF);
 	}
 }
