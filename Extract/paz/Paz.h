@@ -5,17 +5,16 @@
 class CPaz : public CExtractBase
 {
 public:
-	// Key Info
+	bool Mount(CArcFile* pclArc) override;
+	bool Decode(CArcFile* pclArc) override;
+
+protected:
 	struct SKeyInfo
 	{
 		YCString clsType;
 		BYTE     abtKey[64];
 	};
 
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-
-protected:
 	// Initialization of the table of 72 + 4096 bytes
 	virtual void InitTable();
 
