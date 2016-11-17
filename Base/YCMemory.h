@@ -15,32 +15,32 @@ class YCMemory
 {
 public:
 	YCMemory();
-	explicit YCMemory(DWORD dwCount);
-	YCMemory(DWORD dwCount, const TYPE& rftInitValue);
-	YCMemory(const YCMemory<TYPE>& rfclmSrc);
+	explicit YCMemory(size_t count);
+	YCMemory(size_t count, const TYPE& init_value);
+	YCMemory(const YCMemory<TYPE>& src);
 	~YCMemory();
 
-	void resize(DWORD dwCount);
-	void resize(DWORD dwCount, const TYPE& rftInitValue);
+	void resize(size_t count);
+	void resize(size_t count, const TYPE& init_value);
 	void clear();
 
-	inline DWORD size() const;
-	TYPE at(DWORD dwPos) const;
+	size_t size() const;
+	TYPE at(size_t pos) const;
 
-	inline TYPE* data();
-	inline const TYPE* data() const;
+	TYPE* data();
+	const TYPE* data() const;
 
-	inline TYPE& operator[](DWORD dwPos);
-	inline const TYPE& operator[](DWORD dwPos) const;
-	inline YCMemory<TYPE>& operator=(const YCMemory<TYPE>& rfclmSrc);
+	TYPE& operator[](size_t pos);
+	const TYPE& operator[](size_t pos) const;
+	YCMemory<TYPE>& operator=(const YCMemory<TYPE>& src);
 
 protected:
-	void alloc(DWORD dwCount);
-	inline void fill(const TYPE& rftValue);
+	void alloc(size_t count);
+	void fill(const TYPE& value);
 
 private:
-	TYPE* m_ptMemory = nullptr;
-	DWORD m_dwMemoryCount = 0;
+	TYPE* m_memory = nullptr;
+	size_t m_size = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -55,31 +55,31 @@ YCMemory<TYPE>::YCMemory()
 // Constructor
 
 template<class TYPE>
-YCMemory<TYPE>::YCMemory(DWORD dwCount)
+YCMemory<TYPE>::YCMemory(size_t count)
 {
-	alloc(dwCount);
+	alloc(count);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Constructor
 
 template<class TYPE>
-YCMemory<TYPE>::YCMemory(DWORD dwCount, const TYPE& rftInitValue)
+YCMemory<TYPE>::YCMemory(size_t count, const TYPE& init_value)
 {
-	alloc(dwCount);
+	alloc(count);
 
-	fill(rftInitValue);
+	fill(init_value);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Copy Constructor
 
 template<class TYPE>
-YCMemory<TYPE>::YCMemory(const YCMemory<TYPE>& rfclmSrc)
+YCMemory<TYPE>::YCMemory(const YCMemory<TYPE>& src)
 {
-	alloc(rfclmSrc.size());
+	alloc(src.size());
 
-	memcpy(m_ptMemory, &rfclmSrc[0], sizeof(TYPE)* rfclmSrc.size());
+	memcpy(m_memory, &src[0], sizeof(TYPE)* src.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -95,24 +95,24 @@ YCMemory<TYPE>::~YCMemory()
 // Change Memory Size
 
 template<class TYPE>
-void YCMemory<TYPE>::resize(DWORD dwCount)
+void YCMemory<TYPE>::resize(size_t count)
 {
 	clear();
 
-	alloc(dwCount);
+	alloc(count);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Change Memory Size
 
 template<class TYPE>
-void YCMemory<TYPE>::resize(DWORD dwCount, const TYPE& rftInitValue)
+void YCMemory<TYPE>::resize(size_t count, const TYPE& init_value)
 {
 	clear();
 
-	alloc(dwCount);
+	alloc(count);
 
-	fill(rftInitValue);
+	fill(init_value);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -120,11 +120,11 @@ void YCMemory<TYPE>::resize(DWORD dwCount, const TYPE& rftInitValue)
 
 template<class TYPE> void YCMemory<TYPE>::clear()
 {
-	if (m_ptMemory != nullptr)
+	if (m_memory != nullptr)
 	{
-		delete[] m_ptMemory;
-		m_ptMemory = nullptr;
-		m_dwMemoryCount = 0;
+		delete[] m_memory;
+		m_memory = nullptr;
+		m_size = 0;
 	}
 }
 
@@ -132,9 +132,9 @@ template<class TYPE> void YCMemory<TYPE>::clear()
 // Acquisition of the number of elements
 
 template<class TYPE>
-DWORD YCMemory<TYPE>::size() const
+size_t YCMemory<TYPE>::size() const
 {
-	return m_dwMemoryCount;
+	return m_size;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -143,16 +143,16 @@ DWORD YCMemory<TYPE>::size() const
 // Remark: Throw an exception "std :: out_of_range" out of range for the reference
 
 template<class TYPE>
-TYPE YCMemory<TYPE>::at(DWORD dwPos) const
+TYPE YCMemory<TYPE>::at(size_t pos) const
 {
-	if (dwPos >= m_dwMemoryCount)
+	if (pos >= m_size)
 	{
 		// Outside the reference range.
 
 		throw std::out_of_range("dwPos is outsize the memory range.");
 	}
 
-	return m_ptMemory[dwPos];
+	return m_memory[pos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -162,13 +162,13 @@ TYPE YCMemory<TYPE>::at(DWORD dwPos) const
 template<class TYPE>
 TYPE* YCMemory<TYPE>::data()
 {
-	return m_ptMemory;
+	return m_memory;
 }
 
 template<class TYPE>
 const TYPE* YCMemory<TYPE>::data() const
 {
-	return m_ptMemory;
+	return m_memory;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -182,9 +182,9 @@ const TYPE* YCMemory<TYPE>::data() const
 // Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE>
-TYPE& YCMemory<TYPE>::operator[](DWORD dwPos)
+TYPE& YCMemory<TYPE>::operator[](size_t pos)
 {
-	return m_ptMemory[dwPos];
+	return m_memory[pos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -193,20 +193,20 @@ TYPE& YCMemory<TYPE>::operator[](DWORD dwPos)
 // Remark: Fast, but because it does not do anything out of range for the reference, note there is a risk of this failing
 
 template<class TYPE>
-const TYPE& YCMemory<TYPE>::operator[](DWORD dwPos) const
+const TYPE& YCMemory<TYPE>::operator[](size_t pos) const
 {
-	return m_ptMemory[dwPos];
+	return m_memory[pos];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Copy
 
 template<class TYPE>
-YCMemory<TYPE>& YCMemory<TYPE>::operator=(const YCMemory<TYPE>& rfclmSrc)
+YCMemory<TYPE>& YCMemory<TYPE>::operator=(const YCMemory<TYPE>& src)
 {
-	resize(rfclmSrc.size());
+	resize(src.size());
 
-	memcpy(m_ptMemory, &rfclmSrc[0], rfclmSrc.size());
+	memcpy(m_memory, &src[0], src.size());
 
 	return *this;
 }
@@ -215,24 +215,24 @@ YCMemory<TYPE>& YCMemory<TYPE>::operator=(const YCMemory<TYPE>& rfclmSrc)
 // Memory Allocation
 
 template<class TYPE>
-void YCMemory<TYPE>::alloc(DWORD dwCount)
+void YCMemory<TYPE>::alloc(size_t count)
 {
-	if (dwCount == 0)
+	if (count == 0)
 	{
 		// Address of memory allocation of 0 bytes
 
-		dwCount = 1;
+		count = 1;
 	}
 
-	m_ptMemory = new TYPE[dwCount];
-	m_dwMemoryCount = dwCount;
+	m_memory = new TYPE[count];
+	m_size = count;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Fill Memory
 
 template<class TYPE>
-void YCMemory<TYPE>::fill(const TYPE& rftValue)
+void YCMemory<TYPE>::fill(const TYPE& value)
 {
-	std::fill(m_ptMemory, m_ptMemory + m_dwMemoryCount, rftValue);
+	std::fill(m_memory, m_memory + m_size, value);
 }
