@@ -1,135 +1,135 @@
 #include "stdafx.h"
 #include "Ykc.h"
 
-bool CYkc::Mount(CArcFile* pclArc)
+bool CYkc::Mount(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
+	if (memcmp(archive->GetHed(), "YKC001", 6) != 0)
 		return false;
 
 	// Get the index size and the offset to the index
-	DWORD dwIndexOffset;
-	DWORD dwIndexSize;
-	pclArc->SeekHed(0x10);
-	pclArc->Read(&dwIndexOffset, 4);
-	pclArc->Read(&dwIndexSize, 4);
+	DWORD index_offset;
+	DWORD index_size;
+	archive->SeekHed(0x10);
+	archive->Read(&index_offset, 4);
+	archive->Read(&index_size, 4);
 
 	// Get the index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->SeekHed(dwIndexOffset);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	YCMemory<BYTE> index(index_size);
+	archive->SeekHed(index_offset);
+	archive->Read(&index[0], index_size);
 
 	// Get the offset of the filename, and the offset to the index file name
-	DWORD dwFileNameIndexOffset = *(LPDWORD)&clmbtIndex[0];
-	DWORD dwFileNameIndexSize = dwIndexOffset - dwFileNameIndexOffset;
+	const DWORD file_name_index_offset = *(LPDWORD)&index[0];
+	const DWORD file_name_index_size = index_offset - file_name_index_offset;
 
 	// Get the filename index
-	YCMemory<BYTE> clmbtFileNameIndex(dwFileNameIndexSize);
-	pclArc->SeekHed(dwFileNameIndexOffset);
-	pclArc->Read(&clmbtFileNameIndex[0], dwFileNameIndexSize);
+	YCMemory<BYTE> file_name_index(file_name_index_size);
+	archive->SeekHed(file_name_index_offset);
+	archive->Read(&file_name_index[0], file_name_index_size);
 
 	// Get file information
-	for (DWORD i = 0, j = 0; i < dwIndexSize; i += 20)
+	for (DWORD i = 0, j = 0; i < index_size; i += 20)
 	{
 		// Get the length of the filename
-		DWORD dwFileNameLen = *(LPDWORD)&clmbtIndex[i + 4];
+		const DWORD file_name_length = *(LPDWORD)&index[i + 4];
 
 		// Get the filename
-		TCHAR szFileName[_MAX_FNAME];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtFileNameIndex[j]);
-		j += dwFileNameLen;
+		TCHAR file_name[_MAX_FNAME];
+		lstrcpy(file_name, (LPCTSTR)&file_name_index[j]);
+		j += file_name_length;
 
 		// Get file information
-		SFileInfo stfiWork;
-		stfiWork.name = szFileName;
-		stfiWork.start = *(LPDWORD)&clmbtIndex[i + 8];
-		stfiWork.sizeCmp = *(LPDWORD)&clmbtIndex[i + 12];
-		stfiWork.sizeOrg = stfiWork.sizeCmp;
-		stfiWork.end = stfiWork.start + stfiWork.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(LPDWORD)&index[i + 8];
+		file_info.sizeCmp = *(LPDWORD)&index[i + 12];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stfiWork);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
 }
 
-bool CYkc::Decode(CArcFile* pclArc)
+bool CYkc::Decode(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "YKC001", 6) != 0)
+	if (memcmp(archive->GetHed(), "YKC001", 6) != 0)
 		return false;
 
-	if (DecodeYKS(pclArc))
+	if (DecodeYKS(archive))
 		return true;
 
-	if (DecodeYKG(pclArc))
+	if (DecodeYKG(archive))
 		return true;
 
 	return false;
 }
 
-bool CYkc::DecodeYKS(CArcFile* pclArc)
+bool CYkc::DecodeYKS(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("YKS"))
 		return false;
 
 	// Read the YKS file
-	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
+	YCMemory<BYTE> src(file_info->sizeCmp);
+	archive->Read(&src[0], file_info->sizeCmp);
 
-	if (memcmp(&clmbtSrc[0], "YKS001", 6) == 0)
+	if (memcmp(&src[0], "YKS001", 6) == 0)
 	{
 		// YKS001
 
 		// Get the offset of the text portion
-		DWORD dwTextOffset = *(LPDWORD)&clmbtSrc[0x20];
+		const DWORD text_offset = *(LPDWORD)&src[0x20];
 
 		// Decode the text portion
-		for (DWORD i = dwTextOffset; i < file_info->sizeCmp; i++)
+		for (size_t i = text_offset; i < file_info->sizeCmp; i++)
 		{
-			clmbtSrc[i] ^= 0xAA;
+			src[i] ^= 0xAA;
 		}
 
 		// Output
-		pclArc->OpenScriptFile();
-		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
+		archive->OpenScriptFile();
+		archive->WriteFile(&src[0], file_info->sizeCmp);
 	}
 	else
 	{
 		// Other
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], file_info->sizeCmp);
 	}
 
 	return true;
 }
 
-bool CYkc::DecodeYKG(CArcFile* pclArc)
+bool CYkc::DecodeYKG(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("YKG"))
 		return false;
 
 	// Read the YKG file
-	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
+	YCMemory<BYTE> src(file_info->sizeCmp);
+	archive->Read(&src[0], file_info->sizeCmp);
 
-	if (memcmp(&clmbtSrc[0], "YKG000", 6) == 0)
+	if (memcmp(&src[0], "YKG000", 6) == 0)
 	{
 		// YKG000
 
 		// Fix the PNG header
-		memcpy(&clmbtSrc[0x41], "PNG", 3);
+		memcpy(&src[0x41], "PNG", 3);
 
 		// Output
-		pclArc->OpenFile(_T(".png"));
-		pclArc->WriteFile(&clmbtSrc[0x40], file_info->sizeCmp - 0x40);
+		archive->OpenFile(_T(".png"));
+		archive->WriteFile(&src[0x40], file_info->sizeCmp - 0x40);
 	}
 	else
 	{
 		// Other
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtSrc[0], file_info->sizeCmp);
+		archive->OpenFile();
+		archive->WriteFile(&src[0], file_info->sizeCmp);
 	}
 
 	return true;

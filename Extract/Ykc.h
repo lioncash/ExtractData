@@ -5,10 +5,10 @@
 class CYkc final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool DecodeYKS(CArcFile* pclArc);
-	bool DecodeYKG(CArcFile* pclArc);
+	bool DecodeYKS(CArcFile* archive);
+	bool DecodeYKG(CArcFile* archive);
 };
