@@ -5,107 +5,107 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CTCD3::Mount(CArcFile* pclArc)
+bool CTCD3::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".TCD"))
+	if (archive->GetArcExten() != _T(".TCD"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "TCD3", 4) != 0)
+	if (memcmp(archive->GetHed(), "TCD3", 4) != 0)
 		return false;
 
-	pclArc->SeekHed(4);
+	archive->SeekHed(4);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	DWORD files;
+	archive->Read(&files, 4);
 
 	// Get index info
-	STCD3IndexInfo astTCD3IndexInfo[5];
-	pclArc->Read(astTCD3IndexInfo, (sizeof(STCD3IndexInfo)* 5));
+	STCD3IndexInfo tcd3_index_info[5];
+	archive->Read(tcd3_index_info, (sizeof(STCD3IndexInfo)* 5));
 
 	// Create Key Table
-	static BYTE abtKey[5] = {
+	static constexpr BYTE key[5] = {
 		0xB7, 0x39, 0x24, 0x8D, 0x8D
 	};
 
 	// Create extension table
-	static YCString aclsFileExt[5] =
+	static const YCString file_exts[5] =
 	{
 		_T(".tct"), _T(".tsf"), _T(".spd"), _T(".ogg"), _T(".wav")
 	};
 
 	// Read index
-	for (DWORD dwFileType = 0; dwFileType < 5; dwFileType++)
+	for (DWORD file_type = 0; file_type < 5; file_type++)
 	{
-		if (astTCD3IndexInfo[dwFileType].dwFileSize == 0)
+		if (tcd3_index_info[file_type].file_size == 0)
 		{
 			// Index does not exist
 			continue;
 		}
 
 		// Go to index
-		pclArc->SeekHed(astTCD3IndexInfo[dwFileType].dwIndexOffset);
+		archive->SeekHed(tcd3_index_info[file_type].index_offset);
 
 		// Folder name
-		DWORD dwAllDirNameLength = (astTCD3IndexInfo[dwFileType].dwDirNameLength * astTCD3IndexInfo[dwFileType].dwDirCount);
-		YCMemory<BYTE> clmbtAllDirName(dwAllDirNameLength);
-		pclArc->Read(&clmbtAllDirName[0], dwAllDirNameLength);
+		const DWORD all_dir_name_length = (tcd3_index_info[file_type].dir_name_length * tcd3_index_info[file_type].dir_count);
+		YCMemory<BYTE> all_dir_names(all_dir_name_length);
+		archive->Read(&all_dir_names[0], all_dir_name_length);
 
 		// Decode folder name
-		for (DWORD i = 0; i < dwAllDirNameLength; i++)
+		for (size_t i = 0; i < all_dir_name_length; i++)
 		{
-			clmbtAllDirName[i] -= abtKey[dwFileType];
+			all_dir_names[i] -= key[file_type];
 		}
 
 		// Get folder info
-		YCMemory<STCD3DirInfo> clmstTCD3DirInfo(astTCD3IndexInfo[dwFileType].dwDirCount);
-		pclArc->Read(&clmstTCD3DirInfo[0], (sizeof(STCD3DirInfo)* astTCD3IndexInfo[dwFileType].dwDirCount));
+		YCMemory<STCD3DirInfo> tcd3_dir_info(tcd3_index_info[file_type].dir_count);
+		archive->Read(&tcd3_dir_info[0], (sizeof(STCD3DirInfo)* tcd3_index_info[file_type].dir_count));
 
 		// File name
-		DWORD dwAllFileNameLength = (astTCD3IndexInfo[dwFileType].dwFileNameLength * astTCD3IndexInfo[dwFileType].dwFileCount);
-		YCMemory<BYTE> clmbtAllFileName(dwAllFileNameLength);
-		pclArc->Read(&clmbtAllFileName[0], dwAllFileNameLength);
+		const DWORD all_file_name_length = (tcd3_index_info[file_type].file_name_length * tcd3_index_info[file_type].file_count);
+		YCMemory<BYTE> all_file_names(all_file_name_length);
+		archive->Read(&all_file_names[0], all_file_name_length);
 
 		// Decode file name
-		for (DWORD i = 0; i < dwAllFileNameLength; i++)
+		for (size_t i = 0; i < all_file_name_length; i++)
 		{
-			clmbtAllFileName[i] -= abtKey[dwFileType];
+			all_file_names[i] -= key[file_type];
 		}
 
 		// File offset
-		DWORD dwAllFileOffsetLength = (astTCD3IndexInfo[dwFileType].dwFileCount + 1);
-		YCMemory<DWORD> clmdwAllFileOffset(dwAllFileOffsetLength);
-		pclArc->Read(&clmdwAllFileOffset[0], (sizeof(DWORD)* dwAllFileOffsetLength));
+		const DWORD all_file_offset_length = (tcd3_index_info[file_type].file_count + 1);
+		YCMemory<DWORD> all_file_offsets(all_file_offset_length);
+		archive->Read(&all_file_offsets[0], (sizeof(DWORD)* all_file_offset_length));
 
 		// Store Info
-		for (DWORD dwDir = 0; dwDir < astTCD3IndexInfo[dwFileType].dwDirCount; dwDir++)
+		for (DWORD dir = 0; dir < tcd3_index_info[file_type].dir_count; dir++)
 		{
 			// Get folder info
-			TCHAR szDirName[_MAX_DIR];
-			memcpy(szDirName, &clmbtAllDirName[astTCD3IndexInfo[dwFileType].dwDirNameLength * dwDir], astTCD3IndexInfo[dwFileType].dwDirNameLength);
+			TCHAR dir_name[_MAX_DIR];
+			memcpy(dir_name, &all_dir_names[tcd3_index_info[file_type].dir_name_length * dir], tcd3_index_info[file_type].dir_name_length);
 
-			for (DWORD dwFile = 0; dwFile < clmstTCD3DirInfo[dwDir].dwFileCount; dwFile++)
+			for (DWORD file = 0; file < tcd3_dir_info[dir].file_count; file++)
 			{
 				// Get file name
-				TCHAR szFileName[_MAX_FNAME];
-				memcpy(szFileName, &clmbtAllFileName[clmstTCD3DirInfo[dwDir].dwFileNameOffset + astTCD3IndexInfo[dwFileType].dwFileNameLength * dwFile], astTCD3IndexInfo[dwFileType].dwFileNameLength);
-				szFileName[astTCD3IndexInfo[dwFileType].dwFileNameLength] = _T('\0');
+				TCHAR file_name[_MAX_FNAME];
+				memcpy(file_name, &all_file_names[tcd3_dir_info[dir].file_name_offset + tcd3_index_info[file_type].file_name_length * file], tcd3_index_info[file_type].file_name_length);
+				file_name[tcd3_index_info[file_type].file_name_length] = _T('\0');
 
 				// Folder name + File name + Extension
-				TCHAR szFullName[_MAX_PATH];
-				_stprintf(szFullName, _T("%s\\%s%s"), szDirName, szFileName, aclsFileExt[dwFileType].GetString());
+				TCHAR full_name[_MAX_PATH];
+				_stprintf(full_name, _T("%s\\%s%s"), dir_name, file_name, file_exts[file_type].GetString());
 
 				// Store Info
-				SFileInfo stFileInfo;
-				stFileInfo.name = szFullName;
-				stFileInfo.start = clmdwAllFileOffset[clmstTCD3DirInfo[dwDir].dwFileOffset + dwFile + 0];
-				stFileInfo.end = clmdwAllFileOffset[clmstTCD3DirInfo[dwDir].dwFileOffset + dwFile + 1];
-				stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-				stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+				SFileInfo file_info;
+				file_info.name = full_name;
+				file_info.start = all_file_offsets[tcd3_dir_info[dir].file_offset + file + 0];
+				file_info.end = all_file_offsets[tcd3_dir_info[dir].file_offset + file + 1];
+				file_info.sizeCmp = file_info.end - file_info.start;
+				file_info.sizeOrg = file_info.sizeCmp;
 
-				pclArc->AddFileInfo(stFileInfo);
+				archive->AddFileInfo(file_info);
 			}
 		}
 	}
@@ -115,85 +115,85 @@ bool CTCD3::Mount(CArcFile* pclArc)
 
 /// RLE Decompression (Type 2)
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Input data
-/// @param dwSrcSize Input data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Input data
+/// @param src_size Input data size
 ///
-bool CTCD3::DecompRLE2(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CTCD3::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
+	const BYTE* byte_src = (const BYTE*)src;
+	BYTE*       byte_dst = (BYTE*)dst;
 
-	DWORD dwOffset = *(DWORD*)&pbtSrc[0];
-	DWORD dwPixelCount = *(DWORD*)&pbtSrc[4];
+	const DWORD offset = *(DWORD*)&byte_src[0];
+	const DWORD pixel_count = *(DWORD*)&byte_src[4];
 
-	DWORD dwSrcHeaderPtr = 8;
-	DWORD dwSrcDataPtr = dwOffset;
-	DWORD dwDstPtr = 0;
+	DWORD src_header_ptr = 8;
+	DWORD src_data_ptr = offset;
+	DWORD dst_ptr = 0;
 
-	while ((dwSrcHeaderPtr < dwOffset) && (dwSrcDataPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
 	{
-		WORD wWork = *(WORD*)&pbtSrc[dwSrcHeaderPtr];
+		const WORD work = *(WORD*)&byte_src[src_header_ptr];
 
-		dwSrcHeaderPtr += 2;
+		src_header_ptr += 2;
 
-		WORD wType = wWork >> 14;
-		WORD wLength = wWork & 0x3FFF;
+		const WORD type = work >> 14;
+		const WORD length = work & 0x3FFF;
 
-		if ((dwDstPtr + (wLength * 4)) > dwDstSize)
+		if ((dst_ptr + (length * 4)) > dst_size)
 		{
 			MessageBox(nullptr, _T("The output buffer to decompress RLE2 is too small."), _T("Error"), 0);
 		}
 
-		switch (wType)
+		switch (type)
 		{
 		case 0: // Fill in 0
-			for (DWORD i = 0; i < wLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 4; j++)
 				{
-					pbtDst[dwDstPtr++] = 0x00;
+					byte_dst[dst_ptr++] = 0x00;
 				}
 			}
 			break;
 
 		case 1:  // Alpha value 0xFF
-			if ((dwSrcDataPtr + (wLength * 3)) > dwSrcSize)
+			if ((src_data_ptr + (length * 3)) > src_size)
 			{
 				MessageBox(nullptr, _T("Input buffer to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < wLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 3; j++)
 				{
-					pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
 				}
 
-				pbtDst[dwDstPtr++] = 0xFF;
+				byte_dst[dst_ptr++] = 0xFF;
 			}
 			break;
 
 		default: // Alpha values obtained from header
-			if ((dwSrcDataPtr + (wLength * 3)) > dwSrcSize)
+			if ((src_data_ptr + (length * 3)) > src_size)
 			{
 				MessageBox(nullptr, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
-			if ((dwSrcHeaderPtr + wLength) > dwOffset)
+			if ((src_header_ptr + length) > offset)
 			{
 				MessageBox(nullptr, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < wLength; i++)
+			for (DWORD i = 0; i < length; i++)
 			{
 				for (DWORD j = 0; j < 3; j++)
 				{
-					pbtDst[dwDstPtr++] = pbtSrc[dwSrcDataPtr++];
+					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
 				}
 
-				pbtDst[dwDstPtr++] = pbtSrc[dwSrcHeaderPtr++];
+				byte_dst[dst_ptr++] = byte_src[src_header_ptr++];
 			}
 			break;
 		}
