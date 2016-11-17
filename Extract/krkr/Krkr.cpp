@@ -527,7 +527,7 @@ DWORD CKrkr::OnInitDecrypt(CArcFile* archive)
 DWORD CKrkr::Decrypt(BYTE* target, DWORD target_size, DWORD offset)
 {
 	// No decryption requests
-	if (!m_bDecrypt)
+	if (!m_decrypt)
 	{
 		return target_size;
 	}
@@ -581,7 +581,7 @@ DWORD CKrkr::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decr
 ///
 void CKrkr::SetDecryptRequirement(bool decrypt)
 {
-	m_bDecrypt = decrypt;
+	m_decrypt = decrypt;
 }
 
 /// Set decoding size

@@ -73,7 +73,7 @@ protected:
 	bool FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset);
 
 private:
-	bool        m_bDecrypt;      // Decryption request
+	bool        m_decrypt;      // Decryption request
 	DWORD       m_decrypt_key;
 	DWORD       m_decrypt_size; // Decryption size
 	YCString    m_tpm_path;
