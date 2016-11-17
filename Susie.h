@@ -5,14 +5,14 @@
 
 struct SSusieInfo
 {
-	YCString                      clsName;             // Filename
-	YCString                      clsVersion;          // Version info
-	YCString                      clsInfo;             // Plugin info
-	YCString                      clsSupportFormat;    // Supported formats
-	BOOL                          bConfig;             // Presence or absence of a configuration dialog
-	YCString                      clsPath;             // File path
-	BOOL                          bValidity;           // Validity
-	YCLibrary                     cllPlugin;           // Module
+	YCString  clsName;             // Filename
+	YCString  clsVersion;          // Version info
+	YCString  clsInfo;             // Plugin info
+	YCString  clsSupportFormat;    // Supported formats
+	BOOL      bConfig;             // Presence or absence of a configuration dialog
+	YCString  clsPath;             // File path
+	BOOL      bValidity;           // Validity
+	YCLibrary cllPlugin;           // Module
 };
 
 class CSusie
