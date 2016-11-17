@@ -26,7 +26,6 @@ bool COyatu::IsSupported(CArcFile* archive)
 	if (dat.Read(game_title, sizeof(game_title)) < sizeof(game_title))
 		return false;
 
-	// The decision
 	return strcmp(game_title, "‚¨‚â‚Â‚Ì‚¶‚©‚ñ") == 0;
 }
 
@@ -102,8 +101,8 @@ bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 	archive->WriteFile(header, sizeof(header));
 
 	// Output the data part
-	DWORD        buffer_size = archive->GetBufSize();
-	YCMemory<u8> buffer(buffer_size);
+	DWORD           buffer_size = archive->GetBufSize();
+	std::vector<u8> buffer(buffer_size);
 
 	for (size_t total_written = 0; total_written < data_size; total_written += buffer_size)
 	{
@@ -111,7 +110,7 @@ bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 		archive->SetBufSize(&buffer_size, total_written);
 
 		// Read
-		archive->Read(&buffer[0], buffer_size);
+		archive->Read(buffer.data(), buffer_size);
 
 		// Decode
 		for (size_t count = 0; count < buffer_size; count++)
@@ -122,7 +121,7 @@ bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 		}
 
 		// Write
-		archive->WriteFile(&buffer[0], buffer_size);
+		archive->WriteFile(buffer.data(), buffer_size);
 	}
 
 	return true;
