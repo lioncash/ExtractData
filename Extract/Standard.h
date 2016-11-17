@@ -5,14 +5,14 @@
 class CStandard : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-	bool Extract(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
+	bool Extract(CArcFile* archive) override;
 
 protected:
-	virtual bool DecodeLZSS(CArcFile* pclArc);
-	virtual bool DecodeZlib(CArcFile* pclArc);
-	virtual bool DecodeAhx(CArcFile* pclArc);
-	virtual bool DecodeImage(CArcFile* pclArc);
-	virtual bool DecodeOgg(CArcFile* pclArc);
+	virtual bool DecodeLZSS(CArcFile* archive);
+	virtual bool DecodeZlib(CArcFile* archive);
+	virtual bool DecodeAhx(CArcFile* archive);
+	virtual bool DecodeImage(CArcFile* archive);
+	virtual bool DecodeOgg(CArcFile* archive);
 };

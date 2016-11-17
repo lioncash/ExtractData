@@ -7,88 +7,88 @@
 #include "Standard.h"
 
 /// Mounting
-bool CStandard::Mount(CArcFile* pclArc)
+bool CStandard::Mount(CArcFile* archive)
 {
 	// Get file info
-	SFileInfo stFileInfo;
-	stFileInfo.name = pclArc->GetArcName();
-	stFileInfo.sizeOrg = pclArc->GetArcSize();
-	stFileInfo.sizeCmp = stFileInfo.sizeOrg;
-	stFileInfo.start = 0;
-	stFileInfo.end = stFileInfo.sizeOrg;
+	SFileInfo file_info;
+	file_info.name = archive->GetArcName();
+	file_info.sizeOrg = archive->GetArcSize();
+	file_info.sizeCmp = file_info.sizeOrg;
+	file_info.start = 0;
+	file_info.end = file_info.sizeOrg;
 
-	pclArc->AddFileInfo(stFileInfo);
+	archive->AddFileInfo(file_info);
 
 	return true;
 }
 
 /// Decoding
-bool CStandard::Decode(CArcFile* pclArc)
+bool CStandard::Decode(CArcFile* archive)
 {
-	if (DecodeLZSS(pclArc))
+	if (DecodeLZSS(archive))
 		return true;
 
-	if (DecodeZlib(pclArc))
+	if (DecodeZlib(archive))
 		return true;
 
-	if (DecodeAhx(pclArc))
+	if (DecodeAhx(archive))
 		return true;
 
-	if (DecodeImage(pclArc))
+	if (DecodeImage(archive))
 		return true;
 
-	if (DecodeOgg(pclArc))
+	if (DecodeOgg(archive))
 		return true;
 
-	return Extract(pclArc);
+	return Extract(archive);
 }
 
 /// LZSS Decoding
-bool CStandard::DecodeLZSS(CArcFile* pclArc)
+bool CStandard::DecodeLZSS(CArcFile* archive)
 {
-	CLZSS clLZSS;
+	CLZSS lzss;
 
-	return clLZSS.Decode(pclArc);
+	return lzss.Decode(archive);
 }
 
 /// zlib Decoding
-bool CStandard::DecodeZlib(CArcFile* pclArc)
+bool CStandard::DecodeZlib(CArcFile* archive)
 {
-	CZlib clZlib;
+	CZlib zlib;
 
-	return clZlib.Decode(pclArc);
+	return zlib.Decode(archive);
 }
 
 /// AHX Decoding
-bool CStandard::DecodeAhx(CArcFile* pclArc)
+bool CStandard::DecodeAhx(CArcFile* archive)
 {
-	CAhx clAHX;
+	CAhx ahx;
 
-	return clAHX.Decode(pclArc);
+	return ahx.Decode(archive);
 }
 
 /// Image Decoding
-bool CStandard::DecodeImage(CArcFile* pclArc)
+bool CStandard::DecodeImage(CArcFile* archive)
 {
-	CImage clImage;
+	CImage image;
 
-	return clImage.Decode(pclArc);
+	return image.Decode(archive);
 }
 
 /// Ogg Vorbis Decoding
-bool CStandard::DecodeOgg(CArcFile* pclArc)
+bool CStandard::DecodeOgg(CArcFile* archive)
 {
-	COgg clOgg;
+	COgg ogg;
 
-	return clOgg.Decode(pclArc);
+	return ogg.Decode(archive);
 }
 
 /// Extraction
-bool CStandard::Extract(CArcFile* pclArc)
+bool CStandard::Extract(CArcFile* archive)
 {
-	pclArc->OpenFile();
-	pclArc->ReadWrite();
-	pclArc->CloseFile();
+	archive->OpenFile();
+	archive->ReadWrite();
+	archive->CloseFile();
 
 	return true;
 }
