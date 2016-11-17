@@ -14,39 +14,39 @@ protected:
 	// File chunk
 	struct FileChunk
 	{
-		BYTE name[4];
-		QWORD size;
+		u8  name[4];
+		u64 size;
 	};
 
 	// Info chunk
 	struct InfoChunk
 	{
-		BYTE  name[4];
-		QWORD size;
-		DWORD protect;    // (1 << 31) : protected
-		QWORD orgSize;
-		QWORD arcSize;
-		WORD  nameLen;
-		wchar_t* filename;   // length : nameLen, Unicode
+		u8  name[4];
+		u64 size;
+		u32 protect;    // (1 << 31) : protected
+		u64 orgSize;
+		u64 arcSize;
+		u16 nameLen;
+		wchar_t* filename; // length : nameLen, Unicode
 	};
 
 	// Segment Chunk
 	struct SegmChunk
 	{
-		BYTE  name[4];
-		QWORD size;
-		DWORD comp;       // 1 : compressed
-		QWORD start;      // Offset from the beginning of the data archive
-		QWORD orgSize;    // original size
-		QWORD arcSize;    // archived size
+		u8  name[4];
+		u64 size;
+		u32 comp;       // 1 : compressed
+		u64 start;      // Offset from the beginning of the data archive
+		u64 orgSize;    // original size
+		u64 arcSize;    // archived size
 	};
 
 	// adlr Chunk
 	struct AdlrChunk
 	{
-		BYTE  name[4];
-		QWORD size;
-		DWORD key;    // Unique file key
+		u8  name[4];
+		u64 size;
+		u32 key;    // Unique file key
 	};
 
 	//  Check whether or not it can be decoded
