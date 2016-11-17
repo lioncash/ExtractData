@@ -5,17 +5,17 @@
 class CBmp final : public CImageBase
 {
 public:
-	bool Mount(CArcFile* pclArc);
+	bool Mount(CArcFile* archive);
 
 private:
-	BITMAPFILEHEADER m_stBMPFileHeader;
-	BITMAPINFOHEADER m_stBMPInfoHeader;
-	RGBQUAD          m_astPallet[256];
+	BITMAPFILEHEADER m_bmp_file_header;
+	BITMAPINFOHEADER m_bmp_info_header;
+	RGBQUAD          m_pallet[256];
 
-	bool OnInit(const YCString& rfclsFileName) override;
-	bool OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
+	bool OnInit(const YCString& file_name) override;
+	bool OnCreatePallet(const void* pallet, DWORD pallet_size) override;
 
-	void WriteHed(const YCString& rfclsFileName);
-	void WriteLine(const void* pvBuffer) override;
-	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;
+	void WriteHed(const YCString& file_name);
+	void WriteLine(const void* buffer) override;
+	void WriteLineWithAlphaBlend(void* buffer24, const void* buffer32) override;
 };

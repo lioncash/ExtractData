@@ -4,145 +4,133 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CBmp::Mount(CArcFile* pclArc)
+bool CBmp::Mount(CArcFile* archive)
 {
-	if (lstrcmpi(pclArc->GetArcExten(), _T(".bmp")) != 0)
+	if (lstrcmpi(archive->GetArcExten(), _T(".bmp")) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// Initialization
 ///
-/// @param rfclsFileName Filename
+/// @param file_name File name
 ///
-bool CBmp::OnInit(const YCString& rfclsFileName)
+bool CBmp::OnInit(const YCString& file_name)
 {
 	// Set file header
-
-	BITMAPFILEHEADER* pstBMPFileHeader = &m_stBMPFileHeader;
-
-	ZeroMemory(pstBMPFileHeader, sizeof(BITMAPFILEHEADER));
-
-	pstBMPFileHeader->bfType = 'MB';
-	pstBMPFileHeader->bfSize = (54 + m_lPitch * m_lHeight);
-	pstBMPFileHeader->bfReserved1 = 0;
-	pstBMPFileHeader->bfReserved2 = 0;
-	pstBMPFileHeader->bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
+	ZeroMemory(&m_bmp_file_header, sizeof(BITMAPFILEHEADER));
+	m_bmp_file_header.bfType = 'MB';
+	m_bmp_file_header.bfSize = 54 + m_lPitch * m_lHeight;
+	m_bmp_file_header.bfReserved1 = 0;
+	m_bmp_file_header.bfReserved2 = 0;
+	m_bmp_file_header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
 	// 8bit
 	if (m_wBpp == 8)
 	{
-		pstBMPFileHeader->bfSize += 1024;
-		pstBMPFileHeader->bfOffBits += 1024;
+		m_bmp_file_header.bfSize += 1024;
+		m_bmp_file_header.bfOffBits += 1024;
 	}
 
 	// Set info header
-	BITMAPINFOHEADER* pstBMPInfoHeader = &m_stBMPInfoHeader;
-	ZeroMemory(pstBMPInfoHeader, sizeof(BITMAPINFOHEADER));
-
-	pstBMPInfoHeader->biSize = sizeof(BITMAPINFOHEADER);
-	pstBMPInfoHeader->biWidth = m_lWidth;
-	pstBMPInfoHeader->biHeight = m_lHeight;
-	pstBMPInfoHeader->biPlanes = 1;
-	pstBMPInfoHeader->biBitCount = m_wBpp;
-	pstBMPInfoHeader->biCompression = BI_RGB;
-	pstBMPInfoHeader->biSizeImage = 0;
-	pstBMPInfoHeader->biXPelsPerMeter = 0;
-	pstBMPInfoHeader->biYPelsPerMeter = 0;
-	pstBMPInfoHeader->biClrUsed = (m_wBpp == 8) ? 256 : 0;
-	pstBMPInfoHeader->biClrImportant = 0;
+	ZeroMemory(&m_bmp_info_header, sizeof(BITMAPINFOHEADER));
+	m_bmp_info_header.biSize = sizeof(BITMAPINFOHEADER);
+	m_bmp_info_header.biWidth = m_lWidth;
+	m_bmp_info_header.biHeight = m_lHeight;
+	m_bmp_info_header.biPlanes = 1;
+	m_bmp_info_header.biBitCount = m_wBpp;
+	m_bmp_info_header.biCompression = BI_RGB;
+	m_bmp_info_header.biSizeImage = 0;
+	m_bmp_info_header.biXPelsPerMeter = 0;
+	m_bmp_info_header.biYPelsPerMeter = 0;
+	m_bmp_info_header.biClrUsed = (m_wBpp == 8) ? 256 : 0;
+	m_bmp_info_header.biClrImportant = 0;
 
 	// Output BMP header
-	WriteHed(rfclsFileName);
+	WriteHed(file_name);
 
 	return true;
 }
 
 /// Output BMP Header
 ///
-/// @param rfclsFileName Filename
+/// @param file_name Filename
 ///
-void CBmp::WriteHed(const YCString& rfclsFileName)
+void CBmp::WriteHed(const YCString& file_name)
 {
-	CArcFile* pclArc = m_pclArc;
-	pclArc->OpenFile(rfclsFileName);
+	m_pclArc->OpenFile(file_name);
 
 	// Output BMP header
-	pclArc->WriteFile(&m_stBMPFileHeader, sizeof(m_stBMPFileHeader), 0);
-	pclArc->WriteFile(&m_stBMPInfoHeader, sizeof(m_stBMPInfoHeader), 0);
+	m_pclArc->WriteFile(&m_bmp_file_header, sizeof(m_bmp_file_header), 0);
+	m_pclArc->WriteFile(&m_bmp_info_header, sizeof(m_bmp_info_header), 0);
 
 	// Output palette (8-bit)
-	if (m_stBMPInfoHeader.biBitCount == 8)
+	if (m_bmp_info_header.biBitCount == 8)
 	{
-		pclArc->WriteFile(m_astPallet, sizeof(m_astPallet), 0);
+		m_pclArc->WriteFile(m_pallet, sizeof(m_pallet), 0);
 	}
 }
 
 /// Create Palette
 ///
-/// @param pvSrcPallet     Source (referenced) palette
-/// @param dwSrcPalletSize Source (referencec) palette size
+/// @param src_pallet      Source (referenced) palette
+/// @param src_pallet_size Size Source (reference) palette size
 ///
-bool CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
+bool CBmp::OnCreatePallet(const void* src_pallet, DWORD src_pallet_size)
 {
-	RGBQUAD*    pstPallet = m_astPallet;
-	const BYTE* pbtSrcPallet = reinterpret_cast<const BYTE*>(pvSrcPallet);
+	const BYTE* byte_src_pallet = reinterpret_cast<const BYTE*>(src_pallet);
 
-	ZeroMemory(m_astPallet, sizeof(m_astPallet));
+	ZeroMemory(m_pallet, sizeof(m_pallet));
 
-	if (pbtSrcPallet == nullptr)
+	if (byte_src_pallet == nullptr)
 	{
 		// Use default palette (Grayscale)
-
-		for (int i = 0; i < 256; i++)
+		for (size_t i = 0; i < 256; i++)
 		{
-			pstPallet[i].rgbBlue = i;
-			pstPallet[i].rgbGreen = i;
-			pstPallet[i].rgbRed = i;
-			pstPallet[i].rgbReserved = 0;
+			m_pallet[i].rgbBlue = static_cast<u8>(i);
+			m_pallet[i].rgbGreen = static_cast<u8>(i);
+			m_pallet[i].rgbRed = static_cast<u8>(i);
+			m_pallet[i].rgbReserved = 0;
 		}
 	}
 	else
 	{
 		// Source palette
 
-		if (dwSrcPalletSize == 1024)
+		if (src_pallet_size == 1024)
 		{
 			// 1024 byte palette
-
-			for (int i = 0; i < 256; i++)
+			for (size_t i = 0; i < 256; i++)
 			{
-				pstPallet[i].rgbBlue = *pbtSrcPallet++;
-				pstPallet[i].rgbGreen = *pbtSrcPallet++;
-				pstPallet[i].rgbRed = *pbtSrcPallet++;
-				pstPallet[i].rgbReserved = *pbtSrcPallet++;
+				m_pallet[i].rgbBlue = *byte_src_pallet++;
+				m_pallet[i].rgbGreen = *byte_src_pallet++;
+				m_pallet[i].rgbRed = *byte_src_pallet++;
+				m_pallet[i].rgbReserved = *byte_src_pallet++;
 			}
 		}
-		else if (dwSrcPalletSize == 768)
+		else if (src_pallet_size == 768)
 		{
 			// 768 byte palette (No alpha)
-
-			for (int i = 0; i < 256; i++)
+			for (size_t i = 0; i < 256; i++)
 			{
-				pstPallet[i].rgbBlue = *pbtSrcPallet++;
-				pstPallet[i].rgbGreen = *pbtSrcPallet++;
-				pstPallet[i].rgbRed = *pbtSrcPallet++;
-				pstPallet[i].rgbReserved = 0;
+				m_pallet[i].rgbBlue = *byte_src_pallet++;
+				m_pallet[i].rgbGreen = *byte_src_pallet++;
+				m_pallet[i].rgbRed = *byte_src_pallet++;
+				m_pallet[i].rgbReserved = 0;
 			}
 		}
 		else
 		{
 			// Other palette sizes
-
-			for (DWORD i = 0; i < dwSrcPalletSize / 4; i++)
+			for (size_t i = 0; i < src_pallet_size / 4; i++)
 			{
-				pstPallet[i].rgbBlue = *pbtSrcPallet++;
-				pstPallet[i].rgbGreen = *pbtSrcPallet++;
-				pstPallet[i].rgbRed = *pbtSrcPallet++;
-				pstPallet[i].rgbReserved = *pbtSrcPallet++;
+				m_pallet[i].rgbBlue = *byte_src_pallet++;
+				m_pallet[i].rgbGreen = *byte_src_pallet++;
+				m_pallet[i].rgbRed = *byte_src_pallet++;
+				m_pallet[i].rgbReserved = *byte_src_pallet++;
 			}
 		}
 	}
@@ -151,19 +139,19 @@ bool CBmp::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 }
 
 /// Write 1 Lin
-void CBmp::WriteLine(const void* pvBuffer)
+void CBmp::WriteLine(const void* buffer)
 {
 	// Output
-	m_pclArc->WriteFile(pvBuffer, m_lLine, m_dwRowSize);
+	m_pclArc->WriteFile(buffer, m_lLine, m_dwRowSize);
 
 	// Output dummy data
 	if (m_bOutputDummyFromBuffer)
 	{
 		// Output from buffer
 
-		const BYTE* pbtBuffer = reinterpret_cast<const BYTE*>(pvBuffer);
+		const BYTE* byte_buffer = reinterpret_cast<const BYTE*>(buffer);
 
-		m_pclArc->WriteFile(&pbtBuffer[m_lLine], (m_lPitch - m_lLine), 0);
+		m_pclArc->WriteFile(&byte_buffer[m_lLine], (m_lPitch - m_lLine), 0);
 	}
 	else
 	{
@@ -174,21 +162,19 @@ void CBmp::WriteLine(const void* pvBuffer)
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Write a line with alpha blending
-//
-// Parameters:
-//   - pvBuffer24 - Data storage destination alpha blending
-//   - pvBuffer32 - 32-bit Data
-
-void CBmp::WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32)
+/// Write a line with alpha blending
+///
+/// @param buffer24 Data storage destination alpha blending
+/// @param buffer32 32-bit Data
+///
+void CBmp::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
 {
 	// Fill with 0's (So that the dummy data can be outputted)
-	ZeroMemory(pvBuffer24, m_lPitch);
+	ZeroMemory(buffer24, m_lPitch);
 
 	// Alpha blending
-	AlphaBlend(pvBuffer24, pvBuffer32);
+	AlphaBlend(buffer24, buffer32);
 
 	// Output
-	m_pclArc->WriteFile(pvBuffer24, m_lPitch, m_dwRowSize);
+	m_pclArc->WriteFile(buffer24, m_lPitch, m_dwRowSize);
 }
