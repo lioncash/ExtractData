@@ -105,7 +105,7 @@ DWORD Cef_first::InitMovieTable(void* table)
 	{
 		for (DWORD j = 0; j < 256; j++)
 		{
-			m_movie_table[i][*byte_table++] = j;
+			m_movie_table[i][*byte_table++] = static_cast<BYTE>(j);
 		}
 	}
 
