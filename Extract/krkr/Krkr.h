@@ -57,25 +57,25 @@ protected:
 
 	// Set decryption key
 	void InitDecrypt(CArcFile* archive);
-	virtual DWORD OnInitDecrypt(CArcFile* archive);
+	virtual u32 OnInitDecrypt(CArcFile* archive);
 
 	// Decoding
-	DWORD Decrypt(BYTE* target, DWORD target_size, DWORD offset);
-	virtual DWORD OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key);
+	size_t Decrypt(u8* target, size_t target_size, size_t offset);
+	virtual size_t OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key);
 
 	// Set decryption request
 	void SetDecryptRequirement(bool decrypt);
 
 	// Set decryption size
-	void SetDecryptSize(DWORD decrypt_size);
+	void SetDecryptSize(size_t decrypt_size);
 
 	// Find XP3 from within an EXE file
 	bool FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset);
 
 private:
 	bool        m_decrypt;      // Decryption request
-	DWORD       m_decrypt_key;
-	DWORD       m_decrypt_size; // Decryption size
+	u32         m_decrypt_key;
+	size_t      m_decrypt_size; // Decryption size
 	YCString    m_tpm_path;
 	CArcFile*   m_archive;
 

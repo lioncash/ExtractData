@@ -14,7 +14,7 @@ bool CHimesyo::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CHimesyo::OnInitDecrypt(CArcFile* archive)
+u32 CHimesyo::OnInitDecrypt(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	LPCTSTR          file_ext = PathFindExtension(file_info->name);
@@ -35,7 +35,7 @@ DWORD CHimesyo::OnInitDecrypt(CArcFile* archive)
 	// Decryption key
 	m_change_decrypt_key = 0;
 
-	return (file_info->key ^ 0x03020100 ^ 0xFFFFFFFF);
+	return file_info->key ^ 0x03020100 ^ 0xFFFFFFFF;
 }
 
 /// Decryption Process
@@ -45,9 +45,8 @@ DWORD CHimesyo::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CHimesyo::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CHimesyo::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
-	// Decryption
 	for (size_t i = 0; i < target_size; i += 4)
 	{
 		if ((i & 255) == 0)
@@ -59,7 +58,7 @@ DWORD CHimesyo::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD d
 			m_change_decrypt_key += 0x04040404;
 		}
 
-		*(DWORD*)&target[i] ^= decrypt_key ^ m_change_decrypt_key;
+		*(u32*)&target[i] ^= decrypt_key ^ m_change_decrypt_key;
 	}
 
 	return target_size;

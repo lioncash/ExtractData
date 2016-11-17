@@ -267,9 +267,9 @@ bool CKrkr::Decode(CArcFile* archive)
 		archive->OpenFile();
 	}
 
-	DWORD buffer_ptr = 0;
-	const DWORD buffer_size_base = buffer_size;
-	DWORD total_wrote_size = 0;
+	size_t buffer_ptr = 0;
+	const size_t buffer_size_base = buffer_size;
+	size_t total_wrote_size = 0;
 
 	for (size_t i = 0; i < file_info->starts.size(); i++)
 	{
@@ -284,16 +284,16 @@ bool CKrkr::Decode(CArcFile* archive)
 
 			// Ensure buffer
 			const DWORD src_size = file_info->sizesCmp[i];
-			YCMemory<BYTE> src(src_size);
+			YCMemory<u8> src(src_size);
 
 			const DWORD dst_size = file_info->sizesOrg[i];
-			YCMemory<BYTE> dst(dst_size + 3);
+			YCMemory<u8> dst(dst_size + 3);
 
 			// zlib Decompression
 			archive->Read(&src[0], src_size);
 			zlib.Decompress(&dst[0], dst_size, &src[0], src_size);
 
-			const DWORD data_size = Decrypt(&dst[0], dst_size, total_wrote_size);
+			const size_t data_size = Decrypt(&dst[0], dst_size, total_wrote_size);
 
 			if (compose_memory)
 			{
@@ -314,25 +314,25 @@ bool CKrkr::Decode(CArcFile* archive)
 			{
 				// Bound to the buffer
 
-				const DWORD dst_size = file_info->sizesOrg[i];
+				const size_t dst_size = file_info->sizesOrg[i];
 				archive->Read(&buffer[buffer_ptr], dst_size);
 
-				const DWORD data_size = Decrypt(&buffer[buffer_ptr], dst_size, total_wrote_size);
+				const size_t data_size = Decrypt(&buffer[buffer_ptr], dst_size, total_wrote_size);
 
 				buffer_ptr += data_size;
 				total_wrote_size += dst_size;
 			}
 			else
 			{
-				const DWORD dst_size = file_info->sizesOrg[i];
+				const size_t dst_size = file_info->sizesOrg[i];
 
-				for (DWORD wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
+				for (size_t wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 				{
 					// Adjust buffer size
 					archive->SetBufSize(&buffer_size, wrote_size, dst_size);
 					archive->Read(&buffer[0], buffer_size);
 
-					const DWORD data_size = Decrypt(&buffer[0], buffer_size, total_wrote_size);
+					const size_t data_size = Decrypt(&buffer[0], buffer_size, total_wrote_size);
 
 					archive->WriteFile(&buffer[0], data_size);
 					total_wrote_size += buffer_size;
@@ -368,13 +368,13 @@ bool CKrkr::Decode(CArcFile* archive)
 	    (file_ext == _T(".asd")) ||
 	    (file_ext == _T(".txt"))))
 	{
-		const DWORD dst_size = file_info->sizeOrg;
+		const size_t dst_size = file_info->sizeOrg;
 
 		SetDecryptRequirement(true);
 
 		m_decrypt_key = archive->InitDecryptForText(&buffer[0], dst_size);
 
-		const DWORD data_size = Decrypt(&buffer[0], dst_size, 0);
+		const size_t data_size = Decrypt(&buffer[0], dst_size, 0);
 
 		archive->OpenFile();
 		archive->WriteFile(&buffer[0], data_size, dst_size);
@@ -505,9 +505,9 @@ void CKrkr::InitDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CKrkr::OnInitDecrypt(CArcFile* archive)
+u32 CKrkr::OnInitDecrypt(CArcFile* archive)
 {
-	const DWORD decrypt_key = archive->InitDecrypt();
+	const u32 decrypt_key = archive->InitDecrypt();
 
 	// Unencrypted
 	if (decrypt_key == 0)
@@ -524,39 +524,29 @@ DWORD CKrkr::OnInitDecrypt(CArcFile* archive)
 /// @param target_size Decoding size
 /// @param offset      Offset of data to be decoded
 ///
-DWORD CKrkr::Decrypt(BYTE* target, DWORD target_size, DWORD offset)
+size_t CKrkr::Decrypt(u8* target, size_t target_size, size_t offset)
 {
 	// No decryption requests
 	if (!m_decrypt)
-	{
 		return target_size;
-	}
 
-	DWORD decrypt_size = m_decrypt_size;
+	size_t decrypt_size = m_decrypt_size;
 
 	// Decoding size has not been set
 	if (decrypt_size == 0)
-	{
 		return OnDecrypt(target, target_size, offset, m_decrypt_key);
-	}
-	else // Decoding size has been set
-	{
-		// Don't decode anymore
-		if (offset >= decrypt_size)
-		{
-			return target_size;
-		}
 
-		// Size is larger than the predetermined decryption data size
-		if (decrypt_size > target_size)
-		{
-			decrypt_size = target_size;
-		}
-
-		OnDecrypt(target, decrypt_size, offset, m_decrypt_key);
-
+	// Don't decode anymore
+	if (offset >= decrypt_size)
 		return target_size;
-	}
+
+	// Size is larger than the predetermined decryption data size
+	if (decrypt_size > target_size)
+		decrypt_size = target_size;
+
+	OnDecrypt(target, decrypt_size, offset, m_decrypt_key);
+
+	return target_size;
 }
 
 /// By default, use simple decoding
@@ -568,7 +558,7 @@ DWORD CKrkr::Decrypt(BYTE* target, DWORD target_size, DWORD offset)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CKrkr::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CKrkr::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
 	m_archive->Decrypt(target, target_size);
 
@@ -588,7 +578,7 @@ void CKrkr::SetDecryptRequirement(bool decrypt)
 ///
 /// @param decrypt_size - Decoding size
 ///
-void CKrkr::SetDecryptSize(DWORD decrypt_size)
+void CKrkr::SetDecryptSize(size_t decrypt_size)
 {
 	m_decrypt_size = decrypt_size;
 }

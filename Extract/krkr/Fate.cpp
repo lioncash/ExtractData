@@ -19,7 +19,7 @@ bool CFate::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CFate::OnInitDecrypt(CArcFile* archive)
+u32 CFate::OnInitDecrypt(CArcFile* archive)
 {
 	return 0x36;
 }
@@ -31,7 +31,7 @@ DWORD CFate::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CFate::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CFate::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
 	for (size_t i = 0; i < target_size; i++)
 	{

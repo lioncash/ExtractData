@@ -14,7 +14,7 @@ bool CYotsunoha::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CYotsunoha::OnInitDecrypt(CArcFile* archive)
+u32 CYotsunoha::OnInitDecrypt(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
@@ -29,10 +29,10 @@ DWORD CYotsunoha::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CYotsunoha::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CYotsunoha::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
 	// Decryption
-	BYTE byte_decrypt_key = (BYTE)decrypt_key;
+	const u8 byte_decrypt_key = static_cast<u8>(decrypt_key);
 
 	for (size_t i = 0; i < target_size; i++)
 	{

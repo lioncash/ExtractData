@@ -15,7 +15,7 @@ bool CTokiPaku::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CTokiPaku::OnInitDecrypt(CArcFile* archive)
+u32 CTokiPaku::OnInitDecrypt(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	LPCTSTR          file_ext = PathFindExtension(file_info->name);
@@ -34,8 +34,8 @@ DWORD CTokiPaku::OnInitDecrypt(CArcFile* archive)
 	}
 
 	// Decryption Key
-	DWORD decrypt_key = 0xFFFFFFFF;
-	BYTE* key = (BYTE*)&decrypt_key;
+	u32 decrypt_key = 0xFFFFFFFF;
+	u8* key = reinterpret_cast<u8*>(&decrypt_key);
 	for (int i = 0; i < lstrlen(file_ext); i++)
 	{
 		key[i] = ~file_ext[i];
@@ -51,11 +51,11 @@ DWORD CTokiPaku::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CTokiPaku::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CTokiPaku::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
 	for (size_t i = 0; i < target_size; i += 4)
 	{
-		*(DWORD*)&target[i] ^= decrypt_key;
+		*(u32*)&target[i] ^= decrypt_key;
 	}
 
 	return target_size;

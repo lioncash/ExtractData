@@ -6,17 +6,17 @@ class CFateFD final : public CKrkr
 {
 public:
 	bool  OnCheckDecrypt(CArcFile* archive) override;
-	DWORD OnInitDecrypt(CArcFile* archive) override;
-	DWORD OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key) override;
+	u32 OnInitDecrypt(CArcFile* archive) override;
+	size_t OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key) override;
 
 private:
-	BYTE  m_key[6];
-	DWORD m_offset[6];
+	u8  m_key[6];
+	size_t m_offset[6];
 
 	// Decode Info
 	struct DecodeInfo
 	{
-		BYTE key;
-		DWORD size;
+		u8 key;
+		size_t size;
 	};
 };

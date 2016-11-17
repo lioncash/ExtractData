@@ -14,7 +14,7 @@ bool CFlyingShine::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CFlyingShine::OnInitDecrypt(CArcFile* archive)
+u32 CFlyingShine::OnInitDecrypt(CArcFile* archive)
 {
 	return archive->GetOpenFileInfo()->key & 0xFFFF;
 }
@@ -26,10 +26,10 @@ DWORD CFlyingShine::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CFlyingShine::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CFlyingShine::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
-	BYTE decrypt_key1 = (BYTE)((decrypt_key >> 8) & 0xFF);
-	BYTE decrypt_key2 = (BYTE)((decrypt_key & 0xFF) % 8);
+	const u8 decrypt_key1 = static_cast<u8>((decrypt_key >> 8) & 0xFF);
+	const u8 decrypt_key2 = static_cast<u8>((decrypt_key & 0xFF) % 8);
 
 	for (size_t i = 0; i < target_size; i++)
 	{

@@ -14,11 +14,11 @@ bool CSisMiko::OnCheckDecrypt(CArcFile* archive)
 ///
 /// @param archive Archive
 ///
-DWORD CSisMiko::OnInitDecrypt(CArcFile* archive)
+u32 CSisMiko::OnInitDecrypt(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	LPCTSTR          file_ext = PathFindExtension(file_info->name);
-	DWORD            key = archive->GetOpenFileInfo()->key;
+	const u32        key = archive->GetOpenFileInfo()->key;
 
 	if ((lstrcmp(file_ext, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
 	{
@@ -44,11 +44,11 @@ DWORD CSisMiko::OnInitDecrypt(CArcFile* archive)
 /// @param offset      Location of data to be decoded
 /// @param decrypt_key Decryption key
 ///
-DWORD CSisMiko::OnDecrypt(BYTE* target, DWORD target_size, DWORD offset, DWORD decrypt_key)
+size_t CSisMiko::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key)
 {
 	for (size_t i = 0; i < target_size; i += 4)
 	{
-		*(DWORD*)&target[i] ^= decrypt_key;
+		*(u32*)&target[i] ^= decrypt_key;
 	}
 
 	return target_size;
