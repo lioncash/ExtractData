@@ -3,126 +3,126 @@
 
 /// Determine if file is supported
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::IsSupported(CArcFile* pclArc)
+bool COyatu::IsSupported(CArcFile* archive)
 {
-	if (!pclArc->CheckExe(_T("MEBIUS35.DAT")))
+	if (!archive->CheckExe(_T("MEBIUS35.DAT")))
 		return false;
 
 	// Read MEBIUS35.DAT
-	TCHAR szDatPath[MAX_PATH];
-	lstrcpy(szDatPath, pclArc->GetArcPath());
-	PathRemoveFileSpec(szDatPath);
-	PathAppend(szDatPath, _T("MEBIUS35.DAT"));
+	TCHAR dat_path[MAX_PATH];
+	lstrcpy(dat_path, archive->GetArcPath());
+	PathRemoveFileSpec(dat_path);
+	PathAppend(dat_path, _T("MEBIUS35.DAT"));
 
-	CFile clfDat;
-	if (!clfDat.OpenForRead(szDatPath))
+	CFile dat;
+	if (!dat.OpenForRead(dat_path))
 		return false;
 
-	clfDat.SeekHed(4);
+	dat.SeekHed(4);
 
-	char szGameTitle[15];
-	if (clfDat.Read(szGameTitle, sizeof(szGameTitle)) < sizeof(szGameTitle))
+	char game_title[15];
+	if (dat.Read(game_title, sizeof(game_title)) < sizeof(game_title))
 		return false;
 
 	// The decision
-	return (strcmp(szGameTitle, "‚¨‚â‚Â‚Ì‚¶‚©‚ñ") == 0);
+	return strcmp(game_title, "‚¨‚â‚Â‚Ì‚¶‚©‚ñ") == 0;
 }
 
 /// Mounting 
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::Mount(CArcFile* pclArc)
+bool COyatu::Mount(CArcFile* archive)
 {
 	// Check if supported
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
 	// Mount
-	if (pclArc->GetArcExten() == _T(".BGM"))
-		return pclArc->Mount();
+	if (archive->GetArcExten() == _T(".BGM"))
+		return archive->Mount();
 
-	if (pclArc->GetArcExten() == _T(".KOE"))
-		return pclArc->Mount();
+	if (archive->GetArcExten() == _T(".KOE"))
+		return archive->Mount();
 
-	if (pclArc->GetArcExten() == _T(".MSE"))
-		return pclArc->Mount();
+	if (archive->GetArcExten() == _T(".MSE"))
+		return archive->Mount();
 
 	return false;
 }
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::Decode(CArcFile* pclArc)
+bool COyatu::Decode(CArcFile* archive)
 {
 	// Check if supported
-	if (!IsSupported(pclArc))
+	if (!IsSupported(archive))
 		return false;
 
 	// Decode
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// BGM
 	if (file_info->format == _T("BGM"))
-		return DecodeBGM(pclArc);
+		return DecodeBGM(archive);
 
 	// KOE
 	if (file_info->format == _T("KOE"))
-		return DecodeKOE(pclArc);
+		return DecodeKOE(archive);
 
 	// MSE
 	if (file_info->format == _T("MSE"))
-		return DecodeMSE(pclArc);
+		return DecodeMSE(archive);
 
 	return false;
 }
 
 /// Sound file decoding
 ///
-/// @param pclArc Archive
-/// @param pbtKey Key
+/// @param archive Archive
+/// @param key     Key
 ///
-bool COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
+bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 {
 	// Read header section
-	BYTE abtHeader[44];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
+	u8 header[44];
+	archive->Read(header, sizeof(header));
 
 	// Get the size of the data section
-	DWORD dwDataSize = *(DWORD*)&abtHeader[40];
+	const u32 data_size = *(u32*)&header[40];
 
 	// Open the output file
-	pclArc->OpenFile(_T(".wav"));
+	archive->OpenFile(_T(".wav"));
 
 	// Output the header part
-	pclArc->WriteFile(abtHeader, sizeof(abtHeader));
+	archive->WriteFile(header, sizeof(header));
 
 	// Output the data part
-	DWORD          dwBufferSize = pclArc->GetBufSize();
-	YCMemory<BYTE> clmbtBuffer(dwBufferSize);
+	DWORD        buffer_size = archive->GetBufSize();
+	YCMemory<u8> buffer(buffer_size);
 
-	for (DWORD dwWroteSize = 0; dwWroteSize < dwDataSize; dwWroteSize += dwBufferSize)
+	for (size_t total_written = 0; total_written < data_size; total_written += buffer_size)
 	{
 		// Adjust the buffer size
-		pclArc->SetBufSize(&dwBufferSize, dwWroteSize);
+		archive->SetBufSize(&buffer_size, total_written);
 
 		// Read
-		pclArc->Read(&clmbtBuffer[0], dwBufferSize);
+		archive->Read(&buffer[0], buffer_size);
 
 		// Decode
-		for (DWORD dwCount = 0; dwCount < dwBufferSize; dwCount++)
+		for (size_t count = 0; count < buffer_size; count++)
 		{
-			DWORD dwKeyIndex = (dwWroteSize + dwCount) & 0xFF;
+			const size_t key_index = (total_written + count) & 0xFF;
 
-			clmbtBuffer[dwCount] ^= pbtKey[dwKeyIndex];
+			buffer[count] ^= key[key_index];
 		}
 
 		// Write
-		pclArc->WriteFile(&clmbtBuffer[0], dwBufferSize);
+		archive->WriteFile(&buffer[0], buffer_size);
 	}
 
 	return true;
@@ -130,11 +130,11 @@ bool COyatu::DecodeSound(CArcFile* pclArc, const BYTE* pbtKey)
 
 /// BGM Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::DecodeBGM(CArcFile* pclArc)
+bool COyatu::DecodeBGM(CArcFile* archive)
 {
-	static const BYTE abtKey[256] = {
+	static const u8 key[256] = {
 		0xB0, 0x6F, 0xA4, 0xD7, 0x8B, 0x81, 0xBD, 0xF3, 0x82, 0xAF, 0x95, 0x6B, 0x9D, 0x3E, 0x88, 0x73,
 		0xB8, 0xF9, 0xD8, 0x09, 0x31, 0xF3, 0x84, 0xDA, 0xCC, 0xAF, 0x54, 0x60, 0xFD, 0x97, 0x04, 0xA6,
 		0x05, 0x65, 0x20, 0x9A, 0xA7, 0x62, 0xD9, 0xD7, 0x5C, 0x98, 0x6F, 0x2D, 0x3A, 0x6E, 0x07, 0xF8,
@@ -153,16 +153,16 @@ bool COyatu::DecodeBGM(CArcFile* pclArc)
 		0x7D, 0x93, 0xE9, 0x7E, 0x9E, 0x6E, 0xC3, 0xB2, 0xB1, 0xD0, 0x5C, 0x83, 0x61, 0x6F, 0x27, 0x18
 	};
 
-	return DecodeSound(pclArc, abtKey);
+	return DecodeSound(archive, key);
 }
 
 /// KOE Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::DecodeKOE(CArcFile* pclArc)
+bool COyatu::DecodeKOE(CArcFile* archive)
 {
-	static const BYTE abtKey[256] = {
+	static const u8 key[256] = {
 		0x15, 0xEE, 0x1F, 0x83, 0x32, 0x20, 0xF8, 0x17, 0x53, 0xE3, 0x7B, 0xC0, 0x6A, 0x75, 0x93, 0xA5,
 		0x79, 0x32, 0x36, 0x7A, 0x76, 0xC5, 0xF4, 0x06, 0xC5, 0x08, 0xF5, 0x1E, 0xE4, 0xD5, 0xED, 0x72,
 		0x0B, 0xEC, 0x2A, 0x52, 0x6D, 0x87, 0xC3, 0x55, 0xD9, 0xC0, 0x07, 0x7A, 0x5E, 0x84, 0x35, 0x38,
@@ -181,16 +181,16 @@ bool COyatu::DecodeKOE(CArcFile* pclArc)
 		0x01, 0x55, 0x46, 0xEE, 0x80, 0x68, 0xC9, 0xC1, 0x1B, 0x4C, 0x49, 0x14, 0xC9, 0x95, 0xA9, 0x7F
 	};
 
-	return DecodeSound(pclArc, abtKey);
+	return DecodeSound(archive, key);
 }
 
 /// MSE Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool COyatu::DecodeMSE(CArcFile* pclArc)
+bool COyatu::DecodeMSE(CArcFile* archive)
 {
-	static const BYTE abtKey[256] = {
+	static const u8 key[256] = {
 		0x06, 0xDE, 0xEF, 0x76, 0xD2, 0xDA, 0xE7, 0x95, 0x7A, 0x87, 0x6D, 0x7C, 0xF6, 0x17, 0x44, 0x9F,
 		0x08, 0xD2, 0xC5, 0x89, 0xDC, 0xDE, 0xA1, 0x0F, 0x2D, 0xCB, 0xCA, 0xB8, 0x6E, 0xBB, 0x7F, 0x8A,
 		0x9E, 0x63, 0x70, 0x58, 0xCC, 0xA8, 0x61, 0x34, 0x68, 0x98, 0xD8, 0xB3, 0x74, 0x18, 0x2C, 0x9B,
@@ -209,5 +209,5 @@ bool COyatu::DecodeMSE(CArcFile* pclArc)
 		0x84, 0xD7, 0x1A, 0x63, 0xD5, 0x51, 0x63, 0xDB, 0x74, 0x39, 0x4C, 0x12, 0x12, 0xF1, 0x6E, 0x2C
 	};
 
-	return DecodeSound(pclArc, abtKey);
+	return DecodeSound(archive, key);
 }

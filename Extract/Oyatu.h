@@ -5,14 +5,14 @@
 class COyatu final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool IsSupported(CArcFile* pclArc);
+	bool IsSupported(CArcFile* archive);
 
-	bool DecodeSound(CArcFile* pclArc, const BYTE* pbtKey);
-	bool DecodeBGM(CArcFile* pclArc);
-	bool DecodeKOE(CArcFile* pclArc);
-	bool DecodeMSE(CArcFile* pclArc);
+	bool DecodeSound(CArcFile* archive, const u8* key);
+	bool DecodeBGM(CArcFile* archive);
+	bool DecodeKOE(CArcFile* archive);
+	bool DecodeMSE(CArcFile* archive);
 };
