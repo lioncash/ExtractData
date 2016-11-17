@@ -317,69 +317,65 @@ bool CWill::Decode(CArcFile* pclArc)
 /// LZSS Decompression
 ///
 /// Parameters:
-/// @param pvDst     Destination
-/// @param dwDstSize Destination Size
-/// @param pvSrc     Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination Size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+void CWill::DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
 	// Slide dictionary
-	DWORD          dwDicSize = 4096;
-	YCMemory<BYTE> clmbtDic(dwDicSize);
-	ZeroMemory(&clmbtDic[0], dwDicSize);
-	DWORD dwDicPtr = 1;
+	constexpr size_t dictionary_size = 4096;
+	std::vector<u8> dictionary(dictionary_size);
+	size_t dictionary_ptr = 1;
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		BYTE btFlags = pbtSrc[dwSrcPtr++];
+		u8 flags = src[src_ptr++];
 
-		for (DWORD i = 0; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize); i++)
+		for (size_t i = 0; i < 8 && src_ptr < src_size && dst_ptr < dst_size; i++)
 		{
-			if (btFlags & 1)
+			if (flags & 1)
 			{
 				// Uncompressed data
-				pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = pbtSrc[dwSrcPtr++];
-				dwDicPtr &= (dwDicSize - 1);
+				dst[dst_ptr++] = dictionary[dictionary_ptr++] = src[src_ptr++];
+				dictionary_ptr &= dictionary_size - 1;
 			}
 			else
 			{
 				// Compressed data
-				BYTE btLow = pbtSrc[dwSrcPtr++];
-				BYTE btHigh = pbtSrc[dwSrcPtr++];
+				const u8 low = src[src_ptr++];
+				const u8 high = src[src_ptr++];
 
-				DWORD dwBack = ((btLow << 8) | btHigh) >> 4;
-				if (dwBack == 0)
+				size_t back = ((low << 8) | high) >> 4;
+				if (back == 0)
 				{
 					// Completed decompressing
 					return;
 				}
 
 				// Get length from dictionary
-				DWORD dwLength = (btHigh & 0x0F) + 2;
-				if ((dwDstPtr + dwLength) > dwDstSize)
+				size_t length = (high & 0x0F) + 2;
+				if (dst_ptr + length > dst_size)
 				{
 					// Exceeds the output buffer
-					dwLength = (dwDstSize - dwDstPtr);
+					length = dst_size - dst_ptr;
 				}
 
 				// Enter data dictionary
-				for (DWORD j = 0; j < dwLength; j++)
+				for (size_t j = 0; j < length; j++)
 				{
-					pbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = clmbtDic[dwBack++];
+					dst[dst_ptr++] = dictionary[dictionary_ptr++] = dictionary[back++];
 
-					dwDicPtr &= (dwDicSize - 1);
-					dwBack &= (dwDicSize - 1);
+					dictionary_ptr &= dictionary_size - 1;
+					back &= dictionary_size - 1;
 				}
 			}
 
-			btFlags >>= 1;
+			flags >>= 1;
 		}
 	}
 }
@@ -387,18 +383,18 @@ void CWill::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dw
 /// マスク画像を付加して32bit化する
 ///
 /// Parameters:
-/// @param pbtDst     Destination
-/// @param dwDstSize  Destination Size
-/// @param pbtSrc     24-bit data
-/// @param dwSrcSize  24-bit data size
-/// @param pbtMask    8-bit data (mask)
-/// @param dwMaskSize 8-bit data size
+/// @param dst       Destination
+/// @param dst_size  Destination Size
+/// @param src       24-bit data
+/// @param src_size  24-bit data size
+/// @param mask      8-bit data (mask)
+/// @param mask_size 8-bit data size
 ///
-bool CWill::AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize)
+bool CWill::AppendMask(u8* dst, size_t dst_size, const u8* src, size_t src_size, const u8* mask, size_t mask_size)
 {
 	// Make files
-	memcpy(pbtDst, pbtSrc, dwSrcSize);
-	memcpy(&pbtDst[dwSrcSize], pbtMask, dwMaskSize);
+	memcpy(dst, src, src_size);
+	memcpy(&dst[src_size], mask, mask_size);
 
 	return true;
 }

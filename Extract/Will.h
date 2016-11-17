@@ -5,11 +5,11 @@
 class CWill final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	void DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	void DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 
-	bool AppendMask(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, const BYTE* pbtMask, DWORD dwMaskSize);
+	bool AppendMask(u8* dst, size_t dst_size, const u8* src, size_t src_size, const u8* mask, size_t mask_size);
 };
