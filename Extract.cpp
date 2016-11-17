@@ -294,7 +294,7 @@ bool CExtract::Search(CArcFile* pclArc)
 	std::vector<CSearchBase*>& SearchClass = m_SearchClass;
 	std::vector<CSearchBase*> Class;
 	u32 max_header_size = 0;
-	for (int i = 0; i < (int)pOption->bSearch.size(); i++)
+	for (size_t i = 0; i < pOption->bSearch.size(); i++)
 	{
 		// Add class to use only
 		if (pOption->bSearch[i] == TRUE)
