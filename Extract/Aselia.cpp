@@ -1,64 +1,64 @@
 #include "stdafx.h"
 #include "Aselia.h"
 
-bool CAselia::Mount(CArcFile* pclArc)
+bool CAselia::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".gd"))
+	if (archive->GetArcExten() != _T(".gd"))
 		return false;
 
-	TCHAR szDllPath[MAX_PATH];
-	lstrcpy(szDllPath, pclArc->GetArcPath());
-	PathRenameExtension(szDllPath, _T(".dll"));
+	TCHAR dll_path[MAX_PATH];
+	lstrcpy(dll_path, archive->GetArcPath());
+	PathRenameExtension(dll_path, _T(".dll"));
 
-	if (PathFileExists(szDllPath) == FALSE)
+	if (PathFileExists(dll_path) == FALSE)
 		return false;
 
 	// Open DLL File
-	CFile DllFile;
-	if (DllFile.Open(szDllPath, FILE_READ) == INVALID_HANDLE_VALUE)
+	CFile dll_file;
+	if (dll_file.Open(dll_path, FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Get filecount
-	DWORD ctFile;
-	DllFile.Read(&ctFile, 4);
-	ctFile--;
+	u32 num_files;
+	dll_file.Read(&num_files, sizeof(u32));
+	num_files--;
 
 	// Number of files retrieved from the index size
-	DWORD index_size = ctFile << 3;
+	const size_t index_size = num_files << 3;
 
 	// Get Index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	DllFile.Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	dll_file.Read(index.data(), index.size());
+	u8* index_ptr = index.data();
 
 	// Get file extension
-	YCString sFileExt;
-	if (memcmp(&pclArc->GetHed()[4], "OggS", 4) == 0)
+	YCString file_ext;
+	if (memcmp(&archive->GetHed()[4], "OggS", 4) == 0)
 	{
-		sFileExt = _T(".ogg");
+		file_ext = _T(".ogg");
 	}
-	else if (memcmp(&pclArc->GetHed()[4], "PNG" /*‰PNG" NOTE: is that the actual way it is (‰PNG), or was it an encoding error in this cpp file? */, 4) == 0)
+	else if (memcmp(&archive->GetHed()[4], "PNG" /*‰PNG" NOTE: is that the actual way it is (‰PNG), or was it an encoding error in this cpp file? */, 4) == 0)
 	{
-		sFileExt = _T(".png");
+		file_ext = _T(".png");
 	}
 
-	for (int i = 0; i < (int)ctFile; i++)
+	for (int i = 0; i < (int)num_files; i++)
 	{
 		// Get filename
-		TCHAR szFileName[MAX_PATH];
-		_stprintf(szFileName, _T("%s_%06d%s"), pclArc->GetArcName().GetString(), i + 1, sFileExt.GetString());
+		TCHAR file_name[MAX_PATH];
+		_stprintf(file_name, _T("%s_%06d%s"), archive->GetArcName().GetString(), i + 1, file_ext.GetString());
 
-		SFileInfo infFile;
-		infFile.start = *(LPDWORD)&pIndex[0];
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4];
+		SFileInfo file_info;
+		file_info.start = *(u32*)&index_ptr[0];
+		file_info.sizeOrg = *(u32*)&index_ptr[4];
 
 		// Add to listview
-		infFile.name = szFileName;
-		infFile.sizeCmp = infFile.sizeOrg;
-		infFile.end = infFile.start + infFile.sizeOrg;
-		pclArc->AddFileInfo(infFile);
+		file_info.name = file_name;
+		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.end = file_info.start + file_info.sizeOrg;
+		archive->AddFileInfo(file_info);
 
-		pIndex += 8;
+		index_ptr += 8;
 	}
 
 	return true;
