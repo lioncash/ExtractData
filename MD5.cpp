@@ -26,6 +26,10 @@ constexpr std::array<int, 65> md5_table{{
 	0x4E0811A1, 0xF7537E82, 0xBD3AF235, 0x2AD7D2BB,
 	0xEB86D391,
 }};
+
+constexpr std::array<char, 16> hex_chars{{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+}};
 } // Anonymous namespace
 
 /// Constructor
@@ -302,15 +306,10 @@ u32 CMD5::RotateLeft(u32 value, u32 shift)
 ///
 void CMD5::ValueToStr(LPSTR md5_dst, u32 md5)
 {
-	static const char acHex[16] =
-	{
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-	};
-
 	for (int i = 0 ; i < 4 ; i++)
 	{
-		md5_dst[i * 2 + 0] = acHex[((md5 >> 4) & 0x0F)];
-		md5_dst[i * 2 + 1] = acHex[(md5 & 0x0F)];
+		md5_dst[i * 2 + 0] = hex_chars[(md5 >> 4) & 0x0F];
+		md5_dst[i * 2 + 1] = hex_chars[md5 & 0x0F];
 
 		md5 >>= 8;
 	}
@@ -323,19 +322,14 @@ void CMD5::ValueToStr(LPSTR md5_dst, u32 md5)
 ///
 void CMD5::MD5ToStrings(LPSTR md5_dst, const u32* md5)
 {
-	static const char acHex[16] =
-	{
-		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-	};
-
 	for (int i = 0 ; i < 4 ; i++)
 	{
 		u32 entry = md5[i];
 
 		for (int j = 0 ; j < 4 ; j++)
 		{
-			md5_dst[i * 8 + j * 2 + 0] = acHex[((entry >> 4) & 0x0F)];
-			md5_dst[i * 8 + j * 2 + 1] = acHex[(entry & 0x0F)];
+			md5_dst[i * 8 + j * 2 + 0] = hex_chars[(entry >> 4) & 0x0F];
+			md5_dst[i * 8 + j * 2 + 1] = hex_chars[entry & 0x0F];
 
 			entry >>= 8;
 		}
