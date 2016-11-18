@@ -261,7 +261,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClCompile Include="Base\YCIni.cpp" />
     <ClCompile Include="Base\YCLibrary.cpp" />
     <ClCompile Include="Base\YCLocalMemory.cpp" />
-    <ClCompile Include="Base\YCMultiFile.cpp" />
     <ClCompile Include="Base\YCStdioFile.cpp" />
     <ClCompile Include="Base\YCString.cpp" />
   </ItemGroup>
@@ -409,7 +408,6 @@ copy $(SolutionDir)Libs\libpng16.dll $(OutDir)</Command>
     <ClInclude Include="Base\YCLibrary.h" />
     <ClInclude Include="Base\YCLocalMemory.h" />
     <ClInclude Include="Base\YCMemory.h" />
-    <ClInclude Include="Base\YCMultiFile.h" />
     <ClInclude Include="Base\YCStdioFile.h" />
     <ClInclude Include="Base\YCString.h" />
   </ItemGroup>

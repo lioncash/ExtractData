@@ -44,7 +44,6 @@
 #include    "Base/YCIni.h"
 #include    "Base/YCFile.h"
 #include    "Base/YCStdioFile.h"
-#include    "Base/YCMultiFile.h"
 
 #include    "Types.h"
 

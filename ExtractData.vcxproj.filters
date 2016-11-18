@@ -13,9 +13,6 @@
     <ClCompile Include="Base\YCStdioFile.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Base\YCMultiFile.cpp">
-      <Filter>Source Files\Base</Filter>
-    </ClCompile>
     <ClCompile Include="Base\YCLocalMemory.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
@@ -535,9 +532,6 @@
       <Filter>Source Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="Base\YCMemory.h">
-      <Filter>Source Files\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Base\YCMultiFile.h">
       <Filter>Source Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="Base\YCStdioFile.h">
