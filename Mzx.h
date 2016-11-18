@@ -3,5 +3,5 @@
 class CMzx
 {
 public:
-	void Decompress(LPBYTE dst, DWORD len, LPBYTE src);
+	void Decompress(u8* dst, size_t length, const u8* src);
 };

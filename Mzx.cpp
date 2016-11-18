@@ -1,18 +1,18 @@
 #include "stdafx.h"
 #include "Mzx.h"
 
-void CMzx::Decompress(LPBYTE dst, DWORD len, LPBYTE src)
+void CMzx::Decompress(u8* dst, size_t length, const u8* src)
 {
-	BYTE ringbuf[128];
-	BYTE last1 = 0;
-	BYTE last2 = 0;
+	u8 ring_buffer[128];
+	u8 last1 = 0;
+	u8 last2 = 0;
 
-	LPBYTE psrc = src + 8;
-	LPBYTE pdst = dst;
-	DWORD ring_wpos = 0;
+	const u8* psrc = src + 8;
+	u8* pdst = dst;
+	u32 ring_wpos = 0;
 	int clear_count = 0;
 
-	for (DWORD i = 0; i < len; )
+	for (size_t i = 0; i < length; )
 	{
 		if (clear_count <= 0)
 		{
@@ -54,8 +54,8 @@ void CMzx::Decompress(LPBYTE dst, DWORD len, LPBYTE src)
 		}
 
 		case 2:
-			last1 = *pdst++ = ringbuf[(*psrc >> 2) * 2];
-			last2 = *pdst++ = ringbuf[(*psrc >> 2) * 2 + 1];
+			last1 = *pdst++ = ring_buffer[(*psrc >> 2) * 2];
+			last2 = *pdst++ = ring_buffer[(*psrc >> 2) * 2 + 1];
 			i += 2;
 			psrc++;
 			break;
@@ -63,8 +63,8 @@ void CMzx::Decompress(LPBYTE dst, DWORD len, LPBYTE src)
 		default:
 			for (int j = *psrc++ >> 2; j >= 0; j--)
 			{
-				last1 = ringbuf[ring_wpos++] = *pdst++ = *psrc++;
-				last2 = ringbuf[ring_wpos++] = *pdst++ = *psrc++;
+				last1 = ring_buffer[ring_wpos++] = *pdst++ = *psrc++;
+				last2 = ring_buffer[ring_wpos++] = *pdst++ = *psrc++;
 				ring_wpos &= 0x7f;
 				i += 2;
 			}
