@@ -88,13 +88,12 @@ void CArcFile::Close()
 	m_file_info_sorted.clear();
 }
 
-DWORD CArcFile::Read(void* buffer, DWORD read_size)
+u32 CArcFile::Read(void* buffer, u32 read_size)
 {
 	DWORD bytes_read;
-
 	::ReadFile(m_archive_handles[m_split_archive_id], buffer, read_size, &bytes_read, nullptr);
 
-	return bytes_read;
+	return static_cast<u32>(bytes_read);
 }
 
 bool CArcFile::ReadS8(s8* out)
@@ -137,13 +136,13 @@ bool CArcFile::ReadU64(u64* out)
 	return Read(out, sizeof(u64)) == sizeof(u64);
 }
 
-BYTE* CArcFile::ReadHed()
+u8* CArcFile::ReadHed()
 {
 	Read(m_header.data(), m_header.size());
 	return m_header.data();
 }
 
-u64 CArcFile::Seek(s64 offset, DWORD seek_mode)
+u64 CArcFile::Seek(s64 offset, u32 seek_mode)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
@@ -259,7 +258,7 @@ void CArcFile::CloseFile()
 ///
 /// @remark Obtains the decryption key from a file
 ///
-DWORD CArcFile::InitDecrypt()
+u32 CArcFile::InitDecrypt()
 {
 	m_decryption_key = 0;
 
@@ -270,7 +269,7 @@ DWORD CArcFile::InitDecrypt()
 
 	const SFileInfo* file_info = GetOpenFileInfo();
 
-	const QWORD current_pos = GetArcPointer();
+	const u64 current_pos = GetArcPointer();
 	if (current_pos != file_info->start)
 	{
 		SeekHed(file_info->start);
@@ -287,7 +286,7 @@ DWORD CArcFile::InitDecrypt()
 ///
 /// @remark Gets the decryption key from data
 ///
-DWORD CArcFile::InitDecrypt(const u8* data)
+u32 CArcFile::InitDecrypt(u8* data)
 {
 	m_decryption_key = 0;
 
@@ -301,40 +300,40 @@ DWORD CArcFile::InitDecrypt(const u8* data)
 	if (file_info->format == _T("OGG"))
 	{
 		// Ogg Vorbis
-		m_decryption_key = *(DWORD*) &data[0] ^ 0x5367674F;
+		m_decryption_key = *reinterpret_cast<u32*>(&data[0]) ^ 0x5367674F;
 	}
 	else if (file_info->format == _T("PNG"))
 	{
 		// PNG
-		m_decryption_key = *(DWORD*) &data[0] ^ 0x474E5089;
+		m_decryption_key = *reinterpret_cast<u32*>(&data[0]) ^ 0x474E5089;
 	}
 	else if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		m_decryption_key = (*(WORD*) &data[6] << 16) | *(WORD*) &data[8];
+		m_decryption_key = (*reinterpret_cast<u16*>(&data[6]) << 16) | *reinterpret_cast<u16*>(&data[8]);
 	}
 	else if ((file_info->format == _T("JPG")) || (file_info->format == _T("JPEG")))
 	{
 		// JPEG
-		m_decryption_key = *(DWORD*) &data[0] ^ 0xE0FFD8FF;
+		m_decryption_key = *reinterpret_cast<u32*>(&data[0]) ^ 0xE0FFD8FF;
 	}
 	else if ((file_info->format == _T("MPG")) || (file_info->format == _T("MPEG")))
 	{
 		// MPEG
-		m_decryption_key = *(DWORD*) &data[0] ^ 0xBA010000;
+		m_decryption_key = *reinterpret_cast<u32*>(&data[0]) ^ 0xBA010000;
 	}
 	else if (file_info->format == _T("TLG"))
 	{
 		// TLG
-		m_decryption_key = *(DWORD*) &data[4] ^ 0x7200302E;
+		m_decryption_key = *reinterpret_cast<u32*>(&data[4]) ^ 0x7200302E;
 
 		// Try to decode
-		*(DWORD*) &data[0] ^= m_decryption_key;
+		*reinterpret_cast<u32*>(&data[0]) ^= m_decryption_key;
 
-		if ((memcmp(data, "TLG5", 4) != 0) && (memcmp(data, "TLG6", 4) != 0))
+		if (memcmp(data, "TLG5", 4) != 0 && memcmp(data, "TLG6", 4) != 0)
 		{
 			// TLG0 Decision
-			m_decryption_key = *(DWORD*) &data[4] ^ 0x7300302E;
+			m_decryption_key = *reinterpret_cast<u32*>(&data[4]) ^ 0x7300302E;
 		}
 	}
 
@@ -348,9 +347,9 @@ DWORD CArcFile::InitDecrypt(const u8* data)
 ///
 /// @remark Text-only data
 ///
-DWORD CArcFile::InitDecryptForText(const u8* text_data, size_t text_data_size)
+u32 CArcFile::InitDecryptForText(const u8* text_data, size_t text_data_size)
 {
-	m_decryption_key = *(WORD*) &text_data[text_data_size - 2] ^ 0x0A0D;
+	m_decryption_key = *reinterpret_cast<const u16*>(&text_data[text_data_size - 2]) ^ 0x0A0D;
 	m_decryption_key = (m_decryption_key << 16) | m_decryption_key;
 
 	return m_decryption_key;
@@ -363,7 +362,7 @@ void CArcFile::Decrypt(u8* buffer, size_t buffer_size)
 		return;
 
 	for (size_t i = 0; i < buffer_size; i += sizeof(u32))
-		*(LPDWORD)&buffer[i] ^= m_decryption_key;
+		*reinterpret_cast<u32*>(&buffer[i]) ^= m_decryption_key;
 }
 
 /// Write File
@@ -514,7 +513,7 @@ YCString CArcFile::SetFileFormat(const YCString& file_path)
 }
 
 /// Function that separates every three digits in the filesize by commas
-YCString CArcFile::SetCommaFormat(DWORD size)
+YCString CArcFile::SetCommaFormat(u32 size)
 {
 	TCHAR buf[256];
 	_stprintf(buf, _T("%u"), size);

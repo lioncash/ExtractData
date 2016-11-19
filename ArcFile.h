@@ -21,7 +21,7 @@ public:
 	bool Open(LPCTSTR archive_path);
 	void Close();
 
-	DWORD Read(void* buffer, DWORD read_size);
+	u32 Read(void* buffer, u32 read_size);
 	bool ReadS8(s8* out);
 	bool ReadS16(s16* out);
 	bool ReadS32(s32* out);
@@ -30,7 +30,7 @@ public:
 	bool ReadU16(u16* out);
 	bool ReadU32(u32* out);
 	bool ReadU64(u64* out);
-	BYTE* ReadHed();
+	u8* ReadHed();
 
 	template <typename T, size_t N>
 	bool ReadArray(T (&arr)[N])
@@ -41,7 +41,7 @@ public:
 		return Read(arr, bytes_to_read) == bytes_to_read;
 	}
 
-	u64 Seek(s64 offset, DWORD seek_mode);
+	u64 Seek(s64 offset, u32 seek_mode);
 	u64 SeekHed(s64 offset = 0);
 	u64 SeekEnd(s64 offset = 0);
 	u64 SeekCur(s64 offset);
@@ -61,9 +61,9 @@ public:
 	void  ReadWrite(DWORD file_size);
 
 	// Simple decoding
-	DWORD InitDecrypt();
-	DWORD InitDecrypt(const u8* data);
-	DWORD InitDecryptForText(const u8* text_data, size_t text_data_size);
+	u32 InitDecrypt();
+	u32 InitDecrypt(u8* data);
+	u32 InitDecryptForText(const u8* text_data, size_t text_data_size);
 	void  Decrypt(u8* buffer, size_t buffer_size);
 
 	// File information to be added to the list in the archive
@@ -71,11 +71,11 @@ public:
 	void AddFileInfo(SFileInfo& file_info , u32& file_number, LPCTSTR file_extension);
 
 	YCString SetFileFormat(const YCString& file_path);
-	YCString SetCommaFormat(DWORD size);
+	YCString SetCommaFormat(u32 size);
 
 	// Initialization processes performed prior to decoding/mounting
-	void SetFileInfo(DWORD num)              { m_file_info = &(*m_entries)[num]; m_split_archive_id = m_file_info->arcsID; m_file_info_num = num; }
-	void SetArcID(DWORD archive_id)          { m_archive_id = archive_id; }
+	void SetFileInfo(size_t num)             { m_file_info = &(*m_entries)[num]; m_split_archive_id = m_file_info->arcsID; m_file_info_num = num; }
+	void SetArcID(u32 archive_id)            { m_archive_id = archive_id; }
 	void SetEnt(std::vector<SFileInfo>& ent) { m_entries = &ent; m_start_entry_index = ent.size(); }
 	void SetProg(CProgBar& prog)             { m_progress_bar = &prog; }
 	void SetOpt(SOption* option)             { m_option = option; }
@@ -85,27 +85,27 @@ public:
 	void SetState(bool state) { m_state = state; }
 
 	// Split files support
-	void            SetFirstArc()               { m_split_archive_id = 0; }
-	void            SetNextArc()                { m_split_archive_id++; }
-	HANDLE          GetArcHandle()              { return m_archive_handles[m_split_archive_id]; }
-	void            SetArcsID(DWORD archive_id) { m_split_archive_id = archive_id; }
-	DWORD           GetArcsID()   const         { return m_split_archive_id; }
-	size_t          GetArcCount() const         { return m_archive_handles.size(); }
-	const YCString& GetArcPath()  const         { return m_archive_paths[m_split_archive_id]; }
-	const YCString& GetArcName()  const         { return m_archive_names[m_split_archive_id]; }
-	const YCString& GetArcExten() const         { return m_archive_extensions[m_split_archive_id]; }
+	void            SetFirstArc()             { m_split_archive_id = 0; }
+	void            SetNextArc()              { m_split_archive_id++; }
+	HANDLE          GetArcHandle()            { return m_archive_handles[m_split_archive_id]; }
+	void            SetArcsID(u32 archive_id) { m_split_archive_id = archive_id; }
+	u32             GetArcsID()   const       { return m_split_archive_id; }
+	size_t          GetArcCount() const       { return m_archive_handles.size(); }
+	const YCString& GetArcPath()  const       { return m_archive_paths[m_split_archive_id]; }
+	const YCString& GetArcName()  const       { return m_archive_names[m_split_archive_id]; }
+	const YCString& GetArcExten() const       { return m_archive_extensions[m_split_archive_id]; }
 
 	// Returns previously loaded archive file header
 	LPBYTE GetHed() { return m_header.data(); }
 
-	SFileInfo*              GetFileInfo(DWORD num) const { return &(*m_entries)[num]; }
+	SFileInfo*              GetFileInfo(size_t num) const { return &(*m_entries)[num]; }
 	SFileInfo*              GetFileInfo(LPCTSTR filepath, bool compare_filename_only = false) const;
 	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR file_name);
 	std::vector<SFileInfo>& GetFileInfo() const        { return *m_entries; }
 	SFileInfo*              GetOpenFileInfo() const    { return m_file_info; }
-	DWORD                   GetOpenFileInfoNum() const { return m_file_info_num; }
+	size_t                  GetOpenFileInfoNum() const { return m_file_info_num; }
 
-	DWORD     GetArcID() const          { return m_archive_id; }
+	u32       GetArcID() const          { return m_archive_id; }
 	size_t    GetStartEnt() const       { return m_start_entry_index; }
 	size_t    GetCtEnt() const          { return m_entry_count; }
 	CProgBar* GetProg() const           { return m_progress_bar; }
@@ -165,17 +165,17 @@ private:
 	std::vector<SFileInfo>  m_file_info_sorted;
 
 	// Archive file split support
-	DWORD                   m_split_archive_id;
+	u32                     m_split_archive_id;
 	std::vector<HANDLE>     m_archive_handles;
 	std::vector<YCString>   m_archive_paths;
 	std::vector<YCString>   m_archive_names;
 	std::vector<YCString>   m_archive_extensions;
 
 	std::array<BYTE, 2048>  m_header;
-	DWORD                   m_archive_id;
+	u32                     m_archive_id;
 	size_t                  m_start_entry_index;  // Starting index of the archive file information
 	size_t                  m_entry_count;        // Number of archive file information
-	DWORD                   m_file_info_num;
+	size_t                  m_file_info_num;
 
 	bool                    m_state = false;
 
@@ -186,7 +186,7 @@ private:
 	YCString                m_file_path;
 	LPCTSTR                 m_save_dir;
 
-	DWORD                   m_decryption_key;
+	u32                     m_decryption_key;
 
 	bool                    m_mounted_with_susie = false;   // Check if Susie was used to mount a plugin
 
