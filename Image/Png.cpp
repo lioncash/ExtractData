@@ -246,7 +246,7 @@ bool CPng::Decompress()
 }
 
 /// Initialization
-bool CPng::OnInit(const YCString& rfclsFileName)
+bool CPng::OnInit(const YCString& file_name)
 {
 	int nColorType;
 
@@ -292,7 +292,7 @@ bool CPng::OnInit(const YCString& rfclsFileName)
 	png_set_IHDR(m_png_ptr, m_info_ptr, m_lWidth, m_lHeight, 8, nColorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Open the output file
-	m_pclArc->OpenFile(rfclsFileName);
+	m_pclArc->OpenFile(file_name);
 
 	// Output header
 	png_write_info(m_png_ptr, m_info_ptr);
@@ -302,32 +302,32 @@ bool CPng::OnInit(const YCString& rfclsFileName)
 
 /// Create Palette
 ///
-/// @param pvSrcPallet     Reference palette
-/// @param dwSrcPalletSize Reference palette size
+/// @param src_pallet      Reference palette
+/// @param src_pallet_size Reference palette size
 ///
-bool CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
+bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 {
 	png_colorp  pstPallet = m_astPallet;
-	const BYTE* pbtSrcPallet = reinterpret_cast<const BYTE*>(pvSrcPallet);
+	const u8* pbtSrcPallet = reinterpret_cast<const u8*>(src_pallet);
 
 	ZeroMemory(m_astPallet, sizeof(m_astPallet));
 
 	// Use the default palette (Grayscale)
 	if (pbtSrcPallet == nullptr)
 	{
-		for (int i = 0; i < 256; i++)
+		for (size_t i = 0; i < 256; i++)
 		{
-			pstPallet[i].blue = i;
-			pstPallet[i].green = i;
-			pstPallet[i].red = i;
+			pstPallet[i].blue = static_cast<u8>(i);
+			pstPallet[i].green = static_cast<u8>(i);
+			pstPallet[i].red = static_cast<u8>(i);
 		}
 	}
 	else // Refer to the palette
 	{
 		// 1024 byte palette
-		if (dwSrcPalletSize == 1024)
+		if (src_pallet_size == 1024)
 		{
-			for (int i = 0; i < 256; i++)
+			for (size_t i = 0; i < 256; i++)
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
 				pstPallet[i].green = *pbtSrcPallet++;
@@ -336,9 +336,9 @@ bool CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 			}
 		}
 		// 768 byte palette (No alpha)
-		else if (dwSrcPalletSize == 768)
+		else if (src_pallet_size == 768)
 		{
-			for (int i = 0; i < 256; i++)
+			for (size_t i = 0; i < 256; i++)
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
 				pstPallet[i].green = *pbtSrcPallet++;
@@ -348,7 +348,7 @@ bool CPng::OnCreatePallet(const void* pvSrcPallet, DWORD dwSrcPalletSize)
 		// Other palette sizes
 		else
 		{
-			for (size_t i = 0; i < dwSrcPalletSize / 4; i++)
+			for (size_t i = 0; i < src_pallet_size / 4; i++)
 			{
 				pstPallet[i].blue = *pbtSrcPallet++;
 				pstPallet[i].green = *pbtSrcPallet++;

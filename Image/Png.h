@@ -35,8 +35,8 @@ private:
 		DWORD dwDataPtr;
 	};
 
-	bool OnInit(const YCString& rfclsFileName) override;
-	bool OnCreatePallet(const void* pvPallet, DWORD dwPalletSize) override;
+	bool OnInit(const YCString& file_name) override;
+	bool OnCreatePallet(const void* pallet, size_t pallet_size) override;
 
 	void WriteLine(const void* pvBuffer) override;
 	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;

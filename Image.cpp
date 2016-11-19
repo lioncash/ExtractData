@@ -39,7 +39,7 @@ bool CImage::Decode(CArcFile* archive)
 bool CImage::Init(CArcFile* archive, void* bmp, const YCString& file_name)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
-	BYTE*            src = static_cast<BYTE*>(bmp);
+	u8*              src = static_cast<u8*>(bmp);
 
 	if (file_info->format == _T("BMP") && file_info->title == _T("") && file_info->key == 0)
 	{
@@ -78,7 +78,7 @@ bool CImage::Init(CArcFile* archive, void* bmp, const YCString& file_name)
 /// @param pallet_size Palette size
 /// @param file_name   File name
 ///
-bool CImage::Init(CArcFile* archive, long width, long height, WORD bpp, const void* pallet, DWORD pallet_size, const YCString& file_name)
+bool CImage::Init(CArcFile* archive, long width, long height, u16 bpp, const void* pallet, size_t pallet_size, const YCString& file_name)
 {
 	m_archive = archive;
 	m_option = archive->GetOpt();
@@ -121,7 +121,7 @@ void CImage::Close()
 /// @param bmp_size BMP Size
 /// @param progress Request progress bar status
 ///
-bool CImage::Write(DWORD bmp_size, bool progress)
+bool CImage::Write(size_t bmp_size, bool progress)
 {
 	return Write(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -132,7 +132,7 @@ bool CImage::Write(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Request progress bar status
 ///
-bool CImage::Write(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::Write(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)
@@ -158,7 +158,7 @@ bool CImage::Write(const void* bmp_data, DWORD bmp_data_size, bool progress)
 /// @param bmp_size BMP Size
 /// @param progress Request progress bar status
 ///
-bool CImage::WriteReverse(DWORD bmp_size, bool progress)
+bool CImage::WriteReverse(size_t bmp_size, bool progress)
 {
 	return WriteReverse(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -169,7 +169,7 @@ bool CImage::WriteReverse(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Request progress bar status
 ///
-bool CImage::WriteReverse(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::WriteReverse(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)
@@ -195,7 +195,7 @@ bool CImage::WriteReverse(const void* bmp_data, DWORD bmp_data_size, bool progre
 /// @param bmp_size BMP Size
 /// @param progress Request BMP status
 ///
-bool CImage::WriteCompoBGRA(DWORD bmp_size, bool progress)
+bool CImage::WriteCompoBGRA(size_t bmp_size, bool progress)
 {
 	return WriteCompoBGRA(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -206,7 +206,7 @@ bool CImage::WriteCompoBGRA(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Request progress bar status
 ///
-bool CImage::WriteCompoBGRA(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::WriteCompoBGRA(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)
@@ -232,7 +232,7 @@ bool CImage::WriteCompoBGRA(const void* bmp_data, DWORD bmp_data_size, bool prog
 /// @param bmp_size BMP Size
 /// @param progress Request progress bar status
 ///
-bool CImage::WriteCompoBGRAReverse(DWORD bmp_size, bool progress)
+bool CImage::WriteCompoBGRAReverse(size_t bmp_size, bool progress)
 {
 	return WriteCompoBGRAReverse(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -243,7 +243,7 @@ bool CImage::WriteCompoBGRAReverse(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Request progress bar status 
 ///
-bool CImage::WriteCompoBGRAReverse(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::WriteCompoBGRAReverse(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)
@@ -269,7 +269,7 @@ bool CImage::WriteCompoBGRAReverse(const void* bmp_data, DWORD bmp_data_size, bo
 /// @param bmp_size BMP Size
 /// @param progress Request progress bar status
 ///
-bool CImage::WriteCompoRGBA(DWORD bmp_size, bool progress)
+bool CImage::WriteCompoRGBA(size_t bmp_size, bool progress)
 {
 	return WriteCompoRGBA(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -280,7 +280,7 @@ bool CImage::WriteCompoRGBA(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Request progress bar status
 ///
-bool CImage::WriteCompoRGBA(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::WriteCompoRGBA(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)
@@ -305,7 +305,7 @@ bool CImage::WriteCompoRGBA(const void* bmp_data, DWORD bmp_data_size, bool prog
 /// @param bmp_size BMP Size
 /// @param progress Request progress bar status
 ///
-bool CImage::WriteCompoRGBAReverse(DWORD bmp_size, bool progress)
+bool CImage::WriteCompoRGBAReverse(size_t bmp_size, bool progress)
 {
 	return WriteCompoRGBAReverse(&m_bmp_data[m_bmp_file_header->bfOffBits], bmp_size - m_bmp_file_header->bfOffBits, progress);
 }
@@ -316,7 +316,7 @@ bool CImage::WriteCompoRGBAReverse(DWORD bmp_size, bool progress)
 /// @param bmp_data_size BMP Data Size
 /// @param progress      Requesting progress bar status
 /// 
-bool CImage::WriteCompoRGBAReverse(const void* bmp_data, DWORD bmp_data_size, bool progress)
+bool CImage::WriteCompoRGBAReverse(const void* bmp_data, size_t bmp_data_size, bool progress)
 {
 	// Invalid BMP
 	if (!m_is_valid_bmp_header)

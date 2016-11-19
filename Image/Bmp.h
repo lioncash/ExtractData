@@ -13,7 +13,7 @@ private:
 	RGBQUAD          m_pallet[256];
 
 	bool OnInit(const YCString& file_name) override;
-	bool OnCreatePallet(const void* pallet, DWORD pallet_size) override;
+	bool OnCreatePallet(const void* pallet, size_t pallet_size) override;
 
 	void WriteHed(const YCString& file_name);
 	void WriteLine(const void* buffer) override;

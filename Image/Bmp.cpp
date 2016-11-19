@@ -79,9 +79,9 @@ void CBmp::WriteHed(const YCString& file_name)
 /// @param src_pallet      Source (referenced) palette
 /// @param src_pallet_size Size Source (reference) palette size
 ///
-bool CBmp::OnCreatePallet(const void* src_pallet, DWORD src_pallet_size)
+bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 {
-	const BYTE* byte_src_pallet = reinterpret_cast<const BYTE*>(src_pallet);
+	const u8* byte_src_pallet = reinterpret_cast<const u8*>(src_pallet);
 
 	ZeroMemory(m_pallet, sizeof(m_pallet));
 
