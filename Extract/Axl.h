@@ -5,14 +5,14 @@
 class CAxl final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	void InitMountKey(LPVOID deckey);
-	bool CreateKey(LPBYTE key, LPINT key_len, LPBYTE pIndex, DWORD index_size);
-	bool DecryptIndex(LPBYTE pIndex, DWORD index_size, QWORD arcSize);
+	void InitMountKey(const void* decryption_key);
+	bool CreateKey(u8* key, size_t* key_length, const u8* index, size_t index_size);
+	bool DecryptIndex(u8* index, size_t index_size, u64 archive_size);
 
-	BYTE m_deckey[32] = {};
-	DWORD m_len = 0;
+	u8 m_decryption_key[32] = {};
+	size_t m_length = 0;
 };
