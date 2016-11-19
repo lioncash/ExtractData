@@ -39,14 +39,14 @@ public:
 	virtual void Mount(CArcFile* archive) = 0;
 
 private:
-	// Pattern string
-	struct HF
+	struct Pattern
 	{
+		// Pattern string
 		u8  pattern[32];
 		u32 size;
 	};
 
-	std::array<HF, 2> m_pattern;
+	std::array<Pattern, 2> m_pattern;
 	u32 m_offset = 0;
 	u32 m_num_files = 0;
 	void InitPattern(const void* pattern, u32 size, u32 num);
