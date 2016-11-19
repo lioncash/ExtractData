@@ -4,14 +4,14 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPajamas::Mount(CArcFile* pclArc)
+bool CPajamas::Mount(CArcFile* archive)
 {
-	if (MountDat1(pclArc))
+	if (MountDat1(archive))
 		return true;
 
-	if (MountDat2(pclArc))
+	if (MountDat2(archive))
 		return true;
 
 	return false;
@@ -19,54 +19,54 @@ bool CPajamas::Mount(CArcFile* pclArc)
 
 /// GAMEDAT PACK Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPajamas::MountDat1(CArcFile* pclArc)
+bool CPajamas::MountDat1(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".dat")) && (pclArc->GetArcExten() != _T(".pak")))
+	if (archive->GetArcExten() != _T(".dat") && archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "GAMEDAT PACK", 12) != 0)
+	if (memcmp(archive->GetHed(), "GAMEDAT PACK", 12) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(12);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(12);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	DWORD dwIndexSize = dwFiles * 24;
+	const u32 index_size = num_files * 24;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD          dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get index of the file information
-	DWORD dwFileNameIndexSize = dwFiles << 4;
-	BYTE* pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
+	const u32 file_name_index_size = num_files << 4;
+	const u8* file_info_index = &index[file_name_index_size];
 
 	// Get offset (Required for correction when the starting address is zero-based)
-	DWORD dwOffset = 16 + dwIndexSize;
+	const u32 offset = 16 + index_size;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	u32 index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		TCHAR szFileName[16];
-		memcpy(szFileName, &clmbtIndex[dwIndexPtr], 16);
+		TCHAR file_name[16];
+		memcpy(file_name, &index[index_ptr], 16);
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(DWORD*)&pbtFileInfoIndex[0] + dwOffset;
-		stFileInfo.sizeCmp = *(DWORD*)&pbtFileInfoIndex[4];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(const u32*)&file_info_index[0] + offset;
+		file_info.sizeCmp = *(const u32*)&file_info_index[4];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 16;
-		pbtFileInfoIndex += 8;
+		index_ptr += 16;
+		file_info_index += 8;
 	}
 
 	return true;
@@ -74,54 +74,54 @@ bool CPajamas::MountDat1(CArcFile* pclArc)
 
 // GAMEDAT PAC2 Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPajamas::MountDat2(CArcFile* pclArc)
+bool CPajamas::MountDat2(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".dat"))
+	if (archive->GetArcExten() != _T(".dat"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "GAMEDAT PAC2", 12) != 0)
+	if (memcmp(archive->GetHed(), "GAMEDAT PAC2", 12) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(12);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(12);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	DWORD dwIndexSize = dwFiles * 40;
+	const u32 index_size = num_files * 40;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD         dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get index of the file information
-	DWORD dwFileNameIndexSize = dwFiles << 5;
-	BYTE* pbtFileInfoIndex = &clmbtIndex[dwFileNameIndexSize];
+	const u32 file_name_index_size = num_files << 5;
+	const u8* file_info_index = &index[file_name_index_size];
 
 	// Get offset (Required for correction when the starting address is zero-based)
-	DWORD dwOffset = 16 + dwIndexSize;
+	const u32 offset = 16 + index_size;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	size_t index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		TCHAR szFileName[32];
-		memcpy(szFileName, &clmbtIndex[dwIndexPtr], 32);
+		TCHAR file_name[32];
+		memcpy(file_name, &index[index_ptr], 32);
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(DWORD*)&pbtFileInfoIndex[0] + dwOffset;
-		stFileInfo.sizeCmp = *(DWORD*)&pbtFileInfoIndex[4];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(const u32*)&file_info_index[0] + offset;
+		file_info.sizeCmp = *(const u32*)&file_info_index[4];
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 32;
-		pbtFileInfoIndex += 8;
+		index_ptr += 32;
+		file_info_index += 8;
 	}
 
 	return true;
@@ -129,11 +129,11 @@ bool CPajamas::MountDat2(CArcFile* pclArc)
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPajamas::Decode(CArcFile* pclArc)
+bool CPajamas::Decode(CArcFile* archive)
 {
-	if (DecodeEPA(pclArc))
+	if (DecodeEPA(archive))
 		return true;
 
 	return false;
@@ -141,153 +141,149 @@ bool CPajamas::Decode(CArcFile* pclArc)
 
 /// EPA Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CPajamas::DecodeEPA(CArcFile* pclArc)
+bool CPajamas::DecodeEPA(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("EPA"))
 		return false;
 
 	// Read header
-	BYTE abtHeader[16];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
+	std::array<u8, 16> header;
+	archive->Read(header.data(), header.size());
 
 	// Difference flag, Number of colors, width, height
-	BYTE btDiffFlag = abtHeader[3];
-	WORD wBpp = abtHeader[4];
-	long lWidth = *(long*)&abtHeader[8];
-	long lHeight = *(long*)&abtHeader[12];
+	const u8 diff_flag = header[3];
+	u16 bpp = header[4];
+	const s32 width = *(s32*)&header[8];
+	const s32 height = *(s32*)&header[12];
 
-	switch (wBpp)
+	switch (bpp)
 	{
 	case 0:
-		wBpp = 8;
+		bpp = 8;
 		break;
 
 	case 1:
-		wBpp = 24;
+		bpp = 24;
 		break;
 
 	case 2:
-		wBpp = 32;
+		bpp = 32;
 		break;
 
 	case 4:
-		wBpp = 8;
+		bpp = 8;
 		break;
 	}
 
-	switch (btDiffFlag)
+	switch (diff_flag)
 	{
 	case 1: // Usual
 		break;
 
 	case 2: // Difference
-		pclArc->SeekCur(40);
+		archive->SeekCur(40);
 		break;
 
 	default: // Unknown
-		pclArc->SeekHed(file_info->start);
+		archive->SeekHed(file_info->start);
 		return false;
 	}
 
 	// Read palette
-	BYTE abtPallet[768];
-	if (wBpp == 8)
+	std::array<u8, 768> pallet;
+	if (bpp == 8)
 	{
-		pclArc->Read(abtPallet, sizeof(abtPallet));
+		archive->Read(pallet.data(), pallet.size());
 	}
 
 	// Read EPA data
-	DWORD dwSrcSize = file_info->sizeCmp - 16;
-	if (wBpp == 8)
+	size_t src_size = file_info->sizeCmp - 16;
+	if (bpp == 8)
 	{
-		dwSrcSize -= sizeof(abtPallet);
+		src_size -= pallet.size();
 	}
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src_size);
 
 	// Secure area to store the BMP data
-	DWORD dwDstSize = lWidth * lHeight * (wBpp >> 3);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
-	ZeroMemory(&clmbtDst[0], dwDstSize);
+	const size_t dst_size = width * height * (bpp >> 3);
+	std::vector<u8> dst(dst_size);
 
 	// Decompress EPA
-	DecompEPA(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize, lWidth);
+	DecompEPA(dst.data(), dst_size, src.data(), src_size, static_cast<u32>(width));
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp, abtPallet, sizeof(abtPallet));
-	clImage.WriteCompoBGRAReverse(&clmbtDst[0], dwDstSize);
+	CImage image;
+	image.Init(archive, width, height, bpp, pallet.data(), pallet.size());
+	image.WriteCompoBGRAReverse(dst.data(), dst.size());
 
 	return true;
 }
 
 /// EPA Decompression
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
 ///
-bool CPajamas::DecompEPA(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth)
+bool CPajamas::DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
 	// Offset table
-	const DWORD adwOffsets[16] =
+	const u32 offsets[16] =
 	{
-		0, 1, lWidth, lWidth + 1,
-		2, lWidth - 1, lWidth << 1, 3,
-		(lWidth << 1) + 2, lWidth + 2, (lWidth << 1) + 1, (lWidth << 1) - 1,
-		(lWidth << 1) - 2, lWidth - 2, lWidth * 3, 4
+		0, 1, width, width + 1,
+		2, width - 1, width << 1, 3,
+		(width << 1) + 2, width + 2, (width << 1) + 1, (width << 1) - 1,
+		(width << 1) - 2, width - 2, width * 3, 4
 	};
 
 	// Decompression
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		BYTE btCode = pbtSrc[dwSrcPtr++];
-		DWORD dwLength = btCode & 0x07;
+		u8 code = src[src_ptr++];
+		u32 length = code & 0x07;
 
-		if (btCode & 0xF0)
+		if (code & 0xF0)
 		{
-			if (btCode & 0x08)
+			if (code & 0x08)
 			{
-				dwLength = (dwLength << 8) + pbtSrc[dwSrcPtr++];
+				length = (length << 8) + src[src_ptr++];
 			}
 
-			if (dwLength != 0)
+			if (length != 0)
 			{
-				btCode >>= 4;
+				code >>= 4;
 
-				DWORD dwBack = dwDstPtr - adwOffsets[btCode];
+				const u32 back = dst_ptr - offsets[code];
 
-				if ((dwDstPtr + dwLength) > dwDstSize)
+				if (dst_ptr + length > dst_size)
 				{
 					// Exceeds output buffer
-					dwLength = (dwDstSize - dwDstPtr);
+					length = dst_size - dst_ptr;
 				}
 
-				for (DWORD i = 0; i < dwLength; i++)
+				for (size_t i = 0; i < length; i++)
 				{
-					pbtDst[dwDstPtr + i] = pbtDst[dwBack + i];
+					dst[dst_ptr + i] = dst[back + i];
 				}
 
-				dwDstPtr += dwLength;
+				dst_ptr += length;
 			}
 		}
-		else if (btCode != 0)
+		else if (code != 0)
 		{
-			memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], btCode);
+			memcpy(&dst[dst_ptr], &src[src_ptr], code);
 
-			dwSrcPtr += btCode;
-			dwDstPtr += btCode;
+			src_ptr += code;
+			dst_ptr += code;
 		}
 	}
 

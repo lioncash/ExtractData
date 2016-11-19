@@ -5,14 +5,14 @@
 class CPajamas final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool MountDat1(CArcFile* pclArc);
-	bool MountDat2(CArcFile* pclArc);
+	bool MountDat1(CArcFile* archive);
+	bool MountDat2(CArcFile* archive);
 
-	bool DecodeEPA(CArcFile* pclArc);
+	bool DecodeEPA(CArcFile* archive);
 
-	bool DecompEPA(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, long lWidth);
+	bool DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width);
 };
