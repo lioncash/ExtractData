@@ -2,88 +2,84 @@
 #include "../Arc/Zlib.h"
 #include "../Image.h"
 #include "Alcot.h"
-#include "Utils/ArrayUtils.h"
 
-bool CAlcot::Mount(CArcFile* pclArc)
+bool CAlcot::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".arc")) || (memcmp(pclArc->GetHed(), "ARC\x1a", 4) != 0))
+	if (archive->GetArcExten() != _T(".arc") || memcmp(archive->GetHed(), "ARC\x1a", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(8, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->Seek(8, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	//Get compressed index size
-	DWORD index_compsize;
-	pclArc->Read(&index_compsize, 4);
+	u32 index_comp_size;
+	archive->ReadU32(&index_comp_size);
 
 	// Get compressed index
-	YCMemory<BYTE> z_index(index_compsize);
-	LPBYTE z_pIndex = &z_index[0];
-	pclArc->Seek(0x30, FILE_BEGIN);
-	pclArc->Read(z_pIndex, index_compsize);
+	std::vector<u8> z_index(index_comp_size);
+	archive->Seek(0x30, FILE_BEGIN);
+	archive->Read(z_index.data(), z_index.size());
 
 	// Get index size
-	DWORD index_size = *(LPDWORD)&z_index[16];
+	const size_t index_size = *(const u32*)&z_index[16];
 
-	// Secure space to store the index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
+	// Decompress the index
+	std::vector<u8> index(index_size);
+	Decomp(index.data(), index.size(), z_index.data());
 
-	// Unzipped index
-	Decomp(pIndex, index_size, z_pIndex);
+	const size_t offset = index_comp_size + 0x30;
+	const size_t size = index_size / num_files;
+	const size_t file_name_length = size - 16;
 
-	DWORD offset = index_compsize + 0x30;
-	DWORD size = index_size / ctFile;
-	DWORD FileNameLen = size - 16;
-
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		TCHAR szFileName[48];
-		memcpy(szFileName, &pIndex[16], FileNameLen);
+		TCHAR file_name[48];
+		memcpy(file_name, &index_ptr[16], file_name_length);
 
 		// Add to the listview
 		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4];
+		infFile.name = file_name;
+		infFile.sizeOrg = *(const u32*)&index_ptr[4];
 		infFile.sizeCmp = infFile.sizeOrg;
-		infFile.start = *(LPDWORD)&pIndex[0] + offset;
+		infFile.start = *(const u32*)&index_ptr[0] + offset;
 		infFile.end = infFile.start + infFile.sizeOrg;
-		pclArc->AddFileInfo(infFile);
+		archive->AddFileInfo(infFile);
 
-		pIndex += size;
+		index_ptr += size;
 	}
 
 	return true;
 }
 
-bool CAlcot::Decode(CArcFile* pclArc)
+bool CAlcot::Decode(CArcFile* archive)
 {
-	if (DecodeASB(pclArc))
+	if (DecodeASB(archive))
 		return true;
 
-	if (DecodeCPB(pclArc))
+	if (DecodeCPB(archive))
 		return true;
 
 	return false;
 }
 
-bool CAlcot::DecodeASB(CArcFile* pclArc)
+bool CAlcot::DecodeASB(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("ASB"))
 		return false;
 
 	// Reading
-	YCMemory<BYTE> z_buf(file_info->sizeCmp);
-	pclArc->Read(&z_buf[0], file_info->sizeCmp);
+	std::vector<u8> z_buf(file_info->sizeCmp);
+	archive->Read(z_buf.data(), z_buf.size());
 
 	// Get size
-	DWORD z_buf_len = *(LPDWORD)&z_buf[4];
-	DWORD buf_len = *(LPDWORD)&z_buf[8];
+	const u32 z_buf_len = *(u32*)&z_buf[4];
+	const u32 buf_len = *(u32*)&z_buf[8];
 
 	// Decryption
 	Decrypt(&z_buf[12], z_buf_len, buf_len);
@@ -91,45 +87,45 @@ bool CAlcot::DecodeASB(CArcFile* pclArc)
 	// ASB not supported, lets force support
 	if (memcmp(&z_buf[16], "\x78\xDA", 2) != 0)
 	{
-		DWORD key = ((*(LPDWORD)&z_buf[16] - 0x78) ^ buf_len) & 0xFF;
-		YCMemory<BYTE> tmp(z_buf_len);
+		const u32 key = ((*(u32*)&z_buf[16] - 0x78) ^ buf_len) & 0xFF;
+		std::vector<u8> tmp(z_buf_len);
 
-		for (QWORD i = 0; i < 0xFFFFFFFFULL; i += 0x00000100ULL)
+		for (u64 i = 0; i < 0xFFFFFFFFULL; i += 0x00000100ULL)
 		{
-			DWORD x = static_cast<DWORD>(i | key);
-			memcpy(&tmp[0], &z_buf[16], z_buf_len);
+			const u32 x = static_cast<u32>(i | key);
+			memcpy(tmp.data(), &z_buf[16], z_buf_len);
 
-			DWORD key2 = buf_len ^ x;
+			u32 key2 = buf_len ^ x;
 			key2 ^= ((key2 << 0x0C) | key2) << 0x0B;
 
-			DWORD tmp2 = *(LPDWORD)&z_buf[16] - key2;
+			const u32 tmp2 = *(u32*)&z_buf[16] - key2;
 			if ((tmp2 & 0x0000FFFF) != 0xDA78)
 			{
 				continue;
 			}
 
-			for (DWORD j = 0; j < z_buf_len / 4; j++)
+			for (size_t j = 0; j < z_buf_len / sizeof(u32); j++)
 			{
-				*(LPDWORD)&tmp[j*4] -= key2;
+				*(u32*)&tmp[j * sizeof(u32)] -= key2;
 			}
 
 			// Decompression
 			CZlib zlib;
-			YCMemory<BYTE> buf(buf_len);
-			zlib.Decompress(&buf[0], buf_len, &tmp[0], z_buf_len);
+			std::vector<u8> buf(buf_len);
+			zlib.Decompress(buf.data(), buf.size(), tmp.data(), z_buf_len);
 
-			BYTE a[20] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			
-			if (memcmp(&buf[buf_len-20], a, 20) == 0)
+			constexpr std::array<u8, 20> a{{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+
+			if (memcmp(&buf[buf_len - a.size()], a.data(), a.size()) == 0)
 			{
 				TCHAR mes[256];
 				_stprintf(mes, _T("Decryption key of this game is %08X . \n We may be able to support this archive type if you report it to us"), x);
-				MessageBox(pclArc->GetProg()->GetHandle(), mes, _T("Decryption Key"), MB_OK);
+				MessageBox(archive->GetProg()->GetHandle(), mes, _T("Decryption Key"), MB_OK);
 
 				_stprintf(mes, _T("_%08X.txt"), x);
-				pclArc->OpenFile(mes);
-				pclArc->WriteFile(&buf[0], buf_len);
-				pclArc->CloseFile();
+				archive->OpenFile(mes);
+				archive->WriteFile(buf.data(), buf.size());
+				archive->CloseFile();
 			}
 		}
 		return true;
@@ -137,91 +133,90 @@ bool CAlcot::DecodeASB(CArcFile* pclArc)
 
 	// Decompression
 	CZlib zlib;
-	YCMemory<BYTE> buf(buf_len);
-	zlib.Decompress(&buf[0], buf_len, &z_buf[16], z_buf_len);
+	std::vector<u8> buf(buf_len);
+	zlib.Decompress(buf.data(), buf.size(), &z_buf[16], z_buf_len);
 
-	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&buf[0], buf_len);
+	archive->OpenScriptFile();
+	archive->WriteFile(buf.data(), buf.size());
 
 	return true;
 }
 
-bool CAlcot::DecodeCPB(CArcFile* pclArc)
+bool CAlcot::DecodeCPB(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("CPB"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> z_buf(file_info->sizeCmp);
-	LPBYTE z_pbuf = &z_buf[0];
-	pclArc->Read(z_pbuf, file_info->sizeCmp);
+	std::vector<u8> z_buf(file_info->sizeCmp);
+	archive->Read(z_buf.data(), z_buf.size());
+	u8* z_pbuf = z_buf.data();
 
-	BYTE type = z_buf[4];
-	BYTE bpp = z_buf[5];
-	BYTE colors = bpp >> 3;
+	const u8 type = z_buf[4];
+	const u8 bpp = z_buf[5];
+	const u8 colors = bpp >> 3;
 
-	LONG width;
-	LONG height;
+	s32 width;
+	s32 height;
 
-	DWORD z_colorSize[4];
-	DWORD buf_len;
-	YCMemory<BYTE> buf;
+	std::array<u32, 4> z_color_size;
+	size_t buf_len;
+	std::vector<u8> buf;
 
 	// Triptych
 	if (type == 0)
 	{
 		// Product version
-		if (*(LPWORD)&z_buf[6] == 1)
-			width = *(LPWORD)&z_buf[12];
+		if (*(u16*)&z_buf[6] == 1)
+			width = *(u16*)&z_buf[12];
 		// Trial Version
-		else if (*(LPWORD)&z_buf[6] == 0x100)
-			width = *(LPWORD)&z_buf[8];
-		// Other
-		else
-			return FALSE;
+		else if (*(u16*)&z_buf[6] == 0x100)
+			width = *(u16*)&z_buf[8];
+		else // Other
+			return false;
 
-		height = *(LPWORD)&z_buf[14];
+		height = *(u16*)&z_buf[14];
 
-		DWORD colorSize = width * height;
+		const u32 color_size = width * height;
 
-		buf_len = colorSize * colors;
+		buf_len = color_size * colors;
 		buf.resize(buf_len);
-		LPBYTE pbuf = &buf[0];
+		u8* pbuf = buf.data();
 		pbuf += buf_len;
 
-		z_colorSize[0] = *(LPDWORD)&z_buf[16];
-		z_colorSize[1] = *(LPDWORD)&z_buf[28];
-		z_colorSize[2] = *(LPDWORD)&z_buf[20];
-		z_colorSize[3] = *(LPDWORD)&z_buf[24];
+		z_color_size[0] = *(u32*)&z_buf[16];
+		z_color_size[1] = *(u32*)&z_buf[28];
+		z_color_size[2] = *(u32*)&z_buf[20];
+		z_color_size[3] = *(u32*)&z_buf[24];
 
 		CZlib zlib;
 		z_pbuf += 0x20;
-		for (int i = 0; i < 4; i++)
+		for (size_t i = 0; i < z_color_size.size(); i++)
 		{
-			if (z_colorSize[i] == 0)
+			if (z_color_size[i] == 0)
 				continue;
 
-			pbuf -= colorSize;
-			zlib.Decompress(pbuf, colorSize, &z_pbuf[4], z_colorSize[i]);
-			z_pbuf += z_colorSize[i];
+			pbuf -= color_size;
+			zlib.Decompress(pbuf, color_size, &z_pbuf[4], z_color_size[i]);
+			z_pbuf += z_color_size[i];
 		}
 	}
 	else
 	{
-		width = *(LPWORD)&z_buf[8];
-		height = *(LPWORD)&z_buf[10];
+		width = *(u16*)&z_buf[8];
+		height = *(u16*)&z_buf[10];
 
-		DWORD colorSize = width * height;
+		const u32 color_size = width * height;
 
-		buf_len = colorSize * colors;
+		buf_len = color_size * colors;
 		buf.resize(buf_len);
-		LPBYTE pbuf = &buf[0];
+		u8* pbuf = buf.data();
 
-		for (int i = 0; i < colors; i++)
+		for (size_t i = 0; i < colors; i++)
 		{
-			z_colorSize[i] = *(LPDWORD)&z_buf[16 + i*4];
+			z_color_size[i] = *(u32*)&z_buf[16 + i*4];
 		}
 
 		switch (type)
@@ -230,21 +225,21 @@ bool CAlcot::DecodeCPB(CArcFile* pclArc)
 			case 1:
 				CZlib zlib;
 				z_pbuf += 0x20;
-				for (BYTE i = 0; i < colors; i++)
+				for (size_t i = 0; i < colors; i++)
 				{
-					zlib.Decompress(pbuf, colorSize, &z_pbuf[4], z_colorSize[i]);
-					pbuf += colorSize;
-					z_pbuf += z_colorSize[i];
+					zlib.Decompress(pbuf, color_size, &z_pbuf[4], z_color_size[i]);
+					pbuf += color_size;
+					z_pbuf += z_color_size[i];
 				}
 				break;
 			// Proprietary compression
 			case 3:
 				z_pbuf += 0x20;
-				for (BYTE i = 0; i < colors; i++)
+				for (size_t i = 0; i < colors; i++)
 				{
-					Decomp(pbuf, colorSize, z_pbuf);
-					pbuf += colorSize;
-					z_pbuf += z_colorSize[i];
+					Decomp(pbuf, color_size, z_pbuf);
+					pbuf += color_size;
+					z_pbuf += z_color_size[i];
 				}
 				break;
 			// Unknown
@@ -254,19 +249,19 @@ bool CAlcot::DecodeCPB(CArcFile* pclArc)
 	}
 
 	CImage image;
-	image.Init(pclArc, width, height, bpp);
+	image.Init(archive, width, height, bpp);
 	image.WriteCompoRGBAReverse(&buf[0], buf_len);
 
 	return true;
 }
 
-void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
+void CAlcot::Decomp(u8* dst, size_t dstSize, const u8* src)
 {
-	LPBYTE psrc1 = &src[0x14];
-	LPBYTE psrc2 = psrc1 + *(LPDWORD)&src[4];
-	LPBYTE psrc3 = psrc2 + *(LPDWORD)&src[8];
-	LPBYTE dst_end = dst + dstSize;
-	BYTE code = 0x80;
+	const u8* psrc1 = &src[0x14];
+	const u8* psrc2 = psrc1 + *(const u32*)&src[4];
+	const u8* psrc3 = psrc2 + *(const u32*)&src[8];
+	const u8* dst_end = dst + dstSize;
+	u8 code = 0x80;
 
 	while (dst < dst_end)
 	{
@@ -278,21 +273,21 @@ void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
 
 		if (*psrc1 & code)
 		{
-			WORD tmp = *(LPWORD)psrc2;
+			const u16 tmp = *(const u16*)psrc2;
 			psrc2 += 2;
 
-			const WORD length = (tmp >> 0x0D) + 3;
+			const u16 length = (tmp >> 0x0D) + 3;
 			if (length > 0)
 			{
-				WORD offset = (tmp & 0x1FFF) + 1;
-				LPBYTE dst2 = dst - offset;
+				const u16 offset = (tmp & 0x1FFF) + 1;
+				u8* dst2 = dst - offset;
 
 				std::copy(dst2, dst2 + length, dst);
 			}
 		}
 		else
 		{
-			const WORD length = *psrc3++ + 1;
+			const u16 length = *psrc3++ + 1;
 
 			std::copy(psrc3, psrc3 + length, dst);
 		}
@@ -301,24 +296,24 @@ void CAlcot::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src)
 	}
 }
 
-void CAlcot::Decrypt(LPBYTE src, DWORD srcSize, DWORD dstSize)
+void CAlcot::Decrypt(u8* src, size_t src_size, size_t dst_size)
 {
-	//                            Kurobane, Kurobane DVD,  TOY‚Â‚ß,   Trip trial,   Trip,       Ramune
-	static const DWORD games[] = {0xF44387F3, 0xE1B2097A, 0xD153D863, 0xF389842D, 0x1DE71CB9, 0x99E15CB4};
+	//                              Kurobane, Kurobane DVD,  TOY‚Â‚ß,   Trip trial,   Trip,       Ramune
+	static constexpr u32 games[] = {0xF44387F3, 0xE1B2097A, 0xD153D863, 0xF389842D, 0x1DE71CB9, 0x99E15CB4};
 
 	for (auto game : games)
 	{
-		DWORD key = dstSize ^ game;
+		u32 key = dst_size ^ game;
 		key ^= ((key << 0x0C) | key) << 0x0B;
 
-		DWORD tmp = *(LPDWORD)&src[4] - key;
+		const u32 tmp = *(u32*)&src[4] - key;
 		if ((tmp & 0x0000FFFF) != 0xDA78)
 			continue;
 
-		for (DWORD j = 0; j < (srcSize / 4); j++)
+		for (size_t j = 0; j < src_size / sizeof(u32); j++)
 		{
-			*(LPDWORD)src -= key;
-			src += 4;
+			*(u32*)src -= key;
+			src += sizeof(u32);
 		}
 	}
 }
