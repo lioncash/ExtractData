@@ -15,10 +15,10 @@ public:
 
 	void Close();
 
-	bool Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize);
-	bool Compress(LPCTSTR pszPathToDst, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
-	bool Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize);
-	bool Compress(void* pvDst, DWORD dwDstSize, const void* pvDIB, DWORD dwDIBSize, const void* pvPallet, DWORD dwPalletSize, WORD wPalletBpp, long lWidth, long lHeight, WORD wBpp);
+	bool Compress(LPCTSTR dst_path, const void* bmp, size_t bmp_size);
+	bool Compress(LPCTSTR dst_path, const void* dib, size_t dib_size, const void* pallet, size_t palle_size, u16 pallet_bpp, long width, long height, u16 bpp);
+	bool Compress(void* dst, size_t dst_size, const void* bmp, size_t bmp_size);
+	bool Compress(void* dst, size_t dst_size, const void* dib, size_t dib_size, const void* pallet, size_t pallet_size, u16 pallet_bpp, long width, long height, u16 bpp);
 
 	bool Decompress();
 
@@ -31,30 +31,30 @@ private:
 
 	struct SMemory
 	{
-		BYTE* pbtData;
-		DWORD dwDataPtr;
+		u8* data;
+		u32 data_ptr;
 	};
 
 	bool OnInit(const YCString& file_name) override;
 	bool OnCreatePallet(const void* pallet, size_t pallet_size) override;
 
-	void WriteLine(const void* pvBuffer) override;
-	void WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32) override;
+	void WriteLine(const void* buffer) override;
+	void WriteLineWithAlphaBlend(void* buffer24, const void* buffer32) override;
 	void OnWriteFinish() override;
 
-	static inline void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length);
-	static inline void PNGAPI WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
-	static inline void PNGAPI WritePNGToMemory(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength);
+	static inline void PNGAPI WritePNG(png_structp png, png_bytep data, png_size_t length);
+	static inline void PNGAPI WritePNGToFile(png_structp png, png_bytep data, png_size_t length);
+	static inline void PNGAPI WritePNGToMemory(png_structp png, png_bytep data, png_size_t length);
 
 	png_structp m_png_ptr;
 	png_infop   m_info_ptr;
-	png_color   m_astPallet[256];
+	png_color   m_pallet[256];
 
-	png_struct* m_pstPNG;
-	png_info*   m_pstPNGInfo;
-	void*       m_pvParam;
-	DWORD       m_dwFlags;
-	int         m_nCompressLevel;
+	png_structp m_png = nullptr;
+	png_infop   m_png_info = nullptr;
+	void*       m_param = nullptr;
+	u32         m_flags = 0;
+	int         m_compression_level = 1;
 
 	Mode        m_mode = Mode::Read;
 };

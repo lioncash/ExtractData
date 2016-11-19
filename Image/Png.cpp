@@ -2,25 +2,19 @@
 #include "../ExtractBase.h"
 #include "Png.h"
 
-/// Constructor
 CPng::CPng()
 {
-	m_pstPNG = nullptr;
-	m_pstPNGInfo = nullptr;
-	m_nCompressLevel = 1;
 }
 
-
-/// Destructor
 CPng::~CPng()
 {
 	Close();
 }
 
 /// Set compression rate
-void CPng::SetCompressLevel(int nCompressLevel)
+void CPng::SetCompressLevel(int compression_level)
 {
-	m_nCompressLevel = nCompressLevel;
+	m_compression_level = compression_level;
 }
 
 /// Get compression rate
@@ -29,88 +23,87 @@ void CPng::SetCompressLevel(int nCompressLevel)
 ///
 int CPng::GetCompressLevel() const
 {
-	return m_nCompressLevel;
+	return m_compression_level;
 }
 
 /// Set callback function
 void CPng::SetCallback()
 {
-
 }
 
 /// Release PNG structure
 void CPng::Close()
 {
-	if (m_pstPNG != nullptr)
+	if (m_png == nullptr)
+		return;
+
+	switch (m_mode)
 	{
-		switch (m_mode)
+	case Mode::Read: // Read mode
+		/*
+		if (m_pstPNGInfo != nullptr)
 		{
-		case Mode::Read: // Read mode
-			/*
-			if (m_pstPNGInfo != nullptr)
-			{
-				png_read_end(m_pstPNG, m_pstPNGInfo);
-				png_destroy_read_struct(&m_pstPNG, &m_pstPNGInfo, nullptr);
-			}
-			else
-			{
-				png_destroy_read_struct(&m_pstPNG, nullptr, nullptr);
-			}
-			*/
-			break;
+			png_read_end(m_pstPNG, m_pstPNGInfo);
+			png_destroy_read_struct(&m_pstPNG, &m_pstPNGInfo, nullptr);
+		}
+		else
+		{
+			png_destroy_read_struct(&m_pstPNG, nullptr, nullptr);
+		}
+		*/
+		break;
 
-		case Mode::Write: // Write mode
-			if (m_pstPNGInfo != nullptr)
-			{
-				png_write_end(m_pstPNG, m_pstPNGInfo);
-				png_destroy_write_struct(&m_pstPNG, &m_pstPNGInfo);
-			}
-			else
-			{
-				png_destroy_write_struct(&m_pstPNG, nullptr);
-			}
-
-			break;
+	case Mode::Write: // Write mode
+		if (m_png_info != nullptr)
+		{
+			png_write_end(m_png, m_png_info);
+			png_destroy_write_struct(&m_png, &m_png_info);
+		}
+		else
+		{
+			png_destroy_write_struct(&m_png, nullptr);
 		}
 
-		m_pstPNG = nullptr;
-		m_pstPNGInfo = nullptr;
+		break;
 	}
+
+	m_png = nullptr;
+	m_png_info = nullptr;
 }
 
 /// Convert from BMP to PNG
 ///
-/// @param pszPathToDst Destination file path
-/// @param pvBMP        Bitmap data
-/// @param dwBMPSize    Bitmap data size
+/// @param dst_path Destination file path
+/// @param bmp      Bitmap data
+/// @param bmp_size Bitmap data size
 
-bool CPng::Compress(LPCTSTR pszPathToDst, const void* pvBMP, DWORD dwBMPSize)
+bool CPng::Compress(LPCTSTR dst_path, const void* bmp, size_t bmp_size)
 {
 	return true;
 }
 
 /// Convert from DIB to PNG
 ///
-/// @param pszPathToDst Destination file path
-/// @param pvDIB        DIB data
-/// @param dwDIBSize    DIB data size
-/// @param pvPallet     Palette
-/// @param dwPalletSize Palette size
-/// @param wPalletBpp   Number of bits in the palette
-/// @param lWidth       Width
-/// @param lHeight      Height
-/// @param wBpp         Number of bits
+/// @param dst_path    Destination file path
+/// @param dib         DIB data
+/// @param dib_size    DIB data size
+/// @param pallet      Palette
+/// @param pallet_size Palette size
+/// @param pallet_bpp  Number of bits in the palette
+/// @param width       Width
+/// @param height      Height
+/// @param bpp         Number of bits
 ///
 bool CPng::Compress(
-	LPCTSTR     pszPathToDst,
-	const void* pvDIB,
-	DWORD       dwDIBSize,
-	const void* pvPallet,
-	DWORD       dwPalletSize,
-	WORD        wPalletBpp,
-	long        lWidth,
-	long        lHeight,
-	WORD        wBpp
+	LPCTSTR     dst_path,
+	const void* dib,
+	size_t      dib_size,
+	const void* pallet,
+	size_t      pallet_size,
+	u16         pallet_bpp,
+	long        width,
+	long        height,
+	u16         bpp
 	)
 {
 	return true;
@@ -118,121 +111,120 @@ bool CPng::Compress(
 
 /// Convert from BMP to PNG
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvBMP     Bitmap data
-/// @param dwBMPSize Bitmap data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param bmp      Bitmap data
+/// @param bmp_size Bitmap data size
 ///
-bool CPng::Compress(void* pvDst, DWORD dwDstSize, const void* pvBMP, DWORD dwBMPSize)
+bool CPng::Compress(void* dst, size_t dst_size, const void* bmp, size_t bmp_size)
 {
 	return true;
 }
 
 /// Converted from DIB to PNG
 ///
-/// @param pszPathToDst Destination file path
-/// @param pvDIB        DIB data
-/// @param dwDIBSize    DIB data size
-/// @param pvPallet     Palette
-/// @param dwPalletSize Palette size
-/// @param wPalletBpp   Number of bits in the palette
-/// @param lWidth       Width
-/// @param lHeight      Height
-/// @param wBpp         Number of bits
+/// @param dst         Destination
+/// @param dib         DIB data
+/// @param dib_size    DIB data size
+/// @param pallet      Palette
+/// @param pallet_size Palette size
+/// @param pallet_bpp  Number of bits in the palette
+/// @param width       Width
+/// @param height      Height
+/// @param bpp         Number of bits
 ///
 bool CPng::Compress(
-	void*       pvDst,
-	DWORD       dwDstSize,
-	const void* pvDIB,
-	DWORD       dwDIBSize,
-	const void* pvPallet,
-	DWORD       dwPalletSize,
-	WORD        wPalletBpp,
-	long        lWidth,
-	long        lHeight,
-	WORD        wBpp
+	void*       dst,
+	size_t      dst_size,
+	const void* dib,
+	size_t      dib_size,
+	const void* pallet,
+	size_t      pallet_size,
+	u16         pallet_bpp,
+	long        width,
+	long        height,
+	u16         bpp
 	)
 {
-/*	BYTE*       pbtDst = (BYTE*) pvDst;
-	const BYTE* pbtDIB = (const BYTE*) pvDIB;
-	const BYTE* pbtPallet = (const BYTE*) pvPallet;
+/*	u8*       pbtDst = (u8*) pvDst;
+	const u8* pbtDIB = (const u8*) pvDIB;
+	const u8* pbtPallet = (const u8*) pvPallet;
 
 	// Set Mode
 	SetMode(modeWrite);
 
 	// Get the color type
-	int nColorType;
+	int color_type;
 
 	switch (wBpp)
 	{
-		case 8: // 8bit
-			nColorType = PNG_COLOR_TYPE_PALETTE;
-			break;
+	case 8: // 8bit
+		color_type = PNG_COLOR_TYPE_PALETTE;
+		break;
 
-		case 24: // 24bit
-			nColorType = PNG_COLOR_TYPE_RGB;
-			break;
+	case 24: // 24bit
+		color_type = PNG_COLOR_TYPE_RGB;
+		break;
 
-		case 32: // 32bit
-			nColorType = PNG_COLOR_TYPE_RGB_ALPHA;
-			break;
+	case 32: // 32bit
+		color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+		break;
 
-		default: // Other
-			return FALSE;
+	default: // Other
+		return false;
 	}
 
 	// Create PNG structure
-	m_pstPNG = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-	if (m_pstPNG == nullptr)
-		return FALSE;
+	m_png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (m_png == nullptr)
+		return false;
 
 	// Create PNG structure information
-	m_pstPNGInfo = png_create_info_struct(m_pstPNG);
-	if (m_pstPNGInfo == nullptr)
-		return FALSE;
+	m_png_info = png_create_info_struct(m_png);
+	if (m_png_info == nullptr)
+		return false;
 
 	// Set parameters
-	SMemory stmDst;
-	stmDst.pbtData = pbtDst;
-	stmDst.dwDataPtr = 0;
+	SMemory mem_dst;
+	mem_dst.data = pbtDst;
+	mem_dst.data_ptr = 0;
 
-	png_set_write_fn(m_pstPNG, &stmDst, WritePNGToMemory, nullptr);
+	png_set_write_fn(m_png, &mem_dst, WritePNGToMemory, nullptr);
 
-	png_set_bgr(m_pstPNG);
-	png_set_compression_level(m_pstPNG, GetCompressLevel());
+	png_set_bgr(m_png);
+	png_set_compression_level(m_png, GetCompressLevel());
 
-	if (wBpp == 8)
+	if (bpp == 8)
 	{
-		png_set_PLTE(m_pstPNG, m_pstPNGInfo, m_astPallet, 256);
+		png_set_PLTE(m_png, m_png_info, m_pallet, 256);
 	}
 
-	png_set_IHDR(m_pstPNG, m_pstPNGInfo, lWidth, lHeight, 8, nColorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(m_png, m_png_info, width, height, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// PNG output header
-	png_write_info(m_pstPNG, m_pstPNGInfo);
+	png_write_info(m_png, m_png_info);
 
 	// PNG output data
 	if (IsRequireAlphaBlend())
 	{
 		// Alpha-blend on request
+		const long pitch = CalculatePitch(width, bpp);
+		std::vector<u8> alpha_blend_buffer(pitch);
 
-		long           lPitch = CalculatePitch(lWidth, wBpp);
-		YCMemory<BYTE> clmAlphaBlendBuffer(lPitch);
-
-		for (long lY = 0 ; lY < lHeight ; lY++)
+		for (long y = 0; y < height; y++)
 		{
-			AlphaBlend(&clmAlphaBlendBuffer[0], &pbtDIB[lY * lPitch]);
+			AlphaBlend(alpha_blend_buffer.data(), &pbtDIB[y * pitch]);
 
-			png_write_row(m_pstPNG, &clmAlphaBlendBuffer[0]);
+			png_write_row(m_png, alpha_blend_buffer.data());
 		}
 	}
 	else // No alpha-blending
 	{
-		long lPitch = CalculatePitch(lWidth, wBpp);
+		const long pitch = CalculatePitch(width, bpp);
 
-		for (long lY = 0 ; lY < lHeight ; lY++)
+		for (long y = 0; y < height; y++)
 		{
-			png_write_row(m_pstPNG, &pbtDIB[lY * lPitch]);
+			png_write_row(m_png, &pbtDIB[y * pitch]);
 		}
 	}
 */
@@ -248,20 +240,20 @@ bool CPng::Decompress()
 /// Initialization
 bool CPng::OnInit(const YCString& file_name)
 {
-	int nColorType;
+	int color_type;
 
 	switch (m_wBpp)
 	{
 	case 8: // 8bit
-		nColorType = PNG_COLOR_TYPE_PALETTE;
+		color_type = PNG_COLOR_TYPE_PALETTE;
 		break;
 
 	case 24: // 24bit
-		nColorType = PNG_COLOR_TYPE_RGB;
+		color_type = PNG_COLOR_TYPE_RGB;
 		break;
 
 	case 32: // 32bit
-		nColorType = PNG_COLOR_TYPE_RGB_ALPHA;
+		color_type = PNG_COLOR_TYPE_RGB_ALPHA;
 		break;
 
 	default: // Other
@@ -286,10 +278,10 @@ bool CPng::OnInit(const YCString& file_name)
 
 	if (m_wBpp == 8)
 	{
-		png_set_PLTE(m_png_ptr, m_info_ptr, m_astPallet, 256);
+		png_set_PLTE(m_png_ptr, m_info_ptr, m_pallet, 256);
 	}
 
-	png_set_IHDR(m_png_ptr, m_info_ptr, m_lWidth, m_lHeight, 8, nColorType, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(m_png_ptr, m_info_ptr, m_lWidth, m_lHeight, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Open the output file
 	m_pclArc->OpenFile(file_name);
@@ -307,10 +299,10 @@ bool CPng::OnInit(const YCString& file_name)
 ///
 bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 {
-	png_colorp  pstPallet = m_astPallet;
+	png_colorp pstPallet = m_pallet;
 	const u8* pbtSrcPallet = reinterpret_cast<const u8*>(src_pallet);
 
-	ZeroMemory(m_astPallet, sizeof(m_astPallet));
+	ZeroMemory(m_pallet, sizeof(m_pallet));
 
 	// Use the default palette (Grayscale)
 	if (pbtSrcPallet == nullptr)
@@ -362,23 +354,23 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 }
 
 /// Write 1 Line
-void CPng::WriteLine(const void* pvBuffer)
+void CPng::WriteLine(const void* buffer)
 {
-	png_write_row(m_png_ptr, (png_bytep) pvBuffer);
+	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer));
 	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
 }
 
 /// Write a line with alpha blending
 ///
-/// @param pvBuffer24 Storage Location
-/// @param pvBuffer32 32-bit data
+/// @param buffer24 Storage Location
+/// @param buffer32 32-bit data
 ///
-void CPng::WriteLineWithAlphaBlend(void* pvBuffer24, const void* pvBuffer32)
+void CPng::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
 {
 	// Alpha blending
-	AlphaBlend(pvBuffer24, pvBuffer32);
+	AlphaBlend(buffer24, buffer32);
 
-	png_write_row(m_png_ptr, reinterpret_cast<png_bytep>(pvBuffer24));
+	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer24));
 	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
 }
 
@@ -392,25 +384,25 @@ void CPng::OnWriteFinish()
 /// PNG Output
 void CPng::WritePNG(png_structp png_ptr, png_bytep data, png_size_t length)
 {
-	CArcFile* pclArc = reinterpret_cast<CArcFile*>(png_get_io_ptr(png_ptr));
+	auto* archive = reinterpret_cast<CArcFile*>(png_get_io_ptr(png_ptr));
 
-	pclArc->WriteFile(data, length, 0);
+	archive->WriteFile(data, length, 0);
 }
 
 /// File Output
-void CPng::WritePNGToFile(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength)
+void CPng::WritePNGToFile(png_structp png, png_bytep data, png_size_t length)
 {
-	YCFile* pclfDst = reinterpret_cast<YCFile*>(png_get_io_ptr(pstPNG));
+	auto* dst = reinterpret_cast<YCFile*>(png_get_io_ptr(png));
 
-	pclfDst->Write(pbtData, siLength);
+	dst->Write(data, length);
 }
 
 /// Memory Output
-void CPng::WritePNGToMemory(png_struct* pstPNG, png_byte* pbtData, png_size_t siLength)
+void CPng::WritePNGToMemory(png_structp png, png_bytep data, png_size_t length)
 {
-	SMemory* pstmDst = reinterpret_cast<SMemory*>(png_get_io_ptr(pstPNG));
+	auto* dst = reinterpret_cast<SMemory*>(png_get_io_ptr(png));
 
-	memcpy(&pstmDst->pbtData[pstmDst->dwDataPtr], pbtData, siLength);
+	memcpy(&dst->data[dst->data_ptr], data, length);
 
-	pstmDst->dwDataPtr += siLength;
+	dst->data_ptr += length;
 }
