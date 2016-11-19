@@ -255,12 +255,12 @@ bool CAlcot::DecodeCPB(CArcFile* archive)
 	return true;
 }
 
-void CAlcot::Decomp(u8* dst, size_t dstSize, const u8* src)
+void CAlcot::Decomp(u8* dst, size_t dst_size, const u8* src)
 {
 	const u8* psrc1 = &src[0x14];
 	const u8* psrc2 = psrc1 + *(const u32*)&src[4];
 	const u8* psrc3 = psrc2 + *(const u32*)&src[8];
-	const u8* dst_end = dst + dstSize;
+	const u8* dst_end = dst + dst_size;
 	u8 code = 0x80;
 
 	while (dst < dst_end)
