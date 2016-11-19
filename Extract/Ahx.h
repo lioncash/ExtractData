@@ -8,7 +8,7 @@ public:
 	bool Mount(CArcFile* archive) override;
 	bool Decode(CArcFile* archive) override;
 
-	void Decode(CArcFile* archive, u8* ahx_buf, u32 ahx_buf_len);
+	void Decode(CArcFile* archive, const u8* ahx_buf, size_t ahx_buf_len);
 	int Decompress(u8* dst, const u8* src, int srclen);
 
 private:

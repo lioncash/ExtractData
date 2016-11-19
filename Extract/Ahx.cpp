@@ -21,7 +21,7 @@
 // mpeg2 audio layer-2のデコード方法はmpg123を参考にしました
 // http://www.mpg123.de/
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Sound/Wav.h"
 #include "Ahx.h"
 #include "Utils/BitUtils.h"
@@ -115,16 +115,16 @@ bool CAhx::Decode(CArcFile* archive)
 	return true;
 }
 
-void CAhx::Decode(CArcFile* archive, u8* ahx_buf, u32 ahx_buf_len)
+void CAhx::Decode(CArcFile* archive, const u8* ahx_buf, size_t ahx_buf_len)
 {
 	// Convert AHX to WAV
-	u32 wav_buf_len = BitUtils::Swap32(*(u32*)&ahx_buf[12]) * 2;
+	u32 wav_buf_len = BitUtils::Swap32(*(const u32*)&ahx_buf[12]) * 2;
 	std::vector<u8> wav_buf(wav_buf_len + 1152 * 16); // Advance //+ 1152 * 2); // margen = layer-2 frame size
-	wav_buf_len = Decompress(&wav_buf[0], ahx_buf, ahx_buf_len);
+	wav_buf_len = Decompress(wav_buf.data(), ahx_buf, ahx_buf_len);
 
 	// Output
 	CWav wav;
-	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(u32*)&ahx_buf[8]), ahx_buf[7], 16);
+	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(const u32*)&ahx_buf[8]), ahx_buf[7], 16);
 	wav.Write(wav_buf.data());
 }
 
