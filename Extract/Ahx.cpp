@@ -150,41 +150,41 @@ void CAhx::dct(const double* src, double* dst0, double* dst1)
 	for (int i = 0; i < 32; i++)
 	{
 		if (i & 16)
-			tmp[0][i] = ( - src[i] + src[31 ^ i]) * costable[0][~i & 15];
+			tmp[0][i] = (-src[i] + src[31 ^ i]) * costable[0][~i & 15];
 		else
-			tmp[0][i] = ( + src[i] + src[31 ^ i]);
+			tmp[0][i] = (+src[i] + src[31 ^ i]);
 	}
 
 	for (int i = 0; i < 32; i++)
 	{
 		if (i & 8)
-			tmp[1][i] = ( - tmp[0][i] + tmp[0][15 ^ i]) * costable[1][~i & 7] * ((i & 16) ? -1.0 : 1.0);
+			tmp[1][i] = (-tmp[0][i] + tmp[0][15 ^ i]) * costable[1][~i & 7] * ((i & 16) ? -1.0 : 1.0);
 		else
-			tmp[1][i] = ( + tmp[0][i] + tmp[0][15 ^ i]);
+			tmp[1][i] = (+tmp[0][i] + tmp[0][15 ^ i]);
 	}
 
 	for (int i = 0; i < 32; i++)
 	{
 		if (i & 4)
-			tmp[0][i] = ( - tmp[1][i] + tmp[1][7 ^ i]) * costable[2][~i & 3] * ((i & 8) ? -1.0 : 1.0);
+			tmp[0][i] = (-tmp[1][i] + tmp[1][7 ^ i]) * costable[2][~i & 3] * ((i & 8) ? -1.0 : 1.0);
 		else
-			tmp[0][i] = ( + tmp[1][i] + tmp[1][7 ^ i]);
+			tmp[0][i] = (+tmp[1][i] + tmp[1][7 ^ i]);
 	}
 
 	for (int i = 0; i < 32; i++)
 	{
 		if (i & 2)
-			tmp[1][i] = ( - tmp[0][i] + tmp[0][3 ^ i]) * costable[3][~i & 1] * ((i & 4) ? -1.0 : 1.0);
+			tmp[1][i] = (-tmp[0][i] + tmp[0][3 ^ i]) * costable[3][~i & 1] * ((i & 4) ? -1.0 : 1.0);
 		else
-			tmp[1][i] = ( + tmp[0][i] + tmp[0][3 ^ i]);
+			tmp[1][i] = (+tmp[0][i] + tmp[0][3 ^ i]);
 	}
 
 	for (int i = 0; i < 32; i++)
 	{
 		if (i & 1)
-			tmp[0][i] = ( - tmp[1][i] + tmp[1][1 ^ i]) * costable[4][0] * ((i & 2) ? -1.0 : 1.0);
+			tmp[0][i] = (-tmp[1][i] + tmp[1][1 ^ i]) * costable[4][0] * ((i & 2) ? -1.0 : 1.0);
 		else
-			tmp[0][i] = ( + tmp[1][i] + tmp[1][1 ^ i]);
+			tmp[0][i] = (+tmp[1][i] + tmp[1][1 ^ i]);
 	}
 
 	//for (int i = 0; i < 8; i++)
