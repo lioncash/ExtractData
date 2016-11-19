@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Ykc.h"
 
 bool CYkc::Mount(CArcFile* archive)
