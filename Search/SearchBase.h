@@ -24,7 +24,7 @@ public:
 	u32     GetHedSize() const { return m_pattern[0].size; }
 	u8*     GetFot()           { return m_pattern[1].pattern; }
 	u32     GetFotSize() const { return m_pattern[1].size; }
-	u32&    GetCtFile()        { return m_ctFile; }
+	u32&    GetCtFile()        { return m_num_files; }
 
 	bool    CmpHed(const u8* buf) { return CmpMem(buf, GetHed(), GetHedSize()); }
 	bool    CmpFot(const u8* buf) { return CmpMem(buf, GetFot(), GetFotSize()); }
@@ -47,7 +47,7 @@ private:
 	};
 
 	std::array<HF, 2> m_pattern;
-	u32 m_offset;
-	u32 m_ctFile;
+	u32 m_offset = 0;
+	u32 m_num_files = 0;
 	void InitPattern(const void* pattern, u32 size, u32 num);
 };

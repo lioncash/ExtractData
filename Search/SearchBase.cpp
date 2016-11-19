@@ -13,7 +13,7 @@ CSearchBase::~CSearchBase()
 void CSearchBase::Init()
 {
 	m_offset = 0;
-	m_ctFile = 1;
+	m_num_files = 1;
 }
 
 void CSearchBase::Init(SOption* option)
@@ -39,7 +39,7 @@ void CSearchBase::InitFot(const void* pattern, u32 size)
 	InitPattern(pattern, size, 1);
 }
 
-inline bool CSearchBase::CmpMem(const u8* data, const u8* pattern, size_t size) const
+bool CSearchBase::CmpMem(const u8* data, const u8* pattern, size_t size) const
 {
 	return std::equal(data, data + size, pattern, [](u8 data_byte, u8 pattern_byte) {
 		return pattern_byte == '*' || data_byte == pattern_byte;
