@@ -13,23 +13,23 @@ bool CAlcot::Mount(CArcFile* archive)
 	archive->Seek(8, FILE_BEGIN);
 	archive->ReadU32(&num_files);
 
-	//Get compressed index size
-	u32 index_comp_size;
-	archive->ReadU32(&index_comp_size);
+	// Get compressed index size
+	u32 compressed_index_size;
+	archive->ReadU32(&compressed_index_size);
 
 	// Get compressed index
-	std::vector<u8> z_index(index_comp_size);
+	std::vector<u8> compressed_index(compressed_index_size);
 	archive->Seek(0x30, FILE_BEGIN);
-	archive->Read(z_index.data(), z_index.size());
+	archive->Read(compressed_index.data(), compressed_index.size());
 
 	// Get index size
-	const size_t index_size = *(const u32*)&z_index[16];
+	const size_t index_size = *(const u32*)&compressed_index[16];
 
 	// Decompress the index
 	std::vector<u8> index(index_size);
-	Decomp(index.data(), index.size(), z_index.data());
+	Decomp(index.data(), index.size(), compressed_index.data());
 
-	const size_t offset = index_comp_size + 0x30;
+	const size_t offset = compressed_index_size + 0x30;
 	const size_t size = index_size / num_files;
 	const size_t file_name_length = size - 16;
 
