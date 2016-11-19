@@ -9,9 +9,9 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 	void Decode(CArcFile* archive, u8* ahx_buf, u32 ahx_buf_len);
-	int Decompress(u8* dst, u8* src, int srclen);
+	int Decompress(u8* dst, const u8* src, int srclen);
 
 private:
-	int getbits(u8*& src, int& bit_data, int& bit_rest, int bits);
+	int getbits(const u8*& src, int& bit_data, int& bit_rest, int bits);
 	void dct(const double* src, double* dst0, double* dst1);
 };

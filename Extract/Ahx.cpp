@@ -128,7 +128,7 @@ void CAhx::Decode(CArcFile* archive, u8* ahx_buf, u32 ahx_buf_len)
 	wav.Write(wav_buf.data());
 }
 
-int CAhx::getbits(u8*& src, int& bit_data, int& bit_rest, int bits)
+int CAhx::getbits(const u8*& src, int& bit_data, int& bit_rest, int bits)
 {
 	while (bit_rest < 24)
 	{
@@ -264,7 +264,7 @@ void CAhx::dct(const double* src, double* dst0, double* dst1)
 	dst1[15] = tmp[0][16 + 15];
 }
 
-int CAhx::Decompress(u8* dst, u8* src, int srclen)
+int CAhx::Decompress(u8* dst, const u8* src, int srclen)
 {
 	double powtable[64];
 	for (int i = 0; i < 64; i++)
@@ -330,7 +330,7 @@ int CAhx::Decompress(u8* dst, u8* src, int srclen)
 	double dctbuf[2][16][17];
 	short* dst_p = (short*)dst;
 	int bit_rest = 0, bit_data;
-	u8* src_start = src;
+	const u8* src_start = src;
 	int frame = 0;
 
 	while (src - src_start < srclen && getbits(src, bit_data, bit_rest, 12) == 0xfff)
@@ -533,5 +533,5 @@ int CAhx::Decompress(u8* dst, u8* src, int srclen)
 			getbits(src, bit_data, bit_rest, bit_rest & 7);
 	}
 
-	return	(int) ((char*)dst_p - (char*)dst);
+	return (int) ((char*)dst_p - (char*)dst);
 }
