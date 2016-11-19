@@ -20,7 +20,7 @@
    SOFTWARE.
 */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Image.h"
 #include "Majiro.h"
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Ctrl/Button.h"
 #include "../Ctrl/EditBox.h"
 #include "../Ctrl/Label.h"

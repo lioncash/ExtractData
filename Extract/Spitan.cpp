@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Spitan.h"
 
 bool CSpitan::Mount(CArcFile* pclArc)

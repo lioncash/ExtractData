@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Specialite.h"
 
 /// Determine if decryption is possible

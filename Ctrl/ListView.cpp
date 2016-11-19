@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Common.h"
 #include "../res/ResExtractData.h"
 #include "ListView.h"

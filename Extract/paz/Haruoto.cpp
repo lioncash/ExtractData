@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Haruoto.h"
 
 bool CHaruoto::Mount(CArcFile* archive)

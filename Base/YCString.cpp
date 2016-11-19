@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "YCString.h"
 
 /// Gets the length of the string after conversion.

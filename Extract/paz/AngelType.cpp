@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "AngelType.h"
 
 bool CAngelType::Mount(CArcFile* archive)

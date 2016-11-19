@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ef_trial.h"
 
 bool Cef_trial::Mount(CArcFile* archive)

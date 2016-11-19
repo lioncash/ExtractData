@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "FateFD.h"
 
 /// Determine if decryption is possible

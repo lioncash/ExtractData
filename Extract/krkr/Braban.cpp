@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Braban.h"
 
 /// Determine if decryption is possible

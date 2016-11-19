@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "../stdafx.h"
+#include "StdAfx.h"
 #include "../res/ResExtractData.h"
 #include "Common.h"
 #include "Toolbar.h"

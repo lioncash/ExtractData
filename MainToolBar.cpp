@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "res/ResExtractData.h"
 #include "ArcFile.h"
 #include "Common.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "JpgSearch.h"
 #include "Utils/BitUtils.h"
 

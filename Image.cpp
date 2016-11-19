@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ExtractBase.h"
 #include "Image.h"
 

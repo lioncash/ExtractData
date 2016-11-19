@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MeltyBlood.h"
 
 // Function that gets file information from MELTY BLOOD *.data files

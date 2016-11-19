@@ -1,5 +1,4 @@
-
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "YCFileFind.h"
 
 /// Constructor

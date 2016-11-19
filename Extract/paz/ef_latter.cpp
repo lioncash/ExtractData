@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ef_latter.h"
 
 /// Check if files are supported

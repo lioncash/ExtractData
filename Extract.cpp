@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 
 //#include "DataBase/DataBase.h"
 #include "Dialog/ExistsDialog.h"

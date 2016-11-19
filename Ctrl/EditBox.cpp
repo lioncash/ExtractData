@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "EditBox.h"
 #include "Utils/ArrayUtils.h"
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UpDown.h"
 
 HWND CUpDown::Create(HWND hWnd, HWND hBuddy, int nPos, UINT ID, int nUpper, int nLower, int x, int y, int cx, int cy)

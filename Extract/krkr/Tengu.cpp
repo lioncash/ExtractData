@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Tengu.h"
 
 /// Determine if decryption is possible

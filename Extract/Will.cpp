@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Image.h"
 #include "Will.h"
 #include "Utils/ArrayUtils.h"

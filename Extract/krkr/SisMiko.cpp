@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SisMiko.h"
 
 /// Determine if decryption is possible

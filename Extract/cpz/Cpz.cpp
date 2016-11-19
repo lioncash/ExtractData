@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../../Image.h"
 #include "../../MD5.h"
 #include "PB2A.h"

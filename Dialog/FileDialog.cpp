@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "FileDialog.h"
 
 BOOL CFileDialog::DoModal(HWND hWnd, LPTSTR pFileNames, LPTSTR pDir)

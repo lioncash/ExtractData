@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../bzip2/bzlib.h"
 #include "../Image.h"
 #include "Standard.h"

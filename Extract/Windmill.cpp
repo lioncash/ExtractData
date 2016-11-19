@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Arc/Zlib.h"
 #include "Windmill.h"
 

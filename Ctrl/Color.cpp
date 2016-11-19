@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Color.h"
 
 COLORREF CColor::m_CustColors[16];

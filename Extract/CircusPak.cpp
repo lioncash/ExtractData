@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../Image.h"
 #include "../Image/Tga.h"
 #include "../Arc/LZSS.h"

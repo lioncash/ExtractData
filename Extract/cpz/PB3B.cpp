@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "../../Image.h"
 #include "JBP1.h"
 #include "PB3B.h"

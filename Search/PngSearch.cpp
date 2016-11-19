@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PngSearch.h"
 #include "Utils/BitUtils.h"
 

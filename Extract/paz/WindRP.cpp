@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "WindRP.h"
 
 bool CWindRP::Mount(CArcFile* archive)

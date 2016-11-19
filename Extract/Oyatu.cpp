@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Oyatu.h"
 
 /// Determine if file is supported
