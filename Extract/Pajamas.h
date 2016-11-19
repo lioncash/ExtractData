@@ -13,6 +13,5 @@ private:
 	bool MountDat2(CArcFile* archive);
 
 	bool DecodeEPA(CArcFile* archive);
-
-	bool DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width);
+	void DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width);
 };

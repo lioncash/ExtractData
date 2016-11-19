@@ -231,7 +231,7 @@ bool CPajamas::DecodeEPA(CArcFile* archive)
 /// @param src_size Compressed data size
 /// @param width    Width
 ///
-bool CPajamas::DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width)
+void CPajamas::DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_size, u32 width)
 {
 	size_t src_ptr = 0;
 	size_t dst_ptr = 0;
@@ -286,6 +286,4 @@ bool CPajamas::DecompEPA(u8* dst, size_t dst_size, const u8* src, size_t src_siz
 			dst_ptr += code;
 		}
 	}
-
-	return true;
 }
