@@ -21,11 +21,11 @@ bool CImage::Decode(CArcFile* archive)
 
 	// Read BMP
 	std::vector<u8> src(file_info->sizeOrg);
-	archive->Read(src.data(), file_info->sizeOrg);
+	archive->Read(src.data(), src.size());
 
 	// Output
 	Init(archive, src.data());
-	Write(file_info->sizeOrg);
+	Write(src.size());
 
 	return true;
 }
