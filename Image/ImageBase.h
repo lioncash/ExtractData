@@ -18,8 +18,8 @@ public:
 
 	union UPixel
 	{
-		u8       abtPixel[4];
-		COLORREF crPixel;
+		u8       color_rgba[4];
+		COLORREF color;
 	};
 
 	CImageBase();
@@ -27,10 +27,10 @@ public:
 
 	bool Init(CArcFile* archive, long width, long height, u16 bpp, const void* pallet = nullptr, size_t pallet_size = 1024, const YCString& file_name = _T(""));
 
-	void SetValidityOfAlphaBlend(bool bValidityOfAlphaBlend);
+	void SetValidityOfAlphaBlend(bool validity_of_alpha_blend);
 	bool GetValidityOfAlphaBlend() const;
 
-	void SetBackColorWhenAlphaBlend(COLORREF crBackColor);
+	void SetBackColorWhenAlphaBlend(COLORREF background_color);
 
 	bool Compress(LPCTSTR dst_path, const void* bmp, size_t bmp_size);
 	bool Compress(LPCTSTR dst_path, const void* dib, size_t dib_size, const void* pallet, size_t pallet_size, u16 pallet_bpp, long width, long height, u16 bpp);
@@ -53,11 +53,11 @@ public:
 protected:
 	static long CalculatePitch(long width, u16 bpp);
 
-	CArcFile* m_pclArc;
-	u8 m_abtBG[4];
+	CArcFile* m_archive = nullptr;
+	u8 m_bg[4];
 
-	u32 m_dwRowSize;
-	u32 m_dwRowSizeOfRemainder;
+	u32 m_row_size = 0;
+	u32 m_row_size_remainder = 0;
 
 	bool IsRequireAlphaBlend() const;
 
@@ -72,17 +72,17 @@ protected:
 	virtual void WriteLineWithAlphaBlend(void* buffer24, const void* buffer32) {}
 
 protected:
-	bool   m_bValidityOfAlphaBlend = false;
-	bool   m_bAlphaBlendRequirement = false;
-	bool   m_bOutputDummyFromBuffer = false;
+	bool   m_validity_of_alpha_blend = false;
+	bool   m_alpha_blend_requirement = false;
+	bool   m_output_dummy_from_buffer = false;
 
-	long   m_lWidth;
-	long   m_lHeight;
-	long   m_lLine;
-	long   m_lPitch;
-	long   m_lLineWithAlpha;
-	long   m_lPitchWithAlpha;
-	u16    m_wBpp;
-	u16    m_wBppWithAlpha;
-	UPixel m_unpBackColorWhenAlphaBlend;
+	long   m_width = 0;
+	long   m_height = 0;
+	long   m_line = 0;
+	long   m_pitch = 0;
+	long   m_line_with_alpha = 0;
+	long   m_pitch_with_alpha = 0;
+	u16    m_bpp = 0;
+	u16    m_bpp_with_alpha = 0;
+	UPixel m_background_color_when_alpha_blending;
 };

@@ -41,14 +41,14 @@ void CPng::Close()
 	{
 	case Mode::Read: // Read mode
 		/*
-		if (m_pstPNGInfo != nullptr)
+		if (m_png_info != nullptr)
 		{
-			png_read_end(m_pstPNG, m_pstPNGInfo);
-			png_destroy_read_struct(&m_pstPNG, &m_pstPNGInfo, nullptr);
+			png_read_end(m_png, m_png_info);
+			png_destroy_read_struct(&m_png, &m_png_info, nullptr);
 		}
 		else
 		{
-			png_destroy_read_struct(&m_pstPNG, nullptr, nullptr);
+			png_destroy_read_struct(&m_png, nullptr, nullptr);
 		}
 		*/
 		break;
@@ -242,7 +242,7 @@ bool CPng::OnInit(const YCString& file_name)
 {
 	int color_type;
 
-	switch (m_wBpp)
+	switch (m_bpp)
 	{
 	case 8: // 8bit
 		color_type = PNG_COLOR_TYPE_PALETTE;
@@ -271,20 +271,20 @@ bool CPng::OnInit(const YCString& file_name)
 		return false;
 	}
 
-	png_set_write_fn(m_png_ptr, m_pclArc, WritePNG, nullptr);
+	png_set_write_fn(m_png_ptr, m_archive, WritePNG, nullptr);
 
 	png_set_bgr(m_png_ptr);
-	png_set_compression_level(m_png_ptr, m_pclArc->GetOpt()->CmplvPng);
+	png_set_compression_level(m_png_ptr, m_archive->GetOpt()->CmplvPng);
 
-	if (m_wBpp == 8)
+	if (m_bpp == 8)
 	{
 		png_set_PLTE(m_png_ptr, m_info_ptr, m_pallet, 256);
 	}
 
-	png_set_IHDR(m_png_ptr, m_info_ptr, m_lWidth, m_lHeight, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+	png_set_IHDR(m_png_ptr, m_info_ptr, m_width, m_height, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
 	// Open the output file
-	m_pclArc->OpenFile(file_name);
+	m_archive->OpenFile(file_name);
 
 	// Output header
 	png_write_info(m_png_ptr, m_info_ptr);
@@ -357,7 +357,7 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 void CPng::WriteLine(const void* buffer)
 {
 	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer));
-	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
+	m_archive->GetProg()->UpdatePercent(m_row_size);
 }
 
 /// Write a line with alpha blending
@@ -371,7 +371,7 @@ void CPng::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
 	AlphaBlend(buffer24, buffer32);
 
 	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer24));
-	m_pclArc->GetProg()->UpdatePercent(m_dwRowSize);
+	m_archive->GetProg()->UpdatePercent(m_row_size);
 }
 
 /// Finish output

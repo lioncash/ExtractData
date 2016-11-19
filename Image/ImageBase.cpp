@@ -48,39 +48,39 @@ bool CImageBase::Init(
 		if (archive->GetOpt()->bAlphaBlend)
 		{
 			// Alpha-blending is enabled
-			m_bAlphaBlendRequirement = true;
+			m_alpha_blend_requirement = true;
 			bpp = 24;
 
 			for (int i = 0; i < 3; i++)
 			{
-				m_abtBG[i] = static_cast<u8>((archive->GetOpt()->BgRGB >> (i << 3)) & 0xFF);
+				m_bg[i] = static_cast<u8>((archive->GetOpt()->BgRGB >> (i << 3)) & 0xFF);
 			}
 		}
 	}
 
-	m_wBpp = bpp;
-	m_pclArc = archive;
-	m_lWidth = width;
-	m_lHeight = height;
-	m_lLine = width * (bpp >> 3);
-	m_lPitch = CalculatePitch(width, bpp);
-	m_lPitchWithAlpha = width * 4;
+	m_bpp = bpp;
+	m_archive = archive;
+	m_width = width;
+	m_height = height;
+	m_line = width * (bpp >> 3);
+	m_pitch = CalculatePitch(width, bpp);
+	m_pitch_with_alpha = width * 4;
 
 	const u32 original_size = archive->GetOpenFileInfo()->sizeOrg;
 
-	m_dwRowSize = original_size / height;
-	m_dwRowSizeOfRemainder = original_size % height;
+	m_row_size = original_size / height;
+	m_row_size_remainder = original_size % height;
 
 	return OnInit(file_name);
 }
 
 /// Set the validity of alpha blending
 ///
-/// @param bValidityOfAlphaBlend Check validity of alpha-blending
+/// @param validity_of_alpha_blend Check validity of alpha-blending
 ///
-void CImageBase::SetValidityOfAlphaBlend(bool bValidityOfAlphaBlend)
+void CImageBase::SetValidityOfAlphaBlend(bool validity_of_alpha_blend)
 {
-	m_bValidityOfAlphaBlend = bValidityOfAlphaBlend;
+	m_validity_of_alpha_blend = validity_of_alpha_blend;
 }
 
 /// Get the validity of alpha blending
@@ -89,16 +89,16 @@ void CImageBase::SetValidityOfAlphaBlend(bool bValidityOfAlphaBlend)
 ///
 bool CImageBase::GetValidityOfAlphaBlend() const
 {
-	return m_bValidityOfAlphaBlend;
+	return m_validity_of_alpha_blend;
 }
 
 /// Set background color when alpha blending
 ///
-/// @param crBackColor Background color
+/// @param background_color Background color
 ///
-void CImageBase::SetBackColorWhenAlphaBlend(COLORREF crBackColor)
+void CImageBase::SetBackColorWhenAlphaBlend(COLORREF background_color)
 {
-	m_unpBackColorWhenAlphaBlend.crPixel = crBackColor;
+	m_background_color_when_alpha_blending.color = background_color;
 }
 
 /// Compression
@@ -255,15 +255,15 @@ bool CImageBase::Compress(
 		// No Alpha blending
 		long line = m_lLine;
 
-		if (buffer_size >= m_lPitch * m_lHeight)
+		if (buffer_size >= m_pitch * m_height)
 		{
 			// Read dummy data from buffer
 
-			m_bOutputDummyFromBuffer = true;
-			line = m_lPitch;
+			m_output_dummy_from_buffer = true;
+			line = m_pitch;
 		}
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (long y = 0; y < m_height; y++)
 		{
 			OnWriteLine(pbtBuffer);
 			pbtBuffer += line;
@@ -283,7 +283,7 @@ bool CImageBase::Compress(
 ///
 bool CImageBase::IsRequireAlphaBlend() const
 {
-	return m_bAlphaBlendRequirement;
+	return m_alpha_blend_requirement;
 }
 
 /// Alpha Blending
@@ -296,8 +296,8 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 {
 	u8*        pbtBuffer24 = reinterpret_cast<u8*>(pvBuffer24);
 	const u8*  pbtBuffer32 = reinterpret_cast<const u8*>(pvBuffer32);
-	const u8*  pbtBG = m_abtBG;
-	const long width = m_lWidth;
+	const u8*  pbtBG = m_bg;
+	const long width = m_width;
 
 	for (long x = 0; x < width; x++)
 	{
@@ -342,34 +342,34 @@ void CImageBase::Write(const void* buffer, size_t buffer_size, bool progress)
 	// Don't update progressbar (No multiple outputs)
 	if (!progress)
 	{
-		m_dwRowSize = 0;
-		m_dwRowSizeOfRemainder = 0;
+		m_row_size = 0;
+		m_row_size_remainder = 0;
 	}
 
 	// Output
 	if (IsRequireAlphaBlend())
 	{
 		// Alpha-blending enabled
-		std::vector<u8> buffer24(m_lPitch + 2);
+		std::vector<u8> buffer24(m_pitch + 2);
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (long y = 0; y < m_height; y++)
 		{
 			WriteLineWithAlphaBlend(buffer24.data(), pbtBuffer);
-			pbtBuffer += m_lPitchWithAlpha;
+			pbtBuffer += m_pitch_with_alpha;
 		}
 	}
 	else
 	{
-		long line = m_lLine;
+		long line = m_line;
 
-		if (buffer_size >= m_lPitch * m_lHeight)
+		if (buffer_size >= m_pitch * m_height)
 		{
 			// Read dummy data from the buffer
-			m_bOutputDummyFromBuffer = true;
-			line = m_lPitch;
+			m_output_dummy_from_buffer = true;
+			line = m_pitch;
 		}
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (long y = 0; y < m_height; y++)
 		{
 			WriteLine(pbtBuffer);
 			pbtBuffer += line;
@@ -392,37 +392,37 @@ void CImageBase::WriteReverse(const void* buffer, size_t buffer_size, bool progr
 	// Don't update the progressbar (No multiple outputs)
 	if (!progress)
 	{
-		m_dwRowSize = 0;
-		m_dwRowSizeOfRemainder = 0;
+		m_row_size = 0;
+		m_row_size_remainder = 0;
 	}
 
 	if (IsRequireAlphaBlend())
 	{
 		// Alpha-blending is enabled
-		std::vector<u8> buffer24(m_lPitch + 2);
-		pbtBuffer += m_lPitchWithAlpha * m_lHeight;
+		std::vector<u8> buffer24(m_pitch + 2);
+		pbtBuffer += m_pitch_with_alpha * m_height;
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (long y = 0; y < m_height; y++)
 		{
-			pbtBuffer -= m_lPitchWithAlpha;
+			pbtBuffer -= m_pitch_with_alpha;
 			WriteLineWithAlphaBlend(buffer24.data(), pbtBuffer);
 		}
 	}
 	else
 	{
-		long line = m_lLine;
+		long line = m_line;
 
-		if (buffer_size >= m_lPitch * m_lHeight)
+		if (buffer_size >= m_pitch * m_height)
 		{
 			// Read dummy data from the buffer
 
-			m_bOutputDummyFromBuffer = true;
-			line = m_lPitch;
+			m_output_dummy_from_buffer = true;
+			line = m_pitch;
 		}
 
-		pbtBuffer += line * m_lHeight;
+		pbtBuffer += line * m_height;
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (long y = 0; y < m_height; y++)
 		{
 			pbtBuffer -= line;
 			WriteLine(pbtBuffer);
@@ -442,7 +442,7 @@ bool CImageBase::ComposeBGRA(void* dst, const void* buffer, size_t buffer_size)
 {
 	u8*       pbtDst = reinterpret_cast<u8*>(dst);
 	const u8* pbtBuffer = reinterpret_cast<const u8*>(buffer);
-	const u16 bpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
+	const u16 bpp = IsRequireAlphaBlend() ? 32 : m_bpp;
 
 	if (bpp == 24 || bpp == 32)
 	{
@@ -525,9 +525,9 @@ void CImageBase::WriteCompoBGRAReverse(const void* buffer, size_t buffer_size, b
 ///
 bool CImageBase::ComposeRGBA(void* dst, const void* buffer, size_t buffer_size)
 {
-	u8*       pbtDst = reinterpret_cast<BYTE*>(dst);
-	const u8* pbtBuffer = reinterpret_cast<const BYTE*>(buffer);
-	const u16 bpp = IsRequireAlphaBlend() ? 32 : m_wBpp;
+	u8*       pbtDst = reinterpret_cast<u8*>(dst);
+	const u8* pbtBuffer = reinterpret_cast<const u8*>(buffer);
+	const u16 bpp = IsRequireAlphaBlend() ? 32 : m_bpp;
 
 	if (bpp == 24 || bpp == 32)
 	{
@@ -610,7 +610,7 @@ void CImageBase::WriteCompoRGBAReverse(const void* buffer, size_t buffer_size, b
 /// Finish output
 void CImageBase::WriteFinish()
 {
-	m_pclArc->GetProg()->UpdatePercent(m_dwRowSizeOfRemainder);
+	m_archive->GetProg()->UpdatePercent(m_row_size_remainder);
 	OnWriteFinish();
 }
 

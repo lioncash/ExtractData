@@ -23,13 +23,13 @@ bool CBmp::OnInit(const YCString& file_name)
 	// Set file header
 	ZeroMemory(&m_bmp_file_header, sizeof(BITMAPFILEHEADER));
 	m_bmp_file_header.bfType = 'MB';
-	m_bmp_file_header.bfSize = 54 + m_lPitch * m_lHeight;
+	m_bmp_file_header.bfSize = 54 + m_pitch * m_height;
 	m_bmp_file_header.bfReserved1 = 0;
 	m_bmp_file_header.bfReserved2 = 0;
 	m_bmp_file_header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
 	// 8bit
-	if (m_wBpp == 8)
+	if (m_bpp == 8)
 	{
 		m_bmp_file_header.bfSize += 1024;
 		m_bmp_file_header.bfOffBits += 1024;
@@ -38,15 +38,15 @@ bool CBmp::OnInit(const YCString& file_name)
 	// Set info header
 	ZeroMemory(&m_bmp_info_header, sizeof(BITMAPINFOHEADER));
 	m_bmp_info_header.biSize = sizeof(BITMAPINFOHEADER);
-	m_bmp_info_header.biWidth = m_lWidth;
-	m_bmp_info_header.biHeight = m_lHeight;
+	m_bmp_info_header.biWidth = m_width;
+	m_bmp_info_header.biHeight = m_height;
 	m_bmp_info_header.biPlanes = 1;
-	m_bmp_info_header.biBitCount = m_wBpp;
+	m_bmp_info_header.biBitCount = m_bpp;
 	m_bmp_info_header.biCompression = BI_RGB;
 	m_bmp_info_header.biSizeImage = 0;
 	m_bmp_info_header.biXPelsPerMeter = 0;
 	m_bmp_info_header.biYPelsPerMeter = 0;
-	m_bmp_info_header.biClrUsed = (m_wBpp == 8) ? 256 : 0;
+	m_bmp_info_header.biClrUsed = (m_bpp == 8) ? 256 : 0;
 	m_bmp_info_header.biClrImportant = 0;
 
 	// Output BMP header
@@ -61,16 +61,16 @@ bool CBmp::OnInit(const YCString& file_name)
 ///
 void CBmp::WriteHed(const YCString& file_name)
 {
-	m_pclArc->OpenFile(file_name);
+	m_archive->OpenFile(file_name);
 
 	// Output BMP header
-	m_pclArc->WriteFile(&m_bmp_file_header, sizeof(m_bmp_file_header), 0);
-	m_pclArc->WriteFile(&m_bmp_info_header, sizeof(m_bmp_info_header), 0);
+	m_archive->WriteFile(&m_bmp_file_header, sizeof(m_bmp_file_header), 0);
+	m_archive->WriteFile(&m_bmp_info_header, sizeof(m_bmp_info_header), 0);
 
 	// Output palette (8-bit)
 	if (m_bmp_info_header.biBitCount == 8)
 	{
-		m_pclArc->WriteFile(m_pallet, sizeof(m_pallet), 0);
+		m_archive->WriteFile(m_pallet, sizeof(m_pallet), 0);
 	}
 }
 
@@ -142,22 +142,22 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 void CBmp::WriteLine(const void* buffer)
 {
 	// Output
-	m_pclArc->WriteFile(buffer, m_lLine, m_dwRowSize);
+	m_archive->WriteFile(buffer, m_line, m_row_size);
 
 	// Output dummy data
-	if (m_bOutputDummyFromBuffer)
+	if (m_output_dummy_from_buffer)
 	{
 		// Output from buffer
 
-		const BYTE* byte_buffer = reinterpret_cast<const BYTE*>(buffer);
+		const u8* byte_buffer = reinterpret_cast<const u8*>(buffer);
 
-		m_pclArc->WriteFile(&byte_buffer[m_lLine], (m_lPitch - m_lLine), 0);
+		m_archive->WriteFile(&byte_buffer[m_line], m_pitch - m_line, 0);
 	}
 	else
 	{
-		for (long i = m_lLine; i < m_lPitch; i++)
+		for (long i = m_line; i < m_pitch; i++)
 		{
-			m_pclArc->WriteFile("\0", 1, 0);
+			m_archive->WriteFile("\0", 1, 0);
 		}
 	}
 }
@@ -170,11 +170,11 @@ void CBmp::WriteLine(const void* buffer)
 void CBmp::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
 {
 	// Fill with 0's (So that the dummy data can be outputted)
-	ZeroMemory(buffer24, m_lPitch);
+	ZeroMemory(buffer24, m_pitch);
 
 	// Alpha blending
 	AlphaBlend(buffer24, buffer32);
 
 	// Output
-	m_pclArc->WriteFile(buffer24, m_lPitch, m_dwRowSize);
+	m_archive->WriteFile(buffer24, m_pitch, m_row_size);
 }
