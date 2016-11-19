@@ -23,25 +23,25 @@ void CMidSearch::Mount(CArcFile* archive)
 	// Get the number of tracks
 	u16 tracks;
 	archive->SeekCur(GetHedSize() + 2);
-	archive->Read(&tracks, sizeof(u16));
+	archive->ReadU16(&tracks);
 	tracks = BitUtils::Swap16(tracks);
 	archive->SeekCur(2);
 
 	// Get end positions
 	for (unsigned short cnt = 0; cnt < tracks; cnt++)
 	{
-		u8 marker[4];
-		archive->Read(marker, 4);
+		std::array<u8, 4> marker;
+		archive->Read(marker.data(), marker.size());
 
 		// Invalid MIDI
-		if (memcmp(marker, "MTrk", 4) != 0)
+		if (memcmp(marker.data(), "MTrk", marker.size()) != 0)
 		{
 			return;
 		}
 
 		// Get track size
 		u32 track_size;
-		archive->Read(&track_size, sizeof(u32));
+		archive->ReadU32(&track_size);
 		track_size = BitUtils::Swap32(track_size);
 
 		// Advance to next track

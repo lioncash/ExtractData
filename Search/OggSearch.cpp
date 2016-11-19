@@ -29,7 +29,7 @@ void COggSearch::Mount(CArcFile* archive)
 	// Serial number when reading the header from memory
 	u32 serial_no;
 	archive->Seek(14, FILE_CURRENT);
-	archive->Read(&serial_no, 4);
+	archive->ReadU32(&serial_no);
 
 	archive->Seek(file_info.start, FILE_BEGIN);
 	u32 read_count = 0;

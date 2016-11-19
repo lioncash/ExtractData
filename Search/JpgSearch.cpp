@@ -22,17 +22,17 @@ void CJpgSearch::Mount(CArcFile* archive)
 	while (true)
 	{
 		// Get marker
-		u8 marker[2];
-		if (archive->Read(marker, 2) == 0)
+		std::array<u8, 2> marker;
+		if (archive->Read(marker.data(), marker.size()) == 0)
 			return;
 
 		// Exit the loop when we reach the JPEG image data
-		if (memcmp(marker, "\xFF\xDA", 2) == 0)
+		if (memcmp(marker.data(), "\xFF\xDA", marker.size()) == 0)
 			break;
 
 		// Get the size of the data area
 		u16 length;
-		if (archive->Read(&length, sizeof(u16)) == 0)
+		if (archive->ReadU16(&length) == 0)
 			return;
 		length = BitUtils::Swap16(length);
 

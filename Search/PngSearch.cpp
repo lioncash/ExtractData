@@ -17,19 +17,19 @@ void CPngSearch::Mount(CArcFile* archive)
 	archive->SeekCur(GetHedSize());
 
 	// Search the file end
-	u8 chunk_name[4];
+	std::array<u8, 4> chunk_name;
 
 	do
 	{
 		// Get chunk length
 		u32 length;
-		if (archive->Read(&length, 4) == 0)
+		if (archive->ReadU32(&length) == 0)
 			return;
 
 		length = BitUtils::Swap32(length);
 
 		// Get chunk name
-		if (archive->Read(chunk_name, 4) == 0)
+		if (archive->Read(chunk_name.data(), chunk_name.size()) == 0)
 			return;
 
 		// Advance the file pointer to chunk length + CRC segments
@@ -39,7 +39,7 @@ void CPngSearch::Mount(CArcFile* archive)
 		// }
 
 		archive->SeekCur(length + 4);
-	} while (memcmp(chunk_name, "IEND", 4) != 0); // Keep looping until IEND is reached
+	} while (memcmp(chunk_name.data(), "IEND", chunk_name.size()) != 0); // Keep looping until IEND is reached
 
 	// Get exit address
 	file_info.end = archive->GetArcPointer();
