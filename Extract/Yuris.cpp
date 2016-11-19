@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "../Arc/Zlib.h"
+#include "StdAfx.h"
 #include "Yuris.h"
 
 bool CYuris::Mount(CArcFile* archive)
@@ -61,7 +60,7 @@ bool CYuris::MountYPF(CArcFile* archive)
 	std::vector<u8> index(index_size);
 	archive->Seek(16, FILE_CURRENT);
 	archive->Read(index.data(), index.size());
-	u8* index_ptr = index.data();
+	const u8* index_ptr = index.data();
 
 	// Decoding test
 	static constexpr std::array<u32, 2> file_info_lengths = { 26, 18 };
@@ -158,9 +157,9 @@ bool CYuris::MountYPF(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(u32*)&index_ptr[5 + length + 2];
-		file_info.sizeCmp = *(u32*)&index_ptr[5 + length + 6];
-		file_info.start = *(u32*)&index_ptr[5 + length + 10];
+		file_info.sizeOrg = *(const u32*)&index_ptr[5 + length + 2];
+		file_info.sizeCmp = *(const u32*)&index_ptr[5 + length + 6];
+		file_info.start = *(const u32*)&index_ptr[5 + length + 10];
 		file_info.end = file_info.start + file_info.sizeCmp;
 		if (cmp)
 			file_info.format = _T("zlib");
