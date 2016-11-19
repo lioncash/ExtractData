@@ -33,7 +33,7 @@
 //#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
 
-//typedef std::basic_string<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR> > tstring;
+#include    "Types.h"
 
 #include    "Base/YCMemory.h"
 #include    "Base/YCString.h"
@@ -44,6 +44,4 @@
 #include    "Base/YCIni.h"
 #include    "Base/YCFile.h"
 #include    "Base/YCStdioFile.h"
-
-#include    "Types.h"
 

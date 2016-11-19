@@ -12,18 +12,18 @@ public:
 	YCStdioFile();
 	virtual ~YCStdioFile();
 
-	bool Open(LPCTSTR pszPathToFile, UINT uOpenFlags) override;
+	bool Open(LPCTSTR file_path, u32 open_flags) override;
 	void Close() override;
 
-	DWORD Read(void* pvBuffer, DWORD dwReadSize) override;
-	DWORD Write(const void* pvBuffer, DWORD dwWriteSize) override;
+	DWORD Read(void* buffer, u32 read_size) override;
+	DWORD Write(const void* buffer, u32 write_size) override;
 
-	virtual LPTSTR ReadString(LPTSTR pszBuffer, DWORD dwBufferSize);
-	virtual BOOL ReadString(YCString& rfclsBuffer);
-	virtual void WriteString(LPCTSTR pszBuffer);
+	virtual LPTSTR ReadString(LPTSTR buffer, u32 buffer_size);
+	virtual bool ReadString(YCString& buffer);
+	virtual void WriteString(LPCTSTR buffer);
 
-	UINT64 Seek(INT64 offset, DWORD SeekMode) override;
+	u64 Seek(s64 offset, u32 seek_mode) override;
 
 private:
-	FILE* m_pStream;
+	FILE* m_stream = nullptr;
 };

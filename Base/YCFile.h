@@ -1,9 +1,5 @@
 #pragma once
 
-//----------------------------------------------------------------------------------------
-//-- File Class ----------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-
 class YCFile
 {
 public:
@@ -38,31 +34,30 @@ public:
 	YCFile();
 	virtual ~YCFile();
 
-	virtual bool Open(LPCTSTR pszPathToFile, UINT uOpenFlags);
+	virtual bool Open(LPCTSTR file_path, u32 open_flags);
 
 	virtual void Close();
 
-	virtual DWORD Read(void* pvBuffer, DWORD dwReadSize);
-	virtual DWORD Write(const void* pvBuffer, DWORD dwWriteSize);
+	virtual DWORD Read(void* buffer, u32 read_size);
+	virtual DWORD Write(const void* buffer, u32 write_size);
 
-	virtual UINT64 Seek(INT64 n64Offset, DWORD dwSeekMode);
-	virtual UINT64 SeekHed(INT64 n64Offset = 0);
-	virtual UINT64 SeekEnd(INT64 n64Offset = 0);
-	virtual UINT64 SeekCur(INT64 n64Offset);
+	virtual u64 Seek(s64 offset, u32 seek_mode);
+	virtual u64 SeekHed(s64 offset = 0);
+	virtual u64 SeekEnd(s64 offset = 0);
+	virtual u64 SeekCur(s64 offset);
 
-	virtual UINT64 GetPosition();
-	virtual UINT64 GetLength();
+	virtual u64 GetPosition();
+	virtual u64 GetLength();
 
 	virtual YCString GetFilePath() const;
 	virtual YCString GetFileName() const;
 	virtual YCString GetFileExt() const;
 
 protected:
-	YCString m_clsPathToFile;
-	YCString m_clsFileName;
-	YCString m_clsFileExt;
-
+	YCString m_file_path;
+	YCString m_file_name;
+	YCString m_file_extension;
 
 private:
-	HANDLE m_hFile;
+	HANDLE m_file;
 };

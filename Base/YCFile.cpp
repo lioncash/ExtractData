@@ -1,10 +1,10 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "YCFile.h"
 
 /// Constructor
 YCFile::YCFile()
 {
-	m_hFile = INVALID_HANDLE_VALUE;
+	m_file = INVALID_HANDLE_VALUE;
 }
 
 /// Destructor
@@ -15,253 +15,252 @@ YCFile::~YCFile()
 
 /// Specifies the mode to open the file with
 ///
-/// @param pszPathToFile File path
-/// @param uOpenFlags    Mode
+/// @param file_path  File path
+/// @param open_flags Mode
 ///
-bool YCFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
+bool YCFile::Open(LPCTSTR file_path, u32 open_flags)
 {
 	Close();
 
 	// Path is too long
-	if (lstrlen(pszPathToFile) > MAX_PATH)
+	if (lstrlen(file_path) > MAX_PATH)
 	{
 		return false;
 	}
 
 	// Access method
 
-	DWORD dwAccess;
-	DWORD dwCreateDisposition;
+	u32 access;
+	u32 create_disposition;
 
-	if (uOpenFlags & modeRead)
+	if (open_flags & modeRead)
 	{
-		dwAccess = GENERIC_READ;
-		dwCreateDisposition = OPEN_EXISTING;
+		access = GENERIC_READ;
+		create_disposition = OPEN_EXISTING;
 	}
-	else if (uOpenFlags & modeReadWrite)
+	else if (open_flags & modeReadWrite)
 	{
-		dwAccess = (GENERIC_READ | GENERIC_WRITE);
-		dwCreateDisposition = OPEN_EXISTING;
+		access = (GENERIC_READ | GENERIC_WRITE);
+		create_disposition = OPEN_EXISTING;
 	}
-	else if (uOpenFlags & modeWrite)
+	else if (open_flags & modeWrite)
 	{
-		dwAccess = GENERIC_WRITE;
-		dwCreateDisposition = CREATE_NEW;
+		access = GENERIC_WRITE;
+		create_disposition = CREATE_NEW;
 	}
 	else
 	{
-		dwAccess = 0;
-		dwCreateDisposition = OPEN_EXISTING;
+		access = 0;
+		create_disposition = OPEN_EXISTING;
 	}
 
 	// Shared mode
+	u32 share;
 
-	DWORD dwShare;
-
-	if (uOpenFlags & shareDenyNone)
+	if (open_flags & shareDenyNone)
 	{
-		dwShare = (FILE_SHARE_READ | FILE_SHARE_WRITE);
+		share = (FILE_SHARE_READ | FILE_SHARE_WRITE);
 	}
-	else if (uOpenFlags & shareDenyRead)
+	else if (open_flags & shareDenyRead)
 	{
-		dwShare = FILE_SHARE_WRITE;
+		share = FILE_SHARE_WRITE;
 	}
-	else if (uOpenFlags & shareDenyWrite)
+	else if (open_flags & shareDenyWrite)
 	{
-		dwShare = FILE_SHARE_READ;
+		share = FILE_SHARE_READ;
 	}
 	else
 	{
-		dwShare = 0;
+		share = 0;
 	}
 
 	// File attributes and flags
 
-	DWORD dwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+	u32 flags_and_attributes = FILE_ATTRIBUTE_NORMAL;
 
-	if (uOpenFlags & osNoBuffer)
+	if (open_flags & osNoBuffer)
 	{
-		dwFlagsAndAttributes |= FILE_FLAG_NO_BUFFERING;
+		flags_and_attributes |= FILE_FLAG_NO_BUFFERING;
 	}
-	if (uOpenFlags & osWriteThrough)
+	if (open_flags & osWriteThrough)
 	{
-		dwFlagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;
+		flags_and_attributes |= FILE_FLAG_WRITE_THROUGH;
 	}
-	if (uOpenFlags & osRandomAccess)
+	if (open_flags & osRandomAccess)
 	{
-		dwFlagsAndAttributes |= FILE_FLAG_RANDOM_ACCESS;
+		flags_and_attributes |= FILE_FLAG_RANDOM_ACCESS;
 	}
-	if (uOpenFlags & osSequentialScan)
+	if (open_flags & osSequentialScan)
 	{
-		dwFlagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
+		flags_and_attributes |= FILE_FLAG_SEQUENTIAL_SCAN;
 	}
 
 	// If the file exists, check its time. If not, then it does not exist
-	if (uOpenFlags & modeCreate)
+	if (open_flags & modeCreate)
 	{
-		if (uOpenFlags & modeNoTruncate)
+		if (open_flags & modeNoTruncate)
 		{
-			dwCreateDisposition = OPEN_ALWAYS;
+			create_disposition = OPEN_ALWAYS;
 		}
 		else
 		{
-			dwCreateDisposition = CREATE_ALWAYS;
+			create_disposition = CREATE_ALWAYS;
 		}
 	}
 
 	// Open the file
-	m_hFile = ::CreateFile(pszPathToFile, dwAccess, dwShare, nullptr, dwCreateDisposition, dwFlagsAndAttributes, nullptr);
+	m_file = ::CreateFile(file_path, access, share, nullptr, create_disposition, flags_and_attributes, nullptr);
 
 	// Holds the file path
-	m_clsPathToFile = pszPathToFile;
-	m_clsFileName = m_clsPathToFile.GetFileName();
-	m_clsFileExt = m_clsPathToFile.GetFileExt();
+	m_file_path = file_path;
+	m_file_name = m_file_path.GetFileName();
+	m_file_extension = m_file_path.GetFileExt();
 
-	return m_hFile != INVALID_HANDLE_VALUE;
+	return m_file != INVALID_HANDLE_VALUE;
 }
 
 /// Close File
 void YCFile::Close()
 {
-	if (m_hFile != INVALID_HANDLE_VALUE)
+	if (m_file != INVALID_HANDLE_VALUE)
 	{
-		::CloseHandle(m_hFile);
-		m_hFile = INVALID_HANDLE_VALUE;
+		::CloseHandle(m_file);
+		m_file = INVALID_HANDLE_VALUE;
 	}
 }
 
 /// Read File
 ///
-/// @param pvBuffer   Buffer
-/// @param dwReadSize Number of bytes to read.
+/// @param buffer   Buffer
+/// @param read_size Number of bytes to read.
 ///
-DWORD YCFile::Read(void* pvBuffer, DWORD dwReadSize)
+DWORD YCFile::Read(void* buffer, u32 read_size)
 {
-	DWORD dwResult;
+	DWORD result;
 
-	if (!::ReadFile( m_hFile, pvBuffer, dwReadSize, &dwResult, nullptr))
+	if (!::ReadFile(m_file, buffer, read_size, &result, nullptr))
 	{
-		dwResult = 0;
+		result = 0;
 	}
 
-	return dwResult;
+	return result;
 }
 
 /// Write File
 ///
-/// @param pvBuffer    Buffer
-/// @param dwWriteSize Number of bytes to write.
+/// @param buffer     Buffer
+/// @param write_size Number of bytes to write.
 ///
-DWORD YCFile::Write(const void* pvBuffer, DWORD dwWriteSize)
+DWORD YCFile::Write(const void* buffer, u32 write_size)
 {
-	DWORD dwResult;
+	DWORD result;
 
-	if (!::WriteFile(m_hFile, pvBuffer, dwWriteSize, &dwResult, nullptr))
+	if (!::WriteFile(m_file, buffer, write_size, &result, nullptr))
 	{
-		dwResult = 0;
+		result = 0;
 	}
 
-	return dwResult;
+	return result;
 }
 
 /// Move the file pointer
 ///
-/// @param n64Offset  Number of bytes to move
-/// @param dwSeekMode Seek mode
+/// @param offset    Number of bytes to move
+/// @param seek_mode Seek mode
 ///
-UINT64 YCFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
+u64 YCFile::Seek(s64 offset, u32 seek_mode)
 {
-	switch (dwSeekMode)
+	switch (seek_mode)
 	{
 	case begin:
-		dwSeekMode = FILE_BEGIN;
+		seek_mode = FILE_BEGIN;
 		break;
 
 	case current:
-		dwSeekMode = FILE_CURRENT;
+		seek_mode = FILE_CURRENT;
 		break;
 
 	case end:
-		dwSeekMode = FILE_END;
+		seek_mode = FILE_END;
 		break;
 
 	default:
-		dwSeekMode = FILE_BEGIN;
+		seek_mode = FILE_BEGIN;
 	}
 
-	LARGE_INTEGER stliWork;
+	LARGE_INTEGER work;
 
-	stliWork.QuadPart = n64Offset;
-	stliWork.LowPart = ::SetFilePointer(m_hFile, stliWork.LowPart, &stliWork.HighPart, dwSeekMode);
+	work.QuadPart = offset;
+	work.LowPart = ::SetFilePointer(m_file, work.LowPart, &work.HighPart, seek_mode);
 
-	if ((stliWork.LowPart == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
+	if (work.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 	{
 		// Seek fails
 
-		stliWork.QuadPart = -1;
+		work.QuadPart = -1;
 	}
 
-	return static_cast<UINT64>(stliWork.QuadPart);
+	return static_cast<u64>(work.QuadPart);
 }
 
 // /Move file relative to the start of the file
 ///
-/// @param n64Offset Number of bytes to seek
+/// @param offset Number of bytes to seek
 ///
-UINT64 YCFile::SeekHed(INT64 n64Offset)
+u64 YCFile::SeekHed(s64 offset)
 {
-	return Seek(n64Offset, begin);
+	return Seek(offset, begin);
 }
 
 /// Move the file pointer relative to the end of the file
 ///
-/// @param n64Offset - Number of bytes to seek
+/// @param offset - Number of bytes to seek
 ///
-UINT64 YCFile::SeekEnd(INT64 n64Offset)
+u64 YCFile::SeekEnd(s64 offset)
 {
-	return Seek(-n64Offset, end);
+	return Seek(-offset, end);
 }
 
 /// Move the file pointer relative to its current position
 ///
-/// @param n64Offset Number of bytes to seek
+/// @param offset Number of bytes to seek
 ///
-UINT64 YCFile::SeekCur(INT64 n64Offset)
+u64 YCFile::SeekCur(s64 offset)
 {
-	return Seek(n64Offset, current);
+	return Seek(offset, current);
 }
 
 /// Get the current file pointer position
-UINT64 YCFile::GetPosition()
+u64 YCFile::GetPosition()
 {
 	return SeekCur(0);
 }
 
 /// Gets the length of the file
-UINT64 YCFile::GetLength()
+u64 YCFile::GetLength()
 {
-	UINT64 u64CurrentOffset = GetPosition();
-	UINT64 u64EndOffset     = SeekEnd();
+	const u64 current_offset = GetPosition();
+	const u64 end_offset     = SeekEnd();
 
-	SeekHed(u64CurrentOffset);
+	SeekHed(current_offset);
 
-	return u64EndOffset;
+	return end_offset;
 }
 
 /// Gets the file path
 YCString YCFile::GetFilePath() const
 {
-	return m_clsPathToFile;
+	return m_file_path;
 }
 
 /// Gets the file name
 YCString YCFile::GetFileName() const
 {
-	return m_clsFileName;
+	return m_file_name;
 }
 
 /// Retrieves the file's extension
 YCString YCFile::GetFileExt() const
 {
-	return m_clsFileExt;
+	return m_file_extension;
 }

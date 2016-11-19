@@ -1,11 +1,10 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "YCStdioFile.h"
 #include "Utils/ArrayUtils.h"
 
 /// Constructor
 YCStdioFile::YCStdioFile()
 {
-	m_pStream = nullptr;
 }
 
 /// Destructor
@@ -16,177 +15,175 @@ YCStdioFile::~YCStdioFile()
 
 /// Mode to open the file in
 ///
-/// @param pszPathToFile File path
-/// @param uOpenFlags    Mode
+/// @param file_path  File path
+/// @param open_flags Mode
 ///
-bool YCStdioFile::Open(LPCTSTR pszPathToFile, UINT uOpenFlags)
+bool YCStdioFile::Open(LPCTSTR file_path, u32 open_flags)
 {
 	Close();
 
-	if (lstrlen(pszPathToFile) >= MAX_PATH)
+	if (lstrlen(file_path) >= MAX_PATH)
 	{
 		// Path is too long
-
 		return false;
 	}
 
 	// Accessing Mode
-	YCString clsMode;
+	YCString mode;
 
-	if (uOpenFlags & typeBinary)
+	if (open_flags & typeBinary)
 	{
 		// Binary
-
-		if (uOpenFlags & modeRead)
+		if (open_flags & modeRead)
 		{
-			clsMode = _T("rb");
+			mode = _T("rb");
 		}
 
-		if (uOpenFlags & modeCreate)
+		if (open_flags & modeCreate)
 		{
-			if (uOpenFlags & modeNoTruncate)
+			if (open_flags & modeNoTruncate)
 			{
-				if (uOpenFlags & modeReadWrite)
+				if (open_flags & modeReadWrite)
 				{
-					clsMode = _T("rb+");
+					mode = _T("rb+");
 				}
-				else if (uOpenFlags & modeWrite)
+				else if (open_flags & modeWrite)
 				{
-					clsMode = _T("ab");
+					mode = _T("ab");
 				}
 			}
 			else
 			{
-				if (uOpenFlags & modeReadWrite)
+				if (open_flags & modeReadWrite)
 				{
-					clsMode = _T("wb+");
+					mode = _T("wb+");
 				}
-				else if (uOpenFlags & modeWrite)
+				else if (open_flags & modeWrite)
 				{
-					clsMode = _T("wb");
+					mode = _T("wb");
 				}
 			}
 		}
 		else
 		{
-			if (uOpenFlags & modeReadWrite)
+			if (open_flags & modeReadWrite)
 			{
-				clsMode = _T("ab+");
+				mode = _T("ab+");
 			}
-			else if (uOpenFlags & modeWrite)
+			else if (open_flags & modeWrite)
 			{
-				clsMode = _T("ab");
+				mode = _T("ab");
 			}
 		}
 	}
 	else // Text
 	{
-		if (uOpenFlags & modeRead)
+		if (open_flags & modeRead)
 		{
-			clsMode = _T("r");
+			mode = _T("r");
 		}
 
-		if (uOpenFlags & modeCreate)
+		if (open_flags & modeCreate)
 		{
-			if (uOpenFlags & modeNoTruncate)
+			if (open_flags & modeNoTruncate)
 			{
-				if (uOpenFlags & modeReadWrite)
+				if (open_flags & modeReadWrite)
 				{
-					clsMode = _T("r+");
+					mode = _T("r+");
 				}
-				else if (uOpenFlags & modeWrite)
+				else if (open_flags & modeWrite)
 				{
-					clsMode = _T("a");
+					mode = _T("a");
 				}
 			}
 			else
 			{
-				if (uOpenFlags & modeReadWrite)
+				if (open_flags & modeReadWrite)
 				{
-					clsMode = _T("w+");
+					mode = _T("w+");
 				}
-				else if (uOpenFlags & modeWrite)
+				else if (open_flags & modeWrite)
 				{
-					clsMode = _T("w");
+					mode = _T("w");
 				}
 			}
 		}
 		else
 		{
-			if (uOpenFlags & modeReadWrite)
+			if (open_flags & modeReadWrite)
 			{
-				clsMode = _T("a+");
+				mode = _T("a+");
 			}
-			else if (uOpenFlags & modeWrite)
+			else if (open_flags & modeWrite)
 			{
-				clsMode = _T("a");
+				mode = _T("a");
 			}
 		}
 	}
 
 	// Open File
 
-	m_pStream = _tfopen(pszPathToFile, clsMode);
+	m_stream = _tfopen(file_path, mode);
 
-	m_clsPathToFile = pszPathToFile;
-	m_clsFileName = m_clsPathToFile.GetFileName();
-	m_clsFileExt = m_clsPathToFile.GetFileExt();
+	m_file_path = file_path;
+	m_file_name = m_file_path.GetFileName();
+	m_file_extension = m_file_path.GetFileExt();
 
-	return m_pStream != nullptr;
+	return m_stream != nullptr;
 }
 
 /// Close File
 void YCStdioFile::Close()
 {
-	if (m_pStream != nullptr)
+	if (m_stream != nullptr)
 	{
-		fclose(m_pStream);
-		m_pStream = nullptr;
+		fclose(m_stream);
+		m_stream = nullptr;
 	}
 }
 
 /// Read File
 ///
-/// @param pvBuffer   Buffer
-/// @param dwReadSize Read size
+/// @param buffer    Buffer
+/// @param read_size Read size
 ///
-DWORD YCStdioFile::Read(void* pvBuffer, DWORD dwReadSize)
+DWORD YCStdioFile::Read(void* buffer, u32 read_size)
 {
-	return fread(pvBuffer, 1, dwReadSize, m_pStream);
+	return fread(buffer, 1, read_size, m_stream);
 }
 
 /// Write File
 ///
-/// @param pvBuffer    Buffer
-/// @param dwWriteSize Write size
+/// @param buffer     Buffer
+/// @param write_size Write size
 ///
-DWORD YCStdioFile::Write(const void* pvBuffer, DWORD dwWriteSize)
+DWORD YCStdioFile::Write(const void* buffer, u32 write_size)
 {
-	return fwrite(pvBuffer, 1, dwWriteSize, m_pStream);
+	return fwrite(buffer, 1, write_size, m_stream);
 }
 
 /// Read a file line
 ///
-/// @param pszBuffer    Buffer
-/// @param dwBufferSize Buffer size
+/// @param buffer      Buffer
+/// @param buffer_size Buffer size
 ///
-LPTSTR YCStdioFile::ReadString(LPTSTR pszBuffer, DWORD dwBufferSize)
+LPTSTR YCStdioFile::ReadString(LPTSTR buffer, u32 buffer_size)
 {
-	return _fgetts( pszBuffer, dwBufferSize, m_pStream );
+	return _fgetts(buffer, buffer_size, m_stream);
 }
 
 /// Read a file line
 ///
-/// @param rfclsBuffer Buffer
+/// @param buffer Buffer
 ///
 /// @remark Gets rid of the newline at the end
 ///
-BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
+bool YCStdioFile::ReadString(YCString& buffer)
 {
-	BOOL  bReturn = FALSE;
+	bool  result = false;
 	TCHAR szBuffer[1024];
 
-	rfclsBuffer = _T("");
+	buffer = _T("");
 
 	while (true)
 	{
@@ -197,9 +194,9 @@ BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 			break;
 		}
 
-		rfclsBuffer += szBuffer;
+		buffer += szBuffer;
 
-		bReturn = TRUE;
+		result = true;
 
 		if (szBuffer[lstrlen(szBuffer) - 1] == _T('\n'))
 		{
@@ -209,43 +206,44 @@ BOOL YCStdioFile::ReadString(YCString& rfclsBuffer)
 		}
 	}
 
-	return bReturn;
+	return result;
 }
 
 /// Writes a line into the file
-void YCStdioFile::WriteString(LPCTSTR pszBuffer)
+void YCStdioFile::WriteString(LPCTSTR buffer)
 {
-	_fputts(pszBuffer, m_pStream);
+	_fputts(buffer, m_stream);
 }
 
 /// Move the file pointer (Seek)
 ///
-/// @param n64Offset  Number of bytes to seek
-/// @param dwSeekMode Seek mode
+/// @param offset    Number of bytes to seek
+/// @param seek_mode Seek mode
 ///
-UINT64 YCStdioFile::Seek(INT64 n64Offset, DWORD dwSeekMode)
+u64 YCStdioFile::Seek(s64 offset, u32 seek_mode)
 {
-	switch (dwSeekMode)
+	switch (seek_mode)
 	{
 	case begin:
-		dwSeekMode = SEEK_SET;
+		seek_mode = SEEK_SET;
 		break;
 
 	case current:
-		dwSeekMode = SEEK_CUR;
+		seek_mode = SEEK_CUR;
 		break;
 
 	case end:
-		dwSeekMode = SEEK_END;
+		seek_mode = SEEK_END;
 		break;
 
 	default:
-		dwSeekMode = SEEK_SET;
+		seek_mode = SEEK_SET;
+		break;
 	}
 
-	if (_fseeki64(m_pStream, n64Offset, dwSeekMode))
+	if (_fseeki64(m_stream, offset, seek_mode))
 	{
-		return static_cast<UINT64>(_ftelli64(m_pStream));
+		return static_cast<u64>(_ftelli64(m_stream));
 	}
 
 	return 0;
