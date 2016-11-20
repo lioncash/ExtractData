@@ -5,94 +5,94 @@
 #include "Clannad.h"
 
 // Functions to get file information for Clannad's VOICE.MRG
-bool CClannad::Mount(CArcFile* pclArc)
+bool CClannad::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".MRG")) || (memcmp(pclArc->GetHed(), "LV", 2) != 0) || (memcmp(pclArc->GetHed() + 7, "MZX0", 4) != 0))
+	if (archive->GetArcExten() != _T(".MRG") || memcmp(archive->GetHed(), "LV", 2) != 0 || memcmp(archive->GetHed() + 7, "MZX0", 4) != 0)
 		return false;
 
 	// Open VOICE.HED
-	TCHAR szHedFilePath[MAX_PATH];
-	lstrcpy(szHedFilePath, pclArc->GetArcPath());
-	PathRenameExtension(szHedFilePath, _T(".HED"));
-	CFile HedFile;
-	if (HedFile.Open(szHedFilePath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	TCHAR hed_file_path[MAX_PATH];
+	lstrcpy(hed_file_path, archive->GetArcPath());
+	PathRenameExtension(hed_file_path, _T(".HED"));
+	CFile hed_file;
+	if (hed_file.Open(hed_file_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Get index size
-	DWORD index_size = HedFile.GetFileSize() - 16;
+	const size_t index_size = hed_file.GetFileSize() - 16;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	HedFile.Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	hed_file.Read(index.data(), index.size());
+	const u8* index_ptr = index.data();
 
 	// Number of files retrieved from index size
-	DWORD ctFile = index_size >> 2;
+	const u32 num_files = index_size >> 2;
 
 	// If its VOICE.MRG, start from 20000
-	DWORD count = (pclArc->GetArcName() == _T("VOICE.MRG")) ? 0 : 20000;
+	u32 count = (archive->GetArcName() == _T("VOICE.MRG")) ? 0 : 20000;
 
-	for (unsigned int i = 0; i < ctFile; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
-		WORD pos = *(LPWORD)&pIndex[0];
-		WORD argSize = *(LPWORD)&pIndex[2];
+		const u16 pos = *reinterpret_cast<const u16*>(&index_ptr[0]);
+		const u16 arg_size = *reinterpret_cast<const u16*>(&index_ptr[2]);
 
-		int section = count / 1000;
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("KOE\\%04d\\Z%04d%05d.wav"), section, section, count++);
+		const u32 section = count / 1000;
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("KOE\\%04u\\Z%04u%05u.wav"), section, section, count++);
 
 		// Add to listview
 		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeCmp = (argSize & 0xfff) * 0x800;
+		infFile.name = file_name;
+		infFile.sizeCmp = (arg_size & 0xfff) * 0x800;
 		infFile.sizeOrg = infFile.sizeCmp * 6; // Appropriate. File size can not be obtained after the expansion to an unpacked 32-byte
-		infFile.start = pos * 0x800 + (argSize & 0xf000) * 0x8000;
+		infFile.start = pos * 0x800 + (arg_size & 0xf000) * 0x8000;
 		infFile.end = infFile.start + infFile.sizeCmp;
 		infFile.format = _T("AHX");
 		infFile.title = _T("CLANNAD");
-		pclArc->AddFileInfo(infFile);
+		archive->AddFileInfo(infFile);
 
-		pIndex += 4;
+		index_ptr += 4;
 	}
 
 	return true;
 }
 
 // Function to perform extraction
-bool CClannad::Decode(CArcFile* pclArc)
+bool CClannad::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if ((file_info->title != _T("CLANNAD")) || (file_info->format != _T("AHX")))
+	if (file_info->title != _T("CLANNAD") || file_info->format != _T("AHX"))
 		return false;
 
 	// Ensure buffer
-	YCMemory<BYTE> mzx_buf(file_info->sizeCmp);
+	std::vector<u8> mzx_buf(file_info->sizeCmp);
 
 	// Read
-	pclArc->Read(&mzx_buf[0], file_info->sizeCmp);
+	archive->Read(mzx_buf.data(), mzx_buf.size());
 
 	// MZX Decompression
-	DWORD ahx_buf_len = *(LPDWORD)&mzx_buf[11];
-	YCMemory<BYTE> ahx_buf(ahx_buf_len + 1024);
+	const u32 ahx_buf_len = *reinterpret_cast<const u32*>(&mzx_buf[11]);
+	std::vector<u8> ahx_buf(ahx_buf_len + 1024);
 	CMzx mzx;
-	mzx.Decompress(&ahx_buf[0], ahx_buf_len, &mzx_buf[7]);
+	mzx.Decompress(ahx_buf.data(), ahx_buf_len, &mzx_buf[7]);
 
 	// Decode AHX to WAV
 	CAhx ahx;
-	ahx.Decode(pclArc, &ahx_buf[0], ahx_buf_len);
+	ahx.Decode(archive, ahx_buf.data(), ahx_buf_len);
 
 /*
-	DWORD wav_buf_len = BitUtils::Swap32(*(LPDWORD)&ahx_buf[12]) * 2;
-	YCMemory<BYTE> wav_buf(wav_buf_len + 1152 * 2); // margen = layer-2 frame size
+	size_t wav_buf_len = BitUtils::Swap32(*reinterpret_cast<const u32*>(&ahx_buf[12])) * 2;
+	std::vector<u8> wav_buf(wav_buf_len + 1152 * 2); // margen = layer-2 frame size
 	CAhx ahx;
-	wav_buf_len = ahx.Decompress(&wav_buf[0], &ahx_buf[0], ahx_buf_len);
+	wav_buf_len = ahx.Decompress(wav_buf.data(), ahx_buf.data(), ahx_buf_len);
 
 	// Output
-	pclArc->OpenFile();
+	archive->OpenFile();
 	CWav wav;
-	wav.WriteHed(pclArc, wav_buf_len, BitUtils::Swap32(*(LPDWORD)&ahx_buf[8]), 1, 16);
-	pclArc->WriteFile(&wav_buf[0], wav_buf_len);
+	wav.WriteHed(archive, wav_buf_len, BitUtils::Swap32(*reinterpret_cast<const u32*>(&ahx_buf[8])), 1, 16);
+	archive->WriteFile(wav_buf.data(), wav_buf_len);
 */
 	return true;
 }
