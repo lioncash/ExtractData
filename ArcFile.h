@@ -171,7 +171,7 @@ private:
 	std::vector<YCString>   m_archive_names;
 	std::vector<YCString>   m_archive_extensions;
 
-	std::array<BYTE, 2048>  m_header;
+	std::array<u8, 2048>    m_header;
 	u32                     m_archive_id;
 	size_t                  m_start_entry_index;  // Starting index of the archive file information
 	size_t                  m_entry_count;        // Number of archive file information
