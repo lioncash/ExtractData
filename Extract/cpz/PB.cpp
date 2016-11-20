@@ -11,18 +11,18 @@
 /// @param src        Compressed data
 /// @param src_size   Compressed data size
 ///
-void CPB::DecompLZSS(u8* dst, DWORD dst_size, const u8* flags, DWORD flags_size, const u8* src, DWORD src_size)
+void CPB::DecompLZSS(u8* dst, size_t dst_size, const u8* flags, size_t flags_size, const u8* src, size_t src_size)
 {
 	// Initialize Dictionary
-	constexpr DWORD dictionary_size = 2048;
-	std::vector<BYTE> dictionary(dictionary_size);
-	DWORD dictionary_ptr = 2014;
+	constexpr size_t dictionary_size = 2048;
+	std::vector<u8> dictionary(dictionary_size);
+	size_t dictionary_ptr = 2014;
 
 	// Decompress
-	DWORD src_ptr = 0;
-	DWORD flags_ptr = 0;
-	DWORD dst_ptr = 0;
-	BYTE  code = 0x80;
+	size_t src_ptr = 0;
+	size_t flags_ptr = 0;
+	size_t dst_ptr = 0;
+	u8 code = 0x80;
 
 	while (src_ptr < src_size && dst_ptr < dst_size && flags_ptr < flags_size)
 	{
@@ -35,10 +35,10 @@ void CPB::DecompLZSS(u8* dst, DWORD dst_size, const u8* flags, DWORD flags_size,
 		// Is Compressed
 		if (flags[flags_ptr] & code)
 		{
-			const WORD work = *(WORD*)&src[src_ptr];
+			const u16 work = *reinterpret_cast<const u16*>(&src[src_ptr]);
 
-			DWORD back = work >> 5;
-			DWORD length = (work & 0x1F) + 3;
+			size_t back = work >> 5;
+			size_t length = (work & 0x1F) + 3;
 
 			// Adjust so that the buffer is not exceeded
 			if (dst_ptr + length > dst_size)
@@ -47,12 +47,12 @@ void CPB::DecompLZSS(u8* dst, DWORD dst_size, const u8* flags, DWORD flags_size,
 			}
 
 			// Dictionary Reference
-			for (DWORD i = 0; i < length; i++)
+			for (size_t i = 0; i < length; i++)
 			{
 				dst[dst_ptr + i] = dictionary[dictionary_ptr++] = dictionary[back++];
 
-				dictionary_ptr &= (dictionary_size - 1);
-				back &= (dictionary_size - 1);
+				dictionary_ptr &= dictionary_size - 1;
+				back &= dictionary_size - 1;
 			}
 
 			src_ptr += 2;
@@ -62,7 +62,7 @@ void CPB::DecompLZSS(u8* dst, DWORD dst_size, const u8* flags, DWORD flags_size,
 		{
 			dst[dst_ptr++] = dictionary[dictionary_ptr++] = src[src_ptr++];
 
-			dictionary_ptr &= (dictionary_size - 1);
+			dictionary_ptr &= dictionary_size - 1;
 		}
 
 		code >>= 1;
