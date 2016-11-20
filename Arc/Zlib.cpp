@@ -42,9 +42,9 @@ void CZlib::DecompressFile(CArcFile* archive)
 }
 
 // Function to expand memory with zlib
-int CZlib::Decompress(BYTE* dst, DWORD* dstSize, const BYTE* src, DWORD srcSize)
+int CZlib::Decompress(u8* dst, unsigned long* dst_size, const u8* src, unsigned long src_size)
 {
-	return uncompress(dst, dstSize, src, srcSize);
+	return uncompress(dst, dst_size, src, src_size);
 
 	/*
 	z_stream z;
@@ -59,15 +59,15 @@ int CZlib::Decompress(BYTE* dst, DWORD* dstSize, const BYTE* src, DWORD srcSize)
 	if (inflateInit(&z) != Z_OK)
 	{
 		CError error;
-		error.Message(NULL, _T("inflateInit: %s"), z.msg);
+		error.Message(nullptr, _T("inflateInit: %s"), z.msg);
 		return -1;
 	}
 
 	z.next_out = dst; // Output pointer
-	z.avail_out = dstSize; // Remaining amount in the output buffer
+	z.avail_out = dst_size; // Remaining amount in the output buffer
 
 	z.next_in = src; // Back to the original input pointer position
-	z.avail_in = srcSize; // Read data
+	z.avail_in = src_size; // Read data
 
 	// Decompress
 	inflate(&z, Z_NO_FLUSH);
@@ -83,7 +83,7 @@ int CZlib::Decompress(BYTE* dst, DWORD* dstSize, const BYTE* src, DWORD srcSize)
 }
 
 // Function to expand memory with zlib
-int CZlib::Decompress(BYTE* dst, DWORD dstSize, const BYTE* src, DWORD srcSize)
+int CZlib::Decompress(u8* dst, unsigned long dst_size, const u8* src, unsigned long src_size)
 {
-	return uncompress(dst, &dstSize, src, srcSize);
+	return uncompress(dst, &dst_size, src, src_size);
 }
