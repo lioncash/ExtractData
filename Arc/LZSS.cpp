@@ -43,10 +43,10 @@ bool CLZSS::Decomp(CArcFile* archive, size_t dic_size, size_t dic_ptr, size_t le
 	// Bitmap
 	if (lstrcmp(PathFindExtension(file_info->name), _T(".bmp")) == 0)
 	{
-		CImage clImage;
-		clImage.Init(archive, dst.data());
-		clImage.Write(dst.size());
-		clImage.Close();
+		CImage image;
+		image.Init(archive, dst.data());
+		image.Write(dst.size());
+		image.Close();
 	}
 	else // Other
 	{
@@ -132,51 +132,49 @@ bool CLZSS::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size, siz
 
 
 /*
-		for( DWORD i = 0 ; (i < 8) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize) ; i++ )
+		for (size_t i = 0; i < 8 && src_ptr < src_size && dst_ptr < dst_size; i++)
 		{
-			if( btFlags & 1 )
+			if (flags & 1)
 			{
 				// Non-compressed data
 
-				pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = pbtSrc[dwSrcPtr];
+				dst[dst_ptr] = dictionary[dic_ptr] = src[src_ptr];
 
-				dwDstPtr++;
-				dwSrcPtr++;
-				dwDicPtr++;
+				dst_ptr++;
+				src_ptr++;
+				dic_ptr++;
 
-				dwDicPtr &= (dwDicSize - 1);
+				dic_ptr &= dic_size - 1;
 			}
 			else
 			{
 				// Compressed data
+				const u8 low = src[src_ptr++];
+				const u8 high = src[src_ptr++];
 
-				BYTE  btLow = pbtSrc[dwSrcPtr++];
-				BYTE  btHigh = pbtSrc[dwSrcPtr++];
+				u32 back = ((high & 0xF0) << 4) | low;
+				u32 length = (high & 0x0F) + offset;
 
-				DWORD dwBack = (((btHigh & 0xF0) << 4) | btLow);
-				DWORD dwLength = ((btHigh & 0x0F) + dwOffset);
-
-				if( (dwDstPtr + dwLength) > dwDstSize )
+				if (dst_ptr + length > dst_size)
 				{
 					// Exceeds the output buffer
-
-					dwLength = (dwDstSize - dwDstPtr);
+					length = dst_size - dst_ptr;
 				}
 
-				for( DWORD j = 0 ; j < dwLength ; j++ )
+				for (size_t j = 0; j < length; j++)
 				{
-					pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = clmbtDic[dwBack];
+					dst[dst_ptr] = dictionary[dic_ptr] = dictionary[back];
 
-					dwDstPtr++;
-					dwDicPtr++;
-					dwBack++;
+					dst_ptr++;
+					dic_ptr++;
+					back++;
 
-					dwDicPtr &= (dwDicSize - 1);
-					dwBack &= (dwDicSize - 1);
+					dic_ptr &= dic_size - 1;
+					back &= dic_size - 1;
 				}
 			}
 
-			btFlags >>= 1;
+			flags >>= 1;
 		}*/
 	}
 
