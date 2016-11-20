@@ -2,137 +2,133 @@
 #include "../Sound/Wav.h"
 #include "VA.h"
 
-bool CVA::Mount(CArcFile* pclArc)
+bool CVA::Mount(CArcFile* archive)
 {
-	if (MountNwa(pclArc))
+	if (MountNwa(archive))
 		return true;
-	if (MountNwk(pclArc))
+	if (MountNwk(archive))
 		return true;
-	if (MountOvk(pclArc))
+	if (MountOvk(archive))
 		return true;
 
 	return false;
 }
 
 // Function that gets the information of a *.nwa file.
-bool CVA::MountNwa(CArcFile* pclArc)
+bool CVA::MountNwa(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".nwa"))
+	if (archive->GetArcExten() != _T(".nwa"))
 		return false;
 
 	// Read nwa header
-	NWAHed nwaHed;
-	pclArc->Read(&nwaHed, sizeof(NWAHed));
+	NWAHeader nwa_header;
+	archive->Read(&nwa_header, sizeof(NWAHeader));
 
 	// Add to listview
-	SFileInfo infFile;
-	infFile.name = pclArc->GetArcName();
-	infFile.sizeOrg = nwaHed.DataSize + 44;
-	infFile.sizeCmp = (nwaHed.CompFileSize == 0) ? infFile.sizeOrg : nwaHed.CompFileSize;
-	infFile.start = 0x00;
-	infFile.end = infFile.start + infFile.sizeCmp;
-	pclArc->AddFileInfo(infFile);
+	SFileInfo file_info;
+	file_info.name = archive->GetArcName();
+	file_info.sizeOrg = nwa_header.data_size + 44;
+	file_info.sizeCmp = (nwa_header.compressed_file_size == 0) ? file_info.sizeOrg : nwa_header.compressed_file_size;
+	file_info.start = 0x00;
+	file_info.end = file_info.start + file_info.sizeCmp;
+	archive->AddFileInfo(file_info);
 
 	return true;
 }
 
-// Function that gets the information of a *.nwk file
-bool CVA::MountNwk(CArcFile* pclArc)
+/// Function that gets the information of a *.nwk file
+bool CVA::MountNwk(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".nwk"))
+	if (archive->GetArcExten() != _T(".nwk"))
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Number of files retrieved from the index
-	DWORD index_size = ctFile * 12;
+	const u32 index_size = num_files * 12;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get the base filename
-	TCHAR szBaseFileName[_MAX_FNAME];
-	lstrcpy(szBaseFileName, pclArc->GetArcName());
-	PathRemoveExtension(szBaseFileName);
+	TCHAR base_file_name[_MAX_FNAME];
+	lstrcpy(base_file_name, archive->GetArcName());
+	PathRemoveExtension(base_file_name);
 
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.nwa"), szBaseFileName, *(LPDWORD) &pIndex[8]);
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("%s_%06u.nwa"), base_file_name, *reinterpret_cast<const u32*>(&index_ptr[8]));
 
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeCmp = *(LPDWORD)&pIndex[0];
-		//infFile.sizeOrg = infFile.sizeCmp;
-		infFile.start = *(LPDWORD)&pIndex[4];
-		infFile.end = infFile.start + infFile.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		//file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.end = file_info.start + file_info.sizeCmp;
 
 		// Get filesize
-		pclArc->Seek(infFile.start + 20, FILE_BEGIN);
-		pclArc->Read(&infFile.sizeOrg, 4);
-		infFile.sizeOrg += 44;
+		archive->Seek(file_info.start + 20, FILE_BEGIN);
+		archive->Read(&file_info.sizeOrg, 4);
+		file_info.sizeOrg += 44;
 
-		pclArc->AddFileInfo(infFile);
+		archive->AddFileInfo(file_info);
 
-		pIndex += 12;
+		index_ptr += 12;
 	}
 
 	return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets information from .ovk files
-
-bool CVA::MountOvk(CArcFile* pclArc)
+/// Gets information from .ovk files
+bool CVA::MountOvk(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".ovk"))
+	if (archive->GetArcExten() != _T(".ovk"))
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	DWORD dwIndexSize;
-	dwIndexSize = dwFiles * 16;
+	const u32 index_size = num_files * 16;
 
 	// Read index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get base filename
-	TCHAR szBaseFileName[_MAX_FNAME];
-	lstrcpy(szBaseFileName, pclArc->GetArcName());
-	PathRemoveExtension(szBaseFileName);
+	TCHAR base_file_name[_MAX_FNAME];
+	lstrcpy(base_file_name, archive->GetArcName());
+	PathRemoveExtension(base_file_name);
 
 	// Get file information
-
-	for (DWORD i = 0; i < dwIndexSize; i += 16)
+	for (u32 i = 0; i < index_size; i += 16)
 	{
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.ogg"), szBaseFileName, *(LPDWORD) &clmbtIndex[i + 8]);
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("%s_%06u.ogg"), base_file_name, *reinterpret_cast<const u32*>(&index[i + 8]));
 
 		// Get file information
-		SFileInfo stfiWork;
-		stfiWork.name = szFileName;
-		stfiWork.sizeCmp = *(LPDWORD)&clmbtIndex[i];
-		stfiWork.sizeOrg = stfiWork.sizeCmp;
-		stfiWork.start = *(LPDWORD)&clmbtIndex[i + 4];
-		stfiWork.end = stfiWork.start + stfiWork.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *reinterpret_cast<const u32*>(&index[i + 4]);
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stfiWork);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
 }
 
-inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
+inline int CVA::getbits(u8*& data, int& shift, int bits)
 {
 	if (shift > 8)
 	{
@@ -140,118 +136,118 @@ inline int CVA::getbits(LPBYTE& data, int& shift, int bits)
 		shift -= 8;
 	}
 	
-	int ret = *(LPWORD)data >> shift;
+	const int ret = *reinterpret_cast<const u16*>(data) >> shift;
 	shift += bits;
 	
 	return ret & ((1 << bits) - 1); // mask
 }
 
-bool CVA::Decode(CArcFile* pclArc)
+bool CVA::Decode(CArcFile* archive)
 {
-	if (DecodeNwa(pclArc))
+	if (DecodeNwa(archive))
 		return true;
 
 	return false;
 }
 
 // Function to convert to WAV for extraction
-bool CVA::DecodeNwa(CArcFile* pclArc)
+bool CVA::DecodeNwa(CArcFile* archive)
 {
-	SFileInfo* pInfFile = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (pInfFile->format != _T("NWA"))
+	if (file_info->format != _T("NWA"))
 		return false;
 
 	// Read NWA header
-	NWAHed nwaHed;
-	pclArc->Read(&nwaHed, sizeof(NWAHed));
+	NWAHeader nwa_header;
+	archive->Read(&nwa_header, sizeof(NWAHeader));
 
 	CWav wav;
-	wav.Init(pclArc, nwaHed.DataSize, nwaHed.freq, nwaHed.channels, nwaHed.bits);
+	wav.Init(archive, nwa_header.data_size, nwa_header.freq, nwa_header.channels, nwa_header.bits);
 
 	// If no compression, just change the WAV header
-	if (nwaHed.CmpLevel == 0xFFFFFFFF)
+	if (nwa_header.compression_level == 0xFFFFFFFF)
 	{
 		wav.Write();
 	}
 	else
 	{
 		// RLE compression
-		const bool bRLE = nwaHed.CmpLevel == 5 && nwaHed.channels != 2;
+		const bool rle = nwa_header.compression_level == 5 && nwa_header.channels != 2;
 
 		// Memory allocation of the offset
-		DWORD offset_size = nwaHed.blocks * 4;
-		YCMemory<DWORD> offsets(offset_size);
+		const u32 offset_size = nwa_header.blocks * 4;
+		std::vector<u32> offsets(offset_size);
 
 		// Allocate memory for writing data
-		DWORD buf_len = nwaHed.BlockSize * (nwaHed.bits >> 3);
-		YCMemory<BYTE> buf(buf_len);
+		const u32 buf_len = nwa_header.block_size * (nwa_header.bits >> 3);
+		std::vector<u8> buf(buf_len);
 
 		// Allocate memory for data loading
-		DWORD z_buf_len = buf_len * 2;
-		YCMemory<BYTE> z_buf(z_buf_len);
+		const u32 z_buf_len = buf_len * 2;
+		std::vector<u8> z_buf(z_buf_len);
 
 		// Read offset
-		pclArc->Read(&offsets[0], offset_size);
+		archive->Read(offsets.data(), offsets.size());
 
-		for (DWORD i = 0; i < nwaHed.blocks; i++)
+		for (u32 i = 0; i < nwa_header.blocks; i++)
 		{
-			LPBYTE z_pbuf = &z_buf[0];
-			LPBYTE pbuf = &buf[0];
+			u8* z_pbuf = z_buf.data();
+			u8* pbuf = buf.data();
 
 			// Get the size of the data to be read/decoded
-			DWORD curblocksize, curcompsize;
-			if (i < nwaHed.blocks - 1)
+			u32 current_block_size, current_compressed_size;
+			if (i < nwa_header.blocks - 1)
 			{
-				curblocksize = buf_len;
-				curcompsize = offsets[i + 1] - offsets[i];
+				current_block_size = buf_len;
+				current_compressed_size = offsets[i + 1] - offsets[i];
 			}
 			else
 			{
-				curblocksize = nwaHed.RestSize * (nwaHed.bits >> 3);
-				curcompsize = z_buf_len;
+				current_block_size = nwa_header.rest_size * (nwa_header.bits >> 3);
+				current_compressed_size = z_buf_len;
 			}
 
 			// Ensure buffers exist
-			BYTE* pbtSrcEnd = z_pbuf + curcompsize;
-			BYTE* pbtDstEnd = pbuf + curblocksize;
+			const u8* src_end = z_pbuf + current_compressed_size;
+			const u8* dst_end = pbuf + current_block_size;
 
 			// Read data
-			pclArc->Read(z_pbuf, curcompsize);
+			archive->Read(z_pbuf, current_compressed_size);
 
 			int d[2];
 			int shift = 0;
 
 			// Read first data
-			if (nwaHed.bits == 8)
+			if (nwa_header.bits == 8)
 			{
 				d[0] = *z_pbuf++;
 			}
 			else // fNWA.bits == 16
 			{
-				d[0] = *(LPWORD)z_pbuf;
+				d[0] = *reinterpret_cast<const u16*>(z_pbuf);
 				z_pbuf += 2;
 			}
 
-			if (nwaHed.channels == 2)
+			if (nwa_header.channels == 2)
 			{
-				if (nwaHed.bits == 8)
+				if (nwa_header.bits == 8)
 				{
 					d[1] = *z_pbuf++;
 				}
 				else  // fNWA.bits == 16
 				{
-					d[1] = *(LPWORD)z_pbuf;
+					d[1] = *reinterpret_cast<const u16*>(z_pbuf);
 					z_pbuf += 2;
 				}
 			}
 
-			int dsize = curblocksize / (nwaHed.bits >> 3);
-			BOOL bFlip = 0; // Stereo
+			const int dsize = current_block_size / (nwa_header.bits >> 3);
+			bool flip = false; // Stereo
 
 			for (int j = 0; j < dsize; j++)
 			{
-				if ((z_pbuf >= pbtSrcEnd) || (pbuf >= pbtDstEnd))
+				if (z_pbuf >= src_end || pbuf >= dst_end)
 				{
 					// Exit
 
@@ -265,113 +261,111 @@ bool CVA::DecodeNwa(CArcFile* pclArc)
 				{
 					if (getbits(z_pbuf, shift, 1) == 1)
 					{
-						d[bFlip] = 0; // Unused
+						d[flip] = 0; // Unused
 					}
 					else
 					{
 						int BITS, SHIFT;
-						if (nwaHed.CmpLevel >= 3)
+						if (nwa_header.compression_level >= 3)
 						{
 							BITS = 8;
 							SHIFT = 9;
 						}
 						else
 						{
-							BITS = 8 - nwaHed.CmpLevel;
-							SHIFT = 2 + type + nwaHed.CmpLevel;
+							BITS = 8 - nwa_header.compression_level;
+							SHIFT = 2 + type + nwa_header.compression_level;
 						}
 
 						const int MASK1 = (1 << (BITS - 1));
 						const int MASK2 = (1 << (BITS - 1)) - 1;
-						int b = getbits(z_pbuf, shift, BITS);
+						const int b = getbits(z_pbuf, shift, BITS);
 						if (b & MASK1)
-							d[bFlip] -= (b & MASK2) << SHIFT;
+							d[flip] -= (b & MASK2) << SHIFT;
 						else
-							d[bFlip] += (b & MASK2) << SHIFT;
+							d[flip] += (b & MASK2) << SHIFT;
 					}
 				}
-
 				// 1-6 : Ordinary differential
 				else if (type != 0)
 				{
 					int BITS, SHIFT;
-					if (nwaHed.CmpLevel >= 3)
+					if (nwa_header.compression_level >= 3)
 					{
-						BITS = 3 + nwaHed.CmpLevel;
+						BITS = 3 + nwa_header.compression_level;
 						SHIFT = 1 + type;
 					}
 					else
 					{
-						BITS = 5 - nwaHed.CmpLevel;
-						SHIFT = 2 + type + nwaHed.CmpLevel;
+						BITS = 5 - nwa_header.compression_level;
+						SHIFT = 2 + type + nwa_header.compression_level;
 					}
 
 					const int MASK1 = (1 << (BITS - 1));
 					const int MASK2 = (1 << (BITS - 1)) - 1;
-					int b = getbits(z_pbuf, shift, BITS);
+					const int b = getbits(z_pbuf, shift, BITS);
 					if (b & MASK1)
-						d[bFlip] -= (b & MASK2) << SHIFT;
+						d[flip] -= (b & MASK2) << SHIFT;
 					else
-						d[bFlip] += (b & MASK2) << SHIFT;
+						d[flip] += (b & MASK2) << SHIFT;
 				}
-				// type == 0
-				else
+				else // type == 0
 				{
-					if (bRLE)
+					if (rle)
 					{
 						// Run-length compression 
-						int	 nRunLength = getbits(z_pbuf, shift, 1);
-						if (nRunLength == 1)
+						int run_length = getbits(z_pbuf, shift, 1);
+						if (run_length == 1)
 						{
-							nRunLength = getbits(z_pbuf, shift, 2);
+							run_length = getbits(z_pbuf, shift, 2);
 
-							if (nRunLength == 3)
+							if (run_length == 3)
 							{
-								nRunLength = getbits(z_pbuf, shift, 8);
+								run_length = getbits(z_pbuf, shift, 8);
 							}
 						}
 
 						// Going to write the same data as the previous data
-						for (int k = 0; k <= nRunLength; k++)
+						for (int k = 0; k <= run_length; k++)
 						{
-							if (nwaHed.bits == 8)
+							if (nwa_header.bits == 8)
 							{
-								*pbuf++ = (BYTE)d[bFlip];
+								*pbuf++ = static_cast<u8>(d[flip]);
 							}
 							else
 							{
-								*(LPWORD)pbuf = d[bFlip];
+								*reinterpret_cast<u16*>(pbuf) = d[flip];
 								pbuf += 2;
 							}
 
-							if (nwaHed.channels == 2)
+							if (nwa_header.channels == 2)
 							{
-								bFlip ^= 1; // channel switching
+								flip ^= 1; // channel switching
 							}
 						}
 
-						j += nRunLength;
+						j += run_length;
 						continue;
 					}
 				}
 
-				if (nwaHed.bits == 8)
+				if (nwa_header.bits == 8)
 				{
-					*pbuf++ = (BYTE)d[bFlip];
+					*pbuf++ = static_cast<u8>(d[flip]);
 				}
 				else
 				{
-					*(LPWORD)pbuf = d[bFlip];
+					*reinterpret_cast<u16*>(pbuf) = d[flip];
 					pbuf += 2;
 				}
 
-				if (nwaHed.channels == 2)
+				if (nwa_header.channels == 2)
 				{
-					bFlip ^= 1; // channel switching
+					flip ^= 1; // channel switching
 				}
 			}
 
-			wav.Write(&buf[0], curblocksize);
+			wav.Write(buf.data(), current_block_size);
 		}
 	}
 
