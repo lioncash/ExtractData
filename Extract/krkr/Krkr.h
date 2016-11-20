@@ -70,7 +70,7 @@ protected:
 	void SetDecryptSize(size_t decrypt_size);
 
 	// Find XP3 from within an EXE file
-	bool FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset);
+	bool FindXP3FromExecuteFile(CArcFile* archive, size_t* offset);
 
 private:
 	bool        m_decrypt;      // Decryption request

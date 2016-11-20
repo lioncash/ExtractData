@@ -13,13 +13,12 @@
 ///
 bool CKrkr::Mount(CArcFile* archive)
 {
-	DWORD offset;
+	size_t offset;
 
 	// XP3
 	if (memcmp(archive->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
 	{
 		// XP3
-
 		offset = 0;
 	}
 	// EXE type
@@ -49,41 +48,39 @@ bool CKrkr::Mount(CArcFile* archive)
 	}
 
 	// Get index position
-	INT64 index_pos;
+	s64 index_pos;
 	archive->SeekHed(11 + offset);
-	archive->Read(&index_pos, 8);
+	archive->ReadS64(&index_pos);
 	archive->SeekCur(index_pos - 19);
 
-	BYTE work[256];
+	u8 work[256];
 	archive->Read(work, sizeof(work));
 
 	switch (work[0])
 	{
 	case 0x80:
-		index_pos = *(INT64*)&work[9];
+		index_pos = *reinterpret_cast<const s64*>(&work[9]);
 		break;
 	}
 
 	// Read the index header
-	BYTE cmp_index;
-
+	u8 cmp_index;
 	archive->SeekHed(index_pos + offset);
-	archive->Read(&cmp_index, 1);
+	archive->ReadU8(&cmp_index);
 
-	UINT64 comp_index_size;
-	UINT64 index_size;
+	u64 comp_index_size = 0;
+	u64 index_size = 0;
 
 	// Index is compressed
 	if (cmp_index)
 	{
-		archive->Read(&comp_index_size, 8);
+		archive->ReadU64(&comp_index_size);
 	}
 
-	archive->Read(&index_size, 8);
+	archive->ReadU64(&index_size);
 
 	// Ensure buffer
-	YCMemory<BYTE> index(index_size);
-	DWORD index_ptr = 0;
+	std::vector<u8> index(index_size);
 
 	// If the index header is compressed, decompress it
 	if (cmp_index)
@@ -91,26 +88,26 @@ bool CKrkr::Mount(CArcFile* archive)
 		CZlib zlib;
 
 		// Ensure buffer
-		YCMemory<BYTE> comp_index(comp_index_size);
+		std::vector<u8> comp_index(comp_index_size);
 
 		// zlib Decompression
-		archive->Read(&comp_index[0], comp_index_size);
-		zlib.Decompress(&index[0], index_size, &comp_index[0], comp_index_size);
+		archive->Read(comp_index.data(), comp_index.size());
+		zlib.Decompress(index.data(), index.size(), comp_index.data(), comp_index.size());
 	}
 	else // Index is not compressed
 	{
-		archive->Read(&index[0], index_size);
+		archive->Read(index.data(), index.size());
 	}
 
 	// Get index file information
-	for (UINT64 i = 0; i < index_size;)
+	for (u64 i = 0; i < index_size;)
 	{
 		// "File" Chunk
 		FileChunk file_chunk;
 
 		memcpy(file_chunk.name, &index[i], 4);
 
-		file_chunk.size = *(UINT64*)&index[i + 4];
+		file_chunk.size = *reinterpret_cast<const u64*>(&index[i + 4]);
 
 		if (memcmp(file_chunk.name, "File", 4) != 0)
 		{
@@ -124,12 +121,12 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		memcpy(info_chunk.name, &index[i], 4);
 
-		info_chunk.size = *(UINT64*)&index[i + 4];
-		info_chunk.protect = *(DWORD*)&index[i + 12];
-		info_chunk.orgSize = *(UINT64*)&index[i + 16];
-		info_chunk.arcSize = *(UINT64*)&index[i + 24];
-		info_chunk.nameLen = *(WORD*)&index[i + 32];
-		info_chunk.filename = (wchar_t*)&index[i + 34];
+		info_chunk.size     = *reinterpret_cast<const u64*>(&index[i + 4]);
+		info_chunk.protect  = *reinterpret_cast<const u32*>(&index[i + 12]);
+		info_chunk.orgSize  = *reinterpret_cast<const u64*>(&index[i + 16]);
+		info_chunk.arcSize  = *reinterpret_cast<const u64*>(&index[i + 24]);
+		info_chunk.nameLen  = *reinterpret_cast<const u16*>(&index[i + 32]);
+		info_chunk.filename = reinterpret_cast<wchar_t*>(&index[i + 34]);
 
 		if (memcmp(info_chunk.name, "info", 4) != 0)
 		{
@@ -143,7 +140,7 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		memcpy(segm_chunk.name, &index[i], 4);
 
-		segm_chunk.size = *(UINT64*)&index[i + 4];
+		segm_chunk.size = *reinterpret_cast<const u64*>(&index[i + 4]);
 
 		if (memcmp(segm_chunk.name, "segm", 4) != 0)
 		{
@@ -154,14 +151,14 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		SFileInfo file_info;
 
-		const UINT64 segm_count = (segm_chunk.size / 28);
+		const u64 segm_count = segm_chunk.size / 28;
 
-		for (UINT64 j = 0; j < segm_count; j++)
+		for (u64 j = 0; j < segm_count; j++)
 		{
-			segm_chunk.comp = *(DWORD*)&index[i];
-			segm_chunk.start = *(UINT64*)&index[i + 4] + offset;
-			segm_chunk.orgSize = *(UINT64*)&index[i + 12];
-			segm_chunk.arcSize = *(UINT64*)&index[i + 20];
+			segm_chunk.comp    = *reinterpret_cast<const u32*>(&index[i]);
+			segm_chunk.start   = *reinterpret_cast<const u64*>(&index[i + 4]) + offset;
+			segm_chunk.orgSize = *reinterpret_cast<const u64*>(&index[i + 12]);
+			segm_chunk.arcSize = *reinterpret_cast<const u64*>(&index[i + 20]);
 
 			file_info.bCmps.push_back(segm_chunk.comp);
 			file_info.starts.push_back(segm_chunk.start);
@@ -172,7 +169,7 @@ bool CKrkr::Mount(CArcFile* archive)
 		}
 
 		// Check for any other chunks
-		const UINT64 remainder = file_chunk.size - 12 - info_chunk.size - 12 - segm_chunk.size;
+		const u64 remainder = file_chunk.size - 12 - info_chunk.size - 12 - segm_chunk.size;
 
 		if (remainder > 0)
 		{
@@ -183,8 +180,8 @@ bool CKrkr::Mount(CArcFile* archive)
 
 				memcpy(adlr_chunk.name, &index[i], 4);
 
-				adlr_chunk.size = *(UINT64*)&index[i + 4];
-				adlr_chunk.key = *(DWORD*)&index[i + 12];
+				adlr_chunk.size = *reinterpret_cast<const u64*>(&index[i + 4]);
+				adlr_chunk.key = *reinterpret_cast<const u32*>(&index[i + 12]);
 
 				file_info.key = adlr_chunk.key;
 			}
@@ -218,7 +215,7 @@ bool CKrkr::Decode(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if ((archive->GetArcExten() != _T(".xp3")) && (archive->GetArcExten() != _T(".exe")))
+	if (archive->GetArcExten() != _T(".xp3") && archive->GetArcExten() != _T(".exe"))
 		return false;
 
 	YCString file_ext = PathFindExtension(file_info->name);
@@ -226,13 +223,9 @@ bool CKrkr::Decode(CArcFile* archive)
 
 	InitDecrypt(archive);
 
-	//char s[256];
-	//_stprintf(s, "%08X", pInfFile->key);
-	//MessageBox(NULL, s, "", 0);
-
 	// Ensure buffer
 	size_t buffer_size = archive->GetBufSize();
-	YCMemory<BYTE> buffer;
+	std::vector<u8> buffer;
 
 	// Whether or not it's bound to memory
 	bool compose_memory = false;
@@ -283,27 +276,27 @@ bool CKrkr::Decode(CArcFile* archive)
 			CZlib zlib;
 
 			// Ensure buffer
-			const DWORD src_size = file_info->sizesCmp[i];
-			YCMemory<u8> src(src_size);
+			const size_t src_size = file_info->sizesCmp[i];
+			std::vector<u8> src(src_size);
 
-			const DWORD dst_size = file_info->sizesOrg[i];
-			YCMemory<u8> dst(dst_size + 3);
+			const size_t dst_size = file_info->sizesOrg[i];
+			std::vector<u8> dst(dst_size + 3);
 
 			// zlib Decompression
-			archive->Read(&src[0], src_size);
-			zlib.Decompress(&dst[0], dst_size, &src[0], src_size);
+			archive->Read(src.data(), src_size);
+			zlib.Decompress(dst.data(), dst_size, src.data(), src_size);
 
-			const size_t data_size = Decrypt(&dst[0], dst_size, total_wrote_size);
+			const size_t data_size = Decrypt(dst.data(), dst_size, total_wrote_size);
 
 			if (compose_memory)
 			{
-				memcpy(&buffer[buffer_ptr], &dst[0], data_size);
+				memcpy(&buffer[buffer_ptr], dst.data(), data_size);
 
 				buffer_ptr += data_size;
 			}
 			else // Output
 			{
-				archive->WriteFile(&dst[0], data_size, dst_size);
+				archive->WriteFile(dst.data(), data_size, dst_size);
 			}
 
 			total_wrote_size += dst_size;
@@ -330,11 +323,11 @@ bool CKrkr::Decode(CArcFile* archive)
 				{
 					// Adjust buffer size
 					archive->SetBufSize(&buffer_size, wrote_size, dst_size);
-					archive->Read(&buffer[0], buffer_size);
+					archive->Read(buffer.data(), buffer_size);
 
-					const size_t data_size = Decrypt(&buffer[0], buffer_size, total_wrote_size);
+					const size_t data_size = Decrypt(buffer.data(), buffer_size, total_wrote_size);
 
-					archive->WriteFile(&buffer[0], data_size);
+					archive->WriteFile(buffer.data(), data_size);
 					total_wrote_size += buffer_size;
 				}
 			}
@@ -345,19 +338,19 @@ bool CKrkr::Decode(CArcFile* archive)
 	if (file_ext == _T(".tlg"))
 	{
 		CTlg tlg;
-		tlg.Decode(archive, &buffer[0]);
+		tlg.Decode(archive, buffer.data());
 	}
 	// Fix CRC of OGG files
 	else if (file_ext == _T(".ogg") && archive->GetOpt()->bFixOgg)
 	{
 		COgg ogg;
-		ogg.Decode(archive, &buffer[0]);
+		ogg.Decode(archive, buffer.data());
 	}
 	// BMP output (PNG conversion)
 	else if (file_ext == _T(".bmp"))
 	{
 		CImage image;
-		image.Init(archive, &buffer[0]);
+		image.Init(archive, buffer.data());
 		image.Write(file_info->sizeOrg);
 	}
 	// Text file
@@ -372,12 +365,12 @@ bool CKrkr::Decode(CArcFile* archive)
 
 		SetDecryptRequirement(true);
 
-		m_decrypt_key = archive->InitDecryptForText(&buffer[0], dst_size);
+		m_decrypt_key = archive->InitDecryptForText(buffer.data(), dst_size);
 
-		const size_t data_size = Decrypt(&buffer[0], dst_size, 0);
+		const size_t data_size = Decrypt(buffer.data(), dst_size, 0);
 
 		archive->OpenFile();
-		archive->WriteFile(&buffer[0], data_size, dst_size);
+		archive->WriteFile(buffer.data(), data_size, dst_size);
 	}
 
 	return true;
@@ -590,7 +583,7 @@ void CKrkr::SetDecryptSize(size_t decrypt_size)
 /// @param archive Archive
 /// @param offset  Offset within archive
 ///
-bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset)
+bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, size_t* offset)
 {
 	// Is not a kirikiri executable
 	if (archive->GetArcSize() <= 0x200000)
@@ -602,14 +595,14 @@ bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, DWORD* offset)
 
 	archive->SeekHed(16);
 
-	BYTE buffer[4096];
-	DWORD read_size;
+	u8 buffer[4096];
+	size_t read_size;
 
 	do
 	{
 		read_size = archive->Read(buffer, sizeof(buffer));
 
-		for (DWORD i = 0, j = 0; i < (read_size / 16); i++, j += 16)
+		for (size_t i = 0, j = 0; i < read_size / 16; i++, j += 16)
 		{
 			// Found XP3 archive
 			if (memcmp(&buffer[j], "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
