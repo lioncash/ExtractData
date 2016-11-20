@@ -25,7 +25,7 @@ bool CMeltyBlood::Mount(CArcFile* archive)
 	std::vector<u8> index(index_size);
 	archive->Read(index.data(), index_size);
 
-	u8* index_ptr = index.data();
+	const u8* index_ptr = index.data();
 
 	for (size_t i = 0; i < num_files; i++)
 	{
@@ -42,9 +42,9 @@ bool CMeltyBlood::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name.data();
-		file_info.sizeOrg = *(u32*)&index_ptr[64] ^ decryption_key;
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[64]) ^ decryption_key;
 		file_info.sizeCmp = file_info.sizeOrg;
-		file_info.start = *(u32*)&index_ptr[60];
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[60]);
 		file_info.end = file_info.start + file_info.sizeOrg;
 		file_info.title = _T("MeltyBlood");
 		archive->AddFileInfo(file_info);
