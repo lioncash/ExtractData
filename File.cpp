@@ -4,7 +4,7 @@
 
 CFile::CFile()
 {
-	m_hFile = INVALID_HANDLE_VALUE;
+	m_file = INVALID_HANDLE_VALUE;
 }
 
 CFile::~CFile()
@@ -16,14 +16,14 @@ HANDLE CFile::Open(LPCTSTR filename, u32 mode)
 {
 	if (mode == FILE_READ)
 	{
-		m_hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+		m_file = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
 	else if (mode == FILE_WRITE)
 	{
-		m_hFile = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+		m_file = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
 
-	return m_hFile;
+	return m_file;
 }
 
 bool CFile::OpenForRead(LPCTSTR filename)
@@ -38,17 +38,17 @@ bool CFile::OpenForWrite(LPCTSTR filename)
 
 void CFile::Close()
 {
-	if (m_hFile != INVALID_HANDLE_VALUE)
+	if (m_file != INVALID_HANDLE_VALUE)
 	{
-		CloseHandle(m_hFile);
-		m_hFile = INVALID_HANDLE_VALUE;
+		CloseHandle(m_file);
+		m_file = INVALID_HANDLE_VALUE;
 	}
 }
 
 u32 CFile::Read(void* buffer, u32 size)
 {
 	DWORD read_size;
-	ReadFile(m_hFile, buffer, size, &read_size, nullptr);
+	ReadFile(m_file, buffer, size, &read_size, nullptr);
 	return static_cast<u32>(read_size);
 }
 
@@ -100,7 +100,7 @@ u32 CFile::ReadLine(void* buffer, u32 buffer_size, bool delete_line_code)
 u32 CFile::Write(const void* buffer, u32 size)
 {
 	DWORD write_size;
-	WriteFile(m_hFile, buffer, size, &write_size, nullptr);
+	WriteFile(m_file, buffer, size, &write_size, nullptr);
 	return static_cast<u32>(write_size);
 }
 
@@ -139,7 +139,7 @@ u64 CFile::Seek(s64 offset, u32 seek_mode)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
-	li.LowPart = SetFilePointer(m_hFile, li.LowPart, &li.HighPart, seek_mode);
+	li.LowPart = SetFilePointer(m_file, li.LowPart, &li.HighPart, seek_mode);
 
 	if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 		li.QuadPart = -1;
@@ -170,6 +170,6 @@ u64 CFile::GetFilePointer()
 u64 CFile::GetFileSize()
 {
 	LARGE_INTEGER li = {};
-	li.LowPart = ::GetFileSize(m_hFile, &reinterpret_cast<DWORD&>(li.HighPart));
+	li.LowPart = ::GetFileSize(m_file, &reinterpret_cast<DWORD&>(li.HighPart));
 	return static_cast<u64>(li.QuadPart);
 }

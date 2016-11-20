@@ -7,9 +7,6 @@
 
 class CFile
 {
-protected:
-	HANDLE m_hFile;
-
 public:
 	CFile();
 	virtual ~CFile();
@@ -28,4 +25,7 @@ public:
 	virtual u64 SeekCur(s64 offset);
 	virtual u64 GetFilePointer();
 	virtual u64 GetFileSize();
+
+protected:
+	HANDLE m_file;
 };
