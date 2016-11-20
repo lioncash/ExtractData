@@ -28,7 +28,9 @@ u32 CTokiPaku::OnInitDecrypt(CArcFile* archive)
 	}
 
 	// Size to decrypt
-	if ((lstrcmp(file_ext, _T(".ks")) != 0) && (lstrcmp(file_ext, _T(".tjs")) != 0) && (lstrcmp(file_ext, _T(".asd")) != 0))
+	if (lstrcmp(file_ext, _T(".ks"))  != 0 &&
+	    lstrcmp(file_ext, _T(".tjs")) != 0 &&
+	    lstrcmp(file_ext, _T(".asd")) != 0)
 	{
 		SetDecryptSize(256);
 	}
