@@ -50,7 +50,7 @@ size_t CSisMiko::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 de
 {
 	for (size_t i = 0; i < target_size; i += 4)
 	{
-		*(u32*)&target[i] ^= decrypt_key;
+		*reinterpret_cast<u32*>(&target[i]) ^= decrypt_key;
 	}
 
 	return target_size;
