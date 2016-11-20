@@ -19,7 +19,7 @@ bool CInnocentGrey::Mount(CArcFile* archive)
 	std::vector<u8> index(index_size);
 	archive->Seek(4, FILE_CURRENT);
 	archive->Read(index.data(), index.size());
-	u8* index_ptr = index.data();
+	const u8* index_ptr = index.data();
 
 	for (u32 i = 0; i < num_files; i++)
 	{
@@ -30,9 +30,9 @@ bool CInnocentGrey::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.start = *(u32*)&index_ptr[32];
-		file_info.sizeOrg = *(u32*)&index_ptr[40];
-		file_info.sizeCmp = *(u32*)&index_ptr[44];
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[32]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[40]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[44]);
 		file_info.end = file_info.start + file_info.sizeCmp;
 		file_info.title = _T("InnocentGrey");
 		archive->AddFileInfo(file_info);
