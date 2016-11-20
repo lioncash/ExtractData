@@ -3,8 +3,11 @@
 
 #include <algorithm>
 
-#define TYPE_NONE   0x00000000
-#define TYPE_FOLDER 0x00000001
+enum : s32
+{
+	TYPE_NONE   = 0x00000000,
+	TYPE_FOLDER = 0x00000001
+};
 
 bool CSummerDays::Mount(CArcFile* archive)
 {
