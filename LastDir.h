@@ -12,6 +12,6 @@ public:
 	LPTSTR GetSave();
 
 private:
-	TCHAR m_szOpen[_MAX_DIR];
-	TCHAR m_szSave[_MAX_DIR];
+	TCHAR m_open[_MAX_DIR];
+	TCHAR m_save[_MAX_DIR];
 };

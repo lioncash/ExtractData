@@ -11,37 +11,37 @@ CLastDir::CLastDir()
 /// Load ini file
 void CLastDir::LoadIni()
 {
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 
-	clIni.SetSection(_T("LastDir"));
+	ini.SetSection(_T("LastDir"));
 
-	clIni.SetKey(_T("LastReadFileDir"));
-	clIni.ReadStr(m_szOpen, sizeof(m_szOpen), _T(""));
-	clIni.SetKey(_T("LastSaveFolderDir"));
-	clIni.ReadStr(m_szSave, sizeof(m_szSave), _T(""));
+	ini.SetKey(_T("LastReadFileDir"));
+	ini.ReadStr(m_open, sizeof(m_open), _T(""));
+	ini.SetKey(_T("LastSaveFolderDir"));
+	ini.ReadStr(m_save, sizeof(m_save), _T(""));
 }
 
 /// Save ini file
 void CLastDir::SaveIni()
 {
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 
-	clIni.SetSection(_T("LastDir"));
+	ini.SetSection(_T("LastDir"));
 
-	clIni.SetKey(_T("LastReadFileDir"));
-	clIni.WriteStr(m_szOpen);
-	clIni.SetKey(_T("LastSaveFolderDir"));
-	clIni.WriteStr(m_szSave);
+	ini.SetKey(_T("LastReadFileDir"));
+	ini.WriteStr(m_open);
+	ini.SetKey(_T("LastSaveFolderDir"));
+	ini.WriteStr(m_save);
 }
 
 /// Get the last opened folder
 LPTSTR  CLastDir::GetOpen()
 {
-	return m_szOpen;
+	return m_open;
 }
 
 /// Get the last folder where something was saved to it
 LPTSTR  CLastDir::GetSave()
 {
-	return m_szSave;
+	return m_save;
 }
