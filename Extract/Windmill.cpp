@@ -2,48 +2,49 @@
 #include "../Arc/Zlib.h"
 #include "Windmill.h"
 
-bool CWindmill::Mount(CArcFile* pclArc)
+bool CWindmill::Mount(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".int")) || (memcmp(pclArc->GetHed(), "KIF", 3) != 0))
+	if (archive->GetArcExten() != _T(".int") || memcmp(archive->GetHed(), "KIF", 3) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->Seek(4, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	// Number of files retrieved from the index size
-	DWORD index_size = ctFile * 40;
+	const u32 index_size = num_files * 40;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[32];
-		memcpy(szFileName, pIndex, 32);
+		TCHAR file_name[32];
+		memcpy(file_name, index_ptr, 32);
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&pIndex[32];
-		infFile.sizeCmp = *(LPDWORD)&pIndex[36];
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[32]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[36]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		pIndex += 40;
+		index_ptr += 40;
 	}
 
 	return true;
 }
 
-bool CWindmill::Decode(CArcFile* pclArc)
+bool CWindmill::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("HG2"))
 		return false;
@@ -51,61 +52,61 @@ bool CWindmill::Decode(CArcFile* pclArc)
 	return false; // TODO: Not completed yet
 
 	// Read HG2 header
-	BYTE header[48];
-	pclArc->Read(header, sizeof(header));
+	u8 header[48];
+	archive->Read(header, sizeof(header));
 
 	// Supports HG2 from Happiness! and later
-	BYTE header2[4];
-	pclArc->Read(header2, sizeof(header2));
+	u8 header2[4];
+	archive->Read(header2, sizeof(header2));
 	if (memcmp(header2, "\x78\xDA", 2) != 0)
-		pclArc->Seek(*(LPLONG)header - 4, FILE_CURRENT);
+		archive->Seek(*reinterpret_cast<u32*>(header) - 4, FILE_CURRENT);
 	else
-		pclArc->Seek(-4, FILE_CURRENT);
+		archive->Seek(-4, FILE_CURRENT);
 
 	// Width, height, number of bits
-	LONG width = *(LPLONG)&header[0x0C];
-	LONG height = *(LPLONG)&header[0x10];
-	WORD bpp = *(LPWORD)&header[0x14];
+	const s32 width = *reinterpret_cast<const s32*>(&header[0x0C]);
+	const s32 height = *reinterpret_cast<const s32*>(&header[0x10]);
+	const u16 bpp = *reinterpret_cast<const u16*>(&header[0x14]);
 
 	// Get buffer size
-	DWORD dwSrcSize1 = *(LPDWORD)&header[0x20];
-	DWORD dwDstSize1 = *(LPDWORD)&header[0x24];
-	DWORD dwSrcSize2 = *(LPDWORD)&header[0x28];
-	DWORD dwDstSize2 = *(LPDWORD)&header[0x2C];
-	DWORD dwDstSize = width * height * 4 * 2 + 256;
+	auto dwSrcSize1 = *reinterpret_cast<const u32*>(&header[0x20]);
+	auto dwDstSize1 = static_cast<unsigned long>(*reinterpret_cast<const u32*>(&header[0x24]));
+	auto dwSrcSize2 = *reinterpret_cast<const u32*>(&header[0x28]);
+	auto dwDstSize2 = static_cast<unsigned long>(*reinterpret_cast<const u32*>(&header[0x2C]));
+	u32 dwDstSize = width * height * 4 * 2 + 256;
 
 	// Ensure buffers exist
-	YCMemory<BYTE> clmbtSrc1(dwSrcSize1);
-	YCMemory<BYTE> clmbtDst1(dwDstSize1);
-	YCMemory<BYTE> clmbtSrc2(dwSrcSize2);
-	YCMemory<BYTE> clmbtDst2(dwDstSize2);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	std::vector<u8> clmbtSrc1(dwSrcSize1);
+	std::vector<u8> clmbtDst1(dwDstSize1);
+	std::vector<u8> clmbtSrc2(dwSrcSize2);
+	std::vector<u8> clmbtDst2(dwDstSize2);
+	std::vector<u8> clmbtDst(dwDstSize);
 
 	// zlib decompression
-	pclArc->Read(&clmbtSrc1[0], dwSrcSize1);
-	pclArc->Read(&clmbtSrc2[0], dwSrcSize2);
+	archive->Read(clmbtSrc1.data(), clmbtSrc1.size());
+	archive->Read(clmbtSrc2.data(), clmbtSrc2.size());
 
 	CZlib zlib;
-	zlib.Decompress(&clmbtDst1[0], &dwDstSize1, &clmbtSrc1[0], dwSrcSize1);
-	zlib.Decompress(&clmbtDst2[0], &dwDstSize2, &clmbtSrc2[0], dwSrcSize2);
+	zlib.Decompress(clmbtDst1.data(), &dwDstSize1, clmbtSrc1.data(), clmbtSrc1.size());
+	zlib.Decompress(clmbtDst2.data(), &dwDstSize2, clmbtSrc2.data(), clmbtSrc2.size());
 
 	// Decoding
-	BYTE  abyTable[128] = {0};
+	u8 abyTable[128] = {};
 
-	DWORD dwDst1 = 0;
-	DWORD dwDst2a = 0;
-	DWORD dwDst2b = 0;
-	DWORD dwDst = 0;
+	u32 dwDst1 = 0;
+	u32 dwDst2a = 0;
+	u32 dwDst2b = 0;
+	u32 dwDst = 0;
 
-	DWORD EAX = 0;
-	DWORD EBX = 0;
-	DWORD ECX = 0;
-	DWORD EDX = 0;
-	DWORD EDI = 0;
-	DWORD ESI = 0;
-	DWORD EBP = 0;
+	u32 EAX = 0;
+	u32 EBX = 0;
+	u32 ECX = 0;
+	u32 EDX = 0;
+	u32 EDI = 0;
+	u32 ESI = 0;
+	u32 EBP = 0;
 
-	DWORD SP[128];
+	u32 SP[128];
 
 	abyTable[0x44] = clmbtDst2[dwDst2b++];
 
@@ -211,16 +212,16 @@ bool CWindmill::Decode(CArcFile* pclArc)
 
 /*
 	{
-		LPBYTE pbuf2 = &buf2[0];
-		DWORD tmp1 = 0;
-		DWORD tmp2 = 0;
+		u8* pbuf2 = &buf2[0];
+		u32 tmp1 = 0;
+		u32 tmp2 = 0;
 
-		DWORD EAX = tmp1;
+		u32 EAX = tmp1;
 		if (tmp1 == 0)
 			tmp2 = *pbuf2++;
-		DWORD CL = tmp1;
-		DWORD DL = tmp2;
-		DWORD ESI = DL;
+		u32 CL = tmp1;
+		u32 DL = tmp2;
+		u32 ESI = DL;
 		ESI >>= CL;
 		ESI &= 1;
 		EAX++;
@@ -230,5 +231,5 @@ bool CWindmill::Decode(CArcFile* pclArc)
 		EAX = Decode1(&pbuf2, &tmp1, &tmp2);
 	}
 */
-	return TRUE;
+	return true;
 }
