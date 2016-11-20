@@ -7,132 +7,118 @@
 class YCIni
 {
 public:
-	explicit YCIni(LPCTSTR pszIniName);
+	explicit YCIni(LPCTSTR ini_path);
 
-	void SetSection(UINT uID);
-	void SetSection(LPCTSTR pszSection);
+	void SetSection(u32 id);
+	void SetSection(LPCTSTR section);
 
-	void SetKey(LPCTSTR pszKey);
+	void SetKey(LPCTSTR key);
 
-	template<typename TYPE> TYPE ReadDec(const TYPE& rftDefault);
-	template<typename TYPE> void ReadDec(TYPE* ptDst, const TYPE& rftDefault);
-	template<typename TYPE> void ReadDec(TYPE* ptDst);
+	template<typename TYPE> TYPE ReadDec(const TYPE& default_value);
+	template<typename TYPE> void ReadDec(TYPE* dst, const TYPE& default_value);
+	template<typename TYPE> void ReadDec(TYPE* dst);
 
-	template<typename TYPE> TYPE ReadHex(LPCTSTR pszDef);
-	template<typename TYPE> void ReadHex(TYPE* ptDst, LPCTSTR pszDefault);
+	template<typename TYPE> TYPE ReadHex(LPCTSTR default_string);
+	template<typename TYPE> void ReadHex(TYPE* dst, LPCTSTR default_string);
 
-	void ReadStr(LPTSTR pszDst, DWORD dwDstSize, LPCTSTR pszDefault);
-	void ReadStr(YCString& rfclsDst, const YCString& rfclsDefault);
+	void ReadStr(LPTSTR dst, DWORD dwDstSize, LPCTSTR default_string);
+	void ReadStr(YCString& dst, const YCString& default_string);
 
-	template<typename TYPE> void WriteDec(const TYPE& rftDec);
+	template<typename TYPE> void WriteDec(const TYPE& dec);
 
-	template<typename TYPE> void WriteHex(const TYPE& rftHex, DWORD dwNumber = 1);
+	template<typename TYPE> void WriteHex(const TYPE& hex, DWORD number = 1);
 
-	void WriteStr(LPCTSTR pszStr);
+	void WriteStr(LPCTSTR str);
 
-	bool DeleteSection(LPCTSTR pszSection = nullptr);
+	bool DeleteSection(LPCTSTR section = nullptr);
 
 private:
-	YCString m_clsPathToIni;
-	YCString m_clsSection;
-	YCString m_clsKey;
+	YCString m_ini_path;
+	YCString m_section;
+	YCString m_key;
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get a numeric value
-//
-// Parameters:
-//   - rftDefault - Default value
-
+/// Get a numeric value
+///
+/// @param default_value Default value
+///
 template<typename TYPE>
-TYPE YCIni::ReadDec(const TYPE& rftDefault)
+TYPE YCIni::ReadDec(const TYPE& default_value)
 {
-	return ::GetPrivateProfileInt(m_clsSection, m_clsKey, rftDefault, m_clsPathToIni);
+	return ::GetPrivateProfileInt(m_section, m_key, default_value, m_ini_path);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get a numeric value
-//
-// Parameters:
-//   - ptDst      - Storage location of a number
-//   - rftDefault - Default value
-
+/// Get a numeric value
+///
+/// @param dst           Storage location of a number
+/// @param default_value Default value
+///
 template<typename TYPE>
-void YCIni::ReadDec(TYPE* ptDst, const TYPE& rftDefault)
+void YCIni::ReadDec(TYPE* dst, const TYPE& default_value)
 {
-	*ptDst = ReadDec(rftDefault);
+	*dst = ReadDec(default_value);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Get a numeric value
-//
-// Parameters:
-//   - ptDst - Storage location of a numeric value (default values are stored in the destination)
-
+/// Get a numeric value
+///
+/// @param dst Storage location of a numeric value (default values are stored in the destination)
+///
 template<typename TYPE>
-void YCIni::ReadDec(TYPE* ptDst)
+void YCIni::ReadDec(TYPE* dst)
 {
-	*ptDst = ReadDec(*ptDst);
+	*dst = ReadDec(*dst);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets a hexadecimal (16) number
-//
-// Parameters:
-//   - pszDefault - Default value
-
+/// Gets a hexadecimal (16) number
+///
+/// @param default_value Default value
+///
 template<typename TYPE>
-TYPE YCIni::ReadHex(LPCTSTR pszDefault)
+TYPE YCIni::ReadHex(LPCTSTR default_value)
 {
-	TCHAR szWork[256];
+	TCHAR work[256];
 
-	::GetPrivateProfileString(m_clsSection, m_clsKey, pszDefault, szWork, sizeof(szWork), m_clsPathToIni);
+	::GetPrivateProfileString(m_section, m_key, default_value, work, sizeof(work), m_ini_path);
 
-	return strtoul(szWork, nullptr, 16);
+	return strtoul(work, nullptr, 16);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Gets a hexadecimal (16) number
-//
-// Parameters:
-//   - ptDst      - Location of the hexadecimal buffer
-//   - pszDefault - Default value
-
+/// Gets a hexadecimal (16) number
+///
+/// @param dst           Location of the hexadecimal buffer
+/// @param default_value Default value
+///
 template<typename TYPE>
-void YCIni::ReadHex(TYPE* ptDst, LPCTSTR pszDefault)
+void YCIni::ReadHex(TYPE* dst, LPCTSTR default_value)
 {
-	*ptDst = ReadHex(pszDefault);
+	*dst = ReadHex(default_value);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Set the values
-//
-// Parameters:
-//   - rftDec - Setting
-
+/// Set the values
+///
+/// @param decimal Setting
+///
 template<typename TYPE>
-void YCIni::WriteDec(const TYPE& rftDec)
+void YCIni::WriteDec(const TYPE& decimal)
 {
-	TCHAR szWork[256];
+	TCHAR work[256];
 
-	_stprintf(szWork, _T("%d"), rftDec);
+	_stprintf(work, _T("%d"), decimal);
 
-	WriteStr(szWork);
+	WriteStr(work);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Writes a hexadecimal (16) number
-//
-// Parameters:
-//   - rftHex - Setting
-//   - dwNumber - Number of digits
-
+/// Writes a hexadecimal (16) number
+///
+/// @param hex    Setting
+/// @param number Number of digits
+///
 template<typename TYPE>
-void YCIni::WriteHex(const TYPE& rftHex, DWORD dwNumber)
+void YCIni::WriteHex(const TYPE& hex, DWORD number)
 {
-	TCHAR szWork[256];
+	TCHAR work[256];
 
-	_stprintf(szWork, _T("%0*X"), dwNumber, rftHex);
+	_stprintf(work, _T("%0*X"), number, hex);
 
-	WriteStr(szWork);
+	WriteStr(work);
 }
