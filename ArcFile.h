@@ -96,7 +96,8 @@ public:
 	const YCString& GetArcExten() const       { return m_archive_extensions[m_split_archive_id]; }
 
 	// Returns previously loaded archive file header
-	LPBYTE GetHed() { return m_header.data(); }
+	u8*       GetHed()       { return m_header.data(); }
+	const u8* GetHed() const { return m_header.data(); }
 
 	SFileInfo*              GetFileInfo(size_t num) const { return &(*m_entries)[num]; }
 	SFileInfo*              GetFileInfo(LPCTSTR filepath, bool compare_filename_only = false) const;
