@@ -3,9 +3,9 @@
 #include "JBP1.h"
 
 /// Decompression
-void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtAlpha, DWORD dwAlphaSize)
+void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u32 dwAlphaSize)
 {
-	static const BYTE original_order[64] =
+	static const u8 original_order[64] =
 	{
 		 1,  8, 16,  9,  2,  3, 10, 17,
 		24, 32, 25, 18, 11,  4,  5, 12,
@@ -17,19 +17,19 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 		60, 61, 54, 47, 55, 62, 63,  0
 	};
 
-	const BYTE* lpin = pbtSrc;
-	long width = *(WORD*)&lpin[0x10];
-	long height = *(WORD*)&lpin[0x12];
+	const u8* lpin = pbtSrc;
+	const s32 width = *(const u16*)&lpin[0x10];
+	const s32 height = *(const u16*)&lpin[0x12];
 
 	if (wBpp == 0)
 	{
-		wBpp = *(WORD*)&lpin[0x14];
+		wBpp = *(const u16*)&lpin[0x14];
 	}
 
-	int colors = wBpp >> 3;
+	const s32 colors = wBpp >> 3;
 
-	LONG ww, hh;
-	DWORD type = (*(LPDWORD)&lpin[8] >> 28) & 3;
+	s32 ww, hh;
+	const u32 type = (*(const u32*)&lpin[8] >> 28) & 3;
 
 	switch (type)
 	{
@@ -54,10 +54,10 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 
 	// Frequency Tables : 16 elements
 
-	lpin += *(LPDWORD) &lpin[4];
+	lpin += *(const u32*) &lpin[4];
 
-	DWORD freq_dc[128];
-	DWORD freq_ac[128];
+	u32 freq_dc[128];
+	u32 freq_ac[128];
 
 	memcpy(freq_dc, lpin, 0x40);
 	lpin += 0x40;
@@ -69,101 +69,103 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 	// Free beginning portion of the huffman table
 	// Table is not rewritten due to problems that occur
 
-	BYTE huff_tbl[0x1508];
+	u8 huff_tbl[0x1508];
 
-	for (int i = 0; i < 16; i++)
+	for (size_t i = 0; i < 16; i++)
 	{
 		huff_tbl[i] = *lpin++ + 1;
 	}
 
-	WORD quant_y[0x40];
-	WORD quant_c[0x40];
-	if (*(LPDWORD)&pbtSrc[8] & 0x08000000)
+	u16 quant_y[0x40];
+	u16 quant_c[0x40];
+	if (*(const u32*)&pbtSrc[8] & 0x08000000)
 	{
-		for (int i = 0; i < 0x40; i++)
+		for (size_t i = 0; i < 0x40; i++)
 			quant_y[i] = *lpin++;
 
-		for (int i = 0; i < 0x40; i++)
+		for (size_t i = 0; i < 0x40; i++)
 			quant_c[i] = *lpin++;
 	}
 
-	const BYTE* lpin2 = lpin + *(LPDWORD)&pbtSrc[0x1C];
+	const u8* lpin2 = lpin + *(const u32*)&pbtSrc[0x1C];
 
-	DWORD colorSize = ww * hh;
-	YCMemory<BYTE> dst2(colorSize * 4);
-	LPBYTE lpout = &dst2[0];
+	const u32 colorSize = ww * hh;
+	std::vector<u8> dst2(colorSize * 4);
+	u8* lpout = dst2.data();
 
-	int x_size = ww >> 4;
-	int y_size = hh >> 4;
+	const s32 x_size = ww >> 4;
+	const s32 y_size = hh >> 4;
 
-	DWORD tmpSize = x_size * y_size * 3 * 8;
-	YCMemory<BYTE> tmp(tmpSize);
-	LPBYTE pTmp = &tmp[0];
+	const u32 tmpSize = x_size * y_size * 3 * 8;
+	std::vector<u8> tmp(tmpSize);
+	u8* pTmp = tmp.data();
 
-	DWORD bit_buffer = 0;
-	DWORD bit_remain = 0;
-	DWORD EOT = MakeTree(huff_tbl, 16, freq_dc); //End Of Tree == Number of Datas
-	int size = x_size * y_size * 3 * 2;
+	u32 bit_buffer = 0;
+	u32 bit_remain = 0;
+	u32 EOT = MakeTree(huff_tbl, 16, freq_dc); //End Of Tree == Number of Datas
+	const s32 size = x_size * y_size * 3 * 2;
 
 	// Binary tree search of the 16 elements (Decompressed DC)
 
-	for (int i = 0; i < size; i++)
+	for (s32 i = 0; i < size; i++)
 	{
-		DWORD code = EOT - 1;
+		u32 code = EOT - 1;
 		while (code >= 16)
 		{
 			if (bit_remain == 0)
 			{
-				bit_buffer = *(LPDWORD)lpin; lpin += 4;
+				bit_buffer = *(const u32*)lpin;
 				bit_remain = 0x20;
+				lpin += 4;
 			}
-			code = *(LPDWORD)&huff_tbl[0x100 + (((bit_buffer & 1) << 9) + code) * 4];
+			code = *(const u32*)&huff_tbl[0x100 + (((bit_buffer & 1) << 9) + code) * 4];
 			bit_remain--;
 			bit_buffer >>= 1;
 		}
 
-		DWORD x = (code > 0) ? GetNBit(lpin, code, bit_buffer, bit_remain) : 0;
+		u32 x = (code > 0) ? GetNBit(lpin, code, bit_buffer, bit_remain) : 0;
 		if (x < (1 << (code - 1)))
 			x = x - (1 << code) + 1;
 
-		*(LPDWORD)&tmp[i * 4] = x;
+		*(u32*)&tmp[i * 4] = x;
 		if (i != 0)
-			*(LPDWORD)&tmp[i * 4] += *(LPDWORD)&tmp[i * 4 - 4];
+			*(u32*)&tmp[i * 4] += *(const u32*)&tmp[i * 4 - 4];
 	}
 
-	BYTE dct_tbl[0x300];
+	u8 dct_tbl[0x300];
 	bit_buffer = 0;
 	bit_remain = 0;
 	EOT = MakeTree(huff_tbl, 16, freq_ac);
 
-	for (int y = 0; y < y_size; y++)
+	for (s32 y = 0; y < y_size; y++)
 	{
-		LPBYTE lpDst1 = lpout + 0x20;
-		LPBYTE lpDst2 = lpout + ww * 4 * 9;
+		u8* lpDst1 = lpout + 0x20;
+		u8* lpDst2 = lpout + ww * 4 * 9;
 
-		for (int x = 0; x < x_size; x++)
+		for (s32 x = 0; x < x_size; x++)
 		{
 			memset(dct_tbl, 0, 0x300);
-			LPWORD f = (LPWORD)dct_tbl;
+			u16* f = (u16*)dct_tbl;
 
-			for (int n = 0; n < 6; n++)
+			for (s32 n = 0; n < 6; n++)
 			{
-				f[0] = *(LPWORD)pTmp;
+				f[0] = *(const u16*)pTmp;
 				pTmp += 4;
 
 				// Huffman tree search to element 63 (Decompress AC)
 				// Close to a JPEG huffman variant
-				for (int i = 0; i < 63;)
+				for (s32 i = 0; i < 63;)
 				{
-					DWORD code = EOT - 1;
+					u32 code = EOT - 1;
 					while (code >= 16)
 					{
 						if (bit_remain == 0)
 						{
-							bit_buffer = *(LPDWORD)lpin2; lpin2 += 4;
+							bit_buffer = *(const u32*)lpin2;
 							bit_remain = 0x20;
+							lpin2 += 4;
 						}
-						code = *(LPDWORD)&huff_tbl[0x100 + (((bit_buffer & 1) << 9) + code) * 4];
+						code = *(const u32*)&huff_tbl[0x100 + (((bit_buffer & 1) << 9) + code) * 4];
 						bit_remain--;
 						bit_buffer >>= 1;
 					}
@@ -175,16 +177,17 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 
 					if (code == 0)
 					{
-						LPBYTE p = huff_tbl;
+						const u8* p = huff_tbl;
 						while (true)
 						{
 							if (bit_remain == 0)
 							{
-								bit_buffer = *(LPDWORD)lpin2; lpin2 += 4;
+								bit_buffer = *(const u32*)lpin2;
 								bit_remain = 0x20;
+								lpin2 += 4;
 							}
 
-							DWORD x = bit_buffer & 1;
+							const u32 x = bit_buffer & 1;
 							bit_remain--;
 							bit_buffer >>= 1;
 
@@ -199,7 +202,7 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 					}
 					else
 					{
-						DWORD x = GetNBit(lpin2, code, bit_buffer, bit_remain);
+						u32 x = GetNBit(lpin2, code, bit_buffer, bit_remain);
 						if (x < (1 << (code - 1)))
 							x = x - (1 << code) + 1;
 						f[original_order[i]] = x;
@@ -210,37 +213,37 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 				f += 64;
 			}
 
-			DCT(dct_tbl + 0 * 2, (BYTE*)quant_y);
-			DCT(dct_tbl + 64 * 2, (BYTE*)quant_y);
-			DCT(dct_tbl + 128 * 2, (BYTE*)quant_y);
-			DCT(dct_tbl + 192 * 2, (BYTE*)quant_y);
-			DCT(dct_tbl + 256 * 2, (BYTE*)quant_c);
-			DCT(dct_tbl + 320 * 2, (BYTE*)quant_c);
+			DCT(dct_tbl + 0 * 2, (u8*)quant_y);
+			DCT(dct_tbl + 64 * 2, (u8*)quant_y);
+			DCT(dct_tbl + 128 * 2, (u8*)quant_y);
+			DCT(dct_tbl + 192 * 2, (u8*)quant_y);
+			DCT(dct_tbl + 256 * 2, (u8*)quant_c);
+			DCT(dct_tbl + 320 * 2, (u8*)quant_c);
 
 			// 2 line by line processing
 			// ¡ 
 			//   
-			LPBYTE dc = lpDst1 - 0x20;
-			LPBYTE ac = lpDst1 - 0x20 + ww * 4;
-			YCC2RGB(dc, ac, (short*)dct_tbl, (short*)(dct_tbl + 320 * 2), ww * 4);
+			u8* dc = lpDst1 - 0x20;
+			u8* ac = lpDst1 - 0x20 + ww * 4;
+			YCC2RGB(dc, ac, (s16*)dct_tbl, (s16*)(dct_tbl + 320 * 2), ww * 4);
 
 			//  ¡
 			//   
 			dc = lpDst1;
 			ac = lpDst2 + 0x20 - ww * 4 * 8;
-			YCC2RGB(dc, ac, (short*)(dct_tbl + 64 * 2), (short*)(dct_tbl + 324 * 2), ww * 4);
+			YCC2RGB(dc, ac, (s16*)(dct_tbl + 64 * 2), (s16*)(dct_tbl + 324 * 2), ww * 4);
 
 			//   
 			// ¡ 
 			dc = lpDst1 + ((ww * 4) << 3) - 0x20;
 			ac = lpDst2;
-			YCC2RGB(dc, ac, (short*)(dct_tbl + 128 * 2), (short*)(dct_tbl + 352 * 2), ww * 4);
+			YCC2RGB(dc, ac, (s16*)(dct_tbl + 128 * 2), (s16*)(dct_tbl + 352 * 2), ww * 4);
 
 			//   
 			//  ¡
 			dc = lpDst2 + 0x20 - ww * 4;
 			ac = lpDst2 + 0x20;
-			YCC2RGB(dc, ac, (short*)(dct_tbl + 192 * 2), (short*)(dct_tbl + 356 * 2), ww * 4);
+			YCC2RGB(dc, ac, (s16*)(dct_tbl + 192 * 2), (s16*)(dct_tbl + 356 * 2), ww * 4);
 
 			lpDst1 += 0x40;
 			lpDst2 += 0x40;
@@ -250,16 +253,16 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 		lpout += (ww << 6);
 	} //y_size
 
-	LONG lwidth = width * 4;
-	LONG lww = ww * 4;
-	LPBYTE pDst = &pbtDst[0];
-	LPBYTE pDst2 = &dst2[0];
+	const s32 lwidth = width * 4;
+	const s32 lww = ww * 4;
+	u8* pDst = &pbtDst[0];
+	u8* pDst2 = &dst2[0];
 
 	// Cut and copy extra data
-	for (int y = 0; y < height; y++)
+	for (s32 y = 0; y < height; y++)
 	{
 		//for (int x = 0; x < lwidth; x++)
-		for (int x = 0; x < width; x++)
+		for (s32 x = 0; x < width; x++)
 		{
 			memcpy(pDst, pDst2, colors);
 			pDst += colors;
@@ -273,12 +276,12 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 	// Put a value for the alpha
 	if (wBpp == 32)
 	{
-		const BYTE* alpha_end = pbtAlpha + dwAlphaSize;
+		const u8* alpha_end = pbtAlpha + dwAlphaSize;
 		while (pbtAlpha < alpha_end)
 		{
 			if (*pbtAlpha == 0 || *pbtAlpha == 0xFF)
 			{
-				for (BYTE x = 0; x < pbtAlpha[1]; x++)
+				for (u8 x = 0; x < pbtAlpha[1]; x++)
 				{
 					*pDst = pbtAlpha[0];
 					pDst += 4;
@@ -303,80 +306,80 @@ void CJBP1::Decomp(BYTE* pbtDst, const BYTE* pbtSrc, WORD wBpp, const BYTE* pbtA
 	//}
 }
 
-void CJBP1::DCT(BYTE* arg1, BYTE* arg2)
+void CJBP1::DCT(u8* arg1, u8* arg2)
 {
-	long a, b, c, d;
-	long w, x, y, z;
-	long s, t, u, v, n;
+	s32 a, b, c, d;
+	s32 w, x, y, z;
+	s32 s, t, u, v, n;
 
-	BYTE* lp1 = arg1;
-	BYTE* lp2 = arg2;
-	int   i = 8;
+	u8* lp1 = arg1;
+	u8* lp2 = arg2;
+	s32 i = 8;
 
 	do
 	{
-		if (*(short*)&lp1[0x10] == 0 &&
-		    *(short*)&lp1[0x20] == 0 &&
-		    *(short*)&lp1[0x30] == 0 &&
-		    *(short*)&lp1[0x40] == 0 &&
-		    *(short*)&lp1[0x50] == 0 &&
-		    *(short*)&lp1[0x60] == 0 &&
-		    *(short*)&lp1[0x70] == 0)
+		if (*(s16*)&lp1[0x10] == 0 &&
+		    *(s16*)&lp1[0x20] == 0 &&
+		    *(s16*)&lp1[0x30] == 0 &&
+		    *(s16*)&lp1[0x40] == 0 &&
+		    *(s16*)&lp1[0x50] == 0 &&
+		    *(s16*)&lp1[0x60] == 0 &&
+		    *(s16*)&lp1[0x70] == 0)
 		{
-			*(short*)&lp1[0x00] =
-			*(short*)&lp1[0x10] =
-			*(short*)&lp1[0x20] =
-			*(short*)&lp1[0x30] =
-			*(short*)&lp1[0x40] =
-			*(short*)&lp1[0x50] =
-			*(short*)&lp1[0x60] =
-			*(short*)&lp1[0x70] = *(short*)&lp1[0] * *(short*)&lp2[0];
+			*(s16*)&lp1[0x00] =
+			*(s16*)&lp1[0x10] =
+			*(s16*)&lp1[0x20] =
+			*(s16*)&lp1[0x30] =
+			*(s16*)&lp1[0x40] =
+			*(s16*)&lp1[0x50] =
+			*(s16*)&lp1[0x60] =
+			*(s16*)&lp1[0x70] = *(s16*)&lp1[0] * *(s16*)&lp2[0];
 		}
 		else
 		{
-			c = *(short*)&lp2[0x20] * *(short*)&lp1[0x20];
-			d = *(short*)&lp2[0x60] * *(short*)&lp1[0x60];
+			c = *(s16*)&lp2[0x20] * *(s16*)&lp1[0x20];
+			d = *(s16*)&lp2[0x60] * *(s16*)&lp1[0x60];
 			x = c + d;
 			x = (x * 0x00008A8B) >> 16;
 			c = ((c * 0x0000C3EF) >> 16) + x; //sar==unsigned‚¾‚¯‚Ç
-			d = ((d * (long)0xFFFE26FA) >> 16) + x;
-			a = *(short*)&lp1[0x00] * *(short*)&lp2[0x00];
-			b = *(short*)&lp1[0x40] * *(short*)&lp2[0x40];
+			d = ((d * (s32)0xFFFE26FA) >> 16) + x;
+			a = *(s16*)&lp1[0x00] * *(s16*)&lp2[0x00];
+			b = *(s16*)&lp1[0x40] * *(s16*)&lp2[0x40];
 			w = a + b + c; //[esp+20]
 			x = a + b - c; //[esp+2C]
 			y = a - b + d; //[esp+24]
 			z = a - b - d; //[esp+28]
 
-			c = *(short*)&lp1[0x70] * *(short*)&lp2[0x70];
-			d = *(short*)&lp1[0x50] * *(short*)&lp2[0x50];
-			a = *(short*)&lp1[0x30] * *(short*)&lp2[0x30];
-			b = *(short*)&lp1[0x10] * *(short*)&lp2[0x10];
+			c = *(s16*)&lp1[0x70] * *(s16*)&lp2[0x70];
+			d = *(s16*)&lp1[0x50] * *(s16*)&lp2[0x50];
+			a = *(s16*)&lp1[0x30] * *(s16*)&lp2[0x30];
+			b = *(s16*)&lp1[0x10] * *(s16*)&lp2[0x10];
 			n = ((a + b + c + d) * 0x00012D06) >> 16;
 
 			u = n + ((c * 0x00004C73) >> 16)
-			      + (((c + a) * (long)0xFFFE09D7) >> 16)  //[esp+18]
-			      + (((c + b) * (long)0xFFFF199C) >> 16); //[esp+14]
+			      + (((c + a) * (s32)0xFFFE09D7) >> 16)  //[esp+18]
+			      + (((c + b) * (s32)0xFFFF199C) >> 16); //[esp+14]
 
 			v = n + ((d * 0x00020D99) >> 16)
-			      + (((d + b) * (long)0xFFFF9C1E) >> 16)  //[esp+1C]
-			      + (((d + a) * (long)0xFFFD6FE5) >> 16); //[esp+10]
+			      + (((d + b) * (s32)0xFFFF9C1E) >> 16)  //[esp+1C]
+			      + (((d + a) * (s32)0xFFFD6FE5) >> 16); //[esp+10]
 
 			t = n + ((b * 0x00018056) >> 16)
-			      + (((d + b) * (long)0xFFFF9C1E) >> 16)  //[esp+1C]
-			      + (((c + b) * (long)0xFFFF199C) >> 16); //[esp+14]
+			      + (((d + b) * (s32)0xFFFF9C1E) >> 16)  //[esp+1C]
+			      + (((c + b) * (s32)0xFFFF199C) >> 16); //[esp+14]
 
 			s = n + ((a * 0x0003129D) >> 16)
-			      + (((c + a) * (long)0xFFFE09D7) >> 16)  //[esp+18]
-			      + (((d + a) * (long)0xFFFD6FE5) >> 16); //[esp+10]
+			      + (((c + a) * (s32)0xFFFE09D7) >> 16)  //[esp+18]
+			      + (((d + a) * (s32)0xFFFD6FE5) >> 16); //[esp+10]
 
-			*(short*)&lp1[0x00] = (short)(w + t);
-			*(short*)&lp1[0x70] = (short)(w - t);
-			*(short*)&lp1[0x10] = (short)(y + s);
-			*(short*)&lp1[0x60] = (short)(y - s);
-			*(short*)&lp1[0x20] = (short)(z + v);
-			*(short*)&lp1[0x50] = (short)(z - v);
-			*(short*)&lp1[0x30] = (short)(x + u);
-			*(short*)&lp1[0x40] = (short)(x - u);
+			*(s16*)&lp1[0x00] = static_cast<s16>(w + t);
+			*(s16*)&lp1[0x70] = static_cast<s16>(w - t);
+			*(s16*)&lp1[0x10] = static_cast<s16>(y + s);
+			*(s16*)&lp1[0x60] = static_cast<s16>(y - s);
+			*(s16*)&lp1[0x20] = static_cast<s16>(z + v);
+			*(s16*)&lp1[0x50] = static_cast<s16>(z - v);
+			*(s16*)&lp1[0x30] = static_cast<s16>(x + u);
+			*(s16*)&lp1[0x40] = static_cast<s16>(x - u);
 		}
 
 		lp1 += 2;
@@ -389,58 +392,58 @@ void CJBP1::DCT(BYTE* arg1, BYTE* arg2)
 
 	do
 	{
-		c = *(short*)&lp1[4];
-		d = *(short*)&lp1[12];
-		b = *(short*)&lp1[8];
+		c = *(s16*)&lp1[4];
+		d = *(s16*)&lp1[12];
+		b = *(s16*)&lp1[8];
 		x = c + d;
 		x = ((x * 0x00008A8B) >> 16);
 		c = ((c * 0x0000C3EF) >> 16) + x;
-		d = ((d * (long)0xFFFE26FA) >> 16) + x;
-		a = *(short*)&lp1[0];
+		d = ((d * (s32)0xFFFE26FA) >> 16) + x;
+		a = *(s16*)&lp1[0];
 		w = a + b + c; //[esp+20]
 		x = a + b - c; //[esp+2C]
 		y = a - b + d; //[esp+24]
 		z = a - b - d; //[esp+28]
 
-		d = *(short*)&lp1[10];
-		b = *(short*)&lp1[2];
-		c = *(short*)&lp1[14];
-		a = *(short*)&lp1[6];
+		d = *(s16*)&lp1[10];
+		b = *(s16*)&lp1[2];
+		c = *(s16*)&lp1[14];
+		a = *(s16*)&lp1[6];
 		n = (((a + b + c + d) * 0x00012D06) >> 16);
 
 		s = n + ((a * 0x0003129D) >> 16)
-		      + (((a + c) * (long)0xFFFE09D7) >> 16)  //[esp+18]
-		      + (((a + d) * (long)0xFFFD6FE5) >> 16); //[esp+10]
+		      + (((a + c) * (s32)0xFFFE09D7) >> 16)  //[esp+18]
+		      + (((a + d) * (s32)0xFFFD6FE5) >> 16); //[esp+10]
 
 		t = n + ((b * 0x00018056) >> 16)
-		      + (((b + d) * (long)0xFFFF9C1E) >> 16)
-		      + (((b + c) * (long)0xFFFF199C) >> 16); //[esp+14]
+		      + (((b + d) * (s32)0xFFFF9C1E) >> 16)
+		      + (((b + c) * (s32)0xFFFF199C) >> 16); //[esp+14]
 
 		u = n + ((c * 0x00004C73) >> 16)
-		      + (((b + c) * (long)0xFFFF199C) >> 16)  //[esp+14]
-		      + (((a + c) * (long)0xFFFE09D7) >> 16); //[esp+18]
+		      + (((b + c) * (s32)0xFFFF199C) >> 16)  //[esp+14]
+		      + (((a + c) * (s32)0xFFFE09D7) >> 16); //[esp+18]
 
 		v = n + ((d * 0x00020D99) >> 16)
-		      + (((b + d) * (long)0xFFFF9C1E) >> 16)
-		      + (((a + d) * (long)0xFFFD6FE5) >> 16); //[esp+10]
+		      + (((b + d) * (s32)0xFFFF9C1E) >> 16)
+		      + (((a + d) * (s32)0xFFFD6FE5) >> 16); //[esp+10]
 
-		*(short*)&lp1[0] = (short)((w + t) >> 3);
-		*(short*)&lp1[14] = (short)((w - t) >> 3);
-		*(short*)&lp1[2] = (short)((y + s) >> 3);
-		*(short*)&lp1[12] = (short)((y - s) >> 3);
-		*(short*)&lp1[4] = (short)((z + v) >> 3);
-		*(short*)&lp1[10] = (short)((z - v) >> 3);
-		*(short*)&lp1[6] = (short)((x + u) >> 3);
-		*(short*)&lp1[8] = (short)((x - u) >> 3);
+		*(s16*)&lp1[0]  = static_cast<s16>((w + t) >> 3);
+		*(s16*)&lp1[14] = static_cast<s16>((w - t) >> 3);
+		*(s16*)&lp1[2]  = static_cast<s16>((y + s) >> 3);
+		*(s16*)&lp1[12] = static_cast<s16>((y - s) >> 3);
+		*(s16*)&lp1[4]  = static_cast<s16>((z + v) >> 3);
+		*(s16*)&lp1[10] = static_cast<s16>((z - v) >> 3);
+		*(s16*)&lp1[6]  = static_cast<s16>((x + u) >> 3);
+		*(s16*)&lp1[8]  = static_cast<s16>((x - u) >> 3);
 
 		lp1 += 16;
 		i--;
 	} while (i > 0);
 }
 
-int CJBP1::GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_remain)
+s32 CJBP1::GetNBit(const u8*& lpin, u32 code, u32& bit_buffer, u32& bit_remain)
 {
-	int i = 0;
+	s32 i = 0;
 
 	if (code == 0)
 	{
@@ -453,7 +456,7 @@ int CJBP1::GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_
 		{
 			if (bit_remain == 0)
 			{
-				bit_buffer = *(DWORD*)lpin;
+				bit_buffer = *(const u32*)lpin;
 				lpin += 4;
 
 				bit_remain = 0x20;
@@ -479,17 +482,17 @@ int CJBP1::GetNBit(const BYTE*& lpin, DWORD code, DWORD& bit_buffer, DWORD& bit_
 	return i;
 }
 
-int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
+s32 CJBP1::MakeTree(u8* lp1, s32 size, u32* lp2)
 {
-	int n, x, c, d;
+	s32 n, x, c, d;
 
-	BYTE* lp3 = lp1 + 0x900;
+	u8* lp3 = lp1 + 0x900;
 
-	for (int i = 0x102; i > 0; i--)
+	for (s32 i = 0x102; i > 0; i--)
 	{
-		*(DWORD*)&lp3[0x800]  = 0;
-		*(DWORD*)&lp3[0]      = 0;
-		*(DWORD*)&lp3[-0x800] = 0;
+		*(u32*)&lp3[0x800]  = 0;
+		*(u32*)&lp3[0]      = 0;
+		*(u32*)&lp3[-0x800] = 0;
 
 		lp3 += 4;
 	}
@@ -504,7 +507,7 @@ int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 		d = n = -100; //-0x64;
 		x = 0x7D2B74FF;
 
-		for (int i = 0; i < size; i++)
+		for (s32 i = 0; i < size; i++)
 		{
 			if (lp2[i] < x)
 			{
@@ -515,9 +518,9 @@ int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 
 		x = 0x7D2B74FF;
 
-		for (int i = 0; i < size; i++)
+		for (s32 i = 0; i < size; i++)
 		{
-			if ((i != n) && (lp2[i] < x))
+			if (i != n && lp2[i] < x)
 			{
 				d = i;
 				x = lp2[i];
@@ -529,10 +532,10 @@ int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 			break;
 		}
 
-		*(DWORD*)&lp3[-0x800] = n;
-		*(DWORD*)&lp3[0] = d;
-		*(DWORD*)&lp1[n * 4 + 0x1100] = size;
-		*(DWORD*)&lp1[d * 4 + 0x1100] = c;
+		*(u32*)&lp3[-0x800] = n;
+		*(u32*)&lp3[0] = d;
+		*(u32*)&lp1[n * 4 + 0x1100] = size;
+		*(u32*)&lp1[d * 4 + 0x1100] = c;
 		lp2[size] = lp2[n] + lp2[d];
 		size++;
 		c--;
@@ -541,38 +544,37 @@ int CJBP1::MakeTree(BYTE* lp1, int size, DWORD* lp2)
 		lp2[d] = 0x7D2B7500;
 	}
 
-	return	 size;
+	return size;
 }
 
 /// YCbCr => RGB
-void CJBP1::YCC2RGB(BYTE* dc, BYTE* ac, short* Y, short* CbCr, int line)
+void CJBP1::YCC2RGB(u8* dc, u8* ac, s16* Y, s16* CbCr, s32 line)
 {
-	BYTE*       tbl;
 	static bool is_tbl = false;
-	static BYTE fixed_byte_tbl[0x300]; //462C48
+	static u8 fixed_byte_tbl[0x300]; //462C48
 
 	// Faster table truncation, saturation
 	// -0x80 is less than 0, 0x80 is less than 0xFF 
 
 	if (!is_tbl)
 	{
-		for (int n = 0; n < 0x100; n++)
+		for (size_t n = 0; n < 0x100; n++)
 			fixed_byte_tbl[n] = 0;
 
-		for (int n = 0; n < 0x100; n++)
-			fixed_byte_tbl[n + 0x100] = n;
+		for (size_t n = 0; n < 0x100; n++)
+			fixed_byte_tbl[n + 0x100] = static_cast<u8>(n);
 
-		for (int n = 0; n<0x100; n++)
+		for (size_t n = 0; n < 0x100; n++)
 			fixed_byte_tbl[n + 0x200] = 0xFF;
 
 		is_tbl = true;
 	}
 
-	tbl = fixed_byte_tbl;
+	const u8* tbl = fixed_byte_tbl;
 
-	for (int n = 4; n > 0; n--)
+	for (s32 n = 4; n > 0; n--)
 	{
-		long r, g, b, c, d, w, x, y, z;
+		s32 r, g, b, c, d, w, x, y, z;
 
 		c = CbCr[0]; //cr
 		d = CbCr[-64]; //cb
