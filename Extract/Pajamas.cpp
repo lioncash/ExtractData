@@ -58,8 +58,8 @@ bool CPajamas::MountDat1(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.start = *(const u32*)&file_info_index[0] + offset;
-		file_info.sizeCmp = *(const u32*)&file_info_index[4];
+		file_info.start = *reinterpret_cast<const u32*>(&file_info_index[0]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
 		file_info.sizeOrg = file_info.sizeCmp;
 		file_info.end = file_info.start + file_info.sizeCmp;
 
@@ -113,8 +113,8 @@ bool CPajamas::MountDat2(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.start = *(const u32*)&file_info_index[0] + offset;
-		file_info.sizeCmp = *(const u32*)&file_info_index[4];
+		file_info.start = *reinterpret_cast<const u32*>(&file_info_index[0]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
 		file_info.sizeOrg = file_info.sizeCmp;
 		file_info.end = file_info.start + file_info.sizeCmp;
 
@@ -156,8 +156,8 @@ bool CPajamas::DecodeEPA(CArcFile* archive)
 	// Difference flag, Number of colors, width, height
 	const u8 diff_flag = header[3];
 	u16 bpp = header[4];
-	const s32 width = *(s32*)&header[8];
-	const s32 height = *(s32*)&header[12];
+	const s32 width = *reinterpret_cast<s32*>(&header[8]);
+	const s32 height = *reinterpret_cast<s32*>(&header[12]);
 
 	switch (bpp)
 	{
