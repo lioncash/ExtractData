@@ -533,7 +533,7 @@ void CExtractData::DeleteTmpFile()
 void CExtractData::LoadTmpFileList()
 {
 	CFile clfTmpFileList;
-	if (clfTmpFileList.Open(m_szPathToTmpFileList, FILE_READ) == INVALID_HANDLE_VALUE)
+	if (clfTmpFileList.Open(m_szPathToTmpFileList, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 	{
 		// Failed to open import file
 		return;
@@ -560,7 +560,7 @@ void CExtractData::SaveTmpFileList()
 	}
 
 	CFile clfTmpFileList;
-	if (clfTmpFileList.Open(m_szPathToTmpFileList, FILE_WRITE) == INVALID_HANDLE_VALUE)
+	if (clfTmpFileList.Open(m_szPathToTmpFileList, CFile::FILE_WRITE) == INVALID_HANDLE_VALUE)
 	{
 		// Failed to open file for writing
 		return;

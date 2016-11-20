@@ -39,7 +39,7 @@ bool CCyc::MountGpk(CArcFile* pclArc)
 
 	// Open gtb file
 	CFile GtbFile;
-	if (GtbFile.Open(szGtbPath, FILE_READ) == INVALID_HANDLE_VALUE)
+	if (GtbFile.Open(szGtbPath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Number of files in the gtb file
@@ -97,7 +97,7 @@ bool CCyc::MountVpk(CArcFile* pclArc)
 	
 	// Open vtb file
 	CFile VtbFile;
-	if (VtbFile.Open(szVtbPath, FILE_READ) == INVALID_HANDLE_VALUE)
+	if (VtbFile.Open(szVtbPath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Read vtb file

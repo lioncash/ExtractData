@@ -15,7 +15,7 @@ bool CClannad::Mount(CArcFile* pclArc)
 	lstrcpy(szHedFilePath, pclArc->GetArcPath());
 	PathRenameExtension(szHedFilePath, _T(".HED"));
 	CFile HedFile;
-	if (HedFile.Open(szHedFilePath, FILE_READ) == INVALID_HANDLE_VALUE)
+	if (HedFile.Open(szHedFilePath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Get index size
