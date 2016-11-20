@@ -8,19 +8,19 @@ public:
 	bool Mount(CArcFile* pclArc) override;
 
 private:
-	struct TCONTEXT
+	struct Context
 	{
-		YCString pcName;
-		int iType;
-		WORD ui16Code;
+		YCString name;
+		int type;
+		u16 code;
 	};
 
-	bool _sub(CArcFile* pclArc, LPTSTR pcPath);
-	WORD CreateNewContext(CArcFile* archive, WORD length);
-	int FindContextTypeWithCode(WORD code);
+	bool Sub(CArcFile* archive, LPTSTR path);
+	u16 CreateNewContext(CArcFile* archive, u16 length);
+	int FindContextTypeWithCode(u16 code);
 
-	std::vector<TCONTEXT> m_tContextTable;
-	WORD m_ui16ContextCount;
+	std::vector<Context> m_contexts;
+	u16 m_context_count = 0;
 
-	DWORD m_RestArchiveSize;
+	u32 m_rest_archive_size = 0;
 };

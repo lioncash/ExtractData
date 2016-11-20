@@ -6,126 +6,127 @@
 #define TYPE_NONE   0x00000000
 #define TYPE_FOLDER 0x00000001
 
-bool CSummerDays::Mount(CArcFile* pclArc)
+bool CSummerDays::Mount(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "Í2nY", 4) != 0)
+	if (memcmp(archive->GetHed(), "Í2nY", 4) != 0)
 		return false;
 
-	m_ui16ContextCount = 0x8003; // Code starts at 0x8003
+	// Code starts at 0x8003
+	m_context_count = 0x8003;
 
 	// Get header
-	WORD ctHeader;
-	pclArc->Seek(10, FILE_BEGIN);
-	pclArc->Read(&ctHeader, 2);
+	u16 num_headers;
+	archive->Seek(10, FILE_BEGIN);
+	archive->ReadU16(&num_headers);
 
 	// Get file name
-	WORD FileNameLen;
-	pclArc->Read(&FileNameLen, 2);
-	TCHAR szFileName[256];
-	pclArc->Read(szFileName, FileNameLen);
-	szFileName[FileNameLen] = _T('\0');
+	u16 file_name_length;
+	archive->ReadU16(&file_name_length);
+	TCHAR file_name[256];
+	archive->Read(file_name, file_name_length);
+	file_name[file_name_length] = _T('\0');
 
 	// Get count
-	WORD count;
-	pclArc->Read(&count, 2);
-	DWORD ctTotal = (ctHeader > 1) ? ctHeader + count - 1 : count;
+	u16 count;
+	archive->ReadU16(&count);
+	const u32 total_headers = num_headers > 1 ? num_headers + count - 1 : count;
 
-	TCHAR pcPath[MAX_PATH] = {};
-	for (DWORD i = 0; i < ctTotal; i++)
+	TCHAR path[MAX_PATH] = {};
+	for (u32 i = 0; i < total_headers; i++)
 	{
-		if (!_sub(pclArc, pcPath))
+		if (!Sub(archive, path))
 		{
-			m_tContextTable.clear();
+			m_contexts.clear();
 			return false;
 		}
 	}
 
-	m_tContextTable.clear();
+	m_contexts.clear();
 
 	return true;
 }
 
-WORD CSummerDays::CreateNewContext(CArcFile* archive, WORD length)
+u16 CSummerDays::CreateNewContext(CArcFile* archive, u16 length)
 {
-	m_ui16ContextCount++;
+	m_context_count++;
 
 	// Get class name
 	TCHAR name[256];
 	archive->Read(name, length);
 	name[length] = _T('\0');
 
-	TCONTEXT ctx;
-	ctx.pcName = name;
-	ctx.ui16Code = m_ui16ContextCount;
-	ctx.iType = (ctx.pcName == _T("CAutoFolder")) ? TYPE_FOLDER : TYPE_NONE;
-	m_tContextTable.push_back(ctx);
+	Context ctx;
+	ctx.name = name;
+	ctx.code = m_context_count;
+	ctx.type = ctx.name == _T("CAutoFolder") ? TYPE_FOLDER : TYPE_NONE;
+	m_contexts.push_back(ctx);
 
-	return m_ui16ContextCount;
+	return m_context_count;
 }
 
-int CSummerDays::FindContextTypeWithCode(WORD code)
+int CSummerDays::FindContextTypeWithCode(u16 code)
 {
-	const auto iter = std::find_if(m_tContextTable.begin(), m_tContextTable.end(),
-	                               [code](const auto& entry) { return entry.ui16Code == code; });
+	const auto iter = std::find_if(m_contexts.begin(), m_contexts.end(),
+	                               [code](const auto& entry) { return entry.code == code; });
 
-	if (iter == m_tContextTable.end())
+	if (iter == m_contexts.end())
 		return -1;
 
-	return iter->iType;
+	return iter->type;
 }
 
-bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
+bool CSummerDays::Sub(CArcFile* archive, LPTSTR path)
 {
 	union
 	{
-		DWORD pui32Value[2];
-		WORD pui16Value[4];
-		BYTE pui8Value[8];
-		char pi8Value[8];
-	} uData;
+		u32 u32_value[2];
+		u16 u16_value[4];
+		u8  u8_value[8];
+		s8  s8_value[8];
+	} data;
 
-	m_ui16ContextCount++;
+	m_context_count++;
 
 	// Get file name (Folder name)
-	BYTE ui8Length;
-	pclArc->Read(&ui8Length, 1);
-	TCHAR pcName[256];
-	pclArc->Read(pcName, ui8Length);
-	pcName[ui8Length] = _T('\0');
+	u8 length;
+	archive->ReadU8(&length);
+	TCHAR name[256];
+	archive->Read(name, length);
+	name[length] = _T('\0');
 
 	// Get start address
-	pclArc->Read(&ui8Length, 1);
-	pclArc->Read(uData.pi8Value, 8);
-	WORD ui16Context = uData.pui16Value[1];
+	archive->ReadU8(&length);
+	archive->Read(data.s8_value, 8);
+	u16 context = data.u16_value[1];
 
-	if (ui16Context == (WORD)0xffff)
+	if (context == static_cast<u16>(0xffff))
 	{
-		ui16Context = CreateNewContext(pclArc, uData.pui16Value[3]);
-		pclArc->Read(&uData.pui32Value[1], 4);
+		context = CreateNewContext(archive, data.u16_value[3]);
+		archive->Read(&data.u32_value[1], 4);
 	}
 
-	int iType = FindContextTypeWithCode(ui16Context);
-	long i32Position = (long)(uData.pui32Value[1] - (DWORD)0xA2FB6AD1);
+	const int type = FindContextTypeWithCode(context);
+	const s32 position = static_cast<s32>(data.u32_value[1] - 0xA2FB6AD1U);
 
 	// Get file size
-	pclArc->Read(&uData.pui32Value[0], 4);
-	DWORD ui32Base = uData.pui32Value[0] + 0x184A2608;
-	DWORD ui32Size = (ui32Base >> 13) & 0x0007FFFF;
-	ui32Size |= ((ui32Base - ui32Size) & 0x00000FFF) << 19;
+	archive->Read(&data.u32_value[0], 4);
+	const u32 base = data.u32_value[0] + 0x184A2608;
+	u32 size = (base >> 13) & 0x0007FFFF;
+	size |= ((base - size) & 0x00000FFF) << 19;
+	
+	TCHAR full_path[MAX_PATH];
+	lstrcpy(full_path, path);
+	PathAppend(full_path, name);
 
-	TCHAR pcPath2[MAX_PATH];
-	lstrcpy(pcPath2, pcPath);
-	PathAppend(pcPath2, pcName);
-
-	if (iType & TYPE_FOLDER)
+	if (type & TYPE_FOLDER)
 	{
-		lstrcat(pcPath2, _T(".Op"));
-		WORD ui16Count;
-		pclArc->Read(&ui16Count, 2);
+		lstrcat(full_path, _T(".Op"));
+		u16 count;
+		archive->ReadU16(&count);
 
-		for (WORD i = 0; i < ui16Count; i++)
+		for (u32 i = 0; i < count; i++)
 		{
-			if (!_sub(pclArc, pcPath2))
+			if (!Sub(archive, full_path))
 			{
 				return false;
 			}
@@ -133,17 +134,14 @@ bool CSummerDays::_sub(CArcFile* pclArc, LPTSTR pcPath)
 	}
 	else
 	{
-		WORD ui16Count;
-		pclArc->Read(&ui16Count, 2);
-
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = pcPath2;
-		infFile.sizeCmp = ui32Size;
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.start = i32Position;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = full_path;
+		file_info.sizeCmp = size;
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = position;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
