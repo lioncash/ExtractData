@@ -12,22 +12,21 @@ bool CCmv::Mount(CArcFile* archive)
 		return false;
 
 	// Read Header
-	BYTE header[44];
+	u8 header[44];
 	archive->Read(header, sizeof(header));
 
 	// Get offset
-	const DWORD offset = *(DWORD*)&header[4];
+	const u32 offset = *reinterpret_cast<const u32*>(&header[4]);
 
 	// Get index size
-	const DWORD index_size = *(DWORD*)&header[4] - 44;
+	const u32 index_size = *reinterpret_cast<const u32*>(&header[4]) - 44;
 
 	// Get file count
-	const DWORD file_count = *(DWORD*)&header[16] + 1;
+	const u32 file_count = *reinterpret_cast<const u32*>(&header[16]) + 1;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	DWORD          index_ptr = 0;
-	archive->Read(&index[0], index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get archive name
 	TCHAR archive_name[_MAX_FNAME];
@@ -35,10 +34,11 @@ bool CCmv::Mount(CArcFile* archive)
 	PathRenameExtension(archive_name, _T("_"));
 
 	// Get file info
-	for (DWORD i = 0; i < file_count; i++)
+	u32 index_ptr = 0;
+	for (u32 i = 0; i < file_count; i++)
 	{
 		TCHAR file_ext[_MAX_EXT];
-		const DWORD type = *(DWORD*)&index[12];
+		const u32 type = *reinterpret_cast<const u32*>(&index[12]);
 
 		switch (type)
 		{
@@ -57,11 +57,11 @@ bool CCmv::Mount(CArcFile* archive)
 
 		// Add to list view
 		SFileInfo file_info;
-		file_info.name = filename;
-		file_info.sizeCmp = *(DWORD*)&index[index_ptr + 4];
-		file_info.sizeOrg = *(DWORD*)&index[index_ptr + 8];
-		file_info.start = *(DWORD*)&index[index_ptr + 16] + offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.name    = filename;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index[index_ptr + 8]);
+		file_info.start   = *reinterpret_cast<const u32*>(&index[index_ptr + 16]) + offset;
+		file_info.end     = file_info.start + file_info.sizeCmp;
 		archive->AddFileInfo(file_info);
 		index_ptr += 20;
 	}
@@ -76,30 +76,30 @@ bool CCmv::Decode(CArcFile* archive)
 	if (file_info->format != _T("JBP"))
 		return false;
 
-	YCMemory<BYTE> src(file_info->sizeCmp);
-	archive->Read(&src[0], file_info->sizeCmp);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
-	const LONG width = *(LPWORD)&src[0x10];
-	const LONG height = *(LPWORD)&src[0x12];
-	const WORD bpp = *(LPWORD)&src[0x14];
-	const WORD colors = bpp >> 3;
+	const s32 width  = *reinterpret_cast<const u16*>(&src[0x10]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[0x12]);
+	const u16 bpp    = *reinterpret_cast<const u16*>(&src[0x14]);
+	const u16 colors = bpp >> 3;
 
-	const DWORD dst_size = width * height * colors;
-	YCMemory<BYTE> dst(dst_size);
+	const u32 dst_size = width * height * colors;
+	std::vector<u8> dst(dst_size);
 
-	if (memcmp(&src[0], "JBP1", 4) == 0)
+	if (memcmp(src.data(), "JBP1", 4) == 0)
 	{
 		CJBP1 jbp1;
-		jbp1.Decomp(&dst[0], &src[0]);
+		jbp1.Decomp(dst.data(), src.data());
 
 		CImage image;
 		image.Init(archive, width, height, bpp);
-		image.WriteReverse(&dst[0], dst_size);
+		image.WriteReverse(dst.data(), dst.size());
 	}
 	else
 	{
 		archive->OpenFile();
-		archive->WriteFile(&src[0], file_info->sizeCmp);
+		archive->WriteFile(src.data(), src.size());
 	}
 
 	return true;
