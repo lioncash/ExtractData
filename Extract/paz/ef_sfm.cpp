@@ -5,7 +5,7 @@
 ///
 /// @param archive Archive
 ///
-bool CEFsfm::IsSupported(CArcFile* archive) const
+bool CEFsfm::IsSupported(const CArcFile* archive) const
 {
 	return memcmp(archive->GetHed(), "ef_sfm", 6) == 0;
 }

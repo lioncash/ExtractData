@@ -5,7 +5,7 @@
 ///
 /// @param archive Archive
 ///
-bool CEFLatter::IsSupported(CArcFile* archive)
+bool CEFLatter::IsSupported(const CArcFile* archive)
 {
 	// Get header
 	u8 header[32];

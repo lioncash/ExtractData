@@ -9,7 +9,7 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 private:
-	bool IsSupported(CArcFile* archive);
+	bool IsSupported(const CArcFile* archive);
 
 	void InitMountKey(CArcFile* archive) override;
 	void InitDecodeKey(CArcFile* archive) override;

@@ -5,7 +5,7 @@
 ///
 /// @param archive Archive
 ///
-bool Cef_first::IsSupported(CArcFile* archive)
+bool Cef_first::IsSupported(const CArcFile* archive)
 {
 	// Get header
 	u8 header[32];
