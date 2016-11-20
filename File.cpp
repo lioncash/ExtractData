@@ -54,7 +54,7 @@ u32 CFile::Read(void* buffer, u32 size)
 
 u32 CFile::ReadLine(void* buffer, u32 buffer_size, bool delete_line_code)
 {
-	u8* byte_buffer = static_cast<LPBYTE>(buffer);
+	u8* byte_buffer = static_cast<u8*>(buffer);
 	const u8* byte_buffer_end = byte_buffer + buffer_size;
 	u32 total_read_size = 0;
 
