@@ -8,7 +8,7 @@
 bool CEFLatter::IsSupported(CArcFile* archive)
 {
 	// Get header
-	BYTE header[32];
+	u8 header[32];
 	memcpy(header, archive->GetHed(), sizeof(header));
 
 	// Get decryption key
@@ -96,9 +96,9 @@ void CEFLatter::InitDecodeKey(CArcFile* archive)
 ///
 /// @return table size
 ///
-DWORD CEFLatter::InitMovieTable(void* table)
+u32 CEFLatter::InitMovieTable(const u8* table)
 {
-	BYTE* movie_table = GetMovieTable();
+	u8* movie_table = GetMovieTable();
 
 	memcpy(movie_table, table, 256);
 
@@ -173,8 +173,8 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 
 		// Construct RC4 Table
 
-		const BYTE* const movie_table = GetMovieTable();
-		BYTE rc4_table[256];
+		const u8* const movie_table = GetMovieTable();
+		u8 rc4_table[256];
 
 		const char* const key = m_key_string;
 		const size_t key_length = strlen(m_key_string);
@@ -185,7 +185,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 		}
 
 		// Initialize Table
-		BYTE key_table[256];
+		u8 key_table[256];
 
 		for (size_t i = 0; i < 256; i++)
 		{
@@ -208,7 +208,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 
 			std::swap(key_table[index1], key_table[index2]);
 
-			const DWORD work = (key_table[index1] + key_table[index2]) & 0xFF;
+			const u32 work = (key_table[index1] + key_table[index2]) & 0xFF;
 
 			m_movie_decode_table[i] = key_table[work];
 		}
@@ -222,7 +222,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 		// Initialize Table
 		for (size_t i = 0; i < 256; i++)
 		{
-			m_key_table[i] = static_cast<BYTE>(i);
+			m_key_table[i] = static_cast<u8>(i);
 		}
 
 		// Construct Table
@@ -246,13 +246,11 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 /// @param target Data to be decoded
 /// @param size   Decoding size
 ///
-void CEFLatter::Decrypt(void* target, DWORD size)
+void CEFLatter::Decrypt(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		byte_target[i] ^= m_key;
+		target[i] ^= m_key;
 	}
 }
 
@@ -261,23 +259,21 @@ void CEFLatter::Decrypt(void* target, DWORD size)
 /// @param target Data to be decoded
 /// @param size   Decoding size
 ///
-void CEFLatter::Decrypt2(void* target, DWORD size)
+void CEFLatter::Decrypt2(u8* target, size_t size)
 {
 	if (strcmp(m_key_string, "") == 0)
 		return;
 
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		m_key_table_index1 = ((m_key_table_index1 + 1) & 0xFF);
-		m_key_table_index2 = ((m_key_table_index2 + m_key_table[m_key_table_index1]) & 0xFF);
+		m_key_table_index1 = (m_key_table_index1 + 1) & 0xFF;
+		m_key_table_index2 = (m_key_table_index2 + m_key_table[m_key_table_index1]) & 0xFF;
 
 		std::swap(m_key_table[m_key_table_index1], m_key_table[m_key_table_index2]);
 
-		const DWORD work = ((m_key_table[m_key_table_index1] + m_key_table[m_key_table_index2]) & 0xFF);
+		const u32 work = (m_key_table[m_key_table_index1] + m_key_table[m_key_table_index2]) & 0xFF;
 
-		byte_target[i] ^= m_key_table[work];
+		target[i] ^= m_key_table[work];
 	}
 }
 
@@ -286,14 +282,12 @@ void CEFLatter::Decrypt2(void* target, DWORD size)
 /// @param target Data to be decoded
 /// @param size   Decoding size
 ///
-void CEFLatter::DecodeMovieData(void* target, DWORD size)
+void CEFLatter::DecodeMovieData(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		byte_target[i] ^= m_movie_decode_table[m_movie_decode_table_ptr];
+		target[i] ^= m_movie_decode_table[m_movie_decode_table_ptr];
 
-		m_movie_decode_table_ptr = ((m_movie_decode_table_ptr + 1) & 0xFFFF);
+		m_movie_decode_table_ptr = (m_movie_decode_table_ptr + 1) & 0xFFFF;
 	}
 }

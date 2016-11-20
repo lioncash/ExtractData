@@ -14,5 +14,5 @@ protected:
 
 	void DecodeTable2() override;
 
-	void DecodeData(void* target, DWORD size) override;
+	void DecodeData(u8* target, size_t size) override;
 };

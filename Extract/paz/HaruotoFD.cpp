@@ -70,13 +70,13 @@ void CHaruotoFD::InitDecodeKey(CArcFile* archive)
 /// Decode Table 2
 void CHaruotoFD::DecodeTable2()
 {
-	DWORD* table = GetTable();
+	u32* table = GetTable();
 
 	// Decrypt 72 byte table
-	DWORD value1 = 0;
-	DWORD value2 = 0;
-	DWORD value3 = 0;
-	DWORD value4 = 0;
+	u32 value1 = 0;
+	u32 value2 = 0;
+	u32 value3 = 0;
+	u32 value4 = 0;
 
 	for (size_t i = 0; i < 18; i += 2)
 	{
@@ -128,15 +128,14 @@ void CHaruotoFD::DecodeTable2()
 /// @param target Data to be decoded
 /// @param size   Decoding size
 ///
-void CHaruotoFD::DecodeData(void* target, DWORD size)
+void CHaruotoFD::DecodeData(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-	const DWORD* table = GetTable();
+	const u32* table = GetTable();
 
 	for (size_t i = 0; i < size; i += 8)
 	{
-		DWORD value1 = *(DWORD*)&byte_target[i] ^ table[17];
-		DWORD value2 = DecodeValueByTable(value1, table) ^ *(DWORD*)&byte_target[i + 4] ^ table[16];
+		u32 value1 = *reinterpret_cast<const u32*>(&target[i]) ^ table[17];
+		u32 value2 = DecodeValueByTable(value1, table) ^ *reinterpret_cast<const u32*>(&target[i + 4]) ^ table[16];
 
 		for (size_t j = 15; j > 1; j -= 2)
 		{
@@ -146,7 +145,7 @@ void CHaruotoFD::DecodeData(void* target, DWORD size)
 
 		value1 ^= DecodeValueByTable(value2, table);
 
-		*(DWORD*)&byte_target[i + 0] = table[0] ^ value2;
-		*(DWORD*)&byte_target[i + 4] = table[1] ^ value1;
+		*reinterpret_cast<u32*>(&target[i + 0]) = table[0] ^ value2;
+		*reinterpret_cast<u32*>(&target[i + 4]) = table[1] ^ value1;
 	}
 }

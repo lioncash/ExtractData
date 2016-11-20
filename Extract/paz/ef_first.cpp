@@ -8,7 +8,7 @@
 bool Cef_first::IsSupported(CArcFile* archive)
 {
 	// Get header
-	BYTE header[32];
+	u8 header[32];
 	memcpy(header, archive->GetHed(), sizeof(header));
 
 	// Get decryption key
@@ -97,15 +97,13 @@ void Cef_first::InitDecodeKey(CArcFile* archive)
 ///
 /// @return table size
 ///
-DWORD Cef_first::InitMovieTable(void* table)
+u32 Cef_first::InitMovieTable(const u8* table)
 {
-	const BYTE* byte_table = static_cast<const BYTE*>(table);
-
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		for (DWORD j = 0; j < 256; j++)
+		for (size_t j = 0; j < 256; j++)
 		{
-			m_movie_table[i][*byte_table++] = static_cast<BYTE>(j);
+			m_movie_table[i][*table++] = static_cast<u8>(j);
 		}
 	}
 
@@ -115,23 +113,22 @@ DWORD Cef_first::InitMovieTable(void* table)
 /// Decode table 1
 void Cef_first::DecodeTable1()
 {
-	DWORD*      table = GetTable();
-	const BYTE* key = GetKey();
-	DWORD       key_ptr = 0;
+	u32*      table = GetTable();
+	const u8* key = GetKey();
+	size_t    key_ptr = 0;
 
-  static constexpr BYTE key_table [6] =
-	{
+	static constexpr std::array<u8, 6> key_table{{
 		0x6D, 0x69, 0x6E, 0x6F, 0x72, 0x69
-	};
+	}};
 
-	for (DWORD i = 0; i < 18; i++)
+	for (size_t i = 0; i < 18; i++)
 	{
-		DWORD value = 0;
+		u32 value = 0;
 
-		for (DWORD j = 0; j < 4; j++)
+		for (size_t j = 0; j < 4; j++)
 		{
 			value <<= 8;
-			value |= (key[key_ptr] ^ key_table[key_ptr % 6]);
+			value |= key[key_ptr] ^ key_table[key_ptr % 6];
 
 			key_ptr = (key_ptr + 1) & 0x1F;
 		}
@@ -145,16 +142,14 @@ void Cef_first::DecodeTable1()
 /// @param target Data to be decoded
 /// @param size   Decoding size
 ///
-void Cef_first::DecodeMovieData(void* target, DWORD size)
+void Cef_first::DecodeMovieData(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		byte_target[i] = m_movie_table[m_movie_table_id][byte_target[i]];
+		target[i] = m_movie_table[m_movie_table_id][target[i]];
 	}
 
-	m_movie_table_id = ((m_movie_table_id + 1) & 0xFF);
+	m_movie_table_id = (m_movie_table_id + 1) & 0xFF;
 }
 
 /// Cipher-specific Decryption
@@ -162,13 +157,11 @@ void Cef_first::DecodeMovieData(void* target, DWORD size)
 /// @parma target Data to be decoded
 /// @param size   Decoding size
 ///
-void Cef_first::Decrypt(void* target, DWORD size)
+void Cef_first::Decrypt(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		byte_target[i] ^= m_key;
+		target[i] ^= m_key;
 	}
 }
 
@@ -176,7 +169,7 @@ void Cef_first::Decrypt(void* target, DWORD size)
 ///
 /// @param archive Archive
 ///
-DWORD Cef_first::GetMovieBufSize(CArcFile* archive)
+size_t Cef_first::GetMovieBufSize(CArcFile* archive)
 {
 	return 65536;
 }

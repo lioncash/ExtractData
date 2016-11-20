@@ -14,22 +14,22 @@ private:
 	void InitMountKey(CArcFile* archive) override;
 	void InitDecodeKey(CArcFile* archive) override;
 
-	DWORD InitMovieTable(void* table) override;
+	u32 InitMovieTable(const u8* table) override;
 
-	void Decrypt(void* target, DWORD size) override;
-	void Decrypt2(void * target, DWORD size) override;
+	void Decrypt(u8* target, size_t size) override;
+	void Decrypt2(u8 * target, size_t size) override;
 
 	void SetDecryptKey2(CArcFile* archive);
 
-	void DecodeMovieData(void* target, DWORD size) override;
+	void DecodeMovieData(u8* target, size_t size) override;
 
-	BYTE  m_key;
+	u8   m_key = 0;
 
-	char  m_key_string[256];
-	BYTE  m_key_table[256];
-	DWORD m_key_table_index1;
-	DWORD m_key_table_index2;
+	char m_key_string[256];
+	u8   m_key_table[256];
+	u32  m_key_table_index1 = 0;
+	u32  m_key_table_index2 = 0;
 
-	BYTE  m_movie_decode_table[65536];
-	DWORD m_movie_decode_table_ptr;
+	u8   m_movie_decode_table[65536];
+	u32  m_movie_decode_table_ptr = 0;
 };

@@ -85,15 +85,13 @@ void CEFsfm::InitDecodeKey(CArcFile* archive)
 ///
 /// @param table Table
 ///
-DWORD CEFsfm::InitMovieTable(void* table)
+u32 CEFsfm::InitMovieTable(const u8* table)
 {
-	const BYTE* byte_table = static_cast<const BYTE*>(table);
-
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		for (DWORD j = 0; j < 256; j++)
+		for (size_t j = 0; j < 256; j++)
 		{
-			m_movie_table[i][*byte_table++] = static_cast<BYTE>(j);
+			m_movie_table[i][*table++] = static_cast<u8>(j);
 		}
 	}
 
@@ -105,13 +103,11 @@ DWORD CEFsfm::InitMovieTable(void* table)
 /// @param target - Data to be decoded
 /// @param size   - Decoding size
 ///
-void CEFsfm::DecodeMovieData(void* target, DWORD size)
+void CEFsfm::DecodeMovieData(u8* target, size_t size)
 {
-	BYTE* byte_target = (BYTE*)target;
-
 	for (size_t i = 0; i < size; i++)
 	{
-		byte_target[i] = m_movie_table[m_movie_table_id][byte_target[i]];
+		target[i] = m_movie_table[m_movie_table_id][target[i]];
 	}
 
 	m_movie_table_id = (m_movie_table_id + 1) & 0xFF;
@@ -121,7 +117,7 @@ void CEFsfm::DecodeMovieData(void* target, DWORD size)
 ///
 /// @param archive - Archive
 ///
-DWORD CEFsfm::GetMovieBufSize(CArcFile* archive)
+size_t CEFsfm::GetMovieBufSize(CArcFile* archive)
 {
 	return 65536;
 }

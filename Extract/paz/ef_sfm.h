@@ -18,13 +18,13 @@ private:
 	void InitMountKey(CArcFile* archive) override;
 	void InitDecodeKey(CArcFile* archive) override;
 
-	DWORD InitMovieTable(void* table) override;
+	u32 InitMovieTable(const u8* table) override;
 
-	void DecodeMovieData(void* target, DWORD size) override;
+	void DecodeMovieData(u8* target, size_t size) override;
 
-	DWORD GetMovieBufSize(CArcFile* archive) override;
+	size_t GetMovieBufSize(CArcFile* archive) override;
 
-	BYTE  m_key;
-	BYTE  m_movie_table[256][256];
-	DWORD m_movie_table_id;
+	u8  m_key = 0;
+	u8  m_movie_table[256][256];
+	u32 m_movie_table_id = 0;
 };

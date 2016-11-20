@@ -12,14 +12,14 @@ protected:
 	struct SKeyInfo
 	{
 		YCString type;
-		BYTE     key[64];
+		u8       key[64];
 	};
 
 	// Initialization of the table of 72 + 4096 bytes
 	virtual void InitTable();
 
 	// Initialization of the movie table
-	virtual DWORD InitMovieTable(void* table);
+	virtual u32 InitMovieTable(const u8* table);
 
 	// Get the base archive filename
 	void GetBaseArcName(LPTSTR dst, LPCTSTR archive_name);
@@ -27,35 +27,35 @@ protected:
 	// Set 32 byte keys (Keys differ for each file)
 	virtual void InitMountKey(CArcFile* archive) = 0;
 	virtual void InitDecodeKey(CArcFile* archive) = 0;
-	DWORD SetKey(CArcFile* archive, const SKeyInfo* key_info);
+	u32 SetKey(CArcFile* archive, const SKeyInfo* key_info);
 
 	// Decrypt the table
 	virtual void DecodeTable1();
 	virtual void DecodeTable2();
 
 	// Cipher-specific decryption
-	virtual void Decrypt(void* target, DWORD size) {}
-	virtual void Decrypt2(void* target, DWORD size) {}
+	virtual void Decrypt(u8* target, size_t size) {}
+	virtual void Decrypt2(u8* target, size_t size) {}
 
 	// Decrypt the data
-	virtual void DecodeData(void* target, DWORD size);
+	virtual void DecodeData(u8* target, size_t size);
 
 	// Decrypt movie data
-	virtual void DecodeMovieData(void* target, DWORD size);
+	virtual void DecodeMovieData(u8* target, size_t size);
 
 	// Decode DWORD value
-	virtual DWORD DecodeValueByTable(DWORD value, const DWORD* table);
-	virtual void  DecodeValue(DWORD* value1, DWORD* value2, const DWORD* table);
+	virtual u32 DecodeValueByTable(u32 value, const u32* table);
+	virtual void DecodeValue(u32* value1, u32* value2, const u32* table);
 
 	// Get 
-	virtual DWORD* GetTable();
-	virtual BYTE*  GetMovieTable();
+	virtual u32* GetTable();
+	virtual u8*  GetMovieTable();
 
-	virtual BYTE* GetKey();
-	virtual DWORD GetMovieBufSize(CArcFile* archive);
+	virtual u8* GetKey();
+	virtual size_t GetMovieBufSize(CArcFile* archive);
 
 private:
-	DWORD m_table[1042];
-	BYTE  m_movie_table[256];
-	BYTE  m_key[32];
+	u32 m_table[1042];
+	u8  m_movie_table[256];
+	u8  m_key[32];
 };
