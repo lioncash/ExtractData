@@ -19,7 +19,7 @@ u32 CHachukano::OnInitDecrypt(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	LPCTSTR file_ext = PathFindExtension(file_info->name);
 
-	if ((lstrcmp(file_ext, _T(".dll")) == 0) || (file_info->name == _T("startup.tjs")))
+	if (lstrcmp(file_ext, _T(".dll")) == 0 || file_info->name == _T("startup.tjs"))
 	{
 		// Files we don't decode
 		SetDecryptRequirement(false);
@@ -27,7 +27,9 @@ u32 CHachukano::OnInitDecrypt(CArcFile* archive)
 	}
 
 	// Size to decrypt
-	if ((lstrcmp(file_ext, _T(".ks")) != 0) && (lstrcmp(file_ext, _T(".tjs")) != 0) && (lstrcmp(file_ext, _T(".asd")) != 0))
+	if (lstrcmp(file_ext, _T(".ks"))  != 0 &&
+	    lstrcmp(file_ext, _T(".tjs")) != 0 &&
+	    lstrcmp(file_ext, _T(".asd")) != 0)
 	{
 		SetDecryptSize(512);
 	}
