@@ -1,315 +1,310 @@
 #include "StdAfx.h"
-#include "../Arc/LZSS.h"
 #include "../Image.h"
 #include "LostChild.h"
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CLostChild::Mount(CArcFile* pclArc)
+bool CLostChild::Mount(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "EPK ", 4) != 0)
+	if (memcmp(archive->GetHed(), "EPK ", 4) != 0)
 		return false;
 
-	pclArc->SeekHed(4);
+	archive->SeekHed(4);
 
 	// Get index size
-	DWORD dwIndexSize;
-	pclArc->Read(&dwIndexSize, 4);
-	dwIndexSize -= 32;
-	pclArc->SeekCur(16);
+	u32 index_size;
+	archive->ReadU32(&index_size);
+	index_size -= 32;
+	archive->SeekCur(16);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
-	pclArc->SeekCur(4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
+	archive->SeekCur(4);
 
 	// Get index
-	YCMemory<BYTE> clmIndex(dwIndexSize);
-	pclArc->Read(&clmIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get the filename index
-	BYTE* pbtFileNameIndex = &clmIndex[*(DWORD*)&clmIndex[8]] - 32;
+	const u8* file_name_index = &index[*reinterpret_cast<const u32*>(&index[8])] - 32;
 
 	// Split archive files
-	if (pclArc->GetArcName() == _T("data.epk"))
+	if (archive->GetArcName() == _T("data.epk"))
 	{
-		YCString clsPathToArc = pclArc->GetArcPath();
+		YCString archive_path = archive->GetArcPath();
 
-		for (unsigned int i = 1; i <= 3; i++)
+		for (u32 i = 1; i <= 3; i++)
 		{
-			YCString clsArcExt;
-			clsArcExt.Format(_T(".e%02d"), i);
-			clsPathToArc.RenameExtension(clsArcExt);
-			pclArc->Open(clsPathToArc);
-			pclArc->GetProg()->ReplaceAllFileSize(pclArc->GetArcSize());
+			YCString archive_extension;
+			archive_extension.Format(_T(".e%02u"), i);
+			archive_path.RenameExtension(archive_extension);
+			archive->Open(archive_path);
+			archive->GetProg()->ReplaceAllFileSize(archive->GetArcSize());
 		}
 
-		pclArc->SetFirstArc();
+		archive->SetFirstArc();
 	}
 
 	// Get file information
-	DWORD dwIndexPtr = 0;
-	DWORD dwFileNameIndexPtr = 0;
+	size_t index_ptr = 0;
+	size_t file_name_index_ptr = 0;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		char  szFileName[_MAX_FNAME];
-		DWORD dwLength = *(DWORD*)&pbtFileNameIndex[dwFileNameIndexPtr];
+		char  file_name[_MAX_FNAME];
+		const u32 length = *reinterpret_cast<const u32*>(&file_name_index[file_name_index_ptr]);
 
-		for (DWORD j = 0; j < dwLength; j++)
+		for (size_t j = 0; j < length; j++)
 		{
-			szFileName[j] = pbtFileNameIndex[dwFileNameIndexPtr + 4 + j] ^ 0xFF;
+			file_name[j] = file_name_index[file_name_index_ptr + 4 + j] ^ 0xFF;
 		}
 
-		szFileName[dwLength] = pbtFileNameIndex[dwFileNameIndexPtr + 4 + dwLength];
-		dwFileNameIndexPtr += 4 + dwLength + 1;
+		file_name[length] = file_name_index[file_name_index_ptr + 4 + length];
+		file_name_index_ptr += 4 + length + 1;
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(UINT64*)&clmIndex[dwIndexPtr + 16];
-		stFileInfo.sizeCmp = *(DWORD*)&clmIndex[dwIndexPtr + 24];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.title = _T("LOST CHILD");
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *reinterpret_cast<const u64*>(&index[index_ptr + 16]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 24]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.title = _T("LOST CHILD");
 
-		dwIndexPtr += 40;
+		index_ptr += 40;
 
-		if (stFileInfo.start > 3900000000)
+		if (file_info.start > 3900000000)
 		{
-			stFileInfo.start -= 3900000000;
+			file_info.start -= 3900000000;
 
-			if (pclArc->GetArcsID() == 2)
+			if (archive->GetArcsID() == 2)
 			{
-				pclArc->SetNextArc();
+				archive->SetNextArc();
 			}
 		}
-		else if (stFileInfo.start > 2600000000)
+		else if (file_info.start > 2600000000)
 		{
-			stFileInfo.start -= 2600000000;
+			file_info.start -= 2600000000;
 
-			if (pclArc->GetArcsID() == 1)
+			if (archive->GetArcsID() == 1)
 			{
-				pclArc->SetNextArc();
+				archive->SetNextArc();
 			}
 		}
-		else if (stFileInfo.start > 1300000000)
+		else if (file_info.start > 1300000000)
 		{
-			stFileInfo.start -= 1300000000;
+			file_info.start -= 1300000000;
 
-			if (pclArc->GetArcsID() == 0)
+			if (archive->GetArcsID() == 0)
 			{
-				pclArc->SetNextArc();
+				archive->SetNextArc();
 			}
 		}
 
 		// File size adjustment exceeds 1.2GB when adding
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-		if (stFileInfo.end > 1300000000)
+		file_info.end = file_info.start + file_info.sizeCmp;
+		if (file_info.end > 1300000000)
 		{
-			stFileInfo.end -= 1300000000;
+			file_info.end -= 1300000000;
 		}
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
-	pclArc->SetFirstArc();
+	archive->SetFirstArc();
 
 	return true;
 }
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CLostChild::Decode(CArcFile* pclArc)
+bool CLostChild::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->title != _T("LOST CHILD"))
 		return false;
 
-	if (DecodeESUR(pclArc))
+	if (DecodeESUR(archive))
 		return true;
 
-	if (DecodeLAD(pclArc))
+	if (DecodeLAD(archive))
 		return true;
 
-	return Extract(pclArc);
+	return Extract(archive);
 }
 
 /// ESUR Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CLostChild::DecodeESUR(CArcFile* pclArc)
+bool CLostChild::DecodeESUR(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("SUR"))
 		return false;
 
 	// Read
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	DWORD dwReadSize = pclArc->Read(&clmSrc[0], dwSrcSize);
+	const size_t src_size = file_info->sizeCmp;
+	std::vector<u8> src(src_size);
+	const size_t read_size = archive->Read(src.data(), src.size());
 
-	if (dwReadSize < dwSrcSize)
+	if (read_size < src_size)
 	{
-		pclArc->SetNextArc();
-		pclArc->SeekHed();
+		archive->SetNextArc();
+		archive->SeekHed();
 
-		pclArc->Read(&clmSrc[dwReadSize], (dwSrcSize - dwReadSize));
+		archive->Read(&src[read_size], src_size - read_size);
 	}
 
 	// Get header information
-	long  lWidth = *(long*)&clmSrc[8];
-	long  lHeight = *(long*)&clmSrc[12];
-	DWORD dwDstSize = *(DWORD*)&clmSrc[4] - 32;
-	WORD  wBpp = 32;
+	const s32 width = *reinterpret_cast<const s32*>(&src[8]);
+	const s32 height = *reinterpret_cast<const s32*>(&src[12]);
+	const u32 dst_size = *reinterpret_cast<const u32*>(&src[4]) - 32;
+	const u16 bpp = 32;
 
 	// Get a buffer for LZSS decompression
-	YCMemory<BYTE> clmDst(dwDstSize);
+	std::vector<u8> dst(dst_size);
 
 	// LZSS Decompression
-	DecompLZSS(&clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3);
+	DecompLZSS(dst.data(), dst.size(), &src[32], src_size - 32, 4096, 4078, 3);
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-	clImage.WriteReverse(&clmDst[0], dwDstSize);
-	clImage.Close();
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(dst.data(), dst.size());
+	image.Close();
 
 	return true;
 }
 
 /// LAD Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CLostChild::DecodeLAD(CArcFile* pclArc)
+bool CLostChild::DecodeLAD(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("LAD"))
 		return false;
 
 	// Reading
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	DWORD dwReadSize = pclArc->Read(&clmSrc[0], dwSrcSize);
+	const size_t src_size = file_info->sizeCmp;
+	std::vector<u8> src(src_size);
+	const size_t read_size = archive->Read(src.data(), src.size());
 
-	if (dwReadSize < dwSrcSize)
+	if (read_size < src_size)
 	{
-		pclArc->SetNextArc();
-		pclArc->SeekHed();
+		archive->SetNextArc();
+		archive->SeekHed();
 
-		pclArc->Read(&clmSrc[dwReadSize], (dwSrcSize - dwReadSize));
+		archive->Read(&src[read_size], src_size - read_size);
 	}
 
 	// Get header info
-	long  lWidth = *(long*)&clmSrc[8];
-	long  lHeight = *(long*)&clmSrc[12];
-	DWORD dwDstSize = *(DWORD*)&clmSrc[28];
-	WORD  wBpp = 8;
+	const s32 width = *reinterpret_cast<const s32*>(&src[8]);
+	const s32 height = *reinterpret_cast<const s32*>(&src[12]);
+	const u32 dst_size = *reinterpret_cast<const u32*>(&src[28]);
+	const u16 bpp = 8;
 
 	// Get a buffer for LZSS decoding
-	YCMemory<BYTE> clmDst(dwDstSize);
+	std::vector<u8> dst(dst_size);
 
 	// LZSS Decompression
-	DecompLZSS(&clmDst[0], dwDstSize, &clmSrc[32], (dwSrcSize - 32), 4096, 4078, 3);
+	DecompLZSS(dst.data(), dst.size(), &src[32], src_size - 32, 4096, 4078, 3);
 
-	pclArc->OpenFile();
-	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
-	pclArc->CloseFile();
+	archive->OpenFile();
+	archive->WriteFile(dst.data(), dst.size(), src.size());
+	archive->CloseFile();
 
 	// Output
-//	CImage clImage;
-//	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-//	clImage.WriteReverse(&clmDst[0], dwDstSize);
-//	clImage.Close();
+//	CImage image;
+//	image.Init(archive, width, height, bpp);
+//	image.WriteReverse(dst.data(), dst.size());
+//	image.Close();
 
 	return true;
 }
 
 /// LZSS Decompression
 ///
-/// @param pvDst          Destination
-/// @param dwDstSize      Destination size
-/// @param pvSrc          Input data
-/// @param dwSrcSize      Input data size
-/// @param dwDicSize      Dictionary size
-/// @param dwDicPtr       Dictionary reference position
-/// @param dwLengthOffset Length offset
+/// @param dst             Destination
+/// @param dst_size        Destination size
+/// @param src             Input data
+/// @param src_size        Input data size
+/// @param dictionary_size Dictionary size
+/// @param dictionary_ptr  Dictionary reference position
+/// @param length_offset   Length offset
 ///
-bool CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset)
+bool CLostChild::DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size, size_t dictionary_size, size_t dictionary_ptr, size_t length_offset)
 {
-	BYTE*       pbtDst = (BYTE*)pvDst;
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-
 	// Allocate buffer
-	YCMemory<BYTE> clmbtDic(dwDicSize);
-	ZeroMemory(&clmbtDic[0], dwDicSize);
+	std::vector<u8> dictionary(dictionary_size);
 
 	// Decoding
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	BYTE  btFlags = 0;
-	DWORD dwBitCount = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	u8  flags = 0;
+	u32 bit_count = 0;
 
-	while ((dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize))
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		if (dwBitCount == 0)
+		if (bit_count == 0)
 		{
-			// 8bit reading
-			btFlags = pbtSrc[dwSrcPtr++];
-			dwBitCount = 8;
+			// 8-bit reading
+			flags = src[src_ptr++];
+			bit_count = 8;
 		}
 
-		if (btFlags & 1)
+		if (flags & 1)
 		{
 			// Uncompressed data
 
-			pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = pbtSrc[dwSrcPtr];
+			dst[dst_ptr] = dictionary[dictionary_ptr] = src[src_ptr];
 
-			dwDstPtr++;
-			dwSrcPtr++;
-			dwDicPtr++;
+			dst_ptr++;
+			src_ptr++;
+			dictionary_ptr++;
 
-			dwDicPtr &= (dwDicSize - 1);
+			dictionary_ptr &= dictionary_size - 1;
 		}
 		else
 		{
 			// Compressed data
 
-			BYTE  btLow = pbtSrc[dwSrcPtr++];
-			BYTE  btHigh = pbtSrc[dwSrcPtr++];
+			const u8 low = src[src_ptr++];
+			const u8 high = src[src_ptr++];
 
-			DWORD dwBack = ((btLow << 4) | (btHigh >> 4));
-			DWORD dwLength = ((btHigh & 0x0F) + dwLengthOffset);
+			u32 back = (low << 4) | (high >> 4);
+			u32 length = (high & 0x0F) + length_offset;
 
-			if ((dwDstPtr + dwLength) > dwDstSize)
+			if (dst_ptr + length > dst_size)
 			{
 				// Exceeds the output buffer
 
-				dwLength = (dwDstSize - dwDstPtr);
+				length = dst_size - dst_ptr;
 			}
 
-			for (DWORD j = 0; j < dwLength; j++)
+			for (size_t j = 0; j < length; j++)
 			{
-				pbtDst[dwDstPtr] = clmbtDic[dwDicPtr] = clmbtDic[dwBack];
+				dst[dst_ptr] = dictionary[dictionary_ptr] = dictionary[back];
 
-				dwDstPtr++;
-				dwDicPtr++;
-				dwBack++;
+				dst_ptr++;
+				dictionary_ptr++;
+				back++;
 
-				dwDicPtr &= (dwDicSize - 1);
-				dwBack &= (dwDicSize - 1);
+				dictionary_ptr &= dictionary_size - 1;
+				back &= dictionary_size - 1;
 			}
 		}
 
-		btFlags >>= 1;
-		dwBitCount--;
+		flags >>= 1;
+		bit_count--;
 	}
 
 	return true;

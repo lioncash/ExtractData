@@ -5,13 +5,13 @@
 class CLostChild final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
-	bool Extract(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
+	bool Extract(CArcFile* archive) override;
 
 private:
-	bool DecodeESUR(CArcFile* pclArc);
-	bool DecodeLAD(CArcFile* pclArc);
+	bool DecodeESUR(CArcFile* archive);
+	bool DecodeLAD(CArcFile* archive);
 
-	bool DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize, DWORD dwDicSize, DWORD dwDicPtr, DWORD dwLengthOffset);
+	bool DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size, size_t dic_size, size_t dic_ptr, size_t length_offset);
 };
