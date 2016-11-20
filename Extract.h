@@ -10,9 +10,9 @@ public:
 	CExtract();
 	void SetClass();
 	void SetSearchClass();
-	static bool Mount(CArcFile* pclArc);
-	static bool Decode(CArcFile* pclArc, bool convert);
-	static bool Search(CArcFile* pclArc);
+	static bool Mount(CArcFile* archive);
+	static bool Decode(CArcFile* archive, bool convert);
+	static bool Search(CArcFile* archive);
 	void Close();
 
 private:

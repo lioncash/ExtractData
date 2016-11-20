@@ -194,27 +194,23 @@ void CExtract::SetSearchClass()
 	static CWmvSearch wmv; Class.push_back(&wmv);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mounting
-
-bool CExtract::Mount(CArcFile* pclArc)
+bool CExtract::Mount(CArcFile* archive)
 {
 	// Read the archive header
 
-	pclArc->ReadHed();
-	pclArc->SeekHed();
+	archive->ReadHed();
+	archive->SeekHed();
 
-	if (pclArc->GetOpt()->bSusieFirst)
+	if (archive->GetOpt()->bSusieFirst)
 	{
 		// Mount the archive using the Susie plug-in
-
-		if (pclArc->GetOpt()->bSusieUse)
+		if (archive->GetOpt()->bSusieUse)
 		{
-			CSusie clSusie;
+			CSusie susie;
 
-			if (clSusie.Mount(pclArc))
+			if (susie.Mount(archive))
 			{
-				pclArc->SetMountSusie();
+				archive->SetMountSusie();
 				return true;
 			}
 		}
@@ -223,7 +219,7 @@ bool CExtract::Mount(CArcFile* pclArc)
 		for (auto* decoder : m_Class)
 		{
 			// Set the class to use to decode the archive
-			if (decoder->Mount(pclArc))
+			if (decoder->Mount(archive))
 			{
 				m_DecodeClass.insert(decoder);
 				return true;
@@ -236,7 +232,7 @@ bool CExtract::Mount(CArcFile* pclArc)
 		for (auto* decoder : m_Class)
 		{
 			// Set the class to use to decode the archive
-			if (decoder->Mount(pclArc))
+			if (decoder->Mount(archive))
 			{
 				m_DecodeClass.insert(decoder);
 				return true;
@@ -244,62 +240,42 @@ bool CExtract::Mount(CArcFile* pclArc)
 		}
 
 		// Mount the archive file using the Susie plug-in
-		if (pclArc->GetOpt()->bSusieUse)
+		if (archive->GetOpt()->bSusieUse)
 		{
-			CSusie clSusie;
+			CSusie susie;
 
-			if (clSusie.Mount(pclArc))
+			if (susie.Mount(archive))
 			{
-				pclArc->SetMountSusie();
+				archive->SetMountSusie();
 				return true;
 			}
 		}
 	}
 
 	// File search
+	CSearchDialog search_dialog;
+	const int return_code = search_dialog.DoModal(archive->GetProg()->GetHandle(), archive->GetArcPath());
 
-	CSearchDialog clSearchDlg;
+	if (return_code == IDYES)
+		return Search(archive);
 
-	int nReturn = clSearchDlg.DoModal(pclArc->GetProg()->GetHandle(), pclArc->GetArcPath());
-
-	if (nReturn == IDYES)
-	{
-		return Search(pclArc);
-	}
-	else
-	{
-		pclArc->GetProg()->UpdatePercent(pclArc->GetArcSize());
-	}
-
+	archive->GetProg()->UpdatePercent(archive->GetArcSize());
 	return false;
 }
 
-bool CExtract::Search(CArcFile* pclArc)
+bool CExtract::Search(CArcFile* archive)
 {
-	SOption* pOption = pclArc->GetOpt();
-
-/*
-	// Check the database
-	CDataBase db;
-	if (db.Check(pclArc) == TRUE)
-		return;
-	//std::vector<CSearchBase*> Class = m_SearchClass;
-	for (int i = 0; i < (int)pOption->bSearch.size(); i++)
-	{
-		pOption->bSearch[i] = FALSE;
-	}
-	pOption->bSearch[3] = TRUE;
-*/
+	SOption* option = archive->GetOpt();
 
 	std::vector<CSearchBase*>& SearchClass = m_SearchClass;
 	std::vector<CSearchBase*> Class;
 	u32 max_header_size = 0;
-	for (size_t i = 0; i < pOption->bSearch.size(); i++)
+	for (size_t i = 0; i < option->bSearch.size(); i++)
 	{
 		// Add class to use only
-		if (pOption->bSearch[i] == TRUE)
+		if (option->bSearch[i] == TRUE)
 		{
-			SearchClass[i]->Init(pOption);
+			SearchClass[i]->Init(option);
 			Class.push_back(SearchClass[i]);
 
 			// Keep looking for the maximum length of the header in the class to use
@@ -309,97 +285,16 @@ bool CExtract::Search(CArcFile* pclArc)
 		}
 	}
 
-	CProgBar* pProg = pclArc->GetProg();
-	size_t ctClass = Class.size();
+	CProgBar* progress_bar = archive->GetProg();
+	const size_t num_classes = Class.size();
 
 	// End if no files were set to be searched for
-	if (ctClass == 0)
+	if (num_classes == 0)
 	{
-		pProg->UpdatePercent(pclArc->GetArcSize());
+		progress_bar->UpdatePercent(archive->GetArcSize());
 		return false;
 	}
-/*
-	CFileMap FileMap;
-	LPBYTE buf = (LPBYTE)FileMap.Open(pclArc->GetArcHandle(), FILE_READ);
-	if (buf == NULL)
-		return;
 
-	DWORD BufSize = 65536;
-	QWORD ArcSize = pclArc->GetArcSize() - maxHedSize;
-	for (INT64 i = 0; i < (INT64)ArcSize; i += BufSize)
-	{
-		for (int j = 0; j < (int)ctClass; j++)
-		{
-			for (int k = 0; k < (int)BufSize; k++)
-			{
-				if (Class[j]->CmpHed(&buf[k]) == TRUE)
-					break;
-			}
-
-			//if (Class[j]->CmpMem(buf, Class[j]->GetHed(), Class[j]->GetHedSize()) == TRUE)
-			//{
-				//Class[j]->Mount(pclArc);
-				//break;
-			//}
-		}
-
-		//if ((i & 65535) == 0)
-			pProg->UpdatePercent(BufSize);
-
-		//buf++;
-			buf += BufSize;
-		//Class[0]->CmpMem(buf, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
-		//Class[0]->CmpMem(buf, "\x00\x00\x01\xBA\x21\x00\x01\x00", 8);
-		//Class[0]->CmpMem(buf, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16);
-		//if (memcmp(buf, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8) == 0);
-		//if (memcmp(buf, "\x00\x00\x01\xBA\x21\x00\x01\x00", 8) == 0);
-		//if (memcmp(buf, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) == 0);
-		//if ((i & 65535) == 0)
-		//  pProg->UpdatePercent(65536);
-		//buf++;
-	}
-*/
-	//QWORD ArcSize = pclArc->GetArcSize();
-	//HANDLE hFileMap = CreateFileMapping(pclArc->GetArcHandle(), NULL, PAGE_READONLY, 0, ArcSize, NULL);
-	//LPBYTE buf = (LPBYTE)MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 0);
-
-//  for (INT64 i = 0; i < (INT64)ArcSize; i++) {
-		//if (Class[0]->Search(pclArc, buf, dwReadSize) == TRUE) {
-		//Class[0]->CmpMem(buf, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
-		//Class[0]->CmpMem(buf, "\x00\x00\x01\xBA\x21\x00\x01\x00", 8);
-		//Class[0]->CmpMem(buf, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16);
-		//if (memcmp(buf, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8) == 0);
-		//if (memcmp(buf, "\x00\x00\x01\xBA\x21\x00\x01\x00", 8) == 0);
-		//if (memcmp(buf, "\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) == 0);
-		//if ((i & 65535) == 0)
-		//  pProg->UpdatePercent(65536);
-		//buf++;
-//  }
-
-/*
-	for (INT64 i = 0; i < (INT64)ArcSize; i++)
-	{
-		BOOL ret = FALSE;
-		for (int i = 0; i < (int)ctClass; i++)
-		{
-			if (Class[i]->Search(pclArc, buf, dwReadSize) == TRUE)
-			{
-				Class[i]->Mount(pclArc, buf);
-				ret = TRUE;
-				break;
-			}
-		}
-
-		if (ret == FALSE)
-		{
-			pProg->UpdatePercent(dwReadSize);
-			// Prevent interruption of data
-			pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
-		}
-	}
-*/
-//  UnmapViewOfFile(buf);
-//  CloseHandle(hFileMap);
 	std::map<int, int> offsets;
 
 	while (true)
@@ -408,18 +303,18 @@ bool CExtract::Search(CArcFile* pclArc)
 
 		// Read SEARCH_BUFFER_SIZE segments
 		u8 buf[CSearchBase::SEARCH_BUFFER_SIZE];
-		const u32 read_size = pclArc->Read(buf, CSearchBase::SEARCH_BUFFER_SIZE);
+		const u32 read_size = archive->Read(buf, CSearchBase::SEARCH_BUFFER_SIZE);
 
 		// Search ends when the reading amount is smaller than the header size
 		if (read_size < max_header_size)
 		{
-			pProg->UpdatePercent(read_size);
+			progress_bar->UpdatePercent(read_size);
 			break;
 		}
 
 		const u32 search_size = read_size - max_header_size;
 
-		for (int i = 0; i < (int)ctClass; i++)
+		for (int i = 0; i < (int)num_classes; i++)
 		{
 			if (Class[i]->Search(buf, search_size))
 			{
@@ -433,11 +328,11 @@ bool CExtract::Search(CArcFile* pclArc)
 			for (const auto& entry : offsets)
 			{
 				// dwReadSize - offset, back to the first position found, has moved to the header file
-				pclArc->Seek(-((int)read_size - entry.first), FILE_CURRENT);
-				pProg->UpdatePercent(entry.first);
+				archive->Seek(-((int)read_size - entry.first), FILE_CURRENT);
+				progress_bar->UpdatePercent(entry.first);
 
 				// Mount if the offset is less
-				Class[entry.second]->Mount(pclArc);
+				Class[entry.second]->Mount(archive);
 
 				// TODO: I want to do this without the break.
 				break;
@@ -447,85 +342,46 @@ bool CExtract::Search(CArcFile* pclArc)
 		}
 		else
 		{
-			pProg->UpdatePercent(search_size);
+			progress_bar->UpdatePercent(search_size);
 			// Prevent interruption of data
-			pclArc->Seek(-((int)max_header_size - 1), FILE_CURRENT);
+			archive->Seek(-((int)max_header_size - 1), FILE_CURRENT);
 		}
 	}
 
-/*
-	while (1)
-	{
-		BOOL ret = FALSE;
-		BYTE buf[BUFSIZE];
-		DWORD dwReadSize = pclArc->Read(buf, BUFSIZE) - maxHedSize;
-
-		if (dwReadSize == -1)
-			break;
-
-		for (int i = 0; i < (int)dwReadSize; i++)
-		{
-			for (int j = 0; j < (int)ctClass; j++)
-			{
-				if (Class[j]->CmpHed(&buf[i]) == TRUE)
-				{
-					pclArc->Seek(-(BUFSIZE-i), FILE_CURRENT);
-					pProg->UpdatePercent(i);
-					Class[j]->Mount(pclArc);
-					ret = TRUE;
-					break;
-				}
-			}
-
-			// Resume when the reading is called from Mount()
-			if (ret == TRUE)
-				break;
-		}
-
-		if (ret == FALSE)
-			pProg->UpdatePercent(dwReadSize);
-
-		// Prevent interruption of data
-		pclArc->Seek(-((int)maxHedSize-1), FILE_CURRENT);
-	}
-	*/
-
-	if (pclArc->GetCtEnt() == 0)
+	if (archive->GetCtEnt() == 0)
 		return false;
 
 	return true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Decode
-
 /**
- * @param pclArc  Archive
+ * Decode
+ *
+ * @param archive  Archive
  * @param convert Conversion request
  */
-bool CExtract::Decode(CArcFile* pclArc, bool convert)
+bool CExtract::Decode(CArcFile* archive, bool convert)
 {
-	bool       retval = false;
-	SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
+	bool retval = false;
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	try
 	{
 		// For processing split files
-		pclArc->SetArcsID( pstFileInfo->arcsID );
+		archive->SetArcsID(file_info->arcsID);
 
 		// Set to the position of the file to extract
-		pclArc->SeekHed( pstFileInfo->start );
+		archive->SeekHed(file_info->start);
 
 		// Simple initialization of the decryption key
-		pclArc->InitDecrypt();
+		archive->InitDecrypt();
 
 		// Decoding process
-		if (pclArc->GetMountSusie())
+		if (archive->GetMountSusie())
 		{
 			// Decode with the Susie plug-in
-
-			CSusie clSusie;
-			retval = clSusie.Decode(pclArc);
+			CSusie susie;
+			retval = susie.Decode(archive);
 		}
 		else
 		{
@@ -535,14 +391,14 @@ bool CExtract::Decode(CArcFile* pclArc, bool convert)
 				// Conversion request
 				for (auto* decoder : m_DecodeClass)
 				{
-					retval = decoder->Decode(pclArc);
+					retval = decoder->Decode(archive);
 					if (retval)
 						break;
 				}
 
 				if (!retval)
 				{
-					retval = pclArc->Decode();
+					retval = archive->Decode();
 				}
 			}
 			else
@@ -550,101 +406,22 @@ bool CExtract::Decode(CArcFile* pclArc, bool convert)
 				// No conversion request
 				for (auto* decoders : m_DecodeClass)
 				{
-					retval = decoders->Extract(pclArc);
+					retval = decoders->Extract(archive);
 					if (retval)
 						break;
 				}
 
 				if (!retval)
 				{
-					retval = pclArc->Extract();
+					retval = archive->Extract();
 				}
 			}
 		}
-
-/*
-		// Decode
-
-		if( bConvert )
-		{
-			// Conversion request
-
-			if( pclArc->GetMountSusie() )
-			{
-				// Decode with Susie plug-in
-
-				CSusie susie;
-
-				if( susie.Decode( pclArc ) )
-				{
-					return;
-				}
-			}
-			else
-			{
-				// Decode the files in the archive
-
-				std::set<CExtractBase*>& Class = m_DecodeClass;
-
-				for( std::set<CExtractBase*>::iterator itr = Class.begin() ; itr != Class.end() ; itr++ )
-				{
-					if( (*itr)->Decode( pclArc ) )
-					{
-						return;
-					}
-				}
-			}
-
-			pclArc->Decode();
-		}
-		else
-		{
-			// No conversion requests 
-
-			pclArc->OpenFile();
-
-			if( pclArc->GetArcExten() == _T(".xp3") )
-			{
-				// 吉里吉里 (KiriKiri)
-
-				DWORD dwBufferSize = pclArc->GetBufSize();
-				DWORD dwBufferSizeBase = dwBufferSize;
-
-				YCMemory<BYTE> clmbtBuffer( dwBufferSize );
-
-				for( size_t i = 0 ; i < pstFileInfo->starts.size() ; i++ )
-				{
-					dwBufferSize = dwBufferSizeBase;
-
-					pclArc->SeekHed( pstFileInfo->starts[i] );
-
-					DWORD dwDstSize = pstFileInfo->sizesOrg[i];
-
-					for( DWORD dwWroteSizes = 0 ; dwWroteSizes != dwDstSize ; dwWroteSizes += dwBufferSize )
-					{
-						// Adjust buffer size
-
-						pclArc->SetBufSize( &dwBufferSize, dwWroteSizes, dwDstSize );
-
-						pclArc->Read( &clmbtBuffer[0], dwBufferSize );
-						pclArc->WriteFile( &clmbtBuffer[0], dwBufferSize );
-					}
-				}
-			}
-			else
-			{
-				pclArc->ReadWrite();
-			}
-
-			pclArc->CloseFile();
-		}*/
 	}
 	catch (CExistsDialog)
 	{
 		// If selected 'No' in the overwrite confirmation
-
-		pclArc->GetProg()->UpdatePercent(pstFileInfo->sizeOrg);
-
+		archive->GetProg()->UpdatePercent(file_info->sizeOrg);
 		retval = true;
 	}
 
