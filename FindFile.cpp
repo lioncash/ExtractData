@@ -2,73 +2,73 @@
 #include "Common.h"
 #include "FindFile.h"
 
-std::vector<YCString> CFindFile::DoFind(LPCTSTR pszBasePath, LPCTSTR pszFileName)
+std::vector<YCString> CFindFile::DoFind(LPCTSTR base_path, LPCTSTR file_name)
 {
-	HANDLE hFind;
-	WIN32_FIND_DATA stwfdWork;
-	TCHAR szBasePath[MAX_PATH];
-	TCHAR szPathToFile[MAX_PATH];
+	HANDLE find_handle;
+	WIN32_FIND_DATA work;
+	TCHAR base_path_array[MAX_PATH];
+	TCHAR file_path_array[MAX_PATH];
 
 //-- File Searching ------------------------------------------------------------------------
 
-	lstrcpy(szBasePath, pszBasePath);
-	PathRemoveBackslash(szBasePath);
+	lstrcpy(base_path_array, base_path);
+	PathRemoveBackslash(base_path_array);
 
-	_stprintf(szPathToFile, _T("%s\\%s"), szBasePath, pszFileName);
+	_stprintf(file_path_array, _T("%s\\%s"), base_path_array, file_name);
 
-	hFind = FindFirstFile(szPathToFile, &stwfdWork);
+	find_handle = FindFirstFile(file_path_array, &work);
 
-	if (hFind != INVALID_HANDLE_VALUE)
+	if (find_handle != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
 			// Add to the list of files found
-			YCString sPathToFile = szBasePath;
-			sPathToFile += _T("\\");
-			sPathToFile += stwfdWork.cFileName;
+			YCString file_path = base_path_array;
+			file_path += _T("\\");
+			file_path += work.cFileName;
 
-			m_vtsPathToFile.push_back(sPathToFile);
-		} while (FindNextFile(hFind, &stwfdWork));
+			m_file_paths.push_back(file_path);
+		} while (FindNextFile(find_handle, &work));
 
-		FindClose(hFind);
+		FindClose(find_handle);
 	}
 
 //-- Search Directory --------------------------------------------------------------------
 
-	_stprintf(szPathToFile, _T("%s\\*.*"), szBasePath); // Search for all files
+	_stprintf(file_path_array, _T("%s\\*.*"), base_path_array); // Search for all files
 
-	hFind = FindFirstFile(szPathToFile, &stwfdWork);
+	find_handle = FindFirstFile(file_path_array, &work);
 
-	if (hFind != INVALID_HANDLE_VALUE)
+	if (find_handle != INVALID_HANDLE_VALUE)
 	{
 		do
 		{
-			if (!(stwfdWork.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			if (!(work.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
 				// Is not a folder
 				continue;
 			}
 
-			if (lstrcmp(stwfdWork.cFileName, _T(".")) == 0 || lstrcmp(stwfdWork.cFileName, _T("..")) == 0)
+			if (lstrcmp(work.cFileName, _T(".")) == 0 || lstrcmp(work.cFileName, _T("..")) == 0)
 			{
 				// Is not current route
 				continue;
 			}
 
 			// Prepare directory discovery (add to the directory search path discovery)
-			_stprintf(szPathToFile, _T("%s\\%s"), szBasePath, stwfdWork.cFileName);
+			_stprintf(file_path_array, _T("%s\\%s"), base_path_array, work.cFileName);
 
 			// Recursive call
-			DoFind(szPathToFile, pszFileName);
-		} while (FindNextFile(hFind, &stwfdWork));
+			DoFind(file_path_array, file_name);
+		} while (FindNextFile(find_handle, &work));
 
-		FindClose(hFind);
+		FindClose(find_handle);
 	}
 
-	return m_vtsPathToFile;
+	return m_file_paths;
 }
 
 void CFindFile::Clear()
 {
-	m_vtsPathToFile.clear();
+	m_file_paths.clear();
 }

@@ -3,9 +3,9 @@
 class CFindFile
 {
 public:
-	std::vector<YCString> DoFind(LPCTSTR pszBasePath, LPCTSTR pszFileName);
+	std::vector<YCString> DoFind(LPCTSTR base_path, LPCTSTR file_name);
 	void Clear();
 
 private:
-	std::vector<YCString> m_vtsPathToFile;
+	std::vector<YCString> m_file_paths;
 };
