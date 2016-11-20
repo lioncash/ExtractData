@@ -5,15 +5,15 @@
 class CTH2 final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool MountKCAP(CArcFile* pclArc);
-	bool MountLAC(CArcFile* pclArc);
-	bool MountDpl(CArcFile* pclArc);
-	bool MountWMV(CArcFile* pclArc);
+	bool MountKCAP(CArcFile* archive);
+	bool MountLAC(CArcFile* archive);
+	bool MountDpl(CArcFile* archive);
+	bool MountWMV(CArcFile* archive);
 
-	bool DecodeWMV(CArcFile* pclArc);
-	bool DecodeEtc(CArcFile* pclArc);
+	bool DecodeWMV(CArcFile* archive);
+	bool DecodeEtc(CArcFile* archive);
 };
