@@ -5,215 +5,208 @@
 #include "TaskForce.h"
 
 /// Mounting
-bool CTaskForce::Mount(CArcFile* pclArc)
+bool CTaskForce::Mount(CArcFile* archive)
 {
-	if (MountDat(pclArc))
+	if (MountDat(archive))
 		return true;
 
-	if (MountTlz(pclArc))
+	if (MountTlz(archive))
 		return true;
 
-	if (MountBma(pclArc))
+	if (MountBma(archive))
 		return true;
 
 	return false;
 }
 
 /// dat mounting
-bool CTaskForce::MountDat(CArcFile* pclArc)
+bool CTaskForce::MountDat(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".dat"))
+	if (archive->GetArcExten() != _T(".dat"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "tskforce", 8) != 0)
+	if (memcmp(archive->GetHed(), "tskforce", 8) != 0)
 		return false;
 
-	pclArc->SeekHed(8);
+	archive->SeekHed(8);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index
-	YCMemory<SFileEntry> clmIndex(dwFiles);
-	pclArc->Read(&clmIndex[0], (sizeof(SFileEntry)* dwFiles));
+	std::vector<FileEntry> index(num_files);
+	archive->Read(index.data(), sizeof(FileEntry)* num_files);
 
-	// Get file information
-	DWORD dwIndexPtr = 0;
-
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
-		SFileInfo stFileInfo;
-		stFileInfo.name = clmIndex[i].szFileName;
-		stFileInfo.sizeCmp = clmIndex[i].dwCompressedSize;
-		stFileInfo.sizeOrg = clmIndex[i].dwOriginalSize;
-		stFileInfo.start = clmIndex[i].dwOffset;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = index[i].file_name;
+		file_info.sizeCmp = index[i].compressed_size;
+		file_info.sizeOrg = index[i].original_size;
+		file_info.start = index[i].offset;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		if (stFileInfo.sizeCmp != stFileInfo.sizeOrg)
+		if (file_info.sizeCmp != file_info.sizeOrg)
 		{
-			stFileInfo.format = _T("LZ");
+			file_info.format = _T("LZ");
 		}
 
-		pclArc->AddFileInfo(stFileInfo);
-
-		dwIndexPtr += sizeof(SFileEntry);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
 }
 
 /// tlz mounting
-bool CTaskForce::MountTlz(CArcFile* pclArc)
+bool CTaskForce::MountTlz(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".tsk")) && (pclArc->GetArcExten() != _T(".tfz")))
+	if ((archive->GetArcExten() != _T(".tsk")) && (archive->GetArcExten() != _T(".tfz")))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "tlz", 3) != 0)
+	if (memcmp(archive->GetHed(), "tlz", 3) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// bma mounting
-bool CTaskForce::MountBma(CArcFile* pclArc)
+bool CTaskForce::MountBma(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".tsz"))
+	if (archive->GetArcExten() != _T(".tsz"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "bma", 3) != 0)
+	if (memcmp(archive->GetHed(), "bma", 3) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// Decoding
-bool CTaskForce::Decode(CArcFile* pclArc)
+bool CTaskForce::Decode(CArcFile* archive)
 {
-	if (DecodeTlz(pclArc))
+	if (DecodeTlz(archive))
 		return true;
 
-	if (DecodeBma(pclArc))
+	if (DecodeBma(archive))
 		return true;
 
-	if (DecodeTGA(pclArc))
+	if (DecodeTGA(archive))
 		return true;
 
 	return false;
 }
 
 /// tlz decoding
-bool CTaskForce::DecodeTlz(CArcFile* pclArc)
+bool CTaskForce::DecodeTlz(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	if ((file_info->name.GetFileExt() != _T(".tsk")) && (file_info->name.GetFileExt() != _T(".tfz")))
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	if (file_info->name.GetFileExt() != _T(".tsk") && file_info->name.GetFileExt() != _T(".tfz"))
 		return false;
 
 	// Read header
-	BYTE abtHeader[24];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
-	if (memcmp(abtHeader, "tlz", 3) != 0)
+	u8 header[24];
+	archive->Read(header, sizeof(header));
+	if (memcmp(header, "tlz", 3) != 0)
 	{
-		pclArc->SeekHed(file_info->start);
+		archive->SeekHed(file_info->start);
 		return false;
 	}
 
 	// Get file information
-	DWORD dwDstSize = *(DWORD*)&abtHeader[16];
-	DWORD dwSrcSize = *(DWORD*)&abtHeader[20];
+	const u32 dst_size = *reinterpret_cast<const u32*>(&header[16]);
+	const u32 src_size = *reinterpret_cast<const u32*>(&header[20]);
 
 	// Read compressed data
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src.size());
 
 	// Buffer allocation for decompression
-	YCMemory<BYTE> clmDst(dwDstSize);
+	std::vector<u8> dst(dst_size);
 
 	// LZSS Decompression
-	CLZSS clLZSS;
-	clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
+	CLZSS lzss;
+	lzss.Decomp(dst.data(), dst.size(), src.data(), src.size(), 4096, 4078, 3);
 
 	// Output
-	pclArc->OpenFile();
-	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
-	pclArc->CloseFile();
+	archive->OpenFile();
+	archive->WriteFile(dst.data(), dst.size(), src.size());
+	archive->CloseFile();
 
 	return true;
 }
 
 /// BMA decoding
-bool CTaskForce::DecodeBma(CArcFile* pclArc)
+bool CTaskForce::DecodeBma(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->name.GetFileExt() != _T(".tsz"))
 		return false;
 
 	// Read header
-	BYTE abtHeader[24];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
-	if (memcmp(abtHeader, "bma", 3) != 0)
+	u8 header[24];
+	archive->Read(header, sizeof(header));
+	if (memcmp(header, "bma", 3) != 0)
 	{
-		pclArc->SeekHed(file_info->start);
+		archive->SeekHed(file_info->start);
 		return false;
 	}
 
 	// Get file information
-	long  lWidth = *(long*)&abtHeader[4];
-	long  lHeight = *(long*)&abtHeader[8];
-	DWORD dwDstSize = *(DWORD*)&abtHeader[16];
-	DWORD dwSrcSize = *(DWORD*)&abtHeader[20];
+	const s32 width = *reinterpret_cast<const s32*>(&header[4]);
+	const s32 height = *reinterpret_cast<const s32*>(&header[8]);
+	const u32 dst_size = *reinterpret_cast<const u32*>(&header[16]);
+	const u32 src_size = *reinterpret_cast<const u32*>(&header[20]);
 
 	// Read compressed data
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src.size());
 
 	// Buffer allocation for decompression
-	YCMemory<BYTE> clmDst(dwDstSize);
+	std::vector<u8> dst(dst_size);
 
 	// LZSS Decoding
-	CLZSS clLZSS;
-	clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
+	CLZSS lzss;
+	lzss.Decomp(dst.data(), dst.size(), src.data(), src.size(), 4096, 4078, 3);
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, 32);
-	clImage.WriteReverse(&clmDst[0], dwDstSize);
-	clImage.Close();
+	CImage image;
+	image.Init(archive, width, height, 32);
+	image.WriteReverse(dst.data(), dst.size());
+	image.Close();
 
 	return true;
 }
 
 /// TGA Decoding
-bool CTaskForce::DecodeTGA(CArcFile* pclArc)
+bool CTaskForce::DecodeTGA(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->name.GetFileExt() != _T(".tga"))
 		return false;
 
 	// Read data
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
+
 	if (file_info->format == _T("LZ"))
 	{
 		// Is compressed
-
-		DWORD          dwDstSize = file_info->sizeOrg;
-		YCMemory<BYTE> clmDst(dwDstSize);
+		std::vector<u8> dst(file_info->sizeOrg);
 
 		// LZSS Decompression
-		CLZSS clLZSS;
-		clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
+		CLZSS lzss;
+		lzss.Decomp(dst.data(), dst.size(), src.data(), src.size(), 4096, 4078, 3);
 
 		// Output
-		CTga clTGA;
-		clTGA.Decode(pclArc, &clmDst[0], dwDstSize);
+		CTga tga;
+		tga.Decode(archive, dst.data(), dst.size());
 	}
 	else
 	{
 		// Uncompressed
-		CTga clTGA;
-		clTGA.Decode(pclArc, &clmSrc[0], dwSrcSize);
+		CTga tga;
+		tga.Decode(archive, src.data(), src.size());
 	}
 
 	return true;
