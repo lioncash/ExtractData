@@ -3,15 +3,13 @@
 #include "../Image.h"
 #include "Retouch.h"
 
-#include <algorithm>
-
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CRetouch::Mount(CArcFile* pclArc)
+bool CRetouch::Mount(CArcFile* archive)
 {
-	if (MountGYU(pclArc))
+	if (MountGYU(archive))
 		return true;
 
 	return false;
@@ -20,26 +18,26 @@ bool CRetouch::Mount(CArcFile* pclArc)
 
 /// GYU Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CRetouch::MountGYU(CArcFile* pclArc)
+bool CRetouch::MountGYU(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".gyu"))
+	if (archive->GetArcExten() != _T(".gyu"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "GYU\x1A", 4) != 0)
+	if (memcmp(archive->GetHed(), "GYU\x1A", 4) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CRetouch::Decode(CArcFile* pclArc)
+bool CRetouch::Decode(CArcFile* archive)
 {
-	if (DecodeGYU(pclArc))
+	if (DecodeGYU(archive))
 		return true;
 
 	return false;
@@ -47,118 +45,116 @@ bool CRetouch::Decode(CArcFile* pclArc)
 
 /// GYU Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CRetouch::DecodeGYU(CArcFile* pclArc)
+bool CRetouch::DecodeGYU(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("GYU"))
 		return false;
 
 	// Read header
-	SGYUHeader stGYUHeader;
-	pclArc->Read(&stGYUHeader, sizeof(stGYUHeader));
-	if (memcmp(stGYUHeader.abtIdentifier, "GYU\x1A", 4) != 0)
+	GYUHeader gyu_header;
+	archive->Read(&gyu_header, sizeof(gyu_header));
+	if (memcmp(gyu_header.identifier, "GYU\x1A", 4) != 0)
 	{
 		// File does not matter
-
-		pclArc->SeekCur(-(INT64)sizeof(stGYUHeader));
+		archive->SeekCur(-static_cast<s64>(sizeof(gyu_header)));
 		return false;
 	}
 
 	// Read pallet
-	BYTE  abtPallet[1024] = {};
-	DWORD dwPalletSize = (stGYUHeader.dwPallets * 4);
-	if (dwPalletSize > 0)
+	u8 palette[1024] = {};
+	const u32 palette_size = gyu_header.pallets * 4;
+	if (palette_size > 0)
 	{
 		// Palette exists
-		BYTE abtBlackPallet[1024] = {};
-		pclArc->Read(abtPallet, dwPalletSize);
+		u8 black_palette[1024] = {};
+		archive->Read(palette, palette_size);
 
-		if (memcmp(abtPallet, abtBlackPallet, dwPalletSize) == 0)
+		if (memcmp(palette, black_palette, palette_size) == 0)
 		{
 			// All pallets set to zero
-			for (DWORD i = 0, j = 0; i < dwPalletSize; i += 4, j++)
+			for (size_t i = 0, j = 0; i < palette_size; i += sizeof(u32), j++)
 			{
-				abtPallet[i + 0] = (BYTE)j;
-				abtPallet[i + 1] = (BYTE)j;
-				abtPallet[i + 2] = (BYTE)j;
-				abtPallet[i + 3] = 0;
+				palette[i + 0] = static_cast<u8>(j);
+				palette[i + 1] = static_cast<u8>(j);
+				palette[i + 2] = static_cast<u8>(j);
+				palette[i + 3] = 0;
 			}
 		}
 	}
 
 	// Read
-	DWORD          dwSrcSize = stGYUHeader.adwCompSize[0];
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	const u32 src_size = gyu_header.compressed_sizes[0];
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src.size());
 
 	// Ensure output buffers exist
-	DWORD          dwDstSize = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const u32 dst_size = ((gyu_header.width * (gyu_header.bpp >> 3) + 3) & 0xFFFFFFFC) * gyu_header.height;
+	std::vector<u8> dst(dst_size);
 
 	// Decrypt GYU
-	DecryptGYU(&clmbtSrc[0], dwSrcSize, stGYUHeader.dwKey);
+	DecryptGYU(src.data(), src.size(), gyu_header.key);
 
 	// Decompress GYU
-	DecompGYU(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+	DecompGYU(dst.data(), dst.size(), src.data(), src.size());
 
 	// Output
-	if (stGYUHeader.adwCompSize[1] != 0)
+	if (gyu_header.compressed_sizes[1] != 0)
 	{
 		// Alpha value exists
 
 		// Read
-		DWORD          dwSrcSize2 = stGYUHeader.adwCompSize[1];
-		YCMemory<BYTE> clmbtSrc2(dwSrcSize2);
-		pclArc->Read(&clmbtSrc2[0], dwSrcSize2);
+		const u32 src_size2 = gyu_header.compressed_sizes[1];
+		std::vector<u8> src2(src_size2);
+		archive->Read(src2.data(), src2.size());
 
 		// Ensure output buffer exists
-		DWORD          dwDstSize2 = (((stGYUHeader.lWidth * (stGYUHeader.dwBpp >> 3) + 3) & 0xFFFFFFFC) * stGYUHeader.lHeight);
-		YCMemory<BYTE> clmbtDst2(dwDstSize2);
+		const u32 dst_size2 = ((gyu_header.width * (gyu_header.bpp >> 3) + 3) & 0xFFFFFFFC) * gyu_header.height;
+		std::vector<u8> dst2(dst_size2);
 
 		// Decompress GYU
-		DecompGYU(&clmbtDst2[0], dwDstSize2, &clmbtSrc2[0], dwSrcSize2);
+		DecompGYU(dst2.data(), dst2.size(), src2.data(), src2.size());
 
 		// Ensure output buffer exists
-		DWORD          dwDstSize32Bit = (stGYUHeader.lWidth * stGYUHeader.lHeight * 4);
-		YCMemory<BYTE> clmbtDst32Bit(dwDstSize32Bit);
+		const u32 dst_32bit_size = gyu_header.width * gyu_header.height * 4;
+		std::vector<u8> dst_32bit(dst_32bit_size);
 
 		// Into 32-bit by adding the alpha value
-		for (long i = 0, lY = 0; (i < dwDstSize32Bit) && (lY < stGYUHeader.lHeight); lY++)
+		for (long i = 0, y = 0; i < dst_32bit_size && y < gyu_header.height; y++)
 		{
-			long lPresentHeight = (((stGYUHeader.lWidth + 3) & 0xFFFFFFFC) * lY);
+			const long present_height = ((gyu_header.width + 3) & 0xFFFFFFFC) * y;
 
-			for (long lX = 0; lX < stGYUHeader.lWidth; lX++)
+			for (long x = 0; x < gyu_header.width; x++)
 			{
-				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 0];
-				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 1];
-				clmbtDst32Bit[i++] = abtPallet[clmbtDst[lPresentHeight + lX] * 4 + 2];
+				dst_32bit[i++] = palette[dst[present_height + x] * 4 + 0];
+				dst_32bit[i++] = palette[dst[present_height + x] * 4 + 1];
+				dst_32bit[i++] = palette[dst[present_height + x] * 4 + 2];
 
-				if (clmbtDst2[lPresentHeight + lX] < 0x10)
+				if (dst2[present_height + x] < 0x10)
 				{
-					clmbtDst32Bit[i++] = clmbtDst2[lPresentHeight + lX] * 16;
+					dst_32bit[i++] = dst2[present_height + x] * 16;
 				}
 				else
 				{
-					clmbtDst32Bit[i++] = 0xFF;
+					dst_32bit[i++] = 0xFF;
 				}
 			}
 		}
 
 		// Output
-		CImage clImage;
-		clImage.Init(pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, 32);
-		clImage.Write(&clmbtDst32Bit[0], dwDstSize32Bit);
+		CImage image;
+		image.Init(archive, gyu_header.width, gyu_header.height, 32);
+		image.Write(dst_32bit.data(), dst_32bit.size());
 	}
 	else
 	{
 		// Alpha value does not exist
-
-		CImage clImage;
-		clImage.Init(pclArc, stGYUHeader.lWidth, stGYUHeader.lHeight, stGYUHeader.dwBpp, abtPallet, sizeof(abtPallet));
-		clImage.Write(&clmbtDst[0], dwDstSize);
+		CImage image;
+		image.Init(archive, gyu_header.width, gyu_header.height, gyu_header.bpp, palette, sizeof(palette));
+		image.Write(dst.data(), dst.size());
 	}
 
 	return true;
@@ -166,26 +162,24 @@ bool CRetouch::DecodeGYU(CArcFile* pclArc)
 
 /// GYU Decryption
 ///
-/// @param pvSrc     Encrypted data
-/// @param dwSrcSize Encrypted data size
-/// @param dwKey     Decryption key
+/// @param src      Encrypted data
+/// @param src_size Encrypted data size
+/// @param key      Decryption key
 ///
-bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
+bool CRetouch::DecryptGYU(u8* src, size_t src_size, u32 key)
 {
-	BYTE* pbtSrc = (BYTE*)pvSrc;
-
 	// Construct table
-	DWORD adwTable[625 * 2];
-	DWORD dwWork = dwKey;
-	DWORD dwWork2;
+	u32 table[625 * 2];
+	u32 work = key;
+	u32 work2;
 
-	for (DWORD i = 0; i < 624; i++)
+	for (size_t i = 0; i < 624; i++)
 	{
-		adwTable[i] = (dwWork & 0xFFFF0000);
-		dwWork = (dwWork * 0x10DCD + 1);
+		table[i] = work & 0xFFFF0000;
+		work = work * 0x10DCD + 1;
 
-		adwTable[i] |= (dwWork >> 16);
-		dwWork = (dwWork * 0x10DCD + 1);
+		table[i] |= work >> 16;
+		work = work * 0x10DCD + 1;
 	}
 
 	// Preparation for the first phase
@@ -197,18 +191,18 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 	astuliWork[5].LowPart = 1;
 	astuliWork[5].HighPart = 1;
 
-	astuliWork[6].QuadPart = (astuliWork[5].QuadPart << 31);
+	astuliWork[6].QuadPart = astuliWork[5].QuadPart << 31;
 
 	astuliWork[7].QuadPart = astuliWork[6].QuadPart;
 	astuliWork[7].LowPart -= astuliWork[5].LowPart;
 	astuliWork[7].HighPart -= astuliWork[5].HighPart;
 
-	astuliWork[0].QuadPart = (*(UINT64*)&adwTable[0] & astuliWork[6].QuadPart);
-	astuliWork[1].QuadPart = (*(UINT64*)&adwTable[1] & astuliWork[7].QuadPart);
-	astuliWork[2].QuadPart = *(UINT64*)&adwTable[397];
+	astuliWork[0].QuadPart = *reinterpret_cast<const u64*>(&table[0]) & astuliWork[6].QuadPart;
+	astuliWork[1].QuadPart = *reinterpret_cast<const u64*>(&table[1]) & astuliWork[7].QuadPart;
+	astuliWork[2].QuadPart = *reinterpret_cast<const u64*>(&table[397]);
 
 	// First phase
-	for (DWORD i = 0, j = 397; (i < 226) && (j < 623); i += 2, j += 2)
+	for (u32 i = 0, j = 397; i < 226 && j < 623; i += 2, j += 2)
 	{
 		astuliWork[0].QuadPart |= astuliWork[1].QuadPart;
 		astuliWork[0].LowPart >>= 1;
@@ -216,35 +210,35 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 
 		astuliWork[2].QuadPart ^= astuliWork[0].QuadPart;
 
-		astuliWork[3].QuadPart = (astuliWork[1].QuadPart & astuliWork[5].QuadPart);
+		astuliWork[3].QuadPart = astuliWork[1].QuadPart & astuliWork[5].QuadPart;
 		astuliWork[3].LowPart -= astuliWork[5].LowPart;
 		astuliWork[3].HighPart -= astuliWork[5].HighPart;
-		astuliWork[3].QuadPart = ((~astuliWork[3].QuadPart & astuliWork[4].QuadPart) ^ astuliWork[2].QuadPart);
+		astuliWork[3].QuadPart = (~astuliWork[3].QuadPart & astuliWork[4].QuadPart) ^ astuliWork[2].QuadPart;
 
-		astuliWork[0].QuadPart = (*(UINT64*)&adwTable[i + 2] & astuliWork[6].QuadPart);
-		astuliWork[1].QuadPart = (*(UINT64*)&adwTable[i + 3] & astuliWork[7].QuadPart);
-		astuliWork[2].QuadPart = *(UINT64*)&adwTable[j + 2];
+		astuliWork[0].QuadPart = *reinterpret_cast<const u64*>(&table[i + 2]) & astuliWork[6].QuadPart;
+		astuliWork[1].QuadPart = *reinterpret_cast<const u64*>(&table[i + 3]) & astuliWork[7].QuadPart;
+		astuliWork[2].QuadPart = *reinterpret_cast<const u64*>(&table[j + 2]);
 
-		*(UINT64*)&adwTable[i] = astuliWork[3].QuadPart;
+		*reinterpret_cast<u64*>(&table[i]) = astuliWork[3].QuadPart;
 	}
 
-	dwWork = (adwTable[226] & 0x80000000);
-	dwWork2 = (adwTable[227] & 0x7FFFFFFF);
+	work = table[226] & 0x80000000;
+	work2 = table[227] & 0x7FFFFFFF;
 
-	dwWork = ((((dwWork | dwWork2) >> 1) ^ adwTable[623]) ^ 0x9908B0DF);
-	dwWork2 = (((dwWork2 | 0xFFFFFFFE) + 1) & 0x9908B0DF);
+	work = (((work | work2) >> 1) ^ table[623]) ^ 0x9908B0DF;
+	work2 = ((work2 | 0xFFFFFFFE) + 1) & 0x9908B0DF;
 
-	adwTable[226] = (dwWork ^ dwWork2);
+	table[226] = work ^ work2;
 
 	// Preparation for the second phase
-	adwTable[624] = adwTable[0];
+	table[624] = table[0];
 
-	astuliWork[0].QuadPart = (*(UINT64*)&adwTable[227] & astuliWork[6].QuadPart);
-	astuliWork[1].QuadPart = (*(UINT64*)&adwTable[228] & astuliWork[7].QuadPart);
-	astuliWork[2].QuadPart = *(UINT64*)&adwTable[0];
+	astuliWork[0].QuadPart = *reinterpret_cast<const u64*>(&table[227]) & astuliWork[6].QuadPart;
+	astuliWork[1].QuadPart = *reinterpret_cast<const u64*>(&table[228]) & astuliWork[7].QuadPart;
+	astuliWork[2].QuadPart = *reinterpret_cast<const u64*>(&table[0]);
 
 	// Second phase
-	for (DWORD i = 227, j = 0; (i < 625) && (j < 398); i += 2, j += 2)
+	for (u32 i = 227, j = 0; i < 625 && j < 398; i += 2, j += 2)
 	{
 		astuliWork[0].QuadPart |= astuliWork[1].QuadPart;
 		astuliWork[0].LowPart >>= 1;
@@ -252,16 +246,16 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 
 		astuliWork[2].QuadPart ^= astuliWork[0].QuadPart;
 
-		astuliWork[3].QuadPart = (astuliWork[1].QuadPart & astuliWork[5].QuadPart);
+		astuliWork[3].QuadPart = astuliWork[1].QuadPart & astuliWork[5].QuadPart;
 		astuliWork[3].LowPart -= astuliWork[5].LowPart;
 		astuliWork[3].HighPart -= astuliWork[5].HighPart;
-		astuliWork[3].QuadPart = ((~astuliWork[3].QuadPart & astuliWork[4].QuadPart) ^ astuliWork[2].QuadPart);
+		astuliWork[3].QuadPart = (~astuliWork[3].QuadPart & astuliWork[4].QuadPart) ^ astuliWork[2].QuadPart;
 
-		astuliWork[0].QuadPart = (*(UINT64*)&adwTable[i + 2] & astuliWork[6].QuadPart);
-		astuliWork[1].QuadPart = (*(UINT64*)&adwTable[i + 3] & astuliWork[7].QuadPart);
-		astuliWork[2].QuadPart = *(UINT64*)&adwTable[j + 2];
+		astuliWork[0].QuadPart = *reinterpret_cast<const u64*>(&table[i + 2]) & astuliWork[6].QuadPart;
+		astuliWork[1].QuadPart = *reinterpret_cast<const u64*>(&table[i + 3]) & astuliWork[7].QuadPart;
+		astuliWork[2].QuadPart = *reinterpret_cast<const u64*>(&table[j + 2]);
 
-		*(UINT64*)&adwTable[i] = astuliWork[3].QuadPart;
+		*reinterpret_cast<u64*>(&table[i]) = astuliWork[3].QuadPart;
 	}
 
 	// Preparation for the third phase
@@ -271,16 +265,16 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 	astuliWork[7].LowPart = 0xEFC60000;
 	astuliWork[7].HighPart = 0xEFC60000;
 
-	astuliWork[0].QuadPart = *(UINT64*)&adwTable[0];
-	astuliWork[1].QuadPart = *(UINT64*)&adwTable[0];
-	astuliWork[2].QuadPart = *(UINT64*)&adwTable[2];
+	astuliWork[0].QuadPart = *reinterpret_cast<const u64*>(&table[0]);
+	astuliWork[1].QuadPart = *reinterpret_cast<const u64*>(&table[0]);
+	astuliWork[2].QuadPart = *reinterpret_cast<const u64*>(&table[2]);
 
 	astuliWork[0].LowPart >>= 11;
 	astuliWork[0].HighPart >>= 11;
-	astuliWork[0].QuadPart ^= *(UINT64*)&adwTable[0];
+	astuliWork[0].QuadPart ^= *reinterpret_cast<const u64*>(&table[0]);
 
 	// Third phase
-	for (DWORD i = 0, j = 625; (i < 624) && (j < 1249); i += 4, j += 4)
+	for (u32 i = 0, j = 625; i < 624 && j < 1249; i += 4, j += 4)
 	{
 		astuliWork[1].QuadPart = astuliWork[0].QuadPart;
 		astuliWork[3].QuadPart = astuliWork[2].QuadPart;
@@ -320,10 +314,10 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 		astuliWork[1].QuadPart ^= astuliWork[0].QuadPart;
 		astuliWork[2].QuadPart ^= astuliWork[3].QuadPart;
 
-		astuliWork[0].QuadPart = *(INT64*)&adwTable[i + 4];
+		astuliWork[0].QuadPart = *reinterpret_cast<const s64*>(&table[i + 4]);
 		astuliWork[3].QuadPart = astuliWork[2].QuadPart;
 
-		*(INT64*)&adwTable[j] = astuliWork[1].QuadPart;
+		*reinterpret_cast<s64*>(&table[j]) = astuliWork[1].QuadPart;
 
 		// 
 
@@ -333,23 +327,23 @@ bool CRetouch::DecryptGYU(void* pvSrc, DWORD dwSrcSize, DWORD dwKey)
 		astuliWork[3].QuadPart ^= astuliWork[2].QuadPart;
 
 		astuliWork[1].QuadPart = astuliWork[0].QuadPart;
-		astuliWork[2].QuadPart = *(INT64*)&adwTable[i + 6];
+		astuliWork[2].QuadPart = *reinterpret_cast<const s64*>(&table[i + 6]);
 
 		astuliWork[0].LowPart >>= 11;
 		astuliWork[0].HighPart >>= 11;
 		astuliWork[0].QuadPart ^= astuliWork[1].QuadPart;
 
-		*(INT64*)&adwTable[j + 2] = astuliWork[3].QuadPart;
+		*reinterpret_cast<s64*>(&table[j + 2]) = astuliWork[3].QuadPart;
 	}
 
 	// Decoding
 
-	for (DWORD i = 0, j = 625; i < 10; i++)
+	for (size_t i = 0, j = 625; i < 10; i++)
 	{
-		dwWork = (adwTable[j++] % dwSrcSize);
-		dwWork2 = (adwTable[j++] % dwSrcSize);
+		work = table[j++] % src_size;
+		work2 = table[j++] % src_size;
 
-		std::swap(pbtSrc[dwWork], pbtSrc[dwWork2]);
+		std::swap(src[work], src[work2]);
 	}
 
 	return true;
