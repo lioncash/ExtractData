@@ -11,7 +11,7 @@ class CMD5
 public:
 	CMD5();
 
-	SMD5    Calculate(LPCTSTR pszPathToFile);
+	SMD5    Calculate(LPCTSTR file_path);
 	SMD5    Calculate(const void* src, u32 src_size, const u32* initialize = nullptr, bool alignment = false);
 
 	u32     CalculatePadding(u32 size);
@@ -32,6 +32,6 @@ protected:
 	void    MD5ToStrings(char* md5_dst, const u32* md5);
 
 private:
-	SMD5 m_stmd5Value;
-	u32  m_adwX[16];
+	SMD5 m_md5_value;
+	u32  m_x[16];
 };

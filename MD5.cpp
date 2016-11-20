@@ -38,12 +38,12 @@ CMD5::CMD5()
 }
 
 /// Calculate MD5 Value
-SMD5 CMD5::Calculate(LPCTSTR pszPathToFile)
+SMD5 CMD5::Calculate(LPCTSTR file_path)
 {
 	// Open file
 	CFile file;
-	if (!file.OpenForRead(pszPathToFile))
-		return m_stmd5Value;
+	if (!file.OpenForRead(file_path))
+		return m_md5_value;
 
 	// Get file size
 	const u32 src_size = file.GetFileSize();
@@ -99,17 +99,17 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 	{
 		// Using the default initialization values
 
-		m_stmd5Value.adwABCD[0] = 0x67452301;
-		m_stmd5Value.adwABCD[1] = 0xEFCDAB89;
-		m_stmd5Value.adwABCD[2] = 0x98BADCFE;
-		m_stmd5Value.adwABCD[3] = 0x10325476;
+		m_md5_value.adwABCD[0] = 0x67452301;
+		m_md5_value.adwABCD[1] = 0xEFCDAB89;
+		m_md5_value.adwABCD[2] = 0x98BADCFE;
+		m_md5_value.adwABCD[3] = 0x10325476;
 	}
 	else
 	{
-		m_stmd5Value.adwABCD[0] = initialize[0];
-		m_stmd5Value.adwABCD[1] = initialize[1];
-		m_stmd5Value.adwABCD[2] = initialize[2];
-		m_stmd5Value.adwABCD[3] = initialize[3];
+		m_md5_value.adwABCD[0] = initialize[0];
+		m_md5_value.adwABCD[1] = initialize[1];
+		m_md5_value.adwABCD[2] = initialize[2];
+		m_md5_value.adwABCD[3] = initialize[3];
 	}
 
 	for (u32 i = 0, src_ptr = 0; i < src_size; i += 64, src_ptr += 16)
@@ -118,14 +118,14 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 		{
 			// Copy
 
-			m_adwX[j] = pdwSrc[src_ptr + j];
+			m_x[j] = pdwSrc[src_ptr + j];
 		}
 
 		// Save
-		u32 a = m_stmd5Value.adwABCD[0];
-		u32 b = m_stmd5Value.adwABCD[1];
-		u32 c = m_stmd5Value.adwABCD[2];
-		u32 d = m_stmd5Value.adwABCD[3];
+		u32 a = m_md5_value.adwABCD[0];
+		u32 b = m_md5_value.adwABCD[1];
+		u32 c = m_md5_value.adwABCD[2];
+		u32 d = m_md5_value.adwABCD[3];
 
 		CalculateSub5(a, b, c, d,  0,  7,  1);
 		CalculateSub5(d, a, b, c,  1, 12,  2);
@@ -195,16 +195,16 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 		CalculateSub8(c, d, a, b,  2, 15, 63);
 		CalculateSub8(b, c, d, a,  9, 21, 64);
 
-		m_stmd5Value.adwABCD[0] += a;
-		m_stmd5Value.adwABCD[1] += b;
-		m_stmd5Value.adwABCD[2] += c;
-		m_stmd5Value.adwABCD[3] += d;
+		m_md5_value.adwABCD[0] += a;
+		m_md5_value.adwABCD[1] += b;
+		m_md5_value.adwABCD[2] += c;
+		m_md5_value.adwABCD[3] += d;
 	}
 
 	// Convert to a string
-	MD5ToStrings(m_stmd5Value.szABCD, m_stmd5Value.adwABCD);
+	MD5ToStrings(m_md5_value.szABCD, m_md5_value.adwABCD);
 
-	return m_stmd5Value;
+	return m_md5_value;
 }
 
 /// Calculation Processing
@@ -234,25 +234,25 @@ u32 CMD5::CalculateSub4(u32 x, u32 y, u32 z)
 /// Calculation Processing
 void CMD5::CalculateSub5(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub1(b, c, d) + m_adwX[k] + md5_table[i], s);
+	a = b + RotateLeft(a + CalculateSub1(b, c, d) + m_x[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub6(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub2(b, c, d) + m_adwX[k] + md5_table[i], s);
+	a = b + RotateLeft(a + CalculateSub2(b, c, d) + m_x[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub7(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub3(b, c, d) + m_adwX[k] + md5_table[i], s);
+	a = b + RotateLeft(a + CalculateSub3(b, c, d) + m_x[k] + md5_table[i], s);
 }
 
 /// Calculation Processing
 void CMD5::CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 {
-	a = b + RotateLeft(a + CalculateSub4(b, c, d) + m_adwX[k] + md5_table[i], s);
+	a = b + RotateLeft(a + CalculateSub4(b, c, d) + m_x[k] + md5_table[i], s);
 }
 
 /// Calculate Padding
