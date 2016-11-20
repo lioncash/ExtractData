@@ -78,23 +78,25 @@ size_t CFateFD::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 dec
 {
 	for (size_t i = 0; i < target_size; i++)
 	{
-		if ((offset + i) < m_offset[1])
+		const size_t byte_offset = offset + i;
+
+		if (byte_offset < m_offset[1])
 		{
 			target[i] ^= m_key[0];
 		}
-		else if ((offset + i) < m_offset[2])
+		else if (byte_offset < m_offset[2])
 		{
 			target[i] ^= m_key[1];
 		}
-		else if ((offset + i) < m_offset[3])
+		else if (byte_offset < m_offset[3])
 		{
 			target[i] ^= m_key[2];
 		}
-		else if ((offset + i) < m_offset[4])
+		else if (byte_offset < m_offset[4])
 		{
 			target[i] ^= m_key[3];
 		}
-		else if ((offset + i) < m_offset[5])
+		else if (byte_offset < m_offset[5])
 		{
 			target[i] ^= m_key[4];
 		}
