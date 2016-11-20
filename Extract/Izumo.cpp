@@ -30,10 +30,10 @@ bool CIzumo::Mount(CArcFile* archive)
 	// Get index
 	std::vector<u8> index(index_size);
 	archive->Read(index.data(), index.size());
-	u8* index_ptr = index.data();
+	const u8* index_ptr = index.data();
 
 	// Get filename index
-	u8* file_name_index = index_ptr + (num_files << 4);
+	const u8* file_name_index = index_ptr + (num_files << 4);
 
 	// Remove unneeded filenames 
 	for (u32 i = 1; i < dummy; i++)
@@ -52,9 +52,9 @@ bool CIzumo::Mount(CArcFile* archive)
 		// Add to list view
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(u32*)&index_ptr[4];
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
 		file_info.sizeCmp = file_info.sizeOrg;
-		file_info.start = *(u32*)&index_ptr[0];
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
 		file_info.end = file_info.start + file_info.sizeCmp;
 		archive->AddFileInfo(file_info);
 
