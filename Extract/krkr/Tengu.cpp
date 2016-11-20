@@ -43,20 +43,19 @@ size_t CTengu::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decr
 	}
 
 	// Temporary Copy
-	YCMemory<u8> temporary(target_size);
-	memcpy(&temporary[0], target, target_size);
+	std::vector<u8> temporary(target, target + target_size);
 	memset(target, 0, target_size);
 
 	// Decryption 
 	for (size_t i = 5, j = 0; i < target_size; i += sizeof(u16), j += sizeof(u16))
 	{
-		u16 work1 = *(u16*)&temporary[i];
+		u16 work1 = *reinterpret_cast<const u16*>(&temporary[i]);
 		u16 work2 = work1;
 
 		work1 = (work1 & 0x5555) << 1;
 		work2 = (work2 & 0xAAAA) >> 1;
 
-		*(u16*)&target[j] = (work1 | work2);
+		*reinterpret_cast<u16*>(&target[j]) = work1 | work2;
 	}
 
 	// Convert to a multi-byte character
