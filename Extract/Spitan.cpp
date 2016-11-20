@@ -1,32 +1,36 @@
 #include "StdAfx.h"
 #include "Spitan.h"
 
-bool CSpitan::Mount(CArcFile* pclArc)
+bool CSpitan::Mount(CArcFile* archive)
 {
-	if (MountSound(pclArc))
+	if (MountSound(archive))
 		return true;
-	if (MountGraphic1(pclArc))
+	if (MountGraphic1(archive))
 		return true;
-	if (MountGraphic2(pclArc))
+	if (MountGraphic2(archive))
 		return true;
-	if (MountGraphic3(pclArc))
+	if (MountGraphic3(archive))
 		return true;
 
 	return false;
 }
 
-// Function to get information from  Spitan bm0000, bv00**, k000* files.
-bool CSpitan::MountSound(CArcFile* pclArc)
+/// Function to get information from  Spitan bm0000, bv00**, k000* files.
+bool CSpitan::MountSound(CArcFile* archive)
 {
-	if ((pclArc->GetArcName().Left(6) != _T("bm0000")) && (pclArc->GetArcName().Left(4) != _T("bv00")) && (pclArc->GetArcName().Left(4) != _T("k000")))
+	if (archive->GetArcName().Left(6) != _T("bm0000") &&
+	    archive->GetArcName().Left(4) != _T("bv00") &&
+	    archive->GetArcName().Left(4) != _T("k000"))
+	{
 		return false;
+	}
 
-	pclArc->Seek(4, FILE_BEGIN);
+	archive->Seek(4, FILE_BEGIN);
 
 	for (int i = 1; ; i++)
 	{
-		BYTE header[16];
-		pclArc->Read(header, sizeof(header));
+		u8 header[16];
+		archive->Read(header, sizeof(header));
 
 		if (memcmp(header, "OggS", 4) == 0)
 			break;
@@ -34,64 +38,64 @@ bool CSpitan::MountSound(CArcFile* pclArc)
 			break;
 
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.ogg"), pclArc->GetArcName().GetString(), i);
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("%s_%06d.ogg"), archive->GetArcName().GetString(), i);
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeCmp = *(LPDWORD)&header[0];
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.start = *(LPDWORD)&header[4];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&header[0]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.start = *reinterpret_cast<const u32*>(&header[4]);
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
 }
 
-// Function to get infomation from Spitan *.aif files
-bool CSpitan::MountGraphic1(CArcFile* pclArc)
+/// Function to get infomation from Spitan *.aif files
+bool CSpitan::MountGraphic1(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".aif"))
+	if (archive->GetArcExten() != _T(".aif"))
 		return false;
-	if (memcmp(pclArc->GetHed(), "\x10\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHed(), "\x10\0\0\0", 4) != 0)
 		return false;
 
 	for (int i = 1; ; i++)
 	{
-		BYTE header[32];
-		pclArc->Read(header, sizeof(header));
+		u8 header[32];
+		archive->Read(header, sizeof(header));
 
 		if (memcmp(header, "臼NG", 4) == 0)
 			break;
 
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName().GetString(), i);
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("%s_%06d.png"), archive->GetArcName().GetString(), i);
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&header[4];
-		infFile.sizeCmp = *(LPDWORD)&header[8];
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *reinterpret_cast<const u32*>(&header[4]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&header[8]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
 }
 
-// Function to get information from Spitan f0* files
-bool CSpitan::MountGraphic2(CArcFile* pclArc)
+/// Function to get information from Spitan f0* files
+bool CSpitan::MountGraphic2(CArcFile* archive)
 {
 	bool flag = false;
 	for (int i = 0; i < 5; i++)
 	{
-		TCHAR szArcName[_MAX_FNAME];
-		_stprintf(szArcName, _T("f%02d"), i);
-		if (lstrcmp(pclArc->GetArcName(), szArcName) == 0)
+		TCHAR archive_name[_MAX_FNAME];
+		_stprintf(archive_name, _T("f%02d"), i);
+		if (lstrcmp(archive->GetArcName(), archive_name) == 0)
 			flag = true;
 	}
 	
@@ -99,11 +103,11 @@ bool CSpitan::MountGraphic2(CArcFile* pclArc)
 		return false;
 
 	// Get .field file information
-	std::vector<FileInfo> FileInfoList;
+	std::vector<FileInfo> file_info_list;
 	while (true)
 	{
-		BYTE header[8];
-		pclArc->Read(header, sizeof(header));
+		u8 header[8];
+		archive->Read(header, sizeof(header));
 
 		if (memcmp(header, ".field", 6) == 0)
 			break;
@@ -111,27 +115,27 @@ bool CSpitan::MountGraphic2(CArcFile* pclArc)
 			break;
 
 		FileInfo file;
-		file.size = *(LPDWORD)&header[0];
-		file.start = *(LPDWORD)&header[4];
-		FileInfoList.push_back(file);
+		file.size = *reinterpret_cast<const u32*>(&header[0]);
+		file.start = *reinterpret_cast<const u32*>(&header[4]);
+		file_info_list.push_back(file);
 	}
 
-	for (int i = 0, ctFile = 1; i < (int)FileInfoList.size(); i++)
+	for (size_t i = 0, num_files = 1; i < file_info_list.size(); i++)
 	{
 		// Get file size and relative address of the PNG file
-		FileInfo file[5];
+		std::array<FileInfo, 5> files;
 
-		pclArc->Seek(FileInfoList[i].start + 24, FILE_BEGIN);
-		for (int j = 0; j < 2; j++)
+		archive->Seek(file_info_list[i].start + 24, FILE_BEGIN);
+		for (size_t j = 0; j < 2; j++)
 		{
-			pclArc->Read(&file[j].start, 4);
-			pclArc->Read(&file[j].size, 4);
+			archive->ReadU32(&files[j].start);
+			archive->ReadU32(&files[j].size);
 		}
 
-		pclArc->Read(&file[2].start, 4);
+		archive->ReadU32(&files[2].start);
 		// 3つ目のPNGファイルのファイルサイズは、3つ目のPNGヘッダの直前に書いてあるため、そこまで飛ぶ
-		QWORD tmp_pos = pclArc->GetArcPointer();
-		pclArc->Seek(FileInfoList[i].start + file[2].start, FILE_BEGIN);
+		const u64 tmp_pos = archive->GetArcPointer();
+		archive->Seek(file_info_list[i].start + files[2].start, FILE_BEGIN);
 
 		int count = 0;
 		while (true)
@@ -139,92 +143,92 @@ bool CSpitan::MountGraphic2(CArcFile* pclArc)
 			// By counting the amount of times ReadFile is called, we can determine the relative address of the third header PNG
 			count++;
 
-			DWORD filesize;
-			pclArc->Read(&filesize, 4);
+			u32 file_size;
+			archive->ReadU32(&file_size);
 			// PNGヘッダが来たら、この.fieldファイルの中のPNGファイル数は4つ(Usually 5)
-			if (filesize == 0x474E5089)
+			if (file_size == 0x474E5089)
 			{
-				file[2].size = 0;
+				files[2].size = 0;
 				break;
 			}
 			// File size is greater than 30 bytes
-			else if (filesize >= 30)
+			else if (file_size >= 30)
 			{
-				file[2].size = filesize;
-				file[2].start += 4 * count;
+				files[2].size = file_size;
+				files[2].start += 4 * count;
 				break;
 			}
 		}
 
-		pclArc->Seek(tmp_pos, FILE_BEGIN);
-		for (int j = 3; j < 5; j++)
+		archive->Seek(tmp_pos, FILE_BEGIN);
+		for (size_t j = 3; j < files.size(); j++)
 		{
-			pclArc->Read(&file[j].start, 4);
-			pclArc->Read(&file[j].size, 4);
+			archive->ReadU32(&files[j].start);
+			archive->ReadU32(&files[j].size);
 		}
 
-		for (int j = 0; j < 5; j++)
+		for (const auto& file : files)
 		{
 			// Skip it is the file has a size of 0
-			if (file[j].size == 0)
+			if (file.size == 0)
 				continue;
 
 			// Get filename
-			TCHAR szFileName[_MAX_FNAME];
-			_stprintf(szFileName, _T("%s_%06d.png"), pclArc->GetArcName().GetString(), ctFile++);
+			TCHAR file_name[_MAX_FNAME];
+			_stprintf(file_name, _T("%s_%06zu.png"), archive->GetArcName().GetString(), num_files++);
 
 			// Add to listview
-			SFileInfo infFile;
-			infFile.name = szFileName;
-			infFile.sizeCmp = file[j].size;
-			infFile.sizeOrg = infFile.sizeCmp;
-			infFile.start = FileInfoList[i].start + file[j].start;
-			infFile.end = infFile.start + infFile.sizeCmp;
-			pclArc->AddFileInfo(infFile);
+			SFileInfo file_info;
+			file_info.name = file_name;
+			file_info.sizeCmp = file.size;
+			file_info.sizeOrg = file_info.sizeCmp;
+			file_info.start = file_info_list[i].start + file.start;
+			file_info.end = file_info.start + file_info.sizeCmp;
+			archive->AddFileInfo(file_info);
 
-			pclArc->Seek(infFile.sizeCmp, FILE_CURRENT);
+			archive->Seek(file_info.sizeCmp, FILE_CURRENT);
 		}
 	}
 
 	return true;
 }
 
-// Function that gets information from Spitan b0*, c0*, IGNR**** files
-bool CSpitan::MountGraphic3(CArcFile* pclArc)
+/// Function that gets information from Spitan b0*, c0*, IGNR**** files
+bool CSpitan::MountGraphic3(CArcFile* archive)
 {
 	bool flag = false;
 	
-	if (pclArc->GetArcName().Left(4) == _T("IGNR"))
+	if (archive->GetArcName().Left(4) == _T("IGNR"))
 		flag = true;
 	
 	for (int i = 0; i < 5; i++)
 	{
-		TCHAR szArcName[_MAX_FNAME];
-		_stprintf(szArcName, _T("b%02d"), i);
+		TCHAR archive_name[_MAX_FNAME];
+		_stprintf(archive_name, _T("b%02d"), i);
 		
-		if (pclArc->GetArcName() == szArcName)
+		if (archive->GetArcName() == archive_name)
 			flag = true;
 	}
 	
 	for (int i = 0; i < 2; i++)
 	{
-		TCHAR szArcName[_MAX_FNAME];
-		_stprintf(szArcName, _T("c%02d"), i);
+		TCHAR archive_name[_MAX_FNAME];
+		_stprintf(archive_name, _T("c%02d"), i);
 		
-		if (pclArc->GetArcName() == szArcName)
+		if (archive->GetArcName() == archive_name)
 			flag = true;
 	}
 	
 	if (!flag)
 		return false;
 
-	std::vector<FileInfo> FileInfoList;
+	std::vector<FileInfo> file_info_list;
 
 	// Get information from the NORI file
 	while (true)
 	{
-		BYTE header[8];
-		pclArc->Read(header, sizeof(header));
+		u8 header[8];
+		archive->Read(header, sizeof(header));
 
 		if (memcmp(header, "NORI", 4) == 0)
 			break;
@@ -232,51 +236,51 @@ bool CSpitan::MountGraphic3(CArcFile* pclArc)
 			break;
 
 		FileInfo file;
-		file.size = *(LPDWORD)&header[0];
-		file.start = *(LPDWORD)&header[4];
-		FileInfoList.push_back(file);
+		file.size = *reinterpret_cast<const u32*>(&header[0]);
+		file.start = *reinterpret_cast<const u32*>(&header[4]);
+		file_info_list.push_back(file);
 	}
 
-	for (size_t i = 0, ctFile = 1; i < FileInfoList.size(); i++)
+	for (size_t i = 0, num_files = 1; i < file_info_list.size(); i++)
 	{
 		// Get the number of PNG files in the NORI file
-		DWORD ctPng;
-		pclArc->Seek(FileInfoList[i].start + 0x4C, FILE_BEGIN);
-		pclArc->Read(&ctPng, 4);
+		u32 num_pngs;
+		archive->Seek(file_info_list[i].start + 0x4C, FILE_BEGIN);
+		archive->ReadU32(&num_pngs);
 
-		pclArc->Seek(0x40 - 0x1C, FILE_CURRENT);
+		archive->Seek(0x40 - 0x1C, FILE_CURRENT);
 
-		for (DWORD j = 0; j < ctPng; j++)
+		for (u32 j = 0; j < num_pngs; j++)
 		{
-			pclArc->Seek(0x1C, FILE_CURRENT);
+			archive->Seek(0x1C, FILE_CURRENT);
 
 			// Get first and second file sizes
-			DWORD filesize[2];
-			for (int k = 0; k < 2; k++)
+			std::array<u32, 2> file_sizes;
+			for (u32& file_size : file_sizes)
 			{
-				pclArc->Read(&filesize[k], 4);
+				archive->ReadU32(&file_size);
 			}
 
-			for (int k = 0; k < 2; k++)
+			for (u32 file_size : file_sizes)
 			{
-				// Skip file if the filesize is 0
-				if (filesize[k] == 0)
+				// Skip file if the file size is 0
+				if (file_size == 0)
 					continue;
 
 				// Get filename
-				TCHAR szFileName[_MAX_FNAME];
-				_stprintf(szFileName, _T("%s_%06zu.png"), pclArc->GetArcName().GetString(), ctFile++);
+				TCHAR file_name[_MAX_FNAME];
+				_stprintf(file_name, _T("%s_%06zu.png"), archive->GetArcName().GetString(), num_files++);
 
 				// Add file to listview
-				SFileInfo infFile;
-				infFile.name = szFileName;
-				infFile.sizeCmp = filesize[k];
-				infFile.sizeOrg = infFile.sizeCmp;
-				infFile.start = pclArc->GetArcPointer();
-				infFile.end = infFile.start + infFile.sizeCmp;
-				pclArc->AddFileInfo(infFile);
+				SFileInfo file_info;
+				file_info.name = file_name;
+				file_info.sizeCmp = file_size;
+				file_info.sizeOrg = file_info.sizeCmp;
+				file_info.start = archive->GetArcPointer();
+				file_info.end = file_info.start + file_info.sizeCmp;
+				archive->AddFileInfo(file_info);
 
-				pclArc->Seek(infFile.sizeCmp, FILE_CURRENT);
+				archive->Seek(file_info.sizeCmp, FILE_CURRENT);
 			}
 		}
 	}
