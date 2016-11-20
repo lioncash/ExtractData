@@ -37,12 +37,12 @@ size_t CFate::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decry
 	{
 		target[i] ^= decrypt_key;
 
-		if ((offset + i) == 0x13)
+		if (offset + i == 0x13)
 		{
 			target[i] ^= 0x01;
 		}
 
-		if ((offset + i) == 0x2EA29)
+		if (offset + i == 0x2EA29)
 		{
 			target[i] ^= 0x03;
 		}
