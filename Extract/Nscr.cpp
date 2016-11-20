@@ -196,49 +196,48 @@ bool CNscr::Decode(CArcFile* pclArc)
 
 /// Script file decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::DecodeScr(CArcFile* pclArc)
+bool CNscr::DecodeScr(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->name != _T("nscript.dat"))
 		return false;
 
 	// Ensure buffer exists
-	DWORD dwBufferSize = pclArc->GetBufSize();
-	YCMemory<BYTE> clmbtBuffer(dwBufferSize);
-	YCMemory<BYTE> clmbtBuffer2(dwBufferSize * 2);
+	size_t buffer_size = archive->GetBufSize();
+	std::vector<u8> buffer(buffer_size);
+	std::vector<u8> buffer2(buffer_size * 2);
 
 	// Generate output files
+	archive->OpenFile(_T(".txt"));
 
-	pclArc->OpenFile(_T(".txt"));
-
-	for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufferSize)
+	for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 	{
 		// Buffer adjustment
-		pclArc->SetBufSize(&dwBufferSize, dwWriteSize);
+		archive->SetBufSize(&buffer_size, write_size);
 
 		// Reading
-		pclArc->Read(&clmbtBuffer[0], dwBufferSize);
+		archive->Read(buffer.data(), buffer_size);
 
-		DWORD dwBufferSize2 = 0;
+		size_t buffer_size2 = 0;
 
-		for (DWORD i = 0; i < dwBufferSize; i++)
+		for (size_t i = 0; i < buffer_size; i++)
 		{
 			// Decoding
-			clmbtBuffer2[dwBufferSize2] = clmbtBuffer[i] ^ 0x84;
+			buffer2[buffer_size2] = buffer[i] ^ 0x84;
 
 			// Change to CR + LF line endings
-			if (clmbtBuffer2[dwBufferSize2] == '\n')
+			if (buffer2[buffer_size2] == '\n')
 			{
-				clmbtBuffer2[dwBufferSize2++] = '\r';
-				clmbtBuffer2[dwBufferSize2] = '\n';
+				buffer2[buffer_size2++] = '\r';
+				buffer2[buffer_size2] = '\n';
 			}
 
-			dwBufferSize2++;
+			buffer_size2++;
 		}
 
-		pclArc->WriteFile(&clmbtBuffer2[0], dwBufferSize2);
+		archive->WriteFile(buffer2.data(), buffer_size2);
 	}
 
 	return true;

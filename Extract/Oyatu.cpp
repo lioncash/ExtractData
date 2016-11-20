@@ -92,7 +92,7 @@ bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 	archive->Read(header, sizeof(header));
 
 	// Get the size of the data section
-	const u32 data_size = *(u32*)&header[40];
+	const u32 data_size = *reinterpret_cast<const u32*>(&header[40]);
 
 	// Open the output file
 	archive->OpenFile(_T(".wav"));
@@ -101,7 +101,7 @@ bool COyatu::DecodeSound(CArcFile* archive, const u8* key)
 	archive->WriteFile(header, sizeof(header));
 
 	// Output the data part
-	DWORD           buffer_size = archive->GetBufSize();
+	size_t buffer_size = archive->GetBufSize();
 	std::vector<u8> buffer(buffer_size);
 
 	for (size_t total_written = 0; total_written < data_size; total_written += buffer_size)

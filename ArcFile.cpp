@@ -397,12 +397,12 @@ void CArcFile::ReadWrite()
 	ReadWrite(m_file_info->sizeCmp);
 }
 
-void CArcFile::ReadWrite(DWORD file_size)
+void CArcFile::ReadWrite(size_t file_size)
 {
-	DWORD buffer_size = GetBufSize();
+	size_t buffer_size = GetBufSize();
 	std::vector<u8> buffer(buffer_size);
 
-	for (DWORD write_size = 0; write_size != file_size; write_size += buffer_size)
+	for (size_t write_size = 0; write_size != file_size; write_size += buffer_size)
 	{
 		// Adjust buffer size
 		SetBufSize(&buffer_size, write_size, file_size);
@@ -414,17 +414,17 @@ void CArcFile::ReadWrite(DWORD file_size)
 	}
 }
 
-DWORD CArcFile::GetBufSize() const
+size_t CArcFile::GetBufSize() const
 {
 	return m_option->BufSize << 10;
 }
 
-void CArcFile::SetBufSize(LPDWORD buffer_size, DWORD write_size)
+void CArcFile::SetBufSize(size_t* buffer_size, size_t write_size)
 {
 	SetBufSize(buffer_size, write_size, GetOpenFileInfo()->sizeOrg);
 }
 
-void CArcFile::SetBufSize(LPDWORD buffer_size, DWORD write_size, DWORD file_size)
+void CArcFile::SetBufSize(size_t* buffer_size, size_t write_size, size_t file_size)
 {
 	if (write_size + *buffer_size > file_size)
 		*buffer_size = file_size - write_size;

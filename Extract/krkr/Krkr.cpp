@@ -231,7 +231,7 @@ bool CKrkr::Decode(CArcFile* archive)
 	//MessageBox(NULL, s, "", 0);
 
 	// Ensure buffer
-	DWORD buffer_size = archive->GetBufSize();
+	size_t buffer_size = archive->GetBufSize();
 	YCMemory<BYTE> buffer;
 
 	// Whether or not it's bound to memory
@@ -391,10 +391,10 @@ bool CKrkr::Extract(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	DWORD buffer_size = archive->GetBufSize();
-	const DWORD buffer_size_base = buffer_size;
+	const size_t buffer_size_base = archive->GetBufSize();
+	size_t buffer_size = buffer_size_base;
 
-	YCMemory<BYTE> buffer(buffer_size);
+	std::vector<u8> buffer(buffer_size);
 
 	archive->OpenFile();
 
@@ -404,16 +404,16 @@ bool CKrkr::Extract(CArcFile* archive)
 
 		archive->SeekHed(file_info->starts[i]);
 
-		const DWORD dst_size = file_info->sizesOrg[i];
+		const size_t dst_size = file_info->sizesOrg[i];
 
-		for (DWORD wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
+		for (size_t wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 		{
 			// Adjust buffer size
 
 			archive->SetBufSize(&buffer_size, wrote_size, dst_size);
 
-			archive->Read(&buffer[0], buffer_size);
-			archive->WriteFile(&buffer[0], buffer_size);
+			archive->Read(buffer.data(), buffer_size);
+			archive->WriteFile(buffer.data(), buffer_size);
 		}
 	}
 

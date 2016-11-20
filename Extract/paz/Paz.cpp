@@ -148,53 +148,53 @@ bool CPaz::Decode(CArcFile* archive)
 		if (archive->GetArcName() == _T("mov.paz"))
 		{
 			// Movie
-			DWORD buffer_size = GetMovieBufSize(archive);
-			YCMemory<BYTE> buffer(buffer_size);
+			size_t buffer_size = GetMovieBufSize(archive);
+			std::vector<u8> buffer(buffer_size);
 
-			for (DWORD total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
+			for (size_t total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
 			{
 				// Get buffer size
 				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
 
 				// Read
-				archive->Read(&buffer[0], buffer_size);
+				archive->Read(buffer.data(), buffer_size);
 
 				// Decrypt
-				Decrypt(&buffer[0], buffer_size);
-				DecodeMovieData(&buffer[0], buffer_size);
-				Decrypt2(&buffer[0], buffer_size);
+				Decrypt(buffer.data(), buffer_size);
+				DecodeMovieData(buffer.data(), buffer_size);
+				Decrypt2(buffer.data(), buffer_size);
 
 				// Adjust buffer size
 				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
 
 				// Write
-				archive->WriteFile(&buffer[0], buffer_size);
+				archive->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 		else
 		{
 			// Other data
-			DWORD buffer_size = archive->GetBufSize();
-			YCMemory<BYTE> buffer(buffer_size);
+			size_t buffer_size = archive->GetBufSize();
+			std::vector<u8> buffer(buffer_size);
 
-			for (DWORD total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
+			for (size_t total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
 			{
 				// Adjust buffer size
 				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
 
 				// Read
-				archive->Read(&buffer[0], buffer_size);
+				archive->Read(buffer.data(), buffer_size);
 
 				// Decrypt
-				Decrypt(&buffer[0], buffer_size);
-				DecodeData(&buffer[0], buffer_size);
-				Decrypt2(&buffer[0], buffer_size);
+				Decrypt(buffer.data(), buffer_size);
+				DecodeData(buffer.data(), buffer_size);
+				Decrypt2(buffer.data(), buffer_size);
 
 				// Adjust buffer size
 				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
 
 				// Write
-				archive->WriteFile(&buffer[0], buffer_size);
+				archive->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 	}

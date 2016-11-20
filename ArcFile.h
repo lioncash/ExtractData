@@ -58,7 +58,7 @@ public:
 
 	DWORD WriteFile(const void* buffer, DWORD write_size, DWORD original_size = 0xFFFFFFFF);
 	void  ReadWrite();
-	void  ReadWrite(DWORD file_size);
+	void  ReadWrite(size_t file_size);
 
 	// Simple decoding
 	u32 InitDecrypt();
@@ -113,9 +113,9 @@ public:
 
 	bool      GetState() const          { return m_state; }
 
-	DWORD     GetBufSize() const;
-	void      SetBufSize(LPDWORD buffer_size, DWORD write_size);
-	void      SetBufSize(LPDWORD buffer_size, DWORD write_size, DWORD file_size);
+	size_t    GetBufSize() const;
+	void      SetBufSize(size_t* buffer_size, size_t write_size);
+	void      SetBufSize(size_t* buffer_size, size_t write_size, size_t file_size);
 
 	void      ReplaceBackslash(LPTSTR file_name);
 	void      MakeDirectory(LPCTSTR file_name);

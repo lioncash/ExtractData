@@ -752,18 +752,18 @@ bool CNitro::DecodePak3(CArcFile* pclArc)
 		else
 		{
 			// Ensure buffers exist
-			DWORD BufSize = pclArc->GetBufSize();
-			YCMemory<BYTE> buf(BufSize);
+			size_t buffer_size = pclArc->GetBufSize();
+			std::vector<u8> buffer(buffer_size);
 
-			for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
+			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 			{
 				// Adjust buffer size
-				pclArc->SetBufSize(&BufSize, WriteSize);
+				pclArc->SetBufSize(&buffer_size, write_size);
 
 				// Output
-				pclArc->Read(&buf[0], BufSize);
-				DecryptPak3(&buf[0], BufSize, WriteSize, file_info);
-				pclArc->WriteFile(&buf[0], BufSize);
+				pclArc->Read(buffer.data(), buffer_size);
+				DecryptPak3(buffer.data(), buffer_size, write_size, file_info);
+				pclArc->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 	}
@@ -818,18 +818,18 @@ bool CNitro::DecodePak4(CArcFile* pclArc)
 		else
 		{
 			// Ensure buffer exists
-			DWORD BufSize = pclArc->GetBufSize();
-			YCMemory<BYTE> buf(BufSize);
+			size_t buffer_size = pclArc->GetBufSize();
+			std::vector<u8> buffer(buffer_size);
 
-			for (DWORD WriteSize = 0; WriteSize != file_info->sizeOrg; WriteSize += BufSize)
+			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 			{
 				// Adjust buffer size
-				pclArc->SetBufSize(&BufSize, WriteSize);
+				pclArc->SetBufSize(&buffer_size, write_size);
 
 				// Output
-				pclArc->Read(&buf[0], BufSize);
-				DecryptPak4(&buf[0], BufSize, WriteSize, file_info);
-				pclArc->WriteFile(&buf[0], BufSize);
+				pclArc->Read(buffer.data(), buffer_size);
+				DecryptPak4(buffer.data(), buffer_size, write_size, file_info);
+				pclArc->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 	}
@@ -879,34 +879,34 @@ bool CNitro::DecodePK2(CArcFile* pclArc)
 	return true;
 }
 
-bool CNitro::DecodeN3Pk(CArcFile* pclArc)
+bool CNitro::DecodeN3Pk(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".pak")) || (memcmp(pclArc->GetHed(), "N3Pk", 4) != 0))
+	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHed(), "N3Pk", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(file_info->name);
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	YCString file_extension = PathFindExtension(file_info->name);
 
 	// Ensure buffer exists
-	DWORD dwBufSize = pclArc->GetBufSize();
-	YCMemory<BYTE> vbyBuf(dwBufSize);
+	size_t buffer_size = archive->GetBufSize();
+	std::vector<u8> buffer(buffer_size);
 
-	BYTE byKey = (BYTE)file_info->key;
+	u8 byte_key = static_cast<u8>(file_info->key);
 
-	if (sFileExt == _T(".nps"))
-		pclArc->OpenScriptFile();
+	if (file_extension == _T(".nps"))
+		archive->OpenScriptFile();
 	else
-		pclArc->OpenFile();
+		archive->OpenFile();
 
-	for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufSize)
+	for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 	{
 		// Ensure buffer exists
-		pclArc->SetBufSize(&dwBufSize, dwWriteSize);
+		archive->SetBufSize(&buffer_size, write_size);
 
 		// Output
-		pclArc->Read(&vbyBuf[0], dwBufSize);
-		DecryptN3Pk(&vbyBuf[0], dwBufSize, dwWriteSize, file_info, byKey);
-		pclArc->WriteFile(&vbyBuf[0], dwBufSize);
+		archive->Read(buffer.data(), buffer_size);
+		DecryptN3Pk(buffer.data(), buffer_size, write_size, file_info, byte_key);
+		archive->WriteFile(buffer.data(), buffer_size);
 	}
 
 	return true;
@@ -947,18 +947,18 @@ bool CNitro::DecodeNpa(CArcFile* pclArc)
 	else
 	{
 		// Ensure buffer exists
-		DWORD dwBufSize = pclArc->GetBufSize();
-		YCMemory<BYTE> vbyBuf(dwBufSize);
+		size_t buffer_size = pclArc->GetBufSize();
+		std::vector<u8> buffer(buffer_size);
 
-		for (DWORD dwWriteSize = 0; dwWriteSize != file_info->sizeOrg; dwWriteSize += dwBufSize)
+		for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 		{
 			// Adjust buffer size
-			pclArc->SetBufSize(&dwBufSize, dwWriteSize);
+			pclArc->SetBufSize(&buffer_size, write_size);
 
 			// Output
-			pclArc->Read(&vbyBuf[0], dwBufSize);
-			DecryptNpa(&vbyBuf[0], dwBufSize, dwWriteSize, file_info);
-			pclArc->WriteFile(&vbyBuf[0], dwBufSize);
+			pclArc->Read(buffer.data(), buffer_size);
+			DecryptNpa(buffer.data(), buffer_size, write_size, file_info);
+			pclArc->WriteFile(buffer.data(), buffer_size);
 		}
 	}
 

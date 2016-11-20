@@ -70,9 +70,9 @@ bool CInnocentGrey::Decode(CArcFile* archive)
 	else
 	{
 		// Ensure Buffer
-		DWORD buffer_size = archive->GetBufSize();
+		size_t buffer_size = archive->GetBufSize();
 		std::vector<u8> buffer(buffer_size);
-
+		
 		// Create output file
 		archive->OpenFile();
 

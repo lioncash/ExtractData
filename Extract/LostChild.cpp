@@ -317,41 +317,41 @@ bool CLostChild::DecompLZSS(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 
 /// Extraction
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CLostChild::Extract(CArcFile* pclArc)
+bool CLostChild::Extract(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->title != _T("LOST CHILD"))
 		return false;
 
 	// Ensure buffer exists
-	DWORD dwBufferSize = pclArc->GetBufSize();
-	YCMemory<BYTE> clmBuffer(dwBufferSize);
+	size_t buffer_size = archive->GetBufSize();
+	std::vector<u8> buffer(buffer_size);
 
 	// Generate output files
-	pclArc->OpenFile();
+	archive->OpenFile();
 
-	for (DWORD WriteSize = 0; WriteSize != file_info->sizeCmp; WriteSize += dwBufferSize)
+	for (size_t write_size = 0; write_size != file_info->sizeCmp; write_size += buffer_size)
 	{
 		// Adjust buffer size
-		pclArc->SetBufSize(&dwBufferSize, WriteSize);
+		archive->SetBufSize(&buffer_size, write_size);
 
 		// Read
-		DWORD dwReadSize = pclArc->Read(&clmBuffer[0], dwBufferSize);
-		pclArc->WriteFile(&clmBuffer[0], dwReadSize);
+		const size_t read_size = archive->Read(buffer.data(), buffer_size);
+		archive->WriteFile(buffer.data(), read_size);
 
-		if (dwReadSize < dwBufferSize)
+		if (read_size < buffer_size)
 		{
-			pclArc->SetNextArc();
+			archive->SetNextArc();
 
-			pclArc->SeekHed();
-			pclArc->Read(&clmBuffer[0], (dwBufferSize - dwReadSize));
-			pclArc->WriteFile(&clmBuffer[0], (dwBufferSize - dwReadSize));
+			archive->SeekHed();
+			archive->Read(buffer.data(), buffer_size - read_size);
+			archive->WriteFile(buffer.data(), buffer_size - read_size);
 		}
 	}
 
-	pclArc->CloseFile();
+	archive->CloseFile();
 
 	return true;
 }

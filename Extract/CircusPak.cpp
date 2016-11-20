@@ -607,36 +607,36 @@ bool CCircusPak::DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 
 /// Decoding 'Other' data
 ///
-/// @param pclArc         Archive
-/// @param pfnDecryptFunc Pointer to the decryption function
-/// @param pvKey          Decryption key
+/// @param archive             Archive
+/// @param decryption_function Pointer to the decryption function
+/// @param key                 Decryption key
 ///
-bool CCircusPak::DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void* pvKey)
+bool CCircusPak::DecodeEtc(CArcFile* archive, FDecrypt decryption_function, const void* key)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	DWORD            dwBufSize = pclArc->GetBufSize();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	YCMemory<BYTE> clmbtBuf(dwBufSize);
+	size_t buffer_size = archive->GetBufSize();
+	std::vector<u8> buffer(buffer_size);
 
 	// Generate output files
 	if (file_info->format == _T("CS"))
 	{
-		pclArc->OpenScriptFile();
+		archive->OpenScriptFile();
 	}
 	else
 	{
-		pclArc->OpenFile();
+		archive->OpenFile();
 	}
 
-	for (DWORD dwWriteSize = 0; dwWriteSize < file_info->sizeOrg; dwWriteSize += dwBufSize)
+	for (size_t write_size = 0; write_size < file_info->sizeOrg; write_size += buffer_size)
 	{
 		// Buffer size adjustment
-		pclArc->SetBufSize(&dwBufSize, dwWriteSize);
+		archive->SetBufSize(&buffer_size, write_size);
 
 		// Output the decoded data
-		pclArc->Read(&clmbtBuf[0], dwBufSize);
-		pfnDecryptFunc(&clmbtBuf[0], dwBufSize, pvKey);
-		pclArc->WriteFile(&clmbtBuf[0], dwBufSize);
+		archive->Read(buffer.data(), buffer_size);
+		decryption_function(buffer.data(), buffer_size, key);
+		archive->WriteFile(buffer.data(), buffer_size);
 	}
 
 	return true;
