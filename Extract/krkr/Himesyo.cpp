@@ -60,7 +60,7 @@ size_t CHimesyo::OnDecrypt(u8* target, size_t target_size, size_t offset, u32 de
 			m_change_decrypt_key += 0x04040404;
 		}
 
-		*(u32*)&target[i] ^= decrypt_key ^ m_change_decrypt_key;
+		*reinterpret_cast<u32*>(&target[i]) ^= decrypt_key ^ m_change_decrypt_key;
 	}
 
 	return target_size;
