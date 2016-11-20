@@ -28,8 +28,8 @@ protected:
 	void    CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i);
 
 	u32     RotateLeft(u32 value, u32 shift);
-	void    ValueToStr(LPSTR md5_dst, u32 md5);
-	void    MD5ToStrings(LPSTR md5_dst, const u32* md5);
+	void    ValueToStr(char* md5_dst, u32 md5);
+	void    MD5ToStrings(char* md5_dst, const u32* md5);
 
 private:
 	SMD5 m_stmd5Value;

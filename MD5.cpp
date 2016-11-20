@@ -304,7 +304,7 @@ u32 CMD5::RotateLeft(u32 value, u32 shift)
 /// @param md5_dst Storage location of the string.
 /// @param md5     MD5 value
 ///
-void CMD5::ValueToStr(LPSTR md5_dst, u32 md5)
+void CMD5::ValueToStr(char* md5_dst, u32 md5)
 {
 	for (int i = 0 ; i < 4 ; i++)
 	{
@@ -320,7 +320,7 @@ void CMD5::ValueToStr(LPSTR md5_dst, u32 md5)
 /// @param md5_dst Storage location of the string
 /// @param md5     MD5 value
 ///
-void CMD5::MD5ToStrings(LPSTR md5_dst, const u32* md5)
+void CMD5::MD5ToStrings(char* md5_dst, const u32* md5)
 {
 	for (int i = 0 ; i < 4 ; i++)
 	{
