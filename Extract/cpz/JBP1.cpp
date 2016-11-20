@@ -225,25 +225,25 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 			// Å†Å†
 			u8* dc = lpDst1 - 0x20;
 			u8* ac = lpDst1 - 0x20 + ww * 4;
-			YCC2RGB(dc, ac, (s16*)dct_tbl, (s16*)(dct_tbl + 320 * 2), ww * 4);
+			YCC2RGB(dc, ac, (const s16*)dct_tbl, (const s16*)(dct_tbl + 320 * 2), ww * 4);
 
 			// Å†Å°
 			// Å†Å†
 			dc = lpDst1;
 			ac = lpDst2 + 0x20 - ww * 4 * 8;
-			YCC2RGB(dc, ac, (s16*)(dct_tbl + 64 * 2), (s16*)(dct_tbl + 324 * 2), ww * 4);
+			YCC2RGB(dc, ac, (const s16*)(dct_tbl + 64 * 2), (const s16*)(dct_tbl + 324 * 2), ww * 4);
 
 			// Å†Å†
 			// Å°Å†
 			dc = lpDst1 + ((ww * 4) << 3) - 0x20;
 			ac = lpDst2;
-			YCC2RGB(dc, ac, (s16*)(dct_tbl + 128 * 2), (s16*)(dct_tbl + 352 * 2), ww * 4);
+			YCC2RGB(dc, ac, (const s16*)(dct_tbl + 128 * 2), (const s16*)(dct_tbl + 352 * 2), ww * 4);
 
 			// Å†Å†
 			// Å†Å°
 			dc = lpDst2 + 0x20 - ww * 4;
 			ac = lpDst2 + 0x20;
-			YCC2RGB(dc, ac, (s16*)(dct_tbl + 192 * 2), (s16*)(dct_tbl + 356 * 2), ww * 4);
+			YCC2RGB(dc, ac, (const s16*)(dct_tbl + 192 * 2), (const s16*)(dct_tbl + 356 * 2), ww * 4);
 
 			lpDst1 += 0x40;
 			lpDst2 += 0x40;
@@ -548,7 +548,7 @@ s32 CJBP1::MakeTree(u8* lp1, s32 size, u32* lp2)
 }
 
 /// YCbCr => RGB
-void CJBP1::YCC2RGB(u8* dc, u8* ac, s16* Y, s16* CbCr, s32 line)
+void CJBP1::YCC2RGB(u8* dc, u8* ac, const s16* Y, const s16* CbCr, s32 line)
 {
 	static bool is_tbl = false;
 	static u8 fixed_byte_tbl[0x300]; //462C48

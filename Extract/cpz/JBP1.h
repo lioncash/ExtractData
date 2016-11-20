@@ -9,5 +9,5 @@ private:
 	void DCT(u8* arg1, u8* arg2);
 	s32 GetNBit(const u8*& lpin, u32 code, u32& bit_buffer, u32& bit_remain);
 	s32 MakeTree(u8* lp1, s32 size, u32* lp2);
-	void YCC2RGB(u8* dc, u8* ac, s16* Y, s16* CbCr, s32 line);
+	void YCC2RGB(u8* dc, u8* ac, const s16* Y, const s16* CbCr, s32 line);
 };
