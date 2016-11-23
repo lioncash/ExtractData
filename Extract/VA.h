@@ -39,5 +39,5 @@ private:
 	bool MountOvk(CArcFile* archive);
 	bool DecodeNwa(CArcFile* archive);
 
-	inline int getbits(u8*& data, int& shift, int bits);
+	int GetBits(u8*& data, int& shift, int bits);
 };

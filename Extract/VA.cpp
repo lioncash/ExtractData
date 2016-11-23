@@ -128,7 +128,7 @@ bool CVA::MountOvk(CArcFile* archive)
 	return true;
 }
 
-inline int CVA::getbits(u8*& data, int& shift, int bits)
+int CVA::GetBits(u8*& data, int& shift, int bits)
 {
 	if (shift > 8)
 	{
@@ -250,16 +250,15 @@ bool CVA::DecodeNwa(CArcFile* archive)
 				if (z_pbuf >= src_end || pbuf >= dst_end)
 				{
 					// Exit
-
 					break;
 				}
 
-				int type = getbits(z_pbuf, shift, 3);
+				const int type = GetBits(z_pbuf, shift, 3);
 
 				// 7 : Large difference
 				if (type == 7)
 				{
-					if (getbits(z_pbuf, shift, 1) == 1)
+					if (GetBits(z_pbuf, shift, 1) == 1)
 					{
 						d[flip] = 0; // Unused
 					}
@@ -279,7 +278,7 @@ bool CVA::DecodeNwa(CArcFile* archive)
 
 						const int MASK1 = (1 << (BITS - 1));
 						const int MASK2 = (1 << (BITS - 1)) - 1;
-						const int b = getbits(z_pbuf, shift, BITS);
+						const int b = GetBits(z_pbuf, shift, BITS);
 						if (b & MASK1)
 							d[flip] -= (b & MASK2) << SHIFT;
 						else
@@ -303,7 +302,7 @@ bool CVA::DecodeNwa(CArcFile* archive)
 
 					const int MASK1 = (1 << (BITS - 1));
 					const int MASK2 = (1 << (BITS - 1)) - 1;
-					const int b = getbits(z_pbuf, shift, BITS);
+					const int b = GetBits(z_pbuf, shift, BITS);
 					if (b & MASK1)
 						d[flip] -= (b & MASK2) << SHIFT;
 					else
@@ -314,14 +313,14 @@ bool CVA::DecodeNwa(CArcFile* archive)
 					if (rle)
 					{
 						// Run-length compression 
-						int run_length = getbits(z_pbuf, shift, 1);
+						int run_length = GetBits(z_pbuf, shift, 1);
 						if (run_length == 1)
 						{
-							run_length = getbits(z_pbuf, shift, 2);
+							run_length = GetBits(z_pbuf, shift, 2);
 
 							if (run_length == 3)
 							{
-								run_length = getbits(z_pbuf, shift, 8);
+								run_length = GetBits(z_pbuf, shift, 8);
 							}
 						}
 
