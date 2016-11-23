@@ -5,27 +5,27 @@
 class CEthornell final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	struct SNodeInfo
+	struct NodeInfo
 	{
-		bool  bValidity; // Validity
-		DWORD dwFreq;    // Frequency
-		DWORD dwLeft;    // Left Node
-		DWORD dwRight;   // Right Node
+		bool is_valid; // Validity
+		u32  freq;     // Frequency
+		u32  left;     // Left Node
+		u32  right;    // Right Node
 	};
 
-	bool DecodeDSC(CArcFile* pclArc);
-	bool DecodeCBG(CArcFile* pclArc);
-	bool DecodeStd(CArcFile* pclArc);
+	bool DecodeDSC(CArcFile* archive);
+	bool DecodeCBG(CArcFile* archive);
+	bool DecodeStd(CArcFile* archive);
 
-	DWORD GetKey(DWORD* dwKey);
-	DWORD GetVariableData(const BYTE* pbtSrc, DWORD* pdwDstOfReadLength);
+	u32 GetKey(u32* key);
+	u32 GetVariableData(const u8* src, size_t* read_length);
 
-	void DecompDSC(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
-	void DecompCBG(BYTE* pbtDst, BYTE* pbtSrc);
+	void DecompDSC(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	void DecompCBG(u8* dst, u8* src);
 
-	void DecryptBGType1(BYTE* pbtDst, BYTE* pbtSrc, long lWidth, long lHeight, WORD wBpp);
+	void DecryptBGType1(u8* dst, const u8* src, s32 width, s32 height, u16 bpp);
 };

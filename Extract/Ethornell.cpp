@@ -4,43 +4,43 @@
 
 /// Mount
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEthornell::Mount(CArcFile* pclArc)
+bool CEthornell::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".arc"))
+	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "PackFile    ", 12) != 0)
+	if (memcmp(archive->GetHed(), "PackFile    ", 12) != 0)
 		return false;
 
-	pclArc->SeekHed(12);
+	archive->SeekHed(12);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	DWORD dwIndexSize = (32 * dwFiles);
+	const size_t index_size = 32 * num_files;
 
 	// Get index
-	YCMemory<BYTE> clmIndex(dwIndexSize);
-	pclArc->Read(&clmIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get offset
-	DWORD dwOffset = 16 + dwIndexSize;
+	const u32 offset = 16 + index.size();
 
 	// Get file info
-	for (DWORD i = 0; i < dwIndexSize; i += 32)
+	for (size_t i = 0; i < index.size(); i += 32)
 	{
-		SFileInfo stFileInfo;
-		stFileInfo.name.Copy((char*)&clmIndex[i], 16);
-		stFileInfo.start = *(DWORD*)&clmIndex[i + 16] + dwOffset;
-		stFileInfo.sizeCmp = *(DWORD*)&clmIndex[i + 20];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), 16);
+		file_info.start = *reinterpret_cast<const u32*>(&index[i + 16]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + 20]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -48,102 +48,95 @@ bool CEthornell::Mount(CArcFile* pclArc)
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEthornell::Decode(CArcFile* pclArc)
+bool CEthornell::Decode(CArcFile* archive)
 {
-	BYTE abtHeader[16];
-	pclArc->Read(abtHeader, sizeof(abtHeader));
-	pclArc->SeekCur(-(int)sizeof(abtHeader));
+	u8 header[16];
+	archive->Read(header, sizeof(header));
+	archive->SeekCur(-(int)sizeof(header));
 
 	// DSC
-	if (memcmp(abtHeader, "DSC FORMAT 1.00\0", 16) == 0)
-		return DecodeDSC(pclArc);
+	if (memcmp(header, "DSC FORMAT 1.00\0", 16) == 0)
+		return DecodeDSC(archive);
 
 	// CompressedBG
-	if (memcmp(abtHeader, "CompressedBG___\0", 16) == 0)
-		return DecodeCBG(pclArc);
+	if (memcmp(header, "CompressedBG___\0", 16) == 0)
+		return DecodeCBG(archive);
 
 	// Other
-	return DecodeStd(pclArc);
+	return DecodeStd(archive);
 }
 
 /// Decode DSC
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEthornell::DecodeDSC(CArcFile* pclArc)
+bool CEthornell::DecodeDSC(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
 	// Ensure output buffer
-	DWORD          dwDstSize = *(DWORD*)&clmbtSrc[20];
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const u32 dst_size = *(u32*)&src[20];
+	std::vector<u8> dst(dst_size);
 
 	// Decompress DSC
-	DecompDSC(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+	DecompDSC(dst.data(), dst.size(), src.data(), src.size());
 
 	// Get image information
-	long  lWidth = *(WORD*)&clmbtDst[0];
-	long  lHeight = *(WORD*)&clmbtDst[2];
-	WORD  wBpp = *(WORD*)&clmbtDst[4];
-	WORD  wFlags = *(WORD*)&clmbtDst[6];
-	DWORD dwOffset = *(DWORD*)&clmbtDst[0];
+	const s32 width  = *(u16*)&dst[0];
+	const s32 height = *(u16*)&dst[2];
+	const u16 bpp    = *(u16*)&dst[4];
+	const u16 flags  = *(u16*)&dst[6];
+	const u32 offset = *(u32*)&dst[0];
 
 	// Output
 
-	if ((wBpp == 8 || wBpp == 24 || wBpp == 32) && memcmp(&clmbtDst[8], "\0\0\0\0\0\0\0\0", 8) == 0)
+	if ((bpp == 8 || bpp == 24 || bpp == 32) && memcmp(&dst[8], "\0\0\0\0\0\0\0\0", 8) == 0)
 	{
 		// Image
+		CImage          image;
+		std::vector<u8> dst2;
 
-		CImage         clImage;
-		YCMemory<BYTE> clmbtDst2;
-		DWORD          dwDstSize2;
-
-		switch (wFlags)
+		switch (flags)
 		{
 		case 0: // Common
-			clImage.Init(pclArc, lWidth, lHeight, wBpp);
-			clImage.WriteReverse(&clmbtDst[16], (dwDstSize - 16));
-
+			image.Init(archive, width, height, bpp);
+			image.WriteReverse(&dst[16], dst.size() - 16);
 			break;
 
 		case 1:  // Type 1 encryption
-
-			dwDstSize2 = (dwDstSize - 16);
-			clmbtDst2.resize(dwDstSize2);
+			dst2.resize(dst.size() - 16);
 
 			// Decryption
-			DecryptBGType1(&clmbtDst2[0], &clmbtDst[16], lWidth, lHeight, wBpp);
+			DecryptBGType1(dst2.data(), &dst[16], width, height, bpp);
 
 			// Output
-			clImage.Init(pclArc, lWidth, lHeight, wBpp);
-			clImage.WriteReverse(&clmbtDst2[0], dwDstSize2);
+			image.Init(archive, width, height, bpp);
+			image.WriteReverse(dst2.data(), dst2.size());
 			break;
 
 		default: // Unknown Format
-			pclArc->OpenFile();
-			pclArc->WriteFile(&clmbtDst[0], dwDstSize, dwSrcSize);
+			archive->OpenFile();
+			archive->WriteFile(dst.data(), dst.size(), src.size());
+			break;
 		}
 	}
-	else if (dwOffset < (dwDstSize - 4) && memcmp(&clmbtDst[dwOffset], "OggS", 4) == 0)
+	else if (offset < dst.size() - 4 && memcmp(&dst[offset], "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
-
-		pclArc->OpenFile(_T(".ogg"));
-		pclArc->WriteFile(&clmbtDst[dwOffset], (dwDstSize - dwOffset), dwSrcSize);
+		archive->OpenFile(_T(".ogg"));
+		archive->WriteFile(&dst[offset], dst.size() - offset, src.size());
 	}
 	else
 	{
 		// Other
-
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmbtDst[0], dwDstSize, dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(dst.data(), dst.size(), src.size());
 	}
 
 	return true;
@@ -151,407 +144,392 @@ bool CEthornell::DecodeDSC(CArcFile* pclArc)
 
 /// Decode CompressedBG
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEthornell::DecodeCBG(CArcFile* pclArc)
+bool CEthornell::DecodeCBG(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CompressedBG
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
 	// Width, Height, Get number of colors
-	long lWidth = *(WORD*)&clmbtSrc[16];
-	long lHeight = *(WORD*)&clmbtSrc[18];
-	WORD wBpp = *(WORD*)&clmbtSrc[20];
+	const s32 width = *reinterpret_cast<const u16*>(&src[16]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[18]);
+	const u16 bpp = *reinterpret_cast<const u16*>(&src[20]);
 
 	// Ensure output buffer
-	DWORD          dwDstSize = lWidth * lHeight * (wBpp >> 3);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const u32 dst_size = width * height * (bpp >> 3);
+	std::vector<u8> dst(dst_size);
 
 	// CompressedBG Decompression
-	DecompCBG(&clmbtDst[0], &clmbtSrc[0]);
+	DecompCBG(dst.data(), src.data());
 
 	// Output Image
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(dst.data(), dst.size());
 
 	return true;
 }
 
 // Decode other files
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CEthornell::DecodeStd(CArcFile* pclArc)
+bool CEthornell::DecodeStd(CArcFile* archive)
 {
 	// Get offset
-	DWORD dwOffset;
-	pclArc->Read(&dwOffset, 4);
+	u32 offset;
+	archive->ReadU32(&offset);
 
 	// Check file header
-	BYTE abtHeader[4] = {};
-	if ((pclArc->GetArcPointer() + dwOffset) < pclArc->GetArcSize())
+	u8 header[4] = {};
+	if (archive->GetArcPointer() + offset < archive->GetArcSize())
 	{
 		// Seek possible file offset value
-		pclArc->SeekCur(dwOffset - 4);
-		pclArc->Read(abtHeader, sizeof(abtHeader));
+		archive->SeekCur(offset - 4);
+		archive->Read(header, sizeof(header));
 	}
 	else
 	{
 		// Cannot find a file offset value (Not an offset value)
-		dwOffset = 0;
+		offset = 0;
 	}
 
 	// Output
-	if (memcmp(abtHeader, "OggS", 4) == 0)
+	if (memcmp(header, "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
-		pclArc->SeekHed(pclArc->GetOpenFileInfo()->start + dwOffset);
-		pclArc->OpenFile(_T(".ogg"));
+		archive->SeekHed(archive->GetOpenFileInfo()->start + offset);
+		archive->OpenFile(_T(".ogg"));
 	}
 	else
 	{
 		// Other
-		dwOffset = 0;
-		pclArc->SeekHed(pclArc->GetOpenFileInfo()->start);
-		pclArc->OpenFile();
+		offset = 0;
+		archive->SeekHed(archive->GetOpenFileInfo()->start);
+		archive->OpenFile();
 	}
 
-	pclArc->ReadWrite(pclArc->GetOpenFileInfo()->sizeOrg - dwOffset);
+	archive->ReadWrite(archive->GetOpenFileInfo()->sizeOrg - offset);
 
 	return true;
 }
 
 /// Get Key
 ///
-/// @param pdwKet Input data and output
+/// @param key Input data and output
 ///
-DWORD CEthornell::GetKey(DWORD* pdwKey)
+u32 CEthornell::GetKey(u32* key)
 {
-	DWORD dwWork1 = 20021 * (*pdwKey & 0xFFFF);
-	DWORD dwWork2 = 20021 * (*pdwKey >> 16);
-	DWORD dwWork  = 346 * (*pdwKey) + dwWork2 + (dwWork1 >> 16);
+	const u32 work1 = 20021 * (*key & 0xFFFF);
+	const u32 work2 = 20021 * (*key >> 16);
+	const u32 work  = 346 * (*key) + work2 + (work1 >> 16);
 
-	*pdwKey = (dwWork << 16) + (dwWork1 & 0xFFFF) + 1;
+	*key = (work << 16) + (work1 & 0xFFFF) + 1;
 
-	return (dwWork & 0x7FFF);
+	return work & 0x7FFF;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
 /// Get variable-length data
 ///
-/// @param pbtSrc Input data
-/// @param pdwDstOfReadLength Length of the data read
+/// @param src         Input data
+/// @param read_length Length of the data read
 ///
-DWORD CEthornell::GetVariableData(const BYTE* pbtSrc, DWORD* pdwDstOfReadLength)
+u32 CEthornell::GetVariableData(const u8* src, size_t* read_length)
 {
-	DWORD dwData = 0;
-	DWORD dwSrcPtr = 0;
-	DWORD dwShift = 0;
-	BYTE  btCurrentSrc;
+	size_t src_ptr = 0;
+	u8 current_src;
+
+	u32 data = 0;
+	u32 shift = 0;
 
 	do
 	{
-		btCurrentSrc = pbtSrc[dwSrcPtr++];
-		dwData |= (btCurrentSrc & 0x7F) << dwShift;
-		dwShift += 7;
-	} while (btCurrentSrc & 0x80);
+		current_src = src[src_ptr++];
+		data |= (current_src & 0x7F) << shift;
+		shift += 7;
+	} while (current_src & 0x80);
 
-	if (pdwDstOfReadLength != nullptr)
+	if (read_length != nullptr)
 	{
-		*pdwDstOfReadLength = dwSrcPtr;
+		*read_length = src_ptr;
 	}
 
-	return dwData;
+	return data;
 }
 
 /// DSC Decompression
 ///
-/// @param pbtDst    Destination
-/// @param dwDstSize Destination size
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-void CEthornell::DecompDSC(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+void CEthornell::DecompDSC(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD dwSrcPtr = 32;
-	DWORD dwDstPtr = 0;
+	size_t src_ptr = 32;
+	size_t dst_ptr = 0;
 
-	DWORD adwBuffer[512 + 1] = {};
-	DWORD adwBuffer2[1024] = {};
-	BYTE  abtBuffer3[0x3FF0] = {};
+	u32 buffer[512 + 1] = {};
+	u32 buffer2[1024] = {};
+	u8  buffer3[0x3FF0] = {};
 
-	DWORD dwCount;
-	DWORD dwWork;
-	BYTE  btWork;
+	u32 key = *reinterpret_cast<const u32*>(&src[16]);
+	u32 buffer_size = 0;
 
-	// 
-
-	DWORD dwKey = *(DWORD*)&pbtSrc[16];
-	DWORD dwBufferSize = 0;
-
-	for (DWORD i = 0; i < 512; i++)
+	for (u32 i = 0; i < 512; i++)
 	{
-		btWork = pbtSrc[dwSrcPtr] - (BYTE)GetKey(&dwKey);
+		const u8 work = src[src_ptr] - static_cast<u8>(GetKey(&key));
 
-		if (btWork != 0)
+		if (work != 0)
 		{
-			adwBuffer[dwBufferSize++] = (btWork << 16) + i;
+			buffer[buffer_size++] = (work << 16) + i;
 		}
 
-		dwSrcPtr++;
+		src_ptr++;
 	}
-	adwBuffer[dwBufferSize] = 0;
+	buffer[buffer_size] = 0;
 
 	// Sort
-	for (DWORD i = 0; i < (dwBufferSize - 1); i++)
+	for (size_t i = 0; i < buffer_size - 1; i++)
 	{
-		for (DWORD j = (i + 1); j < dwBufferSize; j++)
+		for (size_t j = i + 1; j < buffer_size; j++)
 		{
-			if (adwBuffer[i] > adwBuffer[j])
+			if (buffer[i] > buffer[j])
 			{
-				std::swap(adwBuffer[i], adwBuffer[j]);
+				std::swap(buffer[i], buffer[j]);
 			}
 		}
 	}
 
 	// 
 
-	int   nMin = 0;
-	int   nMax = 1;
-	DWORD dwBufferPtr = 0;
-	DWORD dwBufferPtr2 = 0;
-	DWORD dwBufferPtrPrev2 = 0x200;
-	DWORD dwCode = 1;
-	DWORD dwIndex;
+	int min = 0;
+	int max = 1;
+	size_t buffer_idx = 0;
+	size_t buffer2_idx = 0;
+	size_t buffer2_idx_prev = 0x200;
+	u32 code = 1;
 
-	for (dwIndex = 0; dwBufferPtr < dwBufferSize; dwIndex++)
+	for (size_t index = 0; buffer_idx < buffer_size; index++)
 	{
-		if (dwIndex & 1)
+		if (index & 1)
 		{
-			dwBufferPtr2 = 0;
-			dwBufferPtrPrev2 = 512;
+			buffer2_idx = 0;
+			buffer2_idx_prev = 512;
 		}
 		else
 		{
-			dwBufferPtr2 = 512;
-			dwBufferPtrPrev2 = 0;
+			buffer2_idx = 512;
+			buffer2_idx_prev = 0;
 		}
 
-		nMin = 0;
+		min = 0;
 
-		while ((adwBuffer[dwBufferPtr] >> 16) == dwIndex)
+		while ((buffer[buffer_idx] >> 16) == index)
 		{
-			DWORD* pdwBuffer3 = (DWORD*)&abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
+			u32* buffer3_ptr = (u32*)&buffer3[buffer2[buffer2_idx_prev] << 4];
 
-			pdwBuffer3[0] = 0;
-			pdwBuffer3[1] = adwBuffer[dwBufferPtr] & 0x1FF;
+			buffer3_ptr[0] = 0;
+			buffer3_ptr[1] = buffer[buffer_idx] & 0x1FF;
 
-			dwBufferPtr++;
-			dwBufferPtrPrev2++;
+			buffer_idx++;
+			buffer2_idx_prev++;
 
-			nMin++;
+			min++;
 		}
 
-		for (int i = nMin; i < nMax; i++)
+		for (int i = min; i < max; i++)
 		{
-			DWORD* pdwBuffer3 = (DWORD*)&abtBuffer3[adwBuffer2[dwBufferPtrPrev2] << 4];
-			DWORD  dwBufferPtr3 = 0;
+			u32*   buffer3_ptr = (u32*)&buffer3[buffer2[buffer2_idx_prev] << 4];
+			size_t buffer3_idx = 0;
 
-			pdwBuffer3[dwBufferPtr3] = 1;
-			dwBufferPtr3 += 2;
+			buffer3_ptr[buffer3_idx] = 1;
+			buffer3_idx += 2;
 
-			adwBuffer2[dwBufferPtr2] = dwCode;
-			pdwBuffer3[dwBufferPtr3] = dwCode;
-			dwBufferPtr2++;
-			dwBufferPtr3++;
-			dwCode++;
+			buffer2[buffer2_idx] = code;
+			buffer3_ptr[buffer3_idx] = code;
+			buffer2_idx++;
+			buffer3_idx++;
+			code++;
 
-			adwBuffer2[dwBufferPtr2] = dwCode;
-			pdwBuffer3[dwBufferPtr3] = dwCode;
-			dwBufferPtr2++;
-			dwBufferPtr3++;
-			dwCode++;
+			buffer2[buffer2_idx] = code;
+			buffer3_ptr[buffer3_idx] = code;
+			buffer2_idx++;
+			buffer3_idx++;
+			code++;
 
-			dwBufferPtrPrev2++;
+			buffer2_idx_prev++;
 		}
 
-		nMax = (nMax - nMin) * 2;
+		max = (max - min) * 2;
 	}
 
 	//
 
-	DWORD dwSize = *(DWORD*)&pbtSrc[24];
-	DWORD dwSrc = 0;
+	const u32 size = *reinterpret_cast<const u32*>(&src[24]);
+	u32 src_val = 0;
+	u32 count = 0;
 
-	dwCount = 0;
-
-	for (DWORD i = 0; (i < dwSize) && (dwSrcPtr < dwSrcSize) && (dwDstPtr < dwDstSize); i++)
+	for (size_t i = 0; i < size && src_ptr < src_size && dst_ptr < dst_size; i++)
 	{
-		dwIndex = 0;
+		u32 index = 0;
 
 		do
 		{
-			if (dwCount == 0)
+			if (count == 0)
 			{
-				dwSrc = pbtSrc[dwSrcPtr++];
-				dwCount = 8;
+				src_val = src[src_ptr++];
+				count = 8;
 			}
 
-			dwIndex = dwIndex * 4 + ((dwSrc & 0xFF) >> 7);
-			dwSrc <<= 1;
-			dwCount--;
+			index = index * 4 + ((src_val & 0xFF) >> 7);
+			src_val <<= 1;
+			count--;
 
-			dwIndex = *(DWORD*)&abtBuffer3[4 * dwIndex + 8];
-		} while (*(DWORD*)&abtBuffer3[dwIndex << 4] != 0);
+			index = *(u32*)&buffer3[4 * index + 8];
+		} while (*(u32*)&buffer3[index << 4] != 0);
 
-		dwIndex <<= 4;
-		btWork = abtBuffer3[dwIndex + 4];
+		index <<= 4;
+		const u8 btWork = buffer3[index + 4];
 
-		if (abtBuffer3[dwIndex + 5] == 1)
+		if (buffer3[index + 5] == 1)
 		{
-			DWORD dwBitBuffer = (dwSrc & 0xFF) >> (8 - dwCount);
-			DWORD dwBitCount = dwCount;
+			u32 bit_buffer = (src_val & 0xFF) >> (8 - count);
+			u32 bit_count = count;
 
-			if (dwCount < 12)
+			if (count < 12)
 			{
-				dwWork = (19 - dwCount) >> 3;
-				dwBitCount = dwCount + 8 * dwWork;
+				const u32 end = (19 - count) >> 3;
+				bit_count = count + 8 * end;
 
-				for (DWORD j = 0; j < dwWork; j++)
+				for (u32 j = 0; j < end; j++)
 				{
-					dwBitBuffer = (dwBitBuffer << 8) + pbtSrc[dwSrcPtr++];
+					bit_buffer = (bit_buffer << 8) + src[src_ptr++];
 				}
 			}
 
-			DWORD dwBack;
-			DWORD dwLength;
+			count = bit_count - 12;
+			src_val = bit_buffer << (8 - count);
+			const u32 back = ((bit_buffer >> count) & 0xFFFF) + 2;
+			const u32 length = btWork + 2;
 
-			dwCount = dwBitCount - 12;
-			dwSrc = (dwBitBuffer << (8 - dwCount));
-			dwBack = ((dwBitBuffer >> dwCount) & 0xFFFF) + 2;
-			dwLength = btWork + 2;
-
-			if ((dwBack > dwDstPtr) || (dwDstPtr >= dwDstSize))
+			if (back > dst_ptr || dst_ptr >= dst_size)
 			{
 				break;
 			}
 
-			for (DWORD j = 0; j < dwLength; j++)
+			for (size_t j = 0; j < length; j++)
 			{
-				pbtDst[dwDstPtr + j] = pbtDst[dwDstPtr + j - dwBack];
+				dst[dst_ptr + j] = dst[dst_ptr + j - back];
 			}
 
-			dwDstPtr += dwLength;
+			dst_ptr += length;
 		}
 		else
 		{
-			pbtDst[dwDstPtr++] = btWork;
+			dst[dst_ptr++] = btWork;
 		}
 	}
 }
 
 /// CompressedBG Decompression
 ///
-/// @param pbtDst Destination
-/// @param pbtSrc Compressed data
+/// @param dst Destination
+/// @param src Compressed data
 ///
-void CEthornell::DecompCBG(BYTE* pbtDst, BYTE* pbtSrc)
+void CEthornell::DecompCBG(u8* dst, u8* src)
 {
-	DWORD dwSrcPtr = 48;
-	DWORD dwDstPtr = 0;
+	size_t src_ptr = 48;
+	size_t dst_ptr = 0;
 
-	long  lWidth = *(WORD*)&pbtSrc[16];
-	long  lHeight = *(WORD*)&pbtSrc[18];
-	WORD  wBpp = *(WORD*)&pbtSrc[20];
+	const s32 width = *reinterpret_cast<const u16*>(&src[16]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[18]);
+	const u16 bpp = *reinterpret_cast<const u16*>(&src[20]);
 
-	DWORD dwDstSizeOfHuffman = *(DWORD*)&pbtSrc[32];
-	DWORD dwKey = *(DWORD*)&pbtSrc[36];
-	DWORD dwDecryptSize = *(DWORD*)&pbtSrc[40];
-
-	DWORD dwWork;
-	BYTE  btWork;
+	const u32 huffman_dst_size = *reinterpret_cast<const u32*>(&src[32]);
+	u32 key = *reinterpret_cast<const u32*>(&src[36]);
+	const u32 decrypt_size = *reinterpret_cast<const u32*>(&src[40]);
 
 	// Decryption
-	for (DWORD i = 0; i < dwDecryptSize; i++)
+	for (size_t i = 0; i < decrypt_size; i++)
 	{
-		pbtSrc[dwSrcPtr + i] -= (BYTE)GetKey(&dwKey);
+		src[src_ptr + i] -= static_cast<u8>(GetKey(&key));
 	}
 
 	// Get frequency table
-	DWORD adwFreq[256];
-	for (DWORD i = 0; i < 256; i++)
+	std::array<u32, 256> freq_table;
+	for (auto& freq : freq_table)
 	{
-		adwFreq[i] = GetVariableData(&pbtSrc[dwSrcPtr], &dwWork);
+		size_t read_length;
+		freq = GetVariableData(&src[src_ptr], &read_length);
 
-		dwSrcPtr += dwWork;
+		src_ptr += read_length;
 	}
 
 	// Leaf node entry
-	SNodeInfo astNodeInfo[511];
-	DWORD     dwFreqTotal = 0;
+	std::array<NodeInfo, 511> node_info;
+	u32 freq_total = 0;
 
-	for (DWORD i = 0; i < 256; i++)
+	for (size_t i = 0; i < 256; i++)
 	{
-		astNodeInfo[i].bValidity = (adwFreq[i] > 0);
-		astNodeInfo[i].dwFreq = adwFreq[i];
-		astNodeInfo[i].dwLeft = i;
-		astNodeInfo[i].dwRight = i;
+		node_info[i].is_valid = freq_table[i] > 0;
+		node_info[i].freq = freq_table[i];
+		node_info[i].left = static_cast<u32>(i);
+		node_info[i].right = static_cast<u32>(i);
 
-		dwFreqTotal += adwFreq[i];
+		freq_total += freq_table[i];
 	}
 
 	// Initialization of the branch node
-	for (DWORD i = 256; i < 511; i++)
+	for (size_t i = 256; i < 511; i++)
 	{
-		astNodeInfo[i].bValidity = false;
-		astNodeInfo[i].dwFreq = 0;
-		astNodeInfo[i].dwLeft = (DWORD)-1;
-		astNodeInfo[i].dwRight = (DWORD)-1;
+		node_info[i].is_valid = false;
+		node_info[i].freq = 0;
+		node_info[i].left = 0xFFFFFFFF;
+		node_info[i].right = 0xFFFFFFFF;
 	}
 
 	// Branch node entry
-	DWORD dwNodes;
-	for (dwNodes = 256; dwNodes < 511; dwNodes++)
+	u32 nodes;
+	for (nodes = 256; nodes < 511; nodes++)
 	{
 		// Obtain value of minimum two
-		DWORD dwMin;
-		DWORD dwFreq = 0;
-		DWORD adwChild[2];
+		u32 freq = 0;
+		std::array<u32, 2> children;
 
-		for (DWORD i = 0; i < 2; i++)
+		for (auto& child : children)
 		{
-			dwMin = 0xFFFFFFFF;
-			adwChild[i] = (DWORD)-1;
+			u32 min = 0xFFFFFFFF;
+			child = 0xFFFFFFFF;
 
-			for (DWORD j = 0; j < dwNodes; j++)
+			for (u32 j = 0; j < nodes; j++)
 			{
-				if (astNodeInfo[j].bValidity && (astNodeInfo[j].dwFreq < dwMin))
+				if (node_info[j].is_valid && node_info[j].freq < min)
 				{
-					dwMin = astNodeInfo[j].dwFreq;
-					adwChild[i] = j;
+					min = node_info[j].freq;
+					child = j;
 				}
 			}
 
-			if (adwChild[i] != (DWORD)-1)
+			if (child != 0xFFFFFFFF)
 			{
-				astNodeInfo[adwChild[i]].bValidity = false;
+				node_info[child].is_valid = false;
 
-				dwFreq += astNodeInfo[adwChild[i]].dwFreq;
+				freq += node_info[child].freq;
 			}
 		}
 
 		// Registration of branch node 
-		astNodeInfo[dwNodes].bValidity = true;
-		astNodeInfo[dwNodes].dwFreq = dwFreq;
-		astNodeInfo[dwNodes].dwLeft = adwChild[0];
-		astNodeInfo[dwNodes].dwRight = adwChild[1];
+		node_info[nodes].is_valid = true;
+		node_info[nodes].freq = freq;
+		node_info[nodes].left = children[0];
+		node_info[nodes].right = children[1];
 
-		if (dwFreq == dwFreqTotal)
+		if (freq == freq_total)
 		{
 			// Exit
 			break;
@@ -559,107 +537,105 @@ void CEthornell::DecompCBG(BYTE* pbtDst, BYTE* pbtSrc)
 	}
 
 	// Huffman Decompression
-	DWORD dwRoot = dwNodes;
-	DWORD dwMask = 0x80;
+	const u32 root = nodes;
+	u32 mask = 0x80;
 
-	YCMemory<BYTE> clmbtDstOfHuffman(dwDstSizeOfHuffman);
+	std::vector<u8> huffman_dst(huffman_dst_size);
 
-	for (DWORD i = 0; i < dwDstSizeOfHuffman; i++)
+	for (size_t i = 0; i < huffman_dst.size(); i++)
 	{
-		DWORD dwNode = dwRoot;
+		u32 node = root;
 
-		while (dwNode >= 256)
+		while (node >= 256)
 		{
-			if (pbtSrc[dwSrcPtr] & dwMask)
+			if (src[src_ptr] & mask)
 			{
-				dwNode = astNodeInfo[dwNode].dwRight;
+				node = node_info[node].right;
 			}
 			else
 			{
-				dwNode = astNodeInfo[dwNode].dwLeft;
+				node = node_info[node].left;
 			}
 
-			dwMask >>= 1;
+			mask >>= 1;
 
-			if (dwMask == 0)
+			if (mask == 0)
 			{
-				dwSrcPtr++;
-				dwMask = 0x80;
+				src_ptr++;
+				mask = 0x80;
 			}
 		}
 
-		clmbtDstOfHuffman[i] = (BYTE)dwNode;
+		huffman_dst[i] = static_cast<u8>(node);
 	}
 
 	// RLE Decompression
-	DWORD dwDstPtrOfHuffman = 0;
-	BYTE  btZeroFlag = 0;
+	size_t huffman_dst_ptr = 0;
+	u8 zero_flag = 0;
 
-	while (dwDstPtrOfHuffman < dwDstSizeOfHuffman)
+	while (huffman_dst_ptr < huffman_dst.size())
 	{
-		DWORD dwLength = GetVariableData(&clmbtDstOfHuffman[dwDstPtrOfHuffman], &dwWork);
+		size_t read_length;
+		const u32 length = GetVariableData(&huffman_dst[huffman_dst_ptr], &read_length);
+		huffman_dst_ptr += read_length;
 
-		dwDstPtrOfHuffman += dwWork;
-
-		if (btZeroFlag)
+		if (zero_flag)
 		{
-			ZeroMemory(&pbtDst[dwDstPtr], dwLength);
+			std::memset(&dst[dst_ptr], 0, length);
 
-			dwDstPtr += dwLength;
+			dst_ptr += length;
 		}
 		else
 		{
-			memcpy(&pbtDst[dwDstPtr], &clmbtDstOfHuffman[dwDstPtrOfHuffman], dwLength);
+			memcpy(&dst[dst_ptr], &huffman_dst[huffman_dst_ptr], length);
 
-			dwDstPtr += dwLength;
-			dwDstPtrOfHuffman += dwLength;
+			dst_ptr += length;
+			huffman_dst_ptr += length;
 		}
 
-		btZeroFlag ^= 1;
+		zero_flag ^= 1;
 	}
 
 	// 
 
-	WORD wColors = (wBpp >> 3);
-	long lLine = lWidth * wColors;
+	const u16 colors = bpp >> 3;
+	const s32 line = width * colors;
 
-	dwDstPtr = 0;
+	dst_ptr = 0;
 
-	for (long lY = 0; lY < lHeight; lY++)
+	for (s32 y = 0; y < height; y++)
 	{
-		for (long lX = 0; lX < lWidth; lX++)
+		for (s32 x = 0; x < width; x++)
 		{
-			for (WORD i = 0; i < wColors; i++)
+			for (size_t i = 0; i < colors; i++)
 			{
-				if ((lY == 0) && (lX == 0))
+				u8 work;
+
+				if (y == 0 && x == 0)
 				{
 					// Top-left corner
-
-					btWork = 0;
+					work = 0;
 				}
-				else if (lY == 0)
+				else if (y == 0)
 				{
 					// Upper
 					// Gets the pixel on the left
-
-					btWork = pbtDst[dwDstPtr - wColors];
+					work = dst[dst_ptr - colors];
 				}
-				else if (lX == 0)
+				else if (x == 0)
 				{
 					// Left-hand corner
 					// Gets the pixel above
-
-					btWork = pbtDst[dwDstPtr - lLine];
+					work = dst[dst_ptr - line];
 				}
 				else
 				{
 					// Other
 					// Gets the average pixels on the left
-
-					btWork = (pbtDst[dwDstPtr - wColors] + pbtDst[dwDstPtr - lLine]) >> 1;
+					work = (dst[dst_ptr - colors] + dst[dst_ptr - line]) >> 1;
 				}
 
-				pbtDst[dwDstPtr++] += btWork;
+				dst[dst_ptr++] += work;
 			}
 		}
 	}
@@ -667,54 +643,54 @@ void CEthornell::DecompCBG(BYTE* pbtDst, BYTE* pbtSrc)
 
 /// Image Decoding
 ///
-/// @param pbtDst  Destination for the decoded image data
-/// @param pbtSrc  Encrypted image data
-/// @param lWidth  Width
-/// @param lHeight Height
-/// @param wBpp    Bit depth
-void CEthornell::DecryptBGType1(BYTE* pbtDst, BYTE* pbtSrc, long lWidth, long lHeight, WORD wBpp)
+/// @param dst    Destination for the decoded image data
+/// @param src    Encrypted image data
+/// @param width  Width
+/// @param height Height
+/// @param bpp    Bit depth
+void CEthornell::DecryptBGType1(u8* dst, const u8* src, s32 width, s32 height, u16 bpp)
 {
-	WORD wColors = (wBpp >> 3);
+	const u16 colors = bpp >> 3;
 
 	// Get a pointer to each color component
-	BYTE* apbtSrc[4];
-	for (WORD i = 0; i < wColors; i++)
+	const u8* component_src[4];
+	for (size_t i = 0; i < colors; i++)
 	{
-		apbtSrc[i] = &pbtSrc[lWidth * lHeight * i];
+		component_src[i] = &src[width * height * i];
 	}
 
 	// Initialization of variables
-	BYTE abtPrev[4] = {};
+	u8 prev[4] = {};
 
 	// Decryption
-	BYTE* pbtDst2 = pbtDst;
-	for (long i = 0; i < lHeight; i++)
+	u8* dst2 = dst;
+	for (s32 i = 0; i < height; i++)
 	{
 		if (i & 0x01)
 		{
-			pbtDst2 += (lWidth * wColors);
+			dst2 += width * colors;
 
-			for (long j = 0; j < lWidth; j++)
+			for (s32 j = 0; j < width; j++)
 			{
-				pbtDst2 -= wColors;
+				dst2 -= colors;
 
-				for (WORD k = 0; k < wColors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
-					pbtDst2[k] = *apbtSrc[k]++ + abtPrev[k];
-					abtPrev[k] = pbtDst2[k];
+					dst2[k] = *component_src[k]++ + prev[k];
+					prev[k] = dst2[k];
 				}
 			}
 
-			pbtDst2 += (lWidth * wColors);
+			dst2 += width * colors;
 		}
 		else
 		{
-			for (long j = 0; j < lWidth; j++)
+			for (s32 j = 0; j < width; j++)
 			{
-				for (WORD k = 0; k < wColors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
-					*pbtDst2 = *apbtSrc[k]++ + abtPrev[k];
-					abtPrev[k] = *pbtDst2++;
+					*dst2 = *component_src[k]++ + prev[k];
+					prev[k] = *dst2++;
 				}
 			}
 		}
