@@ -2,31 +2,30 @@
 #include "../Image.h"
 #include "Will.h"
 
+namespace
+{
+bool HasValidHeaderID(const CArcFile* archive)
+{
+	static constexpr std::array<const char*, 7> header_ids{{
+		"OGG", "WSC", "ANM", "MSK", "WIP", "TBL", "SCR"
+	}};
+
+	const u8* const archive_id_start = &archive->GetHed()[4];
+
+	return std::any_of(header_ids.begin(), header_ids.end(), [archive_id_start](const char* id) {
+		return std::memcmp(archive_id_start, id, 4) == 0;
+	});
+}
+} // Anonymous namespace
+
 /// Mounting
 bool CWill::Mount(CArcFile* archive)
 {
 	if (lstrcmpi(archive->GetArcExten(), _T(".arc")) != 0)
 		return false;
 
-	bool is_match = false;
-
-	static const char* header_ids[] = {
-		"OGG", "WSC", "ANM", "MSK", "WIP", "TBL", "SCR"
-	};
-
-	for (const char* header_id : header_ids)
-	{
-		if (memcmp(&archive->GetHed()[4], header_id, 4) == 0)
-		{
-			is_match = true;
-			break;
-		}
-	}
-
-	if (!is_match)
-	{
+	if (!HasValidHeaderID(archive))
 		return false;
-	}
 
 	// Get number of file formats
 	u32 num_file_formats;
