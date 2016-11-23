@@ -34,10 +34,10 @@ bool CTH2::MountKCAP(CArcFile* archive)
 	// Get file count
 	u32 num_files;
 	archive->SeekHed(4);
-	archive->Read(&num_files, 4);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	const u32 index_size = (num_files * 36);
+	const u32 index_size = num_files * 36;
 
 	// Get index
 	std::vector<u8> index(index_size);
