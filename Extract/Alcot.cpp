@@ -41,13 +41,13 @@ bool CAlcot::Mount(CArcFile* archive)
 		memcpy(file_name, &index_ptr[16], file_name_length);
 
 		// Add to the listview
-		SFileInfo infFile;
-		infFile.name = file_name;
-		infFile.sizeOrg = *(const u32*)&index_ptr[4];
-		infFile.sizeCmp = infFile.sizeOrg;
-		infFile.start = *(const u32*)&index_ptr[0] + offset;
-		infFile.end = infFile.start + infFile.sizeOrg;
-		archive->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeOrg = *(const u32*)&index_ptr[4];
+		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.start = *(const u32*)&index_ptr[0] + offset;
+		file_info.end = file_info.start + file_info.sizeOrg;
+		archive->AddFileInfo(file_info);
 
 		index_ptr += size;
 	}
