@@ -29,7 +29,6 @@ bool CAselia::Mount(CArcFile* archive)
 	// Get Index
 	std::vector<u8> index(index_size);
 	dll_file.Read(index.data(), index.size());
-	u8* index_ptr = index.data();
 
 	// Get file extension
 	YCString file_ext;
@@ -42,15 +41,16 @@ bool CAselia::Mount(CArcFile* archive)
 		file_ext = _T(".png");
 	}
 
-	for (int i = 0; i < (int)num_files; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
 		TCHAR file_name[MAX_PATH];
-		_stprintf(file_name, _T("%s_%06d%s"), archive->GetArcName().GetString(), i + 1, file_ext.GetString());
+		_stprintf(file_name, _T("%s_%06u%s"), archive->GetArcName().GetString(), i + 1, file_ext.GetString());
 
 		SFileInfo file_info;
-		file_info.start = *(u32*)&index_ptr[0];
-		file_info.sizeOrg = *(u32*)&index_ptr[4];
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
 
 		// Add to listview
 		file_info.name = file_name;
