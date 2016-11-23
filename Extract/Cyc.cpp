@@ -2,444 +2,436 @@
 #include "../Image.h"
 #include "Cyc.h"
 
-///////////////////////////////////////////////////////////////////////////
-// Mount
-///////////////////////////////////////////////////////////////////////////
-bool CCyc::Mount(CArcFile* pclArc)
+bool CCyc::Mount(CArcFile* archive)
 {
-	if (MountGpk(pclArc))
+	if (MountGpk(archive))
 		return true;
-	if (MountVpk(pclArc))
+	if (MountVpk(archive))
 		return true;
-	if (MountDwq(pclArc))
+	if (MountDwq(archive))
 		return true;
-	if (MountWgq(pclArc))
+	if (MountWgq(archive))
 		return true;
-	if (MountVaw(pclArc))
+	if (MountVaw(archive))
 		return true;
-	if (MountXtx(pclArc))
+	if (MountXtx(archive))
 		return true;
-	if (MountFxf(pclArc))
+	if (MountFxf(archive))
 		return true;
 
 	return false;
 }
 
-bool CCyc::MountGpk(CArcFile* pclArc)
+bool CCyc::MountGpk(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".gpk"))
+	if (archive->GetArcExten() != _T(".gpk"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Get gtb file path
-	TCHAR szGtbPath[MAX_PATH];
-	lstrcpy(szGtbPath, pclArc->GetArcPath());
-	PathRenameExtension(szGtbPath, _T(".gtb"));
+	TCHAR gtb_path[MAX_PATH];
+	lstrcpy(gtb_path, archive->GetArcPath());
+	PathRenameExtension(gtb_path, _T(".gtb"));
 
 	// Open gtb file
-	CFile GtbFile;
-	if (GtbFile.Open(szGtbPath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	CFile gtb_file;
+	if (gtb_file.Open(gtb_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Number of files in the gtb file
-	DWORD ctFile;
-	GtbFile.Read(&ctFile, 4);
+	u32 num_files;
+	gtb_file.Read(&num_files, sizeof(u32));
 
 	// Determine table size
-	DWORD tblSize = ctFile * 4;
+	const u32 table_size = num_files * 4;
 
 	// Get the gtb file filename from the table
-	YCMemory<DWORD> fnLenTbl(ctFile);
-	GtbFile.Read(&fnLenTbl[0], tblSize);
+	std::vector<u32> file_name_length_table(num_files);
+	gtb_file.Read(file_name_length_table.data(), table_size);
 
 	// Get the table offset of the gtb file
-	YCMemory<DWORD> ofsTbl(ctFile);
-	GtbFile.Read(&ofsTbl[0], tblSize);
+	std::vector<u32> offset_table(num_files);
+	gtb_file.Read(offset_table.data(), table_size);
 
 	// Determine the size of the filename table
-	DWORD fnTblSize = GtbFile.GetFileSize() - 4 - tblSize * 2;
+	const u32 file_name_table_size = gtb_file.GetFileSize() - 4 - table_size * 2;
 
 	// Get the gtb file from the filename table
-	YCMemory<char> fnTbl(fnTblSize);
-	GtbFile.Read(&fnTbl[0], fnTblSize);
+	std::vector<char> file_name_table(file_name_table_size);
+	gtb_file.Read(file_name_table.data(), file_name_table.size());
 
-	LPSTR pfnTbl = &fnTbl[0];
+	const char* file_name_table_ptr = file_name_table.data();
 
-	for (DWORD i = 0; i < ctFile; i++)
+	for (size_t i = 0; i < num_files; i++)
 	{
-		SFileInfo infFile;
-		infFile.name = pfnTbl;
-		infFile.name += _T(".dwq"); // dwq is archived within the gtb
-		infFile.start = ofsTbl[i];
-		infFile.end = (i + 1 == ctFile) ? pclArc->GetArcSize() : ofsTbl[i+1]; // End-of-file position is the very end of the gpk file
-		infFile.sizeCmp = infFile.end - infFile.start;
-		infFile.sizeOrg = infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name_table_ptr;
+		file_info.name += _T(".dwq"); // dwq is archived within the gtb
+		file_info.start = offset_table[i];
+		file_info.end = (i + 1 == num_files) ? archive->GetArcSize() : offset_table[i + 1]; // End-of-file position is the very end of the gpk file
+		file_info.sizeCmp = file_info.end - file_info.start;
+		file_info.sizeOrg = file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		pfnTbl += infFile.name.GetLength() - 3;
+		file_name_table_ptr += file_info.name.GetLength() - 3;
 	}
 
 	return true;
 }
 
-bool CCyc::MountVpk(CArcFile* pclArc)
+bool CCyc::MountVpk(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".vpk"))
+	if (archive->GetArcExten() != _T(".vpk"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Get vtb file path
-	TCHAR szVtbPath[MAX_PATH];
-	lstrcpy(szVtbPath, pclArc->GetArcPath());
-	PathRenameExtension(szVtbPath, _T(".vtb"));
+	TCHAR vtb_path[MAX_PATH];
+	lstrcpy(vtb_path, archive->GetArcPath());
+	PathRenameExtension(vtb_path, _T(".vtb"));
 	
 	// Open vtb file
-	CFile VtbFile;
-	if (VtbFile.Open(szVtbPath, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	CFile vtb_file;
+	if (vtb_file.Open(vtb_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
 		return false;
 
 	// Read vtb file
-	DWORD vtbSize = VtbFile.GetFileSize();
-	YCMemory<BYTE> vtb(vtbSize);
-	VtbFile.Read(&vtb[0], vtbSize);
+	const size_t vtb_size = vtb_file.GetFileSize();
+	std::vector<u8> vtb(vtb_size);
+	vtb_file.Read(vtb.data(), vtb.size());
 
-	LPBYTE pvtb = &vtb[0];
+	const u8* vtb_ptr = vtb.data();
 
 	while (true)
 	{
-		char szFileTitle[12];
-		memcpy( szFileTitle, pvtb, 8 );
-		szFileTitle[8] = '\0';
+		char file_name[12];
+		memcpy(file_name, vtb_ptr, 8);
+		file_name[8] = '\0';
 
-		SFileInfo infFile;
-		infFile.name = szFileTitle;
-		infFile.name += _T(".vaw");
-		infFile.start = *(LPDWORD)&pvtb[8];
-		infFile.end = *(LPDWORD)&pvtb[20];
-		infFile.sizeCmp = infFile.end - infFile.start;
-		infFile.sizeOrg = infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.name += _T(".vaw");
+		file_info.start = *reinterpret_cast<const u32*>(&vtb_ptr[8]);
+		file_info.end = *reinterpret_cast<const u32*>(&vtb_ptr[20]);
+		file_info.sizeCmp = file_info.end - file_info.start;
+		file_info.sizeOrg = file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		pvtb += 12;
-		if (pvtb[0] == _T('\0'))
+		vtb_ptr += 12;
+		if (vtb_ptr[0] == _T('\0'))
 			break;
 	}
 
 	return true;
 }
 
-bool CCyc::MountDwq(CArcFile* pclArc)
+bool CCyc::MountDwq(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".dwq"))
+	if (archive->GetArcExten() != _T(".dwq"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CCyc::MountWgq(CArcFile* pclArc)
+bool CCyc::MountWgq(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".wgq"))
+	if (archive->GetArcExten() != _T(".wgq"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CCyc::MountVaw(CArcFile* pclArc)
+bool CCyc::MountVaw(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".vaw"))
+	if (archive->GetArcExten() != _T(".vaw"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CCyc::MountXtx(CArcFile* pclArc)
+bool CCyc::MountXtx(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".xtx"))
+	if (archive->GetArcExten() != _T(".xtx"))
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-bool CCyc::MountFxf(CArcFile* pclArc)
+bool CCyc::MountFxf(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".fxf"))
+	if (archive->GetArcExten() != _T(".fxf"))
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
-
-///////////////////////////////////////////////////////////////////////////
-// Decode
-///////////////////////////////////////////////////////////////////////////
-bool CCyc::Decode(CArcFile* pclArc)
+bool CCyc::Decode(CArcFile* archive)
 {
-	if (DecodeDwq(pclArc))
+	if (DecodeDwq(archive))
 		return true;
-	if (DecodeWgq(pclArc))
+	if (DecodeWgq(archive))
 		return true;
-	if (DecodeVaw(pclArc))
+	if (DecodeVaw(archive))
 		return true;
-	if (DecodeXtx(pclArc))
+	if (DecodeXtx(archive))
 		return true;
-	if (DecodeFxf(pclArc))
+	if (DecodeFxf(archive))
 		return true;
 
 	return false;
 }
 
-bool CCyc::DecodeDwq(CArcFile* pclArc)
+bool CCyc::DecodeDwq(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("DWQ"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(file_info->sizeCmp);
-	pclArc->Read(&buf[0], file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->sizeCmp);
+	archive->Read(buffer.data(), buffer.size());
 
 	// JPEG + MASK(PACKBMP)
-	if (memcmp(&buf[0], "JPEG+MASK", 9) == 0)
+	if (memcmp(buffer.data(), "JPEG+MASK", 9) == 0)
 	{
-		pclArc->OpenFile(_T(".jpg"));
-		pclArc->WriteFile(&buf[64], *(LPDWORD)&buf[32]);
+		archive->OpenFile(_T(".jpg"));
+		archive->WriteFile(&buffer[64], *reinterpret_cast<const u32*>(&buffer[32]));
 
 		//CJpg jpg;
-		//DWORD dstSize;
-		//LPBYTE dst = jpg.Decomp(&buf[64], *(LPDWORD)&buf[32], &dstSize);
+		//u32 dst_size;
+		//u8* dst = jpg.Decomp(&buffer[64], *reinterpret_cast<const u32*>(&buffer[32]), &dst_size);
 
-		//DWORD maskOfs = 64 + *(LPDWORD)&buf[32];
+		//u32 maskOfs = 64 + *reinterpret_cast<const u32*>(&buffer[32]);
 
 		//// Get BMP header
-		//LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&buf[maskOfs];
-		//LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&buf[maskOfs+14];
+		//const auto* file_header = reinterpret_cast<const BITMAPFILEHEADER*>(&buffer[maskOfs]);
+		//const auto* info_header = reinterpret_cast<const BITMAPINFOHEADER*>(&buffer[maskOfs+14]);
 
 		//// Ensure output buffer
-		//DWORD maskSize = fHed->bfSize - fHed->bfOffBits;
-		//YCMemory<BYTE> mask(maskSize);
+		//const u32 mask_size = file_header->bfSize - file_header->bfOffBits;
+		//std::vector<u8> mask(mask_size);
 
 		//// RLE Decompression
-		//DecompRLE(&mask[0], &buf[maskOfs+fHed->bfOffBits], iHed->biWidth, iHed->biHeight);
+		//DecompRLE(mask.data(), &buffer[maskOfs + file_header->bfOffBits], info_header->biWidth, info_header->biHeight);
 
 		//// Alpha Blend
-		//jpg.AlphaBlend(dst, &mask[0], 0x00);
+		//jpg.AlphaBlend(dst, mask.data(), 0x00);
 
 		//// Output
 		//CImage image;
-		//image.Init(pclArc, jpg.GetWidth(), jpg.GetHeight(), 24);
-		//image.WriteReverse(dst, dstSize);
+		//image.Init(archive, jpg.GetWidth(), jpg.GetHeight(), 24);
+		//image.WriteReverse(dst, dst_size);
 	}
 	// JPEG
-	else if (memcmp(&buf[0], "JPEG", 4) == 0)
+	else if (memcmp(buffer.data(), "JPEG", 4) == 0)
 	{
-		pclArc->OpenFile(_T(".jpg"));
-		pclArc->WriteFile(&buf[64], *(LPDWORD)&buf[32]);
+		archive->OpenFile(_T(".jpg"));
+		archive->WriteFile(&buffer[64], *reinterpret_cast<u32*>(&buffer[32]));
 	}
 	// BMP(RGB)
-	else if (memcmp(&buf[0], "BMP", 3) == 0)
+	else if (memcmp(buffer.data(), "BMP", 3) == 0)
 	{
 		// Get BMP Header
-		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&buf[64];
-		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&buf[78];
+		const auto* file_header = reinterpret_cast<const BITMAPFILEHEADER*>(&buffer[64]);
+		const auto* info_header = reinterpret_cast<const BITMAPINFOHEADER*>(&buffer[78]);
 
 		// BGR has to sort along with RGB
-		if (iHed->biBitCount == 24)
-			RGBtoBGR(&buf[64+54], iHed->biWidth, iHed->biHeight);
+		if (info_header->biBitCount == 24)
+			RGBtoBGR(&buffer[64 + 54], info_header->biWidth, info_header->biHeight);
 
 		// Deviation of the size adjustment
-		DWORD dstSize = fHed->bfSize - fHed->bfOffBits;
-		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != iHed->biSizeImage)
-			dstSize -= 2;
+		u32 dst_size = file_header->bfSize - file_header->bfOffBits;
+		if (((info_header->biWidth * (info_header->biBitCount >> 3) + 3) & 0xFFFFFFFC) * info_header->biHeight != info_header->biSizeImage)
+			dst_size -= 2;
 
 		// Output
 		CImage image;
-		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &buf[64+54], fHed->bfOffBits - 54);
-		image.WriteReverse(&buf[64 + fHed->bfOffBits], dstSize);
+		image.Init(archive, info_header->biWidth, info_header->biHeight, info_header->biBitCount, &buffer[64 + 54], file_header->bfOffBits - 54);
+		image.WriteReverse(&buffer[64 + file_header->bfOffBits], dst_size);
 	}
 	// PACKBMP
-	else if (memcmp(&buf[0], "PACKBMP", 7) == 0)
+	else if (memcmp(buffer.data(), "PACKBMP", 7) == 0)
 	{
 		// Get BMP Header
-		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&buf[64];
-		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&buf[78];
+		const auto* file_header = reinterpret_cast<const BITMAPFILEHEADER*>(&buffer[64]);
+		const auto* info_header = reinterpret_cast<const BITMAPINFOHEADER*>(&buffer[78]);
 
 		// Ensure output buffer
-		DWORD dstSize = fHed->bfSize - fHed->bfOffBits;
-		YCMemory<BYTE> dst(dstSize);
+		const u32 dst_size = file_header->bfSize - file_header->bfOffBits;
+		std::vector<u8> dst(dst_size);
 
 		// RLE Decompression
-		DecompRLE(&dst[0], &buf[64+fHed->bfOffBits], iHed->biWidth, iHed->biHeight);
+		DecompRLE(dst.data(), &buffer[64 + file_header->bfOffBits], info_header->biWidth, info_header->biHeight);
 
 		// Output
 		CImage image;
-		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &buf[64+54], fHed->bfOffBits - 54);
-		image.WriteReverse(&dst[0], dstSize - 1); // Dummy output data
+		image.Init(archive, info_header->biWidth, info_header->biHeight, info_header->biBitCount, &buffer[64 + 54], file_header->bfOffBits - 54);
+		image.WriteReverse(dst.data(), dst_size - 1); // Dummy output data
 	}
 	// BMP
-	else if (memcmp(&buf[64], "BM", 2) == 0)
+	else if (memcmp(&buffer[64], "BM", 2) == 0)
 	{
 		// Get BMP Header
-		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&buf[64];
-		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&buf[78];
+		const auto* file_header = reinterpret_cast<const BITMAPFILEHEADER*>(&buffer[64]);
+		const auto* info_header = reinterpret_cast<const BITMAPINFOHEADER*>(&buffer[78]);
 
-		if (memcmp(&buf[48], "PACKTYPE=1", 10) == 0)
+		if (memcmp(&buffer[48], "PACKTYPE=1", 10) == 0)
 		{
 			// Ensure output buffer
-			DWORD dstSize = fHed->bfSize - fHed->bfOffBits;
-			YCMemory<BYTE> dst(dstSize);
+			const u32 dst_size = file_header->bfSize - file_header->bfOffBits;
+			std::vector<u8> dst(dst_size);
 
 			// RLE Decompression
-			DecompRLE(&dst[0], &buf[64+fHed->bfOffBits], iHed->biWidth, iHed->biHeight);
+			DecompRLE(dst.data(), &buffer[64 + file_header->bfOffBits], info_header->biWidth, info_header->biHeight);
 
 			// Output
 			CImage image;
-			image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &buf[64+54], fHed->bfOffBits - 54);
-			image.WriteReverse(&dst[0], dstSize - 1); // Dummy output data
+			image.Init(archive, info_header->biWidth, info_header->biHeight, info_header->biBitCount, &buffer[64 + 54], file_header->bfOffBits - 54);
+			image.WriteReverse(dst.data(), dst_size - 1); // Dummy output data
 		}
 		else
 		{
 			// Output
 			CImage image;
-			image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &buf[64+54], fHed->bfOffBits - 54);
-			image.WriteReverse(&buf[64 + fHed->bfOffBits], fHed->bfSize - fHed->bfOffBits);
+			image.Init(archive, info_header->biWidth, info_header->biHeight, info_header->biBitCount, &buffer[64 + 54], file_header->bfOffBits - 54);
+			image.WriteReverse(&buffer[64 + file_header->bfOffBits], file_header->bfSize - file_header->bfOffBits);
 		}
 	}
 	// Other
 	else
 	{
-		pclArc->OpenFile(_T(".dwq"));
-		pclArc->WriteFile(&buf[0], file_info->sizeCmp);
+		archive->OpenFile(_T(".dwq"));
+		archive->WriteFile(buffer.data(), buffer.size());
 	}
 
 	return true;
 }
 
-bool CCyc::DecodeWgq(CArcFile* pclArc)
+bool CCyc::DecodeWgq(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("WGQ"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(file_info->sizeCmp);
-	pclArc->Read(&buf[0], file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->sizeCmp);
+	archive->Read(buffer.data(), buffer.size());
 
 	// Output
-	pclArc->OpenFile(_T(".ogg"));
-	pclArc->WriteFile(&buf[64], file_info->sizeCmp);
+	archive->OpenFile(_T(".ogg"));
+	archive->WriteFile(&buffer[64], file_info->sizeCmp);
 
 	return true;
 }
 
-bool CCyc::DecodeVaw(CArcFile* pclArc)
+bool CCyc::DecodeVaw(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("VAW"))
 		return false;
-	if (memcmp(&pclArc->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(file_info->sizeCmp);
-	pclArc->Read(&buf[0], file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->sizeCmp);
+	archive->Read(buffer.data(), buffer.size());
 
 	// ogg
-	if (memcmp(&buf[108], "OggS", 4) == 0)
+	if (memcmp(&buffer[108], "OggS", 4) == 0)
 	{
-		pclArc->OpenFile(_T(".ogg"));
-		pclArc->WriteFile(&buf[108], file_info->sizeCmp - 108);
+		archive->OpenFile(_T(".ogg"));
+		archive->WriteFile(&buffer[108], file_info->sizeCmp - 108);
 	}
 	// wav
 	else
 	{
-		pclArc->OpenFile(_T(".wav"));
-		pclArc->WriteFile(&buf[64], file_info->sizeCmp - 64);
+		archive->OpenFile(_T(".wav"));
+		archive->WriteFile(&buffer[64], file_info->sizeCmp - 64);
 	}
 
 	return true;
 }
 
-bool CCyc::DecodeXtx(CArcFile* pclArc)
+bool CCyc::DecodeXtx(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("XTX"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(file_info->sizeCmp);
-	pclArc->Read(&buf[0], file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->sizeCmp);
+	archive->Read(buffer.data(), buffer.size());
 
 	// Output
-	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&buf[0], file_info->sizeCmp);
+	archive->OpenScriptFile();
+	archive->WriteFile(buffer.data(), buffer.size());
 
 	return true;
 }
 
-bool CCyc::DecodeFxf(CArcFile* pclArc)
+bool CCyc::DecodeFxf(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("FXF"))
 		return false;
 
 	// Read
-	YCMemory<BYTE> buf(file_info->sizeCmp);
-	pclArc->Read(&buf[0], file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->sizeCmp);
+	archive->Read(buffer.data(), buffer.size());
 
 	// Decryption
-	for (DWORD i = 0; i < file_info->sizeCmp; i++)
-		buf[i] ^= 0xFF;
+	for (size_t i = 0; i < buffer.size(); i++)
+		buffer[i] ^= 0xFF;
 
 	// Output
-	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&buf[0], file_info->sizeCmp);
+	archive->OpenScriptFile();
+	archive->WriteFile(buffer.data(), buffer.size());
 
 	return true;
 }
 
-void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
+void CCyc::DecompRLE(u8* dst, const u8* src, s32 width, s32 height)
 {
 	// Ensure a 1 row/line buffer
-	YCMemory<BYTE> dataWidth(width);
-	YCMemory<BYTE> predataWidth(width);
-	memset(&predataWidth[0], 0, width);
+	std::vector<u8> data_width(width);
+	std::vector<u8> predataWidth(width);
 
 	for (int i = 0; i < height; i++)
 	{
 		// Pointer to the line buffer
-		LPBYTE pdataWidth = &dataWidth[0];
+		u8* data_width_ptr = data_width.data();
 
 		// Continue to process the rows
 		for (int j = 0; j < width; )
 		{
 			// Get sequential input 
-			BYTE data = *src++;
+			const u8 data = *src++;
 
 			// RLE Compression if data is zero
 			if (data == 0)
 			{
 				// Following input data is written sequentially
-				BYTE len = *src++;
+				const u8 len = *src++;
 
 				// RLE Decompression
-				std::fill(pdataWidth, pdataWidth + len, data);
+				std::fill(data_width_ptr, data_width_ptr + len, data);
 
 				// Proceed with decompressed length
 				j += len;
@@ -447,7 +439,7 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
 			// Entered into the dictionary as it is otherwise non-compressed data
 			else
 			{
-				*pdataWidth++ = data;
+				*data_width_ptr++ = data;
 				j++;
 			}
 		}
@@ -455,37 +447,37 @@ void CCyc::DecompRLE(LPBYTE dst, LPBYTE src, LONG width, LONG height)
 		// Decoded using the data of one row of data before this line
 		for (int j = 0; j < width; j++)
 		{
-			dataWidth[j] ^= predataWidth[j];
+			data_width[j] ^= predataWidth[j];
 			// For use in decoding of the next line, save the data in this row
-			predataWidth[j] = dataWidth[j];
+			predataWidth[j] = data_width[j];
 		}
 
 		// Output the decoded data to the output buffer.
-		pdataWidth = &dataWidth[0];
-		std::copy(pdataWidth, pdataWidth + width, dst);
+		data_width_ptr = data_width.data();
+		std::copy(data_width_ptr, data_width_ptr + width, dst);
 	}
 }
 
-void CCyc::RGBtoBGR(LPBYTE buf, LONG width, LONG height)
+void CCyc::RGBtoBGR(u8* buffer, s32 width, s32 height)
 {
 	// Seek the width
-	LONG lwidth = width * 3;
+	const s32 lwidth = width * 3;
 	// Compute padding width
-	LONG lwidth_rev = (lwidth + 3) & 0xFFFFFFFC;
+	const s32 lwidth_rev = (lwidth + 3) & 0xFFFFFFFC;
 
 	for (int y = 0; y < height; y++)
 	{
 		// Replace the R and B
 		for (int x = 0; x < lwidth; x += 3)
 		{
-			std::swap(buf[0], buf[2]);
-			buf += 3;
+			std::swap(buffer[0], buffer[2]);
+			buffer += 3;
 		}
 
 		// Skip padding
 		for (int x = lwidth; x < lwidth_rev; x++)
 		{
-			buf++;
+			buffer++;
 		}
 	}
 }
