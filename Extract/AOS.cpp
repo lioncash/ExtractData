@@ -4,50 +4,50 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CAOS::Mount(CArcFile* pclArc)
+bool CAOS::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".aos"))
+	if (archive->GetArcExten() != _T(".aos"))
 		return false;
 
 	// Unknown 4 bytes
-	pclArc->SeekHed(4);
+	archive->SeekHed(4);
 
 	// Get offset
-	DWORD dwOffset;
-	pclArc->Read(&dwOffset, 4);
+	u32 offset;
+	archive->ReadU32(&offset);
 
 	// Get index size
-	DWORD dwIndexSize;
-	pclArc->Read(&dwIndexSize, 4);
+	u32 index_size;
+	archive->ReadU32(&index_size);
 
 	// Get archive filename
-	char szArchiveName[261];
-	pclArc->Read(szArchiveName, 261);
-	if (pclArc->GetArcName() != szArchiveName)
+	char archive_name[261];
+	archive->Read(archive_name, 261);
+	if (archive->GetArcName() != archive_name)
 	{
 		// Archive filename is different
 
-		pclArc->SeekHed();
+		archive->SeekHed();
 		return false;
 	}
 
 	// Get index
-	YCMemory<BYTE> clmIndex(dwIndexSize);
-	pclArc->Read(&clmIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Get file info
-	for (DWORD i = 0; i < dwIndexSize; i += 40)
+	for (size_t i = 0; i < index.size(); i += 40)
 	{
-		SFileInfo stFileInfo;
-		stFileInfo.name.Copy((char*)&clmIndex[i], 32);
-		stFileInfo.start = *(DWORD*) &clmIndex[i + 32] + dwOffset;
-		stFileInfo.sizeCmp = *(DWORD*) &clmIndex[i + 36];
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), 32);
+		file_info.start = *reinterpret_cast<const u32*>(&index[i + 32]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + 36]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -55,25 +55,25 @@ bool CAOS::Mount(CArcFile* pclArc)
 
 /// General decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CAOS::Decode(CArcFile* pclArc)
+bool CAOS::Decode(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".aos"))
+	if (archive->GetArcExten() != _T(".aos"))
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format == _T("ABM"))
-		return DecodeABM(pclArc);
+		return DecodeABM(archive);
 
 	// Image mask
 	if (file_info->format == _T("MSK"))
-		return DecodeMask(pclArc);
+		return DecodeMask(archive);
 
 	// Script
 	if (file_info->format == _T("SCR"))
-		return DecodeScript(pclArc);
+		return DecodeScript(archive);
 
 	return false;
 }
@@ -81,96 +81,90 @@ bool CAOS::Decode(CArcFile* pclArc)
 
 /// ABM Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CAOS::DecodeABM(CArcFile* pclArc)
+bool CAOS::DecodeABM(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read data
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
 	// Get bitmap header
-	BITMAPFILEHEADER* pstbfhSrc = (BITMAPFILEHEADER*) &clmSrc[0];
-	BITMAPINFOHEADER* pstbihSrc = (BITMAPINFOHEADER*) &clmSrc[14];
+	const auto* bitmap_file_header = (const BITMAPFILEHEADER*) &src[0];
+	const auto* bitmap_info_header = (const BITMAPINFOHEADER*) &src[14];
 
-	CImage            clImage;
-	YCMemory<BYTE>    clmDst;
-	YCString          clsLastName;
-	DWORD             dwDstSize;
-	DWORD             dwFrames;
-	DWORD             dwOffsetToData;
-	DWORD             dwSrcPtr = 0;
-	DWORD             dwDstPtr = 0;
+	CImage          image;
+	std::vector<u8> dst;
+	u32             dst_size;
 
-	switch (pstbihSrc->biBitCount)
+	switch (bitmap_info_header->biBitCount)
 	{
 	case 1: // Multi-frame
-		dwFrames = *(DWORD*) &clmSrc[58];
-		dwOffsetToData = *(DWORD*) &clmSrc[66];
+	{
+		YCString last_name;
+		const u32 frames = *(const u32*)&src[58];
+		const u32 data_offset = *(const u32*)&src[66];
 
-		dwDstSize = (pstbihSrc->biWidth * pstbihSrc->biHeight * 4);
-		clmDst.resize(dwDstSize);
+		dst_size = bitmap_info_header->biWidth * bitmap_info_header->biHeight * 4;
+		dst.resize(dst_size);
 
 		// Multiple files
-		if (dwFrames >= 2)
+		if (frames >= 2)
 		{
-			clsLastName.Format(_T("_000"));
+			last_name.Format(_T("_000"));
 		}
 
 		// Decompression
-		dwSrcPtr = dwOffsetToData;
-		for (DWORD i = 0; i < dwDstSize; i += 4)
+		u32 src_ptr = data_offset;
+		for (size_t i = 0; i < dst.size(); i += 4)
 		{
-			clmDst[i + 0] = clmSrc[dwSrcPtr++];
-			clmDst[i + 1] = clmSrc[dwSrcPtr++];
-			clmDst[i + 2] = clmSrc[dwSrcPtr++];
-			clmDst[i + 3] = 0xFF;
+			dst[i + 0] = src[src_ptr++];
+			dst[i + 1] = src[src_ptr++];
+			dst[i + 2] = src[src_ptr++];
+			dst[i + 3] = 0xFF;
 		}
 
 		// Output
-		clImage.Init(pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, 32, nullptr, 0, clsLastName);
-		clImage.WriteReverse(&clmDst[0], dwDstSize);
-		clImage.Close();
+		image.Init(archive, bitmap_info_header->biWidth, bitmap_info_header->biHeight, 32, nullptr, 0, last_name);
+		image.WriteReverse(dst.data(), dst.size());
+		image.Close();
 
-		// 
-
-		for (DWORD i = 1; i < dwFrames; i++)
+		for (u32 i = 1; i < frames; i++)
 		{
-			DWORD dwOffsetToFrame = *(DWORD*) &clmSrc[70 + (i - 1) * 4];
-			clsLastName.Format(_T("_%03d"), i);
+			const u32 frame_offset = *(const u32*)&src[70 + (i - 1) * 4];
+			last_name.Format(_T("_%03u"), i);
 
 			// Decompression
-			ZeroMemory(&clmDst[0], dwDstSize);
-			DecompABM(&clmDst[0], dwDstSize, &clmSrc[dwOffsetToFrame], (dwSrcSize - dwOffsetToFrame));
+			std::fill(dst.begin(), dst.end(), 0);
+			DecompABM(dst.data(), dst.size(), &src[frame_offset], src.size() - frame_offset);
 
 			// Output
-			clImage.Init(pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, 32, NULL, 0, clsLastName);
-			clImage.WriteReverse(&clmDst[0], dwDstSize, FALSE);
-			clImage.Close();
+			image.Init(archive, bitmap_info_header->biWidth, bitmap_info_header->biHeight, 32, nullptr, 0, last_name);
+			image.WriteReverse(dst.data(), dst.size(), false);
+			image.Close();
 		}
 		break;
+	}
 
 	case 32: // 32bit
-
-		dwDstSize = (pstbihSrc->biWidth * pstbihSrc->biHeight * 4);
-		clmDst.resize(dwDstSize);
+		dst_size = bitmap_info_header->biWidth * bitmap_info_header->biHeight * 4;
+		dst.resize(dst_size);
 
 		// Decompression
-		DecompABM(&clmDst[0], dwDstSize, &clmSrc[54], (dwSrcSize - 54));
+		DecompABM(dst.data(), dst.size(), &src[54], src.size() - 54);
 
 		// Output
-		clImage.Init(pclArc, pstbihSrc->biWidth, pstbihSrc->biHeight, pstbihSrc->biBitCount);
-		clImage.WriteReverse(&clmDst[0], dwDstSize);
-		clImage.Close();
+		image.Init(archive, bitmap_info_header->biWidth, bitmap_info_header->biHeight, bitmap_info_header->biBitCount);
+		image.WriteReverse(dst.data(), dst.size());
+		image.Close();
 		break;
 
 	default: // Other
-		pclArc->OpenFile();
-		pclArc->WriteFile(&clmSrc[0], dwSrcSize);
-		pclArc->CloseFile();
+		archive->OpenFile();
+		archive->WriteFile(src.data(), src.size());
+		archive->CloseFile();
 	}
 
 	return true;
@@ -178,88 +172,86 @@ bool CAOS::DecodeABM(CArcFile* pclArc)
 
 /// Decode Image Mask
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CAOS::DecodeMask(CArcFile* pclArc)
+bool CAOS::DecodeMask(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read Data
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, &clmSrc[0]);
-	clImage.Write(dwSrcSize);
-	clImage.Close();
+	CImage image;
+	image.Init(archive, src.data());
+	image.Write(src.size());
+	image.Close();
 
 	return true;
 }
 
 /// Decode Script
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CAOS::DecodeScript(CArcFile* pclArc)
+bool CAOS::DecodeScript(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read compressed data
-	DWORD dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	const u32 src_size = file_info->sizeCmp;
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src.size());
 
 	// Buffer allocation for extraction
-	DWORD dwDstSize = *(DWORD*) &clmSrc[0];
-	YCMemory<BYTE> clmDst(dwDstSize);
+	const u32 dst_size = *(const u32*) &src[0];
+	std::vector<u8> dst(dst_size);
 
 	// Decompression
-	DecompScript(&clmDst[0], dwDstSize, &clmSrc[4], (dwSrcSize - 4));
+	DecompScript(dst.data(), dst.size(), &src[4], src_size - 4);
 
 	// Output
-	pclArc->OpenScriptFile();
-	pclArc->WriteFile(&clmDst[0], dwDstSize, dwSrcSize);
-	pclArc->CloseFile();
+	archive->OpenScriptFile();
+	archive->WriteFile(dst.data(), dst.size(), src_size);
+	archive->CloseFile();
 
 	return true;
 }
 
 /// ABM Decompression
 ///
-/// @param pbtDst    Destination
-/// @param dwDstSize Destination size
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-bool CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+bool CAOS::DecompABM(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwAlphaCount = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	u32 alpha_count = 0;
 
-	while( dwDstPtr < dwDstSize )
+	while (dst_ptr < dst_size)
 	{
-		BYTE btCurrentSrc = pbtSrc[dwSrcPtr++];
+		const u8 current_src = src[src_ptr++];
 
-		switch( btCurrentSrc )
+		switch (current_src)
 		{
 		case 0: // Is 0x00
 		{
-			DWORD dwLength = pbtSrc[dwSrcPtr++];
+			const u32 length = src[src_ptr++];
 
-			for( DWORD i = 0 ; i < dwLength ; i++ )
+			for (size_t i = 0; i < length; i++)
 			{
-				pbtDst[dwDstPtr++] = 0;
+				dst[dst_ptr++] = 0;
 
-				dwAlphaCount++;
+				alpha_count++;
 
-				if( dwAlphaCount == 3 )
+				if (alpha_count == 3)
 				{
-					pbtDst[dwDstPtr++] = 0;
-
-					dwAlphaCount = 0;
+					dst[dst_ptr++] = 0;
+					alpha_count = 0;
 				}
 			}
 
@@ -268,34 +260,31 @@ bool CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dw
 
 		case 255: // Is 0xFF
 		{
+			const u32 length = src[src_ptr++];
 
-			DWORD dwLength = pbtSrc[dwSrcPtr++];
-
-			for( DWORD i = 0 ; i < dwLength ; i++ )
+			for (size_t i = 0; i < length; i++)
 			{
-				pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
+				dst[dst_ptr++] = src[src_ptr++];
 
-				dwAlphaCount++;
+				alpha_count++;
 
-				if( dwAlphaCount == 3 )
+				if (alpha_count == 3)
 				{
-					pbtDst[dwDstPtr++] = 0xFF;
-
-					dwAlphaCount = 0;
+					dst[dst_ptr++] = 0xFF;
+					alpha_count = 0;
 				}
 			}
 			break;
 		}
 
 		default: // Other
-			pbtDst[dwDstPtr++] = pbtSrc[dwSrcPtr++];
-			dwAlphaCount++;
+			dst[dst_ptr++] = src[src_ptr++];
+			alpha_count++;
 
-			if( dwAlphaCount == 3 )
+			if (alpha_count == 3)
 			{
-				pbtDst[dwDstPtr++] = btCurrentSrc;
-
-				dwAlphaCount = 0;
+				dst[dst_ptr++] = current_src;
+				alpha_count = 0;
 			}
 		}
 	}
@@ -305,141 +294,140 @@ bool CAOS::DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dw
 
 /// Decompress Script
 ///
-/// @param pbtDst    Destination
-/// @param dwDstSize Destination size
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-bool CAOS::DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+bool CAOS::DecompScript(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
 	// Construct huffman table
-	DWORD adwTableOfBit0[511] = {};
-	DWORD adwTableOfBit1[511] = {};
-	DWORD dwSrcPtr = 0;
-	DWORD dwTablePtr = 256;
-	DWORD dwCurrentSrc = 0;
-	DWORD dwBitShift = 0;
+	u32 bit0_table[511] = {};
+	u32 bit1_table[511] = {};
+	size_t src_ptr = 0;
+	size_t table_ptr = 256;
+	u32 current_src = 0;
+	u32 bit_shift = 0;
 
-	dwTablePtr = CreateHuffmanTable(adwTableOfBit0, adwTableOfBit1, pbtSrc, &dwSrcPtr, &dwTablePtr, &dwCurrentSrc, &dwBitShift);
+	table_ptr = CreateHuffmanTable(bit0_table, bit1_table, src, &src_ptr, &table_ptr, &current_src, &bit_shift);
 
 	// Decompress
-	DecompHuffman(pbtDst, dwDstSize, adwTableOfBit0, adwTableOfBit1, &pbtSrc[dwSrcPtr], dwTablePtr, dwCurrentSrc, dwBitShift);
+	DecompHuffman(dst, dst_size, bit0_table, bit1_table, &src[src_ptr], table_ptr, current_src, bit_shift);
 
 	return true;
 }
 
 /// Construct Huffman Table
 ///
-/// @param pdwTableOfBit0 bit0 table
-/// @param pdwTableOfBit1 bit1 table
-/// @param pbtSrc         Compressed data
-/// @param pdwSrcPtr      Compressed data pointer
-/// @param pdwTablePtr    Table pointer
-/// @param pdwCurrentSrc  Current data
-/// @param pdwBitShift    Bit shift
+/// @param bit0_table  bit0 table
+/// @param bit1_table  bit1 table
+/// @param src         Compressed data
+/// @param src_ptr     Compressed data pointer
+/// @param table_ptr   Table pointer
+/// @param current_src Current data
+/// @param bit_shift   Bit shift
 ///
-DWORD CAOS::CreateHuffmanTable(DWORD* pdwTableOfBit0, DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD* pdwSrcPtr, DWORD* pdwTablePtr, DWORD* pdwCurrentSrc, DWORD* pdwBitShift)
+u32 CAOS::CreateHuffmanTable(u32* bit0_table, u32* bit1_table, const u8* src, size_t* src_ptr, size_t* table_ptr, u32* current_src, u32* bit_shift)
 {
-	DWORD dwReturn = 0;
-	DWORD dwTablePtr;
+	u32 return_value = 0;
 
-	if (*pdwBitShift == 0)
+	if (*bit_shift == 0)
 	{
 		// Read 8-bits
 
-		*pdwCurrentSrc = pbtSrc[(*pdwSrcPtr)++];
-		*pdwBitShift = 8;
+		*current_src = src[(*src_ptr)++];
+		*bit_shift = 8;
 	}
 
-	(*pdwBitShift) -= 1;
+	*bit_shift -= 1;
 
 	// Bit 1
-	if ((*pdwCurrentSrc >> *pdwBitShift) & 1)
+	if ((*current_src >> *bit_shift) & 1)
 	{
-		dwTablePtr = *pdwTablePtr;
+		const u32 table_ptr_value = *table_ptr;
 
-		(*pdwTablePtr) += 1;
+		*table_ptr += 1;
 
-		if (dwTablePtr < 511)
+		if (table_ptr_value < 511)
 		{
-			pdwTableOfBit0[dwTablePtr] = CreateHuffmanTable(pdwTableOfBit0, pdwTableOfBit1, pbtSrc, pdwSrcPtr, pdwTablePtr, pdwCurrentSrc, pdwBitShift);
-			pdwTableOfBit1[dwTablePtr] = CreateHuffmanTable(pdwTableOfBit0, pdwTableOfBit1, pbtSrc, pdwSrcPtr, pdwTablePtr, pdwCurrentSrc, pdwBitShift);
+			bit0_table[table_ptr_value] = CreateHuffmanTable(bit0_table, bit1_table, src, src_ptr, table_ptr, current_src, bit_shift);
+			bit1_table[table_ptr_value] = CreateHuffmanTable(bit0_table, bit1_table, src, src_ptr, table_ptr, current_src, bit_shift);
 
-			dwReturn = dwTablePtr;
+			return_value = table_ptr_value;
 		}
 	}
 	else // Bit 0
 	{
-		DWORD dwBitShiftTemp = 8;
-		DWORD dwResult = 0;
+		u32 bit_shift_temp = 8;
+		u32 result = 0;
 
-		while (dwBitShiftTemp > *pdwBitShift)
+		while (bit_shift_temp > *bit_shift)
 		{
-			DWORD dwWork = ((1 << *pdwBitShift) - 1) & *pdwCurrentSrc;
+			const u32 work = ((1 << *bit_shift) - 1) & *current_src;
 
-			dwBitShiftTemp -= *pdwBitShift;
+			bit_shift_temp -= *bit_shift;
 
-			*pdwCurrentSrc = pbtSrc[(*pdwSrcPtr)++];
+			*current_src = src[(*src_ptr)++];
 
-			dwResult |= (dwWork << dwBitShiftTemp);
+			result |= work << bit_shift_temp;
 
-			*pdwBitShift = 8;
+			*bit_shift = 8;
 		}
-		(*pdwBitShift) -= dwBitShiftTemp;
+		*bit_shift -= bit_shift_temp;
 
-		DWORD dwMask = (1 << dwBitShiftTemp) - 1;
-		dwReturn = ((*pdwCurrentSrc >> *pdwBitShift) & dwMask) | dwResult;
+		const u32 mask = (1 << bit_shift_temp) - 1;
+		return_value = ((*current_src >> *bit_shift) & mask) | result;
 	}
 
-	return dwReturn;
+	return return_value;
 }
 
 /// Huffman Decompression
 ///
-/// @param pbtDst         Destination
-/// @param dwDstSize      Destination size
-/// @param pdwTableOfBit0 bit0 table
-/// @param pdwTableOfBit1 bit1 table
-/// @param pbtSrc         Compressed data
-/// @param dwRoot         Table position reference
-/// @param dwCurrentSrc   Current data
-/// @param dwBitShift     Bit shift
+/// @param dst         Destination
+/// @param dst_size    Destination size
+/// @param bit0_table  bit0 table
+/// @param bit1_table  bit1 table
+/// @param src         Compressed data
+/// @param root        Table position reference
+/// @param current_src Current data
+/// @param bit_shift   Bit shift
 ///
-bool CAOS::DecompHuffman(BYTE* pbtDst, DWORD dwDstSize, const DWORD* pdwTableOfBit0, const DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD dwRoot, DWORD dwCurrentSrc, DWORD dwBitShift)
+bool CAOS::DecompHuffman(u8* dst, size_t dst_size, const u32* bit0_table, const u32* bit1_table, const u8* src, size_t root, u32 current_src, u32 bit_shift)
 {
-	if (dwDstSize <= 0)
+	if (dst_size <= 0)
 		return false;
 
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
-	while (dwDstPtr < dwDstSize)
+	while (dst_ptr < dst_size)
 	{
-		DWORD dwTablePtr = dwRoot;
+		size_t table_ptr = root;
 
-		while (dwTablePtr >= 256)
+		while (table_ptr >= 256)
 		{
-			if (dwBitShift == 0)
+			if (bit_shift == 0)
 			{
 				// Read 8-bits
-				dwCurrentSrc = pbtSrc[dwSrcPtr++];
-				dwBitShift = 8;
+				current_src = src[src_ptr++];
+				bit_shift = 8;
 			}
 
-			dwBitShift -= 1;
+			bit_shift -= 1;
 
 			// bit 1
-			if ((dwCurrentSrc >> dwBitShift) & 1)
+			if ((current_src >> bit_shift) & 1)
 			{
-				dwTablePtr = pdwTableOfBit1[dwTablePtr];
+				table_ptr = bit1_table[table_ptr];
 			}
 			else // bit 0
 			{
-				dwTablePtr = pdwTableOfBit0[dwTablePtr];
+				table_ptr = bit0_table[table_ptr];
 			}
 		}
 
-		pbtDst[dwDstPtr++] = (BYTE) dwTablePtr;
+		dst[dst_ptr++] = static_cast<u8>(table_ptr);
 	}
 
 	return true;

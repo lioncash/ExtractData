@@ -5,25 +5,25 @@
 class CAOS final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
 	struct SABMHeader
 	{
-		BITMAPFILEHEADER stBMPFileHeader; // Bitmap File Header
-		BITMAPINFOHEADER stBMPInfoHeader; // Bitmap Info Header
-		WORD             wUnknown[2];     // Unknown
-		DWORD            dwFrames;        // Number of frames
+		BITMAPFILEHEADER bmp_file_header; // Bitmap File Header
+		BITMAPINFOHEADER bmp_info_header; // Bitmap Info Header
+		u16              unknown[2];      // Unknown
+		u32              frames;          // Number of frames
 	};
 
-	bool DecodeABM(CArcFile* pclArc);
-	bool DecodeMask(CArcFile* pclArc);
-	bool DecodeScript(CArcFile* pclArc);
+	bool DecodeABM(CArcFile* archive);
+	bool DecodeMask(CArcFile* archive);
+	bool DecodeScript(CArcFile* archive);
 
-	bool DecompABM(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
-	bool DecompScript(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
+	bool DecompABM(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	bool DecompScript(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 
-	DWORD CreateHuffmanTable(DWORD* pdwTableOfBit0, DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD* pdwSrcPtr, DWORD* pdwTablePtr, DWORD* pdwCurrentSrc, DWORD* pdwBitShift);
-	bool DecompHuffman(BYTE* pbtDst, DWORD dwDstSize, const DWORD* pdwTableOfBit0, const DWORD* pdwTableOfBit1, const BYTE* pbtSrc, DWORD dwRoot, DWORD dwCurrentSrc, DWORD dwBitShift);
+	u32 CreateHuffmanTable(u32* bit0_table, u32* bit1_table, const u8* src, size_t* src_ptr, size_t* table_ptr, u32* current_src, u32* bit_shift);
+	bool DecompHuffman(u8* dst, size_t dst_size, const u32* bit0_table, const u32* bit1_table, const u8* src, size_t dwRoot, u32 current_src, u32 bit_shift);
 };
