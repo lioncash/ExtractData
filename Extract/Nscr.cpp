@@ -7,17 +7,17 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::Mount(CArcFile* pclArc)
+bool CNscr::Mount(CArcFile* archive)
 {
-	if (MountNsa(pclArc))
+	if (MountNsa(archive))
 		return true;
 
-	if (MountSar(pclArc))
+	if (MountSar(archive))
 		return true;
 
-	if (MountScr(pclArc))
+	if (MountScr(archive))
 		return true;
 
 	return false;
@@ -25,86 +25,79 @@ bool CNscr::Mount(CArcFile* pclArc)
 
 /// nsa mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::MountNsa(CArcFile* pclArc)
+bool CNscr::MountNsa(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-
-	if (pclArc->GetArcExten() != _T(".nsa"))
-	{
+	if (archive->GetArcExten() != _T(".nsa"))
 		return false;
-	}
 
 	// Get file count
-	DWORD dwFiles = 0;
+	u32 num_files = 0;
 
-	if (memcmp(pclArc->GetHed(), "\0\0", 2) == 0)
+	if (memcmp(archive->GetHed(), "\0\0", 2) == 0)
 	{
 		// Each 4 bytes
-
-		pclArc->Read(&dwFiles, 4);
+		archive->Read(&num_files, 4);
 	}
 	else
 	{
-		pclArc->Read(&dwFiles, 2);
-		dwFiles <<= 16;
+		archive->Read(&num_files, 2);
+		num_files <<= 16;
 	}
 
-	dwFiles = BitUtils::Swap32(dwFiles);
+	num_files = BitUtils::Swap32(num_files);
 
 	// Get offset
-	DWORD dwOffset;
-	pclArc->Read(&dwOffset, 4);
-	dwOffset = BitUtils::Swap32(dwOffset);
+	u32 offset;
+	archive->ReadU32(&offset);
+	offset = BitUtils::Swap32(offset);
 
-	if (memcmp(pclArc->GetHed(), "\0\0", 2) == 0)
+	if (memcmp(archive->GetHed(), "\0\0", 2) == 0)
 	{
-		dwOffset += 2;
+		offset += 2;
 	}
 
 	// Get index size
-	DWORD dwIndexSize = dwOffset;
-	dwIndexSize -= (memcmp(pclArc->GetHed(), "\0\0", 2) == 0) ? 8 : 6;
+	u32 index_size = offset;
+	index_size -= (memcmp(archive->GetHed(), "\0\0", 2) == 0) ? 8 : 6;
 
 	// Get the index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD dwIndexPtr = 0;
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
-
-	for (DWORD i = 0; i < dwFiles; i++)
+	size_t index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[256];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr]);
-		dwIndexPtr += lstrlen(szFileName) + 1;
+		TCHAR file_name[256];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr]);
+		index_ptr += lstrlen(file_name) + 1;
 
-		BYTE btType = clmbtIndex[dwIndexPtr];
+		const u8 type = index[index_ptr];
 
 		// Add to list view
-		SFileInfo stFileInfo;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = BitUtils::Swap32(*(u32*)&index[index_ptr + 1]) + offset;
+		file_info.sizeCmp = BitUtils::Swap32(*(u32*)&index[index_ptr + 5]);
+		file_info.sizeOrg = BitUtils::Swap32(*(u32*)&index[index_ptr + 9]);
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		stFileInfo.name = szFileName;
-		stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 1]) + dwOffset;
-		stFileInfo.sizeCmp = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 5]);
-		stFileInfo.sizeOrg = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 9]);
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
-
-		switch (btType)
+		switch (type)
 		{
 		case 1:
-			stFileInfo.format = _T("SPB");
+			file_info.format = _T("SPB");
 			break;
 
 		case 2:
-			stFileInfo.format = _T("LZSS");
+			file_info.format = _T("LZSS");
 			break;
 		}
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 13;
+		index_ptr += 13;
 	}
 
 	return true;
@@ -112,50 +105,49 @@ bool CNscr::MountNsa(CArcFile* pclArc)
 
 /// sar mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::MountSar(CArcFile* pclArc)
+bool CNscr::MountSar(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".sar"))
+	if (archive->GetArcExten() != _T(".sar"))
 		return false;
 
 	// Get file count
-	WORD dwFiles;
-	pclArc->Read(&dwFiles, 2);
-	dwFiles = BitUtils::Swap16(dwFiles);
+	u16 num_files;
+	archive->ReadU16(&num_files);
+	num_files = BitUtils::Swap16(num_files);
 
 	// Get offset
-	DWORD dwOffset;
-	pclArc->Read(&dwOffset, 4);
-	dwOffset = BitUtils::Swap32(dwOffset);
+	u32 offset;
+	archive->ReadU32(&offset);
+	offset = BitUtils::Swap32(offset);
 
 	// Get index size
-	DWORD dwIndexSize = dwOffset - 6;
+	const u32 index_size = offset - 6;
 
 	// Get the index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD dwIndexPtr = 0;
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
-
-	for (DWORD i = 0; i < dwFiles; i++)
+	size_t index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[256];
-		lstrcpy(szFileName, (LPCTSTR)&clmbtIndex[dwIndexPtr]);
-		dwIndexPtr += lstrlen(szFileName) + 1;
+		TCHAR file_name[256];
+		lstrcpy(file_name, (LPCTSTR)&index[index_ptr]);
+		index_ptr += lstrlen(file_name) + 1;
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 0]) + dwOffset;
-		stFileInfo.sizeOrg = BitUtils::Swap32(*(DWORD*)&clmbtIndex[dwIndexPtr + 4]);
-		stFileInfo.sizeCmp = stFileInfo.sizeOrg;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = BitUtils::Swap32(*(u32*)&index[index_ptr + 0]) + offset;
+		file_info.sizeOrg = BitUtils::Swap32(*(u32*)&index[index_ptr + 4]);
+		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 8;
+		index_ptr += 8;
 	}
 
 	return true;
@@ -163,32 +155,32 @@ bool CNscr::MountSar(CArcFile* pclArc)
 
 /// Script file mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::MountScr(CArcFile* pclArc)
+bool CNscr::MountScr(CArcFile* archive)
 {
-	if (pclArc->GetArcName() != _T("nscript.dat"))
+	if (archive->GetArcName() != _T("nscript.dat"))
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::Decode(CArcFile* pclArc)
+bool CNscr::Decode(CArcFile* archive)
 {
-	if (DecodeScr(pclArc))
+	if (DecodeScr(archive))
 		return true;
 
-	if (DecodeSPB(pclArc))
+	if (DecodeSPB(archive))
 		return true;
 
-	if (DecodeLZSS(pclArc))
+	if (DecodeLZSS(archive))
 		return true;
 
-	if (DecodeNBZ(pclArc))
+	if (DecodeNBZ(archive))
 		return true;
 
 	return false;
@@ -220,24 +212,24 @@ bool CNscr::DecodeScr(CArcFile* archive)
 		// Reading
 		archive->Read(buffer.data(), buffer_size);
 
-		size_t buffer_size2 = 0;
+		size_t buffer2_size = 0;
 
 		for (size_t i = 0; i < buffer_size; i++)
 		{
 			// Decoding
-			buffer2[buffer_size2] = buffer[i] ^ 0x84;
+			buffer2[buffer2_size] = buffer[i] ^ 0x84;
 
 			// Change to CR + LF line endings
-			if (buffer2[buffer_size2] == '\n')
+			if (buffer2[buffer2_size] == '\n')
 			{
-				buffer2[buffer_size2++] = '\r';
-				buffer2[buffer_size2] = '\n';
+				buffer2[buffer2_size++] = '\r';
+				buffer2[buffer2_size] = '\n';
 			}
 
-			buffer_size2++;
+			buffer2_size++;
 		}
 
-		archive->WriteFile(buffer2.data(), buffer_size2);
+		archive->WriteFile(buffer2.data(), buffer2_size);
 	}
 
 	return true;
@@ -245,344 +237,331 @@ bool CNscr::DecodeScr(CArcFile* archive)
 
 /// NBZ Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::DecodeNBZ(CArcFile* pclArc)
+bool CNscr::DecodeNBZ(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("NBZ"))
 		return false;
 
 	// Get file size
-	DWORD dwDstSize;
-	pclArc->Read(&dwDstSize, 4);
-	dwDstSize = BitUtils::Swap32(dwDstSize);
+	u32 dst_size;
+	archive->ReadU32(&dst_size);
+	dst_size = BitUtils::Swap32(dst_size);
 
-	DWORD dwSrcSize = (file_info->sizeCmp - 4);
+	const u32 src_size = file_info->sizeCmp - 4;
 
 	// Ensure buffer exists
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	std::vector<u8> src(src_size);
+	std::vector<u8> dst(dst_size);
 
 	// NBZ decompression
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
-	BZ2_bzBuffToBuffDecompress((char*)&clmbtDst[0], &(UINT&)dwDstSize, (char*)&clmbtSrc[0], dwSrcSize, 0, 0);
+	archive->Read(src.data(), src.size());
+	BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(dst.data()), &dst_size,
+	                           reinterpret_cast<char*>(src.data()), src_size, 0, 0);
 
 	// Obtain file extension
-	YCString clsFileExt;
-	GetFileExt(clsFileExt, &clmbtDst[0]);
+	YCString file_extension;
+	GetFileExt(file_extension, dst.data());
 
 	// Output
-	pclArc->OpenFile(clsFileExt);
-	pclArc->WriteFile(&clmbtDst[0], dwDstSize);
+	archive->OpenFile(file_extension);
+	archive->WriteFile(dst.data(), dst.size());
 
 	return true;
 }
 
 /// Getting file extensions
 ///
-/// @param rfclsDst  Destination
-/// @param pbtBuffer Buffer
+/// @param dst    Destination
+/// @param buffer Buffer
 ///
-void CNscr::GetFileExt(YCString& rfclsDst, const BYTE* pbtBuffer)
+void CNscr::GetFileExt(YCString& dst, const u8* buffer)
 {
-	if (memcmp(pbtBuffer, "BM", 2) == 0)
+	if (memcmp(buffer, "BM", 2) == 0)
 	{
-		rfclsDst = _T(".bmp");
+		dst = _T(".bmp");
 	}
-	else if ((memcmp(pbtBuffer, "RIFF", 4) == 0) && (memcmp(&pbtBuffer[8], "WAVEfmt ", 8) == 0))
+	else if (memcmp(buffer, "RIFF", 4) == 0 && memcmp(&buffer[8], "WAVEfmt ", 8) == 0)
 	{
-		rfclsDst = _T(".wav");
+		dst = _T(".wav");
 	}
-	else if (memcmp(pbtBuffer, "MThd", 4) == 0)
+	else if (memcmp(buffer, "MThd", 4) == 0)
 	{
-		rfclsDst = _T(".mid");
+		dst = _T(".mid");
 	}
 }
 
 /// Get a stream of bits
 ///
-/// @param pbtSrc            Input data
-/// @param dwReadBitLength   Number of bits to read
-/// @param pdwReadByteLength Number of bytes read
+/// @param src              Input data
+/// @param num_bits_to_read Number of bits to read
+/// @param num_bytes_read   Number of bytes read
 ///
-DWORD CNscr::GetBit(const BYTE* pbtSrc, DWORD dwReadBitLength, DWORD* pdwReadByteLength)
+u32 CNscr::GetBit(const u8* src, size_t num_bits_to_read, size_t* num_bytes_read)
 {
-	DWORD dwResult = 0;
-	DWORD dwSrcPtr = 0;
+	u32 result = 0;
+	size_t src_ptr = 0;
 
-	for (DWORD i = 0; i < dwReadBitLength; i++)
+	for (size_t i = 0; i < num_bits_to_read; i++)
 	{
-		if (btMaskForGetBit == 0)
+		if (m_mask_for_get_bit == 0)
 		{
-			btSrcForGetBit = pbtSrc[dwSrcPtr++];
-			btMaskForGetBit = 0x80;
+			m_src_for_get_bit = src[src_ptr++];
+			m_mask_for_get_bit = 0x80;
 		}
 
-		dwResult <<= 1;
+		result <<= 1;
 
-		if (btSrcForGetBit & btMaskForGetBit)
+		if (m_src_for_get_bit & m_mask_for_get_bit)
 		{
-			dwResult++;
+			result++;
 		}
 
-		btMaskForGetBit >>= 1;
+		m_mask_for_get_bit >>= 1;
 	}
 
-	*pdwReadByteLength = dwSrcPtr;
+	*num_bytes_read = src_ptr;
 
-	return dwResult;
+	return result;
 }
 
 /// SPB Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::DecodeSPB(CArcFile* pclArc)
+bool CNscr::DecodeSPB(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("SPB"))
 		return false;
 
 	// Get the width
-	WORD wWidth;
-	pclArc->Read(&wWidth, 2);
-	wWidth = BitUtils::Swap16(wWidth);
+	u16 width;
+	archive->ReadU16(&width);
+	width = BitUtils::Swap16(width);
 
 	// Get the height
-	WORD wHeight;
-	pclArc->Read(&wHeight, 2);
-	wHeight = BitUtils::Swap16(wHeight);
+	u16 height;
+	archive->ReadU16(&height);
+	height = BitUtils::Swap16(height);
 
 	// Parameters for the image
-	DWORD dwColorSize = (wWidth * wHeight);
-	DWORD dwLine = (wWidth * 3);
-	DWORD dwPitch = ((dwLine + 3) & 0xFFFFFFFC);
+	const u32 color_size = width * height;
+	const u32 line = width * 3;
+	const u32 pitch = (line + 3) & 0xFFFFFFFC;
 
 	// Ensure buffers exist
-	DWORD dwSrcSize = file_info->sizeCmp - 4;
-	DWORD dwDstSize = file_info->sizeOrg - 54;
-	DWORD dwWorkSize = (dwColorSize + 4) * 3;
+	const size_t src_size = file_info->sizeCmp - 4;
+	const size_t dst_size = file_info->sizeOrg - 54;
+	const size_t work_size = (color_size + 4) * 3;
 
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
-	YCMemory<BYTE> clmbtWork(dwWorkSize);
+	std::vector<u8> src(src_size);
+	std::vector<u8> dst(dst_size);
+	std::vector<u8> work_buffer(work_size);
 
 	// Read the SPB file
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(src.data(), src.size());
 
 	// SPB decompression
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwWorkPtr = 0;
-	DWORD adwWorkPtrForSave[3];
+	size_t src_ptr = 0;
+	size_t work_ptr = 0;
+	std::array<size_t, 3> saved_rgb_offsets;
 
-	btMaskForGetBit = 0;
-	btSrcForGetBit = 0;
+	m_mask_for_get_bit = 0;
+	m_src_for_get_bit = 0;
 
-	for (unsigned int i = 0; i < 3; i++)
+	for (auto& saved_rgb_offset : saved_rgb_offsets)
 	{
-		DWORD dwReadByteLength;
-		DWORD dwData;
-		DWORD dwWork;
+		saved_rgb_offset = work_ptr;
 
-		adwWorkPtrForSave[i] = dwWorkPtr;
+		size_t num_bytes_read;
+		u32 data = GetBit(&src[src_ptr], 8, &num_bytes_read);
+		src_ptr += num_bytes_read;
 
-		dwData = GetBit(&clmbtSrc[dwSrcPtr], 8, &dwReadByteLength);
-
-		dwSrcPtr += dwReadByteLength;
-
-		clmbtWork[dwWorkPtr++] = static_cast<BYTE>(dwData);
+		work_buffer[work_ptr++] = static_cast<u8>(data);
 
 		// Decompression
 
-		for (DWORD dwCount = 1; dwCount < dwColorSize; dwCount += 4)
+		for (size_t count = 1; count < color_size; count += sizeof(u32))
 		{
-			DWORD dwFlags = GetBit(&clmbtSrc[dwSrcPtr], 3, &dwReadByteLength);
-			DWORD dwFlags2;
+			const u32 flags = GetBit(&src[src_ptr], 3, &num_bytes_read);
+			u32 flags2;
 
-			dwSrcPtr += dwReadByteLength;
+			src_ptr += num_bytes_read;
 
-			switch (dwFlags)
+			switch (flags)
 			{
 			case 0:
-				clmbtWork[dwWorkPtr + 0] = static_cast<BYTE>(dwData);
-				clmbtWork[dwWorkPtr + 1] = static_cast<BYTE>(dwData);
-				clmbtWork[dwWorkPtr + 2] = static_cast<BYTE>(dwData);
-				clmbtWork[dwWorkPtr + 3] = static_cast<BYTE>(dwData);
+				work_buffer[work_ptr + 0] = static_cast<u8>(data);
+				work_buffer[work_ptr + 1] = static_cast<u8>(data);
+				work_buffer[work_ptr + 2] = static_cast<u8>(data);
+				work_buffer[work_ptr + 3] = static_cast<u8>(data);
 
-				dwWorkPtr += 4;
+				work_ptr += 4;
 				continue;
 
 			case 7:
-				dwFlags2 = GetBit(&clmbtSrc[dwSrcPtr], 1, &dwReadByteLength) + 1;
-				dwSrcPtr += dwReadByteLength;
+				flags2 = GetBit(&src[src_ptr], 1, &num_bytes_read) + 1;
+				src_ptr += num_bytes_read;
 				break;
 
 			default:
-				dwFlags2 = (dwFlags + 2);
+				flags2 = flags + 2;
 				break;
 			}
 
-			for (unsigned int j = 0; j < 4; j++)
+			for (size_t j = 0; j < 4; j++)
 			{
-				if (dwFlags2 == 8)
+				if (flags2 == 8)
 				{
-					dwData = GetBit(&clmbtSrc[dwSrcPtr], 8, &dwReadByteLength);
+					data = GetBit(&src[src_ptr], 8, &num_bytes_read);
 				}
 				else
 				{
-					dwWork = GetBit(&clmbtSrc[dwSrcPtr], dwFlags2, &dwReadByteLength);
+					const u32 work = GetBit(&src[src_ptr], flags2, &num_bytes_read);
 
-					if (dwWork & 1)
+					if (work & 1)
 					{
-						dwData += (dwWork >> 1) + 1;
+						data += (work >> 1) + 1;
 					}
 					else
 					{
-						dwData -= (dwWork >> 1);
+						data -= (work >> 1);
 					}
 				}
 
-				dwSrcPtr += dwReadByteLength;
-				clmbtWork[dwWorkPtr++] = static_cast<BYTE>(dwData);
+				src_ptr += num_bytes_read;
+				work_buffer[work_ptr++] = static_cast<u8>(data);
 			}
 		}
 	}
 
 	// RGB synthesis
+	u8* dst_ptr = &dst[pitch * (height - 1)];
+	std::array<const u8*, 3> rgb_channel_ptrs{{
+		&work_buffer[saved_rgb_offsets[0]],
+		&work_buffer[saved_rgb_offsets[1]],
+		&work_buffer[saved_rgb_offsets[2]]
+	}};
 
-	BYTE* pbtDst = &clmbtDst[dwPitch * (wHeight - 1)];
-	const BYTE* apbtWork[3];
-
-	apbtWork[0] = &clmbtWork[adwWorkPtrForSave[0]];
-	apbtWork[1] = &clmbtWork[adwWorkPtrForSave[1]];
-	apbtWork[2] = &clmbtWork[adwWorkPtrForSave[2]];
-
-	for (WORD j = 0; j < wHeight; j++)
+	for (size_t j = 0; j < height; j++)
 	{
 		if (j & 1)
 		{
 			// Odd line
-
-			for (WORD k = 0; k < wWidth; k++)
+			for (size_t k = 0; k < width; k++)
 			{
-				pbtDst[0] = *apbtWork[0]++;
-				pbtDst[1] = *apbtWork[1]++;
-				pbtDst[2] = *apbtWork[2]++;
+				dst_ptr[0] = *rgb_channel_ptrs[0]++;
+				dst_ptr[1] = *rgb_channel_ptrs[1]++;
+				dst_ptr[2] = *rgb_channel_ptrs[2]++;
 
-				pbtDst -= 3;
+				dst_ptr -= 3;
 			}
 
-			pbtDst -= (dwPitch - 3);
+			dst_ptr -= pitch - 3;
 		}
 		else
 		{
 			// Even line
-
-			for (WORD k = 0; k < wWidth; k++)
+			for (size_t k = 0; k < width; k++)
 			{
-				pbtDst[0] = *apbtWork[0]++;
-				pbtDst[1] = *apbtWork[1]++;
-				pbtDst[2] = *apbtWork[2]++;
+				dst_ptr[0] = *rgb_channel_ptrs[0]++;
+				dst_ptr[1] = *rgb_channel_ptrs[1]++;
+				dst_ptr[2] = *rgb_channel_ptrs[2]++;
 
-				pbtDst += 3;
+				dst_ptr += 3;
 			}
 
-			pbtDst -= (dwPitch + 3);
+			dst_ptr -= pitch + 3;
 		}
 	}
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, wWidth, wHeight, 24);
-	clImage.Write(&clmbtDst[0], dwDstSize);
+	CImage image;
+	image.Init(archive, width, height, 24);
+	image.Write(dst.data(), dst.size());
 
 	return true;
 }
 
 /// LZSS Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNscr::DecodeLZSS(CArcFile* pclArc)
+bool CNscr::DecodeLZSS(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("LZSS"))
 		return false;
 
 	// Ensure buffers exist
-	DWORD dwSrcSize = file_info->sizeCmp;
-	DWORD dwDstSize = file_info->sizeOrg;
-	DWORD dwDicSize = 256;
+	const u32 src_size = file_info->sizeCmp;
+	const u32 dst_size = file_info->sizeOrg;
+	const u32 dic_size = 256;
 
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
-	YCMemory<BYTE> clmbtDic(dwDicSize);
-
-	ZeroMemory(&clmbtDic[0], dwDicSize);
+	std::vector<u8> src(src_size);
+	std::vector<u8> dst(dst_size);
+	std::vector<u8> dictionary(dic_size);
 
 	// Read
-	pclArc->Read(&clmbtSrc[0], dwSrcSize);
+	archive->Read(src.data(), src.size());
 
 	// LZSS decompression
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwDicPtr = 239;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	size_t dic_ptr = 239;
 
-	btMaskForGetBit = 0;
-	btSrcForGetBit = 0;
+	m_mask_for_get_bit = 0;
+	m_src_for_get_bit = 0;
 
-	while (dwDstPtr < dwDstSize)
+	while (dst_ptr < dst_size)
 	{
-		DWORD dwReadByteLength;
-		DWORD dwData;
-
 		// Get the compression flag
-		DWORD dwFlag = GetBit(&clmbtSrc[dwSrcPtr], 1, &dwReadByteLength);
-
-		dwSrcPtr += dwReadByteLength;
+		size_t num_bytes_read;
+		const u32 flag = GetBit(&src[src_ptr], 1, &num_bytes_read);
+		src_ptr += num_bytes_read;
 
 		// Uncompressed
-		if (dwFlag & 1)
+		if (flag & 1)
 		{
-			dwData = GetBit(&clmbtSrc[dwSrcPtr], 8, &dwReadByteLength);
+			const u32 data = GetBit(&src[src_ptr], 8, &num_bytes_read);
 
-			clmbtDst[dwDstPtr++] = static_cast<BYTE>(dwData);
-			clmbtDic[dwDicPtr++] = static_cast<BYTE>(dwData);
+			dst[dst_ptr++] = static_cast<u8>(data);
+			dictionary[dic_ptr++] = static_cast<u8>(data);
 
-			dwSrcPtr += dwReadByteLength;
-			dwDicPtr &= (dwDicSize - 1);
+			src_ptr += num_bytes_read;
+			dic_ptr &= dic_size - 1;
 		}
 		else // Compressed
 		{
-			DWORD dwBack = GetBit(&clmbtSrc[dwSrcPtr], 8, &dwReadByteLength);
-			dwSrcPtr += dwReadByteLength;
+			u32 back = GetBit(&src[src_ptr], 8, &num_bytes_read);
+			src_ptr += num_bytes_read;
 
-			DWORD dwLength = GetBit(&clmbtSrc[dwSrcPtr], 4, &dwReadByteLength) + 2;
-			dwSrcPtr += dwReadByteLength;
+			u32 length = GetBit(&src[src_ptr], 4, &num_bytes_read) + 2;
+			src_ptr += num_bytes_read;
 
-			if ((dwDstPtr + dwLength) > dwDstSize)
+			if (dst_ptr + length > dst_size)
 			{
 				// Larger than the output buffer
-
-				dwLength = (dwDstSize - dwDstPtr);
+				length = dst_size - dst_ptr;
 			}
 
-			for (DWORD i = 0; i < dwLength; i++)
+			for (size_t i = 0; i < length; i++)
 			{
-				clmbtDst[dwDstPtr++] = clmbtDic[dwDicPtr++] = clmbtDic[dwBack++];
+				dst[dst_ptr++] = dictionary[dic_ptr++] = dictionary[back++];
 
-				dwDicPtr &= (dwDicSize - 1);
-				dwBack &= (dwDicSize - 1);
+				dic_ptr &= dic_size - 1;
+				back &= dic_size - 1;
 			}
 		}
 	}
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, &clmbtDst[0]);
-	clImage.Write(dwDstSize);
+	CImage image;
+	image.Init(archive, dst.data());
+	image.Write(dst.size());
 
 	return true;
 }
