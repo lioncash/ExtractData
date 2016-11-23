@@ -6,17 +6,17 @@
 
 /// Mount
 ///
-/// @pclArc Archive
+/// @param archive Archive
 ///
-bool CHimauri::Mount(CArcFile* pclArc)
+bool CHimauri::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".hxp"))
+	if (archive->GetArcExten() != _T(".hxp"))
 		return false;
 
-	if (MountHim4(pclArc))
+	if (MountHim4(archive))
 		return true;
 
-	if (MountHim5(pclArc))
+	if (MountHim5(archive))
 		return true;
 
 	return false;
@@ -24,51 +24,50 @@ bool CHimauri::Mount(CArcFile* pclArc)
 
 /// Mount Him4
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CHimauri::MountHim4(CArcFile* pclArc)
+bool CHimauri::MountHim4(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "Him4", 4) != 0)
+	if (memcmp(archive->GetHed(), "Him4", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(4);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(4);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	DWORD dwIndexSize = dwFiles * 4;
+	const u32 index_size = num_files * 4;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
-	TCHAR szArcName[_MAX_FNAME];
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
+	TCHAR archive_name[_MAX_FNAME];
 
-	lstrcpy(szArcName, pclArc->GetArcName());
-	PathRemoveExtension(szArcName);
+	lstrcpy(archive_name, archive->GetArcName());
+	PathRemoveExtension(archive_name);
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	size_t index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
-		TCHAR szFileName[_MAX_FNAME];
-		_stprintf(szFileName, _T("%s_%06u"), szArcName, i);
+		TCHAR file_name[_MAX_FNAME];
+		_stprintf(file_name, _T("%s_%06u"), archive_name, i);
 
 		// Add to list view
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(LPDWORD)&clmbtIndex[dwIndexPtr + 0];
-		stFileInfo.end = ((i + 1) < dwFiles) ? *(DWORD*)&clmbtIndex[dwIndexPtr + 4] : pclArc->GetArcSize();
-		stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = *(u32*)&index[index_ptr + 0];
+		file_info.end = ((i + 1) < num_files) ? *(u32*)&index[index_ptr + 4] : archive->GetArcSize();
+		file_info.sizeCmp = file_info.end - file_info.start;
+		file_info.sizeOrg = file_info.sizeCmp;
 
-		if (stFileInfo.sizeCmp != 10)
+		if (file_info.sizeCmp != 10)
 		{
 			// Is not a dummy file
-
-			pclArc->AddFileInfo(stFileInfo);
+			archive->AddFileInfo(file_info);
 		}
 
-		dwIndexPtr += 4;
+		index_ptr += 4;
 	}
 
 	return true;
@@ -76,150 +75,148 @@ bool CHimauri::MountHim4(CArcFile* pclArc)
 
 /// Mount Him5
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CHimauri::MountHim5(CArcFile* pclArc)
+bool CHimauri::MountHim5(CArcFile* archive)
 {
-	if (memcmp(pclArc->GetHed(), "Him5", 4) != 0)
+	if (memcmp(archive->GetHed(), "Him5", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(4);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(4);
+	archive->ReadU32(&num_files);
 
 	// Get index size from file count
-	DWORD dwIndexSize = dwFiles * 8;
+	const u32 index_size = num_files * 8;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	DWORD         dwIndexPtr = 0;
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
+	size_t index_ptr = 0;
 
 	// Gets index 2's size from the first index
-	DWORD dwIndexSize2 = *(DWORD*)&clmbtIndex[dwFiles * 8 - 4] - *(DWORD*)&clmbtIndex[4] + *(DWORD*)&clmbtIndex[dwFiles * 8 - 8];
+	const u32 index2_size = *(u32*)&index[num_files * 8 - 4] - *(u32*)&index[4] + *(u32*)&index[num_files * 8 - 8];
 
 	// Get index 2
-	YCMemory<BYTE> clmbtIndex2(dwIndexSize2);
-	DWORD          dwIndexPtr2 = 0;
-	pclArc->Read(&clmbtIndex2[0], dwIndexSize2);
+	std::vector<u8> index2(index2_size);
+	archive->Read(&index2[0], index2_size);
+	size_t index2_ptr = 0;
 
 	// Remove dummy
-	for (DWORD i = dwFiles; i > 0; i--)
+	for (u32 i = num_files; i > 0; i--)
 	{
-		if (*(DWORD*)&clmbtIndex[dwIndexPtr + 0] == 0)
+		if (*(u32*)&index[index_ptr + 0] == 0)
 		{
-			dwFiles--;
+			num_files--;
 		}
 	}
 
 	// Gets difference increment
-	BOOL bDiffCompose = (pclArc->GetArcName() == _T("natsucha.hxp"));
+	const bool diff_compose = archive->GetArcName() == _T("natsucha.hxp");
 
 	// Gets file info
-	std::vector<SFileInfo> vcFileInfo;
-	std::vector<SFileInfo> vcDiffFileInfo;
+	std::vector<SFileInfo> file_infos;
+	std::vector<SFileInfo> diff_file_infos;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		while (true)
 		{
 			// Gets the length of a segment
-			DWORD dwSegLength = clmbtIndex2[dwIndexPtr2 + 0];
+			const u32 segment_length = index2[index2_ptr + 0];
 
 			// Get the file name from index 2
-			DWORD   dwFileNameLength = (dwSegLength - 5);
-			char    szFileName[_MAX_FNAME];
-			memcpy(szFileName, &clmbtIndex2[dwIndexPtr2 + 5], dwFileNameLength);
-			SFileInfo stFileInfo;
+			const u32 file_name_length = segment_length - 5;
+			char file_name[_MAX_FNAME];
+			memcpy(file_name, &index2[index2_ptr + 5], file_name_length);
+			SFileInfo file_info;
 
-			stFileInfo.name = szFileName;
-			stFileInfo.start = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + 1]);
+			file_info.name = file_name;
+			file_info.start = BitUtils::Swap32(*(u32*)&index2[index2_ptr + 1]);
 
 			// Get the exit address
 
-			if (clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0)
+			if (index2[index2_ptr + segment_length] == 0)
 			{
-				if ((i + 1) == dwFiles)
+				if ((i + 1) == num_files)
 				{
-					stFileInfo.end = pclArc->GetArcSize();
+					file_info.end = archive->GetArcSize();
 				}
 				else
 				{
-					stFileInfo.end = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 2]);
+					file_info.end = BitUtils::Swap32(*(u32*)&index2[index2_ptr + segment_length + 2]);
 				}
 			}
 			else
 			{
-				stFileInfo.end = BitUtils::Swap32(*(DWORD*)&clmbtIndex2[dwIndexPtr2 + dwSegLength + 1]);
+				file_info.end = BitUtils::Swap32(*(u32*)&index2[index2_ptr + segment_length + 1]);
 			}
 
-			stFileInfo.sizeCmp = stFileInfo.end - stFileInfo.start;
-			stFileInfo.sizeOrg = stFileInfo.sizeCmp;
+			file_info.sizeCmp = file_info.end - file_info.start;
+			file_info.sizeOrg = file_info.sizeCmp;
 
-			if (stFileInfo.sizeCmp != 10)
+			if (file_info.sizeCmp != 10)
 			{
 				// Is not a dummy file
-				if (bDiffCompose)
+				if (diff_compose)
 				{
 					// Difference composition is enabled
-					char* pszDiffMark = strrchr(szFileName, _T('_'));
+					const char* diff_mark = strrchr(file_name, _T('_'));
 
-					if (pszDiffMark != nullptr && strlen(pszDiffMark) >= 2 && isdigit(pszDiffMark[1]))
+					if (diff_mark != nullptr && strlen(diff_mark) >= 2 && isdigit(diff_mark[1]))
 					{
 						// Difference file
-
-						int nPos = stFileInfo.name.ReverseFind(_T('_'));
-						stFileInfo.name.Delete((nPos + 1), stFileInfo.name.GetLength());
-						vcDiffFileInfo.push_back(stFileInfo);
+						const int pos = file_info.name.ReverseFind(_T('_'));
+						file_info.name.Delete(pos + 1, file_info.name.GetLength());
+						diff_file_infos.push_back(file_info);
 					}
 					else
 					{
-						vcFileInfo.push_back(stFileInfo);
+						file_infos.push_back(file_info);
 					}
 				}
 				else
 				{
-					pclArc->AddFileInfo(stFileInfo);
+					archive->AddFileInfo(file_info);
 				}
 			}
 
 			// 1セグメントの最後が0なら1ファイル終了と判断
 
-			if (clmbtIndex2[dwIndexPtr2 + dwSegLength] == 0)
+			if (index2[index2_ptr + segment_length] == 0)
 			{
-				dwIndexPtr2 += dwSegLength + 1;
+				index2_ptr += segment_length + 1;
 				break;
 			}
 
-			dwIndexPtr2 += dwSegLength;
+			index2_ptr += segment_length;
 		}
 	}
 
-	if (bDiffCompose)
+	if (diff_compose)
 	{
 		// Difference composition is enabled
-		for (size_t i = 0; i < vcFileInfo.size(); i++)
+		for (auto& file_info : file_infos)
 		{
-			int nPos = vcFileInfo[i].name.ReverseFind(_T('_'));
-			if (nPos >= 0)
+			const int pos = file_info.name.ReverseFind(_T('_'));
+			if (pos >= 0)
 			{
-				YCString clsBaseFileName = vcFileInfo[i].name.Left((nPos + 1));
+				YCString base_file_name = file_info.name.Left(pos + 1);
 
-				for (size_t j = 0; j < vcDiffFileInfo.size(); j++)
+				for (auto& diff_file_info : diff_file_infos)
 				{
-					if (clsBaseFileName == vcDiffFileInfo[j].name)
+					if (base_file_name == diff_file_info.name)
 					{
 						// Within the difference range
-
-						vcFileInfo[i].starts.push_back(vcDiffFileInfo[j].start);
-						vcFileInfo[i].sizesCmp.push_back(vcDiffFileInfo[j].sizeCmp);
-						vcFileInfo[i].sizesOrg.push_back(vcDiffFileInfo[j].sizeOrg);
+						file_info.starts.push_back(diff_file_info.start);
+						file_info.sizesCmp.push_back(diff_file_info.sizeCmp);
+						file_info.sizesOrg.push_back(diff_file_info.sizeOrg);
 					}
 				}
 			}
 
-			pclArc->AddFileInfo(vcFileInfo[i]);
+			archive->AddFileInfo(file_info);
 		}
 	}
 
@@ -228,352 +225,338 @@ bool CHimauri::MountHim5(CArcFile* pclArc)
 
 /// Decode
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CHimauri::Decode(CArcFile* pclArc)
+bool CHimauri::Decode(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".hxp"))
+	if (archive->GetArcExten() != _T(".hxp"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "Him", 3) != 0)
+	if (memcmp(archive->GetHed(), "Him", 3) != 0)
 		return false;
 
 	// Get input size
-	DWORD dwSrcSize;
-	pclArc->Read(&dwSrcSize, 4);
+	u32 src_size;
+	archive->ReadU32(&src_size);
 
 	// Get output size
-	DWORD dwDstSize;
-	pclArc->Read(&dwDstSize, 4);
+	u32 dst_size;
+	archive->ReadU32(&dst_size);
 
 	// Ensure buffer
-	YCMemory<BYTE> clmbtSrc(dwSrcSize);
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	std::vector<u8> src(src_size);
+	std::vector<u8> dst(dst_size);
 
-	if (dwSrcSize == 0)
+	if (src_size == 0)
 	{
 		// Not a compressed file
-
-		pclArc->Read(&clmbtDst[0], dwDstSize);
+		archive->Read(dst.data(), dst.size());
 	}
 	else
 	{
 		// Compressed file
-
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
-		Decomp(&clmbtDst[0], dwDstSize, &clmbtSrc[0], dwSrcSize);
+		archive->Read(src.data(), src.size());
+		Decomp(dst.data(), dst.size(), src.data(), src.size());
 	}
 
-	YCString sFileExt;
-	if (memcmp(&clmbtDst[0], "OggS", 4) == 0)
+	YCString file_extension;
+	if (memcmp(dst.data(), "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
-
-		sFileExt = _T(".ogg");
+		file_extension = _T(".ogg");
 	}
-	else if (memcmp(&clmbtDst[0], "RIFF", 4) == 0)
+	else if (memcmp(dst.data(), "RIFF", 4) == 0)
 	{
 		// WAVE
-
-		sFileExt = _T(".wav");
+		file_extension = _T(".wav");
 	}
-	else if (memcmp(&clmbtDst[0], "Himauri", 7) == 0)
+	else if (memcmp(dst.data(), "Himauri", 7) == 0)
 	{
 		// hst
-
-		sFileExt = _T(".txt");
+		file_extension = _T(".txt");
 	}
-	else if (memcmp(&clmbtDst[0], "BM", 2) == 0)
+	else if (memcmp(dst.data(), "BM", 2) == 0)
 	{
 		// BMP
-
-		CImage clImage;
-		clImage.Init(pclArc, &clmbtDst[0]);
-		clImage.Write(dwDstSize);
+		CImage image;
+		image.Init(archive, dst.data());
+		image.Write(dst.size());
 
 		return true;
 	}
-	else if ((clmbtDst[0] == 0) && (clmbtDst[1] <= 1) && (clmbtDst[2] > 0) && (memcmp(&clmbtDst[3], "\x00\x00\x00\x00\x00", 5) == 0))
+	else if (dst[0] == 0 && dst[1] <= 1 && dst[2] > 0 && memcmp(&dst[3], "\x00\x00\x00\x00\x00", 5) == 0)
 	{
 		// TGA
+		const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-		SFileInfo* pstFileInfo = pclArc->GetOpenFileInfo();
-
-		if (pstFileInfo->starts.empty())
+		if (file_info->starts.empty())
 		{
 			// Difference does not exist
-
-			CTga clTga;
-			clTga.Decode(pclArc, &clmbtDst[0], dwDstSize);
+			CTga tga;
+			tga.Decode(archive, dst.data(), dst.size());
 		}
 		else
 		{
 			// There is a difference
 
 			// Get TGA image-based header
-			CTga::STGAHeader* psttgahBase = (CTga::STGAHeader*) &clmbtDst[0];
+			const auto* tga_header = reinterpret_cast<const CTga::STGAHeader*>(&dst[0]);
 
 			// TGA Decompression
-			DWORD          dwDstSize2 = ((psttgahBase->width * (psttgahBase->depth >> 3) + 3) & 0xFFFFFFFC) * psttgahBase->height;
-			YCMemory<BYTE> clmbtDst2(dwDstSize2);
+			const u32 dst2_size = ((tga_header->width * (tga_header->depth >> 3) + 3) & 0xFFFFFFFC) * tga_header->height;
+			std::vector<u8> dst2(dst2_size);
 
-			CTga clTga;
-			clTga.Decomp(&clmbtDst2[0], dwDstSize2, &clmbtDst[0], dwDstSize);
+			CTga tga;
+			tga.Decomp(dst2.data(), dst2.size(), dst.data(), dst.size());
 
 			// Outputs difference
-			for (size_t i = 0; i < pstFileInfo->starts.size(); i++)
+			for (size_t i = 0; i < file_info->starts.size(); i++)
 			{
-				pclArc->SeekHed(pstFileInfo->starts[i]);
+				archive->SeekHed(file_info->starts[i]);
 
 				// Get image input size difference
-				DWORD dwSrcSizeForDiff;
-				pclArc->Read(&dwSrcSizeForDiff, 4);
+				u32 src_diff_size;
+				archive->ReadU32(&src_diff_size);
 
 				// Get image output size difference
-				DWORD dwDstSizeForDiff;
-				pclArc->Read(&dwDstSizeForDiff, 4);
+				u32 dst_diff_size;
+				archive->ReadU32(&dst_diff_size);
 
 				// Ensure image difference buffer
-				YCMemory<BYTE> clmbtSrcForDiff(dwSrcSizeForDiff);
-				YCMemory<BYTE> clmbtDstForDiff(dwDstSizeForDiff);
+				std::vector<u8> src_diff(src_diff_size);
+				std::vector<u8> dst_diff(dst_diff_size);
 
 				// Get image difference
-				if (dwSrcSizeForDiff == 0)
+				if (src_diff_size == 0)
 				{
 					// Uncompressed file
-
-					pclArc->Read(&clmbtDstForDiff[0], dwDstSizeForDiff);
+					archive->Read(dst_diff.data(), dst_diff.size());
 				}
 				else
 				{
 					// Compressed file
-
-					pclArc->Read(&clmbtSrcForDiff[0], dwSrcSizeForDiff);
-					Decomp(&clmbtDstForDiff[0], dwDstSizeForDiff, &clmbtSrcForDiff[0], dwSrcSizeForDiff);
+					archive->Read(src_diff.data(), src_diff.size());
+					Decomp(dst_diff.data(), dst_diff.size(), src_diff.data(), src_diff.size());
 				}
 
 				// Get TGA image header difference
-				CTga::STGAHeader* psttgahDiff = (CTga::STGAHeader*) &clmbtDstForDiff[0];
+				const auto* tga_header_diff = reinterpret_cast<const CTga::STGAHeader*>(&dst_diff[0]);
 
 				// TGA Decompression
-				DWORD          dwDstSizeForDiff2 = ((psttgahDiff->width * (psttgahDiff->depth >> 3) + 3) & 0xFFFFFFFC) * psttgahDiff->height;
-				YCMemory<BYTE> clmbtDstForDiff2(dwDstSizeForDiff);
-				clTga.Decomp(&clmbtDstForDiff2[0], dwDstSizeForDiff, &clmbtDstForDiff[0], dwDstSizeForDiff);
+				const u32 dst_diff2_size = ((tga_header_diff->width * (tga_header_diff->depth >> 3) + 3) & 0xFFFFFFFC) * tga_header_diff->height;
+				std::vector<u8> dst_diff2(dst_diff2_size);
+				tga.Decomp(dst_diff2.data(), dst_diff2.size(), dst_diff.data(), dst_diff.size());
 
 				// Difference Composition
-				DWORD          dwDstSizeForCompose = dwDstSize2;
-				YCMemory<BYTE> clmbtDstForCompose(dwDstSizeForCompose);
-				Compose(&clmbtDstForCompose[0], dwDstSizeForCompose, &clmbtDst2[0], dwDstSize2, &clmbtDstForDiff2[0], dwDstSizeForDiff2);
+				const u32 dst_compose_size = dst2_size;
+				std::vector<u8> dst_compose(dst_compose_size);
+				Compose(dst_compose.data(), dst_compose.size(), dst2.data(), dst2.size(), dst_diff2.data(), dst_diff2.size());
 
 				// End of filename changes
-				TCHAR      szLastName[_MAX_FNAME];
-				_stprintf(szLastName, _T("_%03u.bmp"), i);
+				TCHAR last_name[_MAX_FNAME];
+				_stprintf(last_name, _T("_%03zu.bmp"), i);
 
-				// Regrest progressbar progress
-				const bool progress = (i == 0);
+				// Request progress bar progress
+				const bool progress = i == 0;
 
 				// Output
-				CImage clImage;
-				clImage.Init(pclArc, psttgahBase->width, psttgahBase->height, psttgahBase->depth, nullptr, 0, szLastName);
-				clImage.Write(&clmbtDstForCompose[0], dwDstSizeForCompose, progress);
-				clImage.Close();
+				CImage image;
+				image.Init(archive, tga_header->width, tga_header->height, tga_header->depth, nullptr, 0, last_name);
+				image.Write(dst_compose.data(), dst_compose.size(), progress);
+				image.Close();
 			}
 		}
 
 		return true;
 	}
-	else if (memcmp(&clmbtDst[0], "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) == 0)
+	else if (memcmp(dst.data(), "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16) == 0)
 	{
 		// Mask image
-		CImage clImage;
-		clImage.Init(pclArc, 800, 600, 8);
-		clImage.WriteReverse(&clmbtDst[0], dwDstSize);
+		CImage image;
+		image.Init(archive, 800, 600, 8);
+		image.WriteReverse(dst.data(), dst.size());
 
 		return true;
 	}
 	else
 	{
 		// Other
-
-		sFileExt = _T(".txt");
+		file_extension = _T(".txt");
 	}
 
-	pclArc->OpenFile(sFileExt);
-	pclArc->WriteFile(&clmbtDst[0], dwDstSize, pclArc->GetOpenFileInfo()->sizeCmp);
+	archive->OpenFile(file_extension);
+	archive->WriteFile(dst.data(), dst.size(), archive->GetOpenFileInfo()->sizeCmp);
 
 	return true;
 }
 
 /// Decompression
 ///
-/// @param pbtDst    Destination
-/// @param dwDstSize Destination size
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-void CHimauri::Decomp(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize)
+void CHimauri::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD dwSrcPtr = 0;
-	DWORD dwDstPtr = 0;
-	DWORD dwCode = 0;
-	DWORD dwBack = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	u32 code = 0;
+	u32 back = 0;
 
-	while (dwSrcPtr < dwSrcSize && dwDstPtr < dwDstSize)
+	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		if (dwCode == 0)
+		if (code == 0)
 		{
-			dwCode = pbtSrc[dwSrcPtr++];
+			code = src[src_ptr++];
 
-			if (dwCode < 0x20)
+			if (code < 0x20)
 			{
-				dwBack = 0;
+				back = 0;
 
-				if (dwCode < 0x1D)
+				if (code < 0x1D)
 				{
-					dwCode++;
+					code++;
 				}
-				else if (dwCode == 0x1D)
+				else if (code == 0x1D)
 				{
-					dwCode = pbtSrc[dwSrcPtr++] + 0x1E;
+					code = src[src_ptr++] + 0x1E;
 				}
-				else if (dwCode == 0x1E)
+				else if (code == 0x1E)
 				{
-					dwCode = pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode += 0x11E;
+					code = src[src_ptr++];
+					code <<= 8;
+					code |= src[src_ptr++];
+					code += 0x11E;
 				}
-				else if (dwCode == 0x1F)
+				else if (code == 0x1F)
 				{
-					dwCode = pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
-					dwCode <<= 8;
-					dwCode |= pbtSrc[dwSrcPtr++];
+					code = src[src_ptr++];
+					code <<= 8;
+					code |= src[src_ptr++];
+					code <<= 8;
+					code |= src[src_ptr++];
+					code <<= 8;
+					code |= src[src_ptr++];
 				}
 			}
 			else
 			{
-				if (dwCode >= 0x80)
+				if (code >= 0x80)
 				{
-					dwBack = ((dwCode & 0x1F) << 8) | pbtSrc[dwSrcPtr++];
-					dwCode = (dwCode >> 5) & 3;
+					back = ((code & 0x1F) << 8) | src[src_ptr++];
+					code = (code >> 5) & 3;
 				}
 				else
 				{
-					DWORD dwCode2 = (dwCode & 0x60);
+					const u32 code2 = code & 0x60;
 
-					if (dwCode2 == 0x20)
+					if (code2 == 0x20)
 					{
-						dwBack = (dwCode >> 2) & 7;
-						dwCode &= 3;
+						back = (code >> 2) & 7;
+						code &= 3;
 					}
 					else
 					{
-						dwCode &= 0x1F;
+						code &= 0x1F;
 
-						if (dwCode2 == 0x40)
+						if (code2 == 0x40)
 						{
-							dwBack = pbtSrc[dwSrcPtr++];
-							dwCode += 4;
+							back = src[src_ptr++];
+							code += 4;
 						}
 						else
 						{
-							dwBack = (dwCode << 8) | pbtSrc[dwSrcPtr++];
-							dwCode = pbtSrc[dwSrcPtr++];
+							back = (code << 8) | src[src_ptr++];
+							code = src[src_ptr++];
 
-							if (dwCode == 0xFE)
+							if (code == 0xFE)
 							{
-								dwCode = pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode += 0x102;
+								code = src[src_ptr++];
+								code <<= 8;
+								code |= src[src_ptr++];
+								code += 0x102;
 							}
-							else if (dwCode == 0xFF)
+							else if (code == 0xFF)
 							{
-								dwCode = pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
-								dwCode <<= 8;
-								dwCode |= pbtSrc[dwSrcPtr++];
+								code = src[src_ptr++];
+								code <<= 8;
+								code |= src[src_ptr++];
+								code <<= 8;
+								code |= src[src_ptr++];
+								code <<= 8;
+								code |= src[src_ptr++];
 							}
 							else
 							{
-								dwCode += 4;
+								code += 4;
 							}
 						}
 					}
 				}
 
-				dwBack++;
-				dwCode += 3;
+				back++;
+				code += 3;
 			}
 		}
 
 		// Get output length
-		DWORD dwLength = dwCode;
-		if ((dwDstPtr + dwLength) > dwDstSize)
+		u32 length = code;
+		if (dst_ptr + length > dst_size)
 		{
-			dwLength = (dwDstSize - dwDstPtr);
+			length = dst_size - dst_ptr;
 		}
 
-		dwCode -= dwLength;
+		code -= length;
 
 		// Output
-		if (dwBack > 0)
+		if (back > 0)
 		{
 			// Output previous data
-
-			for (DWORD i = 0; i < dwLength; i++)
+			for (size_t i = 0; i < length; i++)
 			{
-				pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
+				dst[dst_ptr + i] = dst[dst_ptr - back + i];
 			}
 
-			dwDstPtr += dwLength;
+			dst_ptr += length;
 		}
 		else
 		{
 			// Output input data
+			memcpy(&dst[dst_ptr], &src[src_ptr], length);
 
-			memcpy(&pbtDst[dwDstPtr], &pbtSrc[dwSrcPtr], dwLength);
-
-			dwSrcPtr += dwLength;
-			dwDstPtr += dwLength;
+			src_ptr += length;
+			dst_ptr += length;
 		}
 	}
 }
 
 /// Difference Composition
 ///
-/// @param pbtDst     Destination
-/// @param dwDstSize  Destination Size
-/// @param pbtBase    Image base
-/// @param dwBaseSize Image base size
-/// @param pbtDiff    Image difference
-/// @param dwDiffSize Image difference size
+/// @param dst       Destination
+/// @param dst_size  Destination Size
+/// @param base      Image base
+/// @param base_size Image base size
+/// @param diff      Image difference
+/// @param diff_size Image difference size
 ///
-bool CHimauri::Compose(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtBase, DWORD dwBaseSize, const BYTE* pbtDiff, DWORD dwDiffSize)
+bool CHimauri::Compose(u8* dst, size_t dst_size, const u8* base, size_t base_size, const u8* diff, size_t diff_size)
 {
 	// Synthesize base image and difference image
+	memcpy(dst, base, dst_size);
 
-	memcpy(pbtDst, pbtBase, dwDstSize);
-
-	for (DWORD i = 0; i < dwDstSize; i += 4)
+	for (size_t i = 0; i < dst_size; i += 4)
 	{
 		// 32bit -> 24bit
 
-		if (pbtDiff[i + 3] > 0)
+		if (diff[i + 3] > 0)
 		{
-			for (int j = 0; j < 3; j++)
+			for (size_t j = 0; j < 3; j++)
 			{
-				pbtDst[i + j] = (pbtDiff[i + j] - pbtBase[i + j]) * pbtDiff[i + 3] / 255 + pbtBase[i + j];
+				dst[i + j] = (diff[i + j] - base[i + j]) * diff[i + 3] / 255 + base[i + j];
 			}
 
-			pbtDst[i + 3] = 0xFF;
+			dst[i + 3] = 0xFF;
 		}
 	}
 
