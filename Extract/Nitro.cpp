@@ -3,88 +3,89 @@
 #include "../Image.h"
 #include "Nitro.h"
 
-bool CNitro::Mount(CArcFile* pclArc)
+bool CNitro::Mount(CArcFile* archive)
 {
-	if (MountPak1(pclArc))
+	if (MountPak1(archive))
 		return true;
-	if (MountPak2(pclArc))
+	if (MountPak2(archive))
 		return true;
-	if (MountPak3(pclArc))
+	if (MountPak3(archive))
 		return true;
-	if (MountPak4(pclArc))
+	if (MountPak4(archive))
 		return true;
-	if (MountPK2(pclArc))
+	if (MountPK2(archive))
 		return true;
-	if (MountN3Pk(pclArc))
+	if (MountN3Pk(archive))
 		return true;
-//	if (MountPck(pclArc))
+//	if (MountPck(archive))
 //		return true;
-	if (MountNpp(pclArc))
+	if (MountNpp(archive))
 		return true;
-//	if (MountNpa(pclArc))
+//	if (MountNpa(archive))
 //		return true;
 	return false;
 }
 
-bool CNitro::MountPak1(CArcFile* pclArc)
+bool CNitro::MountPak1(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(pclArc->GetHed(), "\x01\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHed(), "\x01\0\0\0", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->Seek(4, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	DWORD index_size;
-	pclArc->Read(&index_size, 4);
+	u32 index_size;
+	archive->ReadU32(&index_size);
 
 	// Get compressed index size
-	DWORD index_compsize;
-	pclArc->Read(&index_compsize, 4);
+	u32 index_compsize;
+	archive->ReadU32(&index_compsize);
 
 	// Ensure buffer exists
-	YCMemory<BYTE> z_index(index_compsize);
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
+	std::vector<u8> z_index(index_compsize);
+	std::vector<u8> index(index_size);
 
 	// Get compressed index
-	pclArc->Read(&z_index[0], index_compsize);
+	archive->Read(z_index.data(), z_index.size());
 
 	// Get index
 	CZlib zlib;
-	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
+	zlib.Decompress(index.data(), index_size, z_index.data(), z_index.size());
 
-	DWORD offset = 0x10 + index_compsize;
+	const u32 offset = 0x10 + index_compsize;
 
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
-		SFileInfo infFile;
+		SFileInfo file_info;
 
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		DWORD len = *(LPDWORD)&pIndex[0];
-		memcpy(szFileName, &pIndex[4], len);
-		szFileName[len] = _T('\0');
-		pIndex += 4 + len;
+		TCHAR file_name[_MAX_FNAME];
+		const u32 file_name_length = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		memcpy(file_name, &index_ptr[4], file_name_length);
+		file_name[file_name_length] = _T('\0');
+		index_ptr += 4 + file_name_length;
 
-		infFile.start = *(LPDWORD)&pIndex[0] + offset; // Correction because it starts with a starting address relative to 0
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4];
-		DWORD bCmp = *(LPDWORD)&pIndex[12];
-		infFile.sizeCmp = *(LPDWORD)&pIndex[16];
-		if (infFile.sizeCmp == 0)
-			infFile.sizeCmp = infFile.sizeOrg;
-		pIndex += 20;
+		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]) + offset; // Correction because it starts with a starting address relative to 0
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		const u32 cmp     = *reinterpret_cast<const u32*>(&index_ptr[12]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]);
+		if (file_info.sizeCmp == 0)
+			file_info.sizeCmp = file_info.sizeOrg;
+		index_ptr += 20;
 
 		// Add file to listview
-		infFile.name = szFileName;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		if (bCmp) infFile.format = _T("zlib");
-		infFile.title = _T("Pak1");
-		pclArc->AddFileInfo(infFile);
+		file_info.name = file_name;
+		file_info.end = file_info.start + file_info.sizeCmp;
+		if (cmp)
+			file_info.format = _T("zlib");
+		file_info.title = _T("Pak1");
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -92,311 +93,314 @@ bool CNitro::MountPak1(CArcFile* pclArc)
 
 /// Function to get file information from Demonbane .pak files
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CNitro::MountPak2(CArcFile* pclArc)
+bool CNitro::MountPak2(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "\x02\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHed(), "\x02\0\0\0", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(4);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(4);
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	DWORD dwIndexSize;
-	pclArc->Read(&dwIndexSize, 4);
+	u32 index_size;
+	archive->ReadU32(&index_size);
 
 	// Get compressed index size
-	DWORD dwIndexCompSize;
-	pclArc->Read(&dwIndexCompSize, 4);
+	u32 compressed_index_size;
+	archive->ReadU32(&compressed_index_size);
 
 	// Ensure buffers exist
-	YCMemory<BYTE> clmCompIndex(dwIndexCompSize);
-	YCMemory<BYTE> clmIndex(dwIndexSize);
+	std::vector<u8> compressed_index(compressed_index_size);
+	std::vector<u8> index(index_size);
 
 	// Get compressed index
-	pclArc->SeekHed(0x114);
-	pclArc->Read(&clmCompIndex[0], dwIndexCompSize);
+	archive->SeekHed(0x114);
+	archive->Read(compressed_index.data(), compressed_index.size());
 
 	// Get index
-	CZlib clZlib;
-	clZlib.Decompress(&clmIndex[0], &dwIndexSize, &clmCompIndex[0], dwIndexCompSize);
+	CZlib zlib;
+	zlib.Decompress(index.data(), index_size, compressed_index.data(), compressed_index.size());
 
-	DWORD dwIndexPtr = 0;
-	DWORD dwOffset = 0x114 + dwIndexCompSize;
+	const u32 offset = 0x114 + compressed_index_size;
 
-	for (DWORD i = 0; i < dwFiles; i++)
+	size_t index_ptr = 0;
+	for (u32 i = 0; i < num_files; i++)
 	{
-		SFileInfo stFileInfo;
+		SFileInfo file_info;
 
 		// Get filename
-		char szFileName[_MAX_FNAME];
-		DWORD dwFileNameLength = *(DWORD*)&clmIndex[dwIndexPtr + 0];
+		char file_name[_MAX_FNAME];
+		const u32 file_name_length = *reinterpret_cast<const u32*>(&index[index_ptr + 0]);
 
-		memcpy(szFileName, &clmIndex[dwIndexPtr + 4], dwFileNameLength);
-		szFileName[dwFileNameLength] = '\0';
+		memcpy(file_name, &index[index_ptr + 4], file_name_length);
+		file_name[file_name_length] = '\0';
 
-		dwIndexPtr += 4 + dwFileNameLength;
+		index_ptr += 4 + file_name_length;
 
 		// Get flags
-		DWORD dwFlags = *(DWORD*)&clmIndex[dwIndexPtr + 12];
+		const u32 flags = *reinterpret_cast<const u32*>(&index[index_ptr + 12]);
 
 		// Add to listview
-		stFileInfo.name = szFileName;
-		stFileInfo.start = *(DWORD*)&clmIndex[dwIndexPtr + 0] + dwOffset;
-		stFileInfo.sizeOrg = *(DWORD*)&clmIndex[dwIndexPtr + 4];
-		stFileInfo.sizeCmp = *(DWORD*)&clmIndex[dwIndexPtr + 16];
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<const u32*>(&index[index_ptr + 0]) + offset;
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 16]);
 
-		if (stFileInfo.sizeCmp == 0)
+		if (file_info.sizeCmp == 0)
 		{
-			stFileInfo.sizeCmp = stFileInfo.sizeOrg;
+			file_info.sizeCmp = file_info.sizeOrg;
 		}
 
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		if (dwFlags != 0)
+		if (flags != 0)
 		{
-			stFileInfo.format = _T("zlib");
+			file_info.format = _T("zlib");
 		}
 
-		stFileInfo.title = _T("Pak2");
+		file_info.title = _T("Pak2");
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 
-		dwIndexPtr += 20;
+		index_ptr += 20;
 	}
 
 	return true;
 }
 
-bool CNitro::MountPak3(CArcFile* pclArc)
+bool CNitro::MountPak3(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(pclArc->GetHed(), "\x03\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHed(), "\x03\0\0\0", 4) != 0)
 		return false;
 
 	// Read signature
-	BYTE sig[256];
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(sig, sizeof(sig));
+	u8 sig[256];
+	archive->Seek(4, FILE_BEGIN);
+	archive->Read(sig, sizeof(sig));
 
 	// Generate decryption key
-	DWORD key = 0;
-	for (int i = 0; i < 256; i++)
+	u32 key = 0;
+	for (u8 signature_byte : sig)
 	{
-		if (sig[i] == 0)
+		if (signature_byte == 0)
 			break;
 		
 		key *= 0x89;
-		key += sig[i];
+		key += signature_byte;
 	}
 
 	// Read header
-	BYTE header[16];
-	pclArc->Read(header, sizeof(header));
+	u8 header[16];
+	archive->Read(header, sizeof(header));
 
 	// Get compressed index size
-	DWORD index_compsize = *(LPDWORD)&header[0] ^ *(LPDWORD)&header[12];
+	const u32 index_compsize = *reinterpret_cast<const u32*>(&header[0]) ^ *reinterpret_cast<const u32*>(&header[12]);
 
 	// Get index size
-	DWORD index_size = *(LPDWORD)&header[4] ^ key;
+	const u32 index_size = *reinterpret_cast<const u32*>(&header[4]) ^ key;
 
 	// Get file count
-	DWORD ctFile = *(LPDWORD)&header[8] ^ key;
+	const u32 num_files = *reinterpret_cast<const u32*>(&header[8]) ^ key;
 
 	// Ensure buffer exists
-	YCMemory<BYTE> z_index(index_compsize);
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
+	std::vector<u8> z_index(index_compsize);
+	std::vector<u8> index(index_size);
 
 	// Get compressed index
-	pclArc->Read(&z_index[0], index_compsize);
+	archive->Read(z_index.data(), z_index.size());
 
 	// Get index
 	CZlib zlib;
-	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
+	zlib.Decompress(index.data(), index_size, z_index.data(), z_index.size());
 
-	DWORD offset = 0x114 + index_compsize;
-	DWORD FileEnd_prev = 0;
+	const u32 offset = 0x114 + index_compsize;
+	u32 file_end_prev = 0;
 
-	for (int i = 0; i < (int)ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
-		SFileInfo infFile;
+		SFileInfo file_info;
 
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		DWORD len = *(LPDWORD)&pIndex[0];
-		memcpy(szFileName, &pIndex[4], len);
-		szFileName[len] = _T('\0');
-		pIndex += 4 + len;
+		TCHAR file_name[_MAX_FNAME];
+		const u32 file_name_length = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		memcpy(file_name, &index_ptr[4], file_name_length);
+		file_name[file_name_length] = _T('\0');
+		index_ptr += 4 + file_name_length;
 
-		infFile.start = *(LPDWORD)&pIndex[0];
-		infFile.key = infFile.start ^ FileEnd_prev;//(i == 0) ? infFile.start : infFile.start ^ FileEnd_prev;//(pclArc->GetFileInfo(i-1)->end - offset);
-		infFile.start ^= infFile.key;
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4] ^ infFile.key;
-		DWORD bCmp = *(LPDWORD)&pIndex[12] ^ infFile.key;
-		infFile.sizeCmp = *(LPDWORD)&pIndex[16] ^ infFile.key;
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.key = file_info.start ^ file_end_prev;//(i == 0) ? file_info.start : file_info.start ^ FileEnd_prev;//(archive->GetFileInfo(i-1)->end - offset);
+		file_info.start ^= file_info.key;
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
+		const u32 cmp = *reinterpret_cast<const u32*>(&index_ptr[12]) ^ file_info.key;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
 		
-		if (infFile.sizeCmp == 0)
-			infFile.sizeCmp = infFile.sizeOrg;
+		if (file_info.sizeCmp == 0)
+			file_info.sizeCmp = file_info.sizeOrg;
 		
-		pIndex += 20;
+		index_ptr += 20;
 
 		// Add to listview
-		infFile.name = szFileName;
-		infFile.start += offset; // Correction because it starts with a starting address relative to 0
-		infFile.end = infFile.start + infFile.sizeCmp;
-		if (bCmp) infFile.format = _T("zlib");
-		infFile.title = _T("Pak3");
-		pclArc->AddFileInfo(infFile);
+		file_info.name = file_name;
+		file_info.start += offset; // Correction because it starts with a starting address relative to 0
+		file_info.end = file_info.start + file_info.sizeCmp;
+		if (cmp)
+			file_info.format = _T("zlib");
+		file_info.title = _T("Pak3");
+		archive->AddFileInfo(file_info);
 
-		FileEnd_prev = infFile.end - offset;
+		file_end_prev = file_info.end - offset;
 	}
 
 	return true;
 }
 
 // Function to get file information from Demonbane .pak files.
-bool CNitro::MountPak4(CArcFile* pclArc)
+bool CNitro::MountPak4(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(pclArc->GetHed(), "\x04\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHed(), "\x04\0\0\0", 4) != 0)
 		return false;
 
 	// Read signature
-	BYTE sig[256];
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(sig, sizeof(sig));
+	u8 sig[256];
+	archive->Seek(4, FILE_BEGIN);
+	archive->Read(sig, sizeof(sig));
 
 	// Generate decryption key
-	DWORD key = 0;
-	for (int i = 0; i < 256; i++)
+	u32 key = 0;
+	for (const u8 signature_byte : sig)
 	{
-		if (sig[i] == 0)
+		if (signature_byte == 0)
 			break;
 		
 		key *= 0x89;
-		key += sig[i];
+		key += signature_byte;
 	}
 
 	// Read header
-	BYTE header[16];
-	pclArc->Read(header, sizeof(header));
+	u8 header[16];
+	archive->Read(header, sizeof(header));
 
 	// Get compressed index size
-	DWORD index_compsize = *(LPDWORD)&header[0] ^ *(LPDWORD)&header[12];
+	const u32 index_compsize = *reinterpret_cast<const u32*>(&header[0]) ^ *reinterpret_cast<const u32*>(&header[12]);
 
 	// Get index size
-	DWORD index_size = *(LPDWORD)&header[4] ^ key;
+	const u32 index_size = *reinterpret_cast<const u32*>(&header[4]) ^ key;
 
 	// Get file count 
-	DWORD ctFile = *(LPDWORD)&header[8] ^ key;
+	const u32 num_files = *reinterpret_cast<const u32*>(&header[8]) ^ key;
 
 	// Ensure buffers exist
-	YCMemory<BYTE> z_index(index_compsize);
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
+	std::vector<u8> z_index(index_compsize);
+	std::vector<u8> index(index_size);
 
 	// Get compressed index
-	pclArc->Read(&z_index[0], index_compsize);
+	archive->Read(z_index.data(), z_index.size());
 
 	// Get index
 	CZlib zlib;
-	zlib.Decompress(pIndex, &index_size, &z_index[0], index_compsize);
+	zlib.Decompress(index.data(), index_size, z_index.data(), z_index.size());
 
-	DWORD offset = 0x114 + index_compsize;
-	DWORD FileEnd_prev = 0;
+	const u32 offset = 0x114 + index_compsize;
+	u32 file_end_prev = 0;
 
-	for (int i = 0; i < (int)ctFile; i++)
+	const u8* index_ptr = &index[0];
+	for (u32 i = 0; i < num_files; i++)
 	{
-		SFileInfo infFile;
+		SFileInfo file_info;
 
 		// Get filename
-		TCHAR szFileName[_MAX_FNAME];
-		DWORD len = *(LPDWORD)&pIndex[0];
-		memcpy(szFileName, &pIndex[4], len);
-		szFileName[len] = _T('\0');
-		pIndex += 4 + len;
+		TCHAR file_name[_MAX_FNAME];
+		const u32 file_name_length = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		memcpy(file_name, &index_ptr[4], file_name_length);
+		file_name[file_name_length] = _T('\0');
+		index_ptr += 4 + file_name_length;
 
-		infFile.start = *(LPDWORD)&pIndex[0];
-		infFile.key = infFile.start ^ FileEnd_prev;//(i == 0) ? infFile.start : infFile.start ^ FileEnd_prev;//(pclArc->GetFileInfo(i-1)->end - offset);
-		infFile.start ^= infFile.key;
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4] ^ infFile.key;
-		DWORD bCmp = *(LPDWORD)&pIndex[12] ^ infFile.key;
-		infFile.sizeCmp = *(LPDWORD)&pIndex[16] ^ infFile.key;
-		if (infFile.sizeCmp == 0)
-			infFile.sizeCmp = infFile.sizeOrg;
-		pIndex += 20;
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.key = file_info.start ^ file_end_prev;//(i == 0) ? file_info.start : file_info.start ^ FileEnd_prev;//(archive->GetFileInfo(i-1)->end - offset);
+		file_info.start ^= file_info.key;
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
+		const u32 cmp = *reinterpret_cast<const u32*>(&index_ptr[12]) ^ file_info.key;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
+		if (file_info.sizeCmp == 0)
+			file_info.sizeCmp = file_info.sizeOrg;
+		index_ptr += 20;
 
 		// Add to listview
-		infFile.name = szFileName;
-		infFile.start += offset; // Correction because it starts with a starting address relative to 0
-		infFile.end = infFile.start + infFile.sizeCmp;
-		if (bCmp) infFile.format = _T("zlib");
-		infFile.title = _T("Pak4");
-		pclArc->AddFileInfo(infFile);
+		file_info.name = file_name;
+		file_info.start += offset; // Correction because it starts with a starting address relative to 0
+		file_info.end = file_info.start + file_info.sizeCmp;
+		if (cmp)
+			file_info.format = _T("zlib");
+		file_info.title = _T("Pak4");
+		archive->AddFileInfo(file_info);
 
-		FileEnd_prev = infFile.end - offset;
+		file_end_prev = file_info.end - offset;
 	}
 
 	return true;
 }
 
-bool CNitro::MountPK2(CArcFile* pclArc)
+bool CNitro::MountPK2(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".PK2")) || (memcmp(pclArc->GetHed(), "ARCV", 4) != 0))
+	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHed(), "ARCV", 4) != 0)
 		return false;
 
-	pclArc->Seek(4, FILE_BEGIN);
+	archive->Seek(4, FILE_BEGIN);
 
 	// Get compressed filename index size
-	DWORD dwNameIndexSizeCmp;
-	pclArc->Read(&dwNameIndexSizeCmp, 4);
+	u32 name_index_compressed_size;
+	archive->ReadU32(&name_index_compressed_size);
 
 	// Get filename index size
-	DWORD dwNameIndexSizeOrg;
-	pclArc->Read(&dwNameIndexSizeOrg, 4);
-	dwNameIndexSizeOrg &= 0x00FFFFFF;
+	u32 name_index_decompressed_size;
+	archive->ReadU32(&name_index_decompressed_size);
+	name_index_decompressed_size &= 0x00FFFFFF;
 
 	// Ensure buffers exist
-	YCMemory<BYTE> vbyNameIndexCmp(dwNameIndexSizeCmp);
-	YCMemory<BYTE> vbyNameIndexOrg(dwNameIndexSizeOrg);
+	std::vector<u8> name_index_compressed(name_index_compressed_size);
+	std::vector<u8> name_index_decompressed(name_index_decompressed_size);
 
 	// Get compressed index filename
-	pclArc->Read(&vbyNameIndexCmp[0], dwNameIndexSizeCmp);
+	archive->Read(name_index_compressed.data(), name_index_compressed.size());
 
 	// Unzip compressed index filename
 	CZlib zlib;
-	zlib.Decompress(&vbyNameIndexOrg[0], dwNameIndexSizeOrg, &vbyNameIndexCmp[0], dwNameIndexSizeCmp);
+	zlib.Decompress(name_index_decompressed.data(), name_index_decompressed.size(),
+	                name_index_compressed.data(), name_index_compressed.size());
 
 	// Get offset index size
-	DWORD dwOffsetIndexSize;
-	pclArc->Read(&dwOffsetIndexSize, 4);
-	pclArc->Seek(8, FILE_CURRENT);
+	u32 offset_index_size;
+	archive->ReadU32(&offset_index_size);
+	archive->Seek(8, FILE_CURRENT);
 
 	// Ensure buffer exists
-	YCMemory<BYTE> vbyOffsetIndex(dwOffsetIndexSize);
+	std::vector<u8> offset_index(offset_index_size);
 
 	// Get offset index
-	pclArc->Read(&vbyOffsetIndex[0], dwOffsetIndexSize);
+	archive->Read(offset_index.data(), offset_index.size());
 
-	LPBYTE pbyNameIndex = &vbyNameIndexOrg[0];
-	LPBYTE pbyOffsetIndex = &vbyOffsetIndex[0];
+	const u8* name_index_ptr = name_index_decompressed.data();
+	const u8* offset_index_ptr = offset_index.data();
 
-	for (DWORD i = 0; ; i++)
+	for (u32 i = 0; ; i++)
 	{
 		// Get filename from the index
-		char szFileName[MAX_PATH];
-		char* pszFileName = szFileName;
-		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0D is a termination character
-		pszFileName[-1] = '\0'; // Substitute 0x0D for 0x00
+		char file_name[MAX_PATH];
+		char* file_name_ptr = file_name;
+		while ((*file_name_ptr++ = *name_index_ptr++) != 0x0D); // 0x0D is a termination character
+		file_name_ptr[-1] = '\0'; // Substitute 0x0D for 0x00
 
 		if (i == 0)
 		{
@@ -404,17 +408,17 @@ bool CNitro::MountPK2(CArcFile* pclArc)
 			continue;
 		}
 
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&pbyOffsetIndex[4];
-		infFile.sizeCmp = *(LPDWORD)&pbyOffsetIndex[8];
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<const u32*>(&offset_index_ptr[4]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&offset_index_ptr[8]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end     = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		pbyOffsetIndex += 12;
+		offset_index_ptr += 12;
 
-		if (memcmp(&pbyOffsetIndex[4], "DATA", 4) == 0)
+		if (memcmp(&offset_index_ptr[4], "DATA", 4) == 0)
 		{
 			// Done
 			break;
@@ -424,92 +428,91 @@ bool CNitro::MountPK2(CArcFile* pclArc)
 	return true;
 }
 
-bool CNitro::MountN3Pk(CArcFile* pclArc)
+bool CNitro::MountN3Pk(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".pak")) || (memcmp(pclArc->GetHed(), "N3Pk", 4) != 0))
+	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHed(), "N3Pk", 4) != 0)
 		return false;
 
-	pclArc->Seek(4, FILE_BEGIN);
+	archive->Seek(4, FILE_BEGIN);
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
-	pclArc->Seek(4, FILE_CURRENT);
+	archive->Seek(4, FILE_CURRENT);
 
 	// Get index size
-	DWORD dwIndexSize = 152 * ctFile;
+	const u32 index_size = 152 * num_files;
 
 	// Get index
-	YCMemory<BYTE> vbyIndex(dwIndexSize);
-	pclArc->Read(&vbyIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	LPBYTE pbyIndex = &vbyIndex[0];
-
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get filename
-		YCString sFileName;
-		sFileName = (char*)&pbyIndex[22];
-		sFileName += _T("/");
-		sFileName += (char*)&pbyIndex[86];
+		YCString file_name;
+		file_name = reinterpret_cast<const char*>(&index_ptr[22]);
+		file_name += _T("/");
+		file_name += reinterpret_cast<const char*>(&index_ptr[86]);
 
-		SFileInfo infFile;
-		infFile.name = sFileName;
-		infFile.start = *(LPDWORD)&pbyIndex[0];
-		infFile.sizeCmp = *(LPDWORD)&pbyIndex[4];
-		infFile.sizeOrg = *(LPDWORD)&pbyIndex[8];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		infFile.type = *(LPWORD)&pbyIndex[18];
-		infFile.key = pbyIndex[21];
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[8]);
+		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.type    = *reinterpret_cast<const u16*>(&index_ptr[18]);
+		file_info.key     = index_ptr[21];
+		archive->AddFileInfo(file_info);
 
-		pbyIndex += 152;
+		index_ptr += 152;
 	}
 
 	return true;
 }
 
-bool CNitro::MountPck(CArcFile* pclArc)
+bool CNitro::MountPck(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".pck")) || (memcmp(&pclArc->GetHed()[12], "\x00\x00\x00\x00", 4) != 0))
+	if (archive->GetArcExten() != _T(".pck") || memcmp(&archive->GetHed()[12], "\x00\x00\x00\x00", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get offset index size
-	DWORD dwOffsetIndexSize = 12 * (ctFile - 1);
+	const u32 offset_index_size = 12 * (num_files - 1);
 
 	// Get filename index size
-	DWORD dwNameIndexSize;
-	pclArc->Read(&dwNameIndexSize, 4);
+	u32 name_index_size;
+	archive->ReadU32(&name_index_size);
 
-	pclArc->Seek(4, FILE_CURRENT);
+	archive->Seek(4, FILE_CURRENT);
 
 	// Ensure buffer exists
-	YCMemory<BYTE> vbyOffsetIndex(dwOffsetIndexSize);
-	YCMemory<BYTE> vbyNameIndex(dwNameIndexSize);
+	std::vector<u8> offset_index(offset_index_size);
+	std::vector<u8> name_index(name_index_size);
 
 	// Get offset index
-	pclArc->Read(&vbyOffsetIndex[0], dwOffsetIndexSize);
+	archive->Read(offset_index.data(), offset_index.size());
 
 	// Get filename index
-	pclArc->Read(&vbyNameIndex[0], dwNameIndexSize);
+	archive->Read(name_index.data(), name_index.size());
 
-	LPBYTE pbyOffsetIndex = &vbyOffsetIndex[0];
-	LPBYTE pbyNameIndex = &vbyNameIndex[0];
+	const u8* offset_index_ptr = offset_index.data();
+	const u8* name_index_ptr = name_index.data();
 
-	DWORD dwOffset = 12 + dwOffsetIndexSize + dwNameIndexSize;
+	const u32 offset = 12 + offset_index_size + name_index_size;
 
-	for (DWORD i = 0; i < ctFile; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get the filename from the index
-		char szFileName[MAX_PATH];
-		char* pszFileName = szFileName;
-		while ((*pszFileName++ = *pbyNameIndex++) != 0x0D); // 0x0D is a termination character
-		pszFileName[-1] = '\0'; // substitue 0x0D for 0x00
+		char file_name[MAX_PATH];
+		char* file_name_ptr = file_name;
+		while ((*file_name_ptr++ = *name_index_ptr++) != 0x0D); // 0x0D is a termination character
+		file_name_ptr[-1] = '\0'; // substitue 0x0D for 0x00
 
 		if (i == 0)
 		{
@@ -517,15 +520,15 @@ bool CNitro::MountPck(CArcFile* pclArc)
 			continue;
 		}
 
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&pbyOffsetIndex[0] + dwOffset;
-		infFile.sizeCmp = *(LPDWORD)&pbyOffsetIndex[4];
-		infFile.sizeOrg = infFile.sizeCmp;
-		infFile.end = infFile.start + infFile.sizeCmp;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<const u32*>(&offset_index_ptr[0]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&offset_index_ptr[4]);
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end     = file_info.start + file_info.sizeCmp;
+		archive->AddFileInfo(file_info);
 
-		pbyOffsetIndex += 12;
+		offset_index_ptr += 12;
 	}
 
 	return true;
@@ -533,143 +536,146 @@ bool CNitro::MountPck(CArcFile* pclArc)
 
 // “VŽgƒm“ñ’ðŒe
 // This: http://www.nitroplus.co.jp/pc/lineup/into_07/
-bool CNitro::MountNpp(CArcFile* pclArc)
+bool CNitro::MountNpp(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".npp")) || (memcmp(pclArc->GetHed(), "nitP", 4) != 0))
+	if (archive->GetArcExten() != _T(".npp") || memcmp(archive->GetHed(), "nitP", 4) != 0)
 		return false;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Seek(4, FILE_BEGIN);
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->Seek(4, FILE_BEGIN);
+	archive->ReadU32(&num_files);
 
 	// Get index size from the file count
-	DWORD index_size = 144 * ctFile;
+	const u32 index_size = 144 * num_files;
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get folder and filename from the index
-		TCHAR szDir[64], szFileName[64];
-		memcpy(szDir, &pIndex[16], 64);
-		memcpy(szFileName, &pIndex[80], 64);
+		TCHAR dir[64];
+		TCHAR file_name[64];
+		memcpy(dir, &index_ptr[16], 64);
+		memcpy(file_name, &index_ptr[80], 64);
 
-		TCHAR szFilePath[MAX_PATH];
-		lstrcpy(szFilePath, szDir);
-		PathAppend(szFilePath, szFileName);
+		TCHAR file_path[MAX_PATH];
+		lstrcpy(file_path, dir);
+		PathAppend(file_path, file_name);
 
 		// Add to listview
-		SFileInfo infFile;
-		infFile.name = szFilePath;
-		infFile.start = *(LPDWORD)&pIndex[0];
-		infFile.sizeCmp = *(LPDWORD)&pIndex[4];
-		infFile.sizeOrg = *(LPDWORD)&pIndex[8];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		if (pIndex[12] != 0) infFile.format = _T("LZ");
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name    = file_path;
+		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[8]);
+		file_info.end     = file_info.start + file_info.sizeCmp;
+		if (index_ptr[12] != 0)
+			file_info.format = _T("LZ");
+		archive->AddFileInfo(file_info);
 
-		pIndex += 144;
+		index_ptr += 144;
 	}
 
 	return true;
 }
 
-bool CNitro::MountNpa(CArcFile* pclArc)
+bool CNitro::MountNpa(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".npa")) || (memcmp(pclArc->GetHed(), "NPA\x01", 4) != 0))
+	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHed(), "NPA\x01", 4) != 0)
 		return false;
 
-	pclArc->Seek(25, FILE_BEGIN);
+	archive->Seek(25, FILE_BEGIN);
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
-	pclArc->Seek(8, FILE_CURRENT);
+	archive->Seek(8, FILE_CURRENT);
 
 	// Get index size
-	DWORD dwIndexSize;
-	pclArc->Read(&dwIndexSize, 4);
+	u32 index_size;
+	archive->ReadU32(&index_size);
 
 	// Get index
-	YCMemory<BYTE> vbyIndex(dwIndexSize);
-	pclArc->Read(&vbyIndex[0], dwIndexSize);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
-	LPBYTE pbyIndex = &vbyIndex[0];
-	DWORD dwOffset = 41 + dwIndexSize;
-	DWORD dwBaseKey = 0x87654321;
+	const u32 offset = 41 + index_size;
+	constexpr u32 base_key = 0x87654321;
 
-	for (DWORD i = 0; i < ctFile; )
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; )
 	{
 		// Get filename
-		char szFileName[MAX_PATH];
-		DWORD dwFileNameLen = *(LPDWORD)&pbyIndex[0];
-		memcpy(szFileName, &pbyIndex[4], dwFileNameLen);
-		szFileName[dwFileNameLen] = '\0';
-		pbyIndex += 4 + dwFileNameLen;
+		char file_name[MAX_PATH];
+		const u32 file_name_length = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		memcpy(file_name, &index_ptr[4], file_name_length);
+		file_name[file_name_length] = '\0';
+		index_ptr += 4 + file_name_length;
 
 		// Get filename(trial version)
-		//char szFileName[MAX_PATH];
-		//char* pszFileName = szFileName;
-		//while ((*pszFileName++ = *pbyIndex++) != '\0');
+		//char file_name[MAX_PATH];
+		//char* file_name_ptr = file_name;
+		//while ((*file_name_ptr++ = *index_ptr++) != '\0');
 
-		if (pbyIndex[0] == 1)
+		if (index_ptr[0] == 1)
 		{
 			// Folder
-			pbyIndex += 17;
+			index_ptr += 17;
 			continue;
 		}
 
 		// Get key
-		DWORD dwKey = dwBaseKey;
-		DWORD dwKeyLen = strlen(szFileName);
+		u32 key = base_key;
+		const u32 key_length = static_cast<u32>(strlen(file_name));
 
-		for (DWORD j = 0; j < dwKeyLen; j++)
-			dwKey -= (BYTE)szFileName[j];
+		for (size_t j = 0; j < key_length; j++)
+			key -= static_cast<u8>(file_name[j]);
 		
-		dwKey *= dwKeyLen;
+		key *= key_length;
 
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.start = *(LPDWORD)&pbyIndex[5] + dwOffset;
-		infFile.sizeCmp = *(LPDWORD)&pbyIndex[9];
-		infFile.sizeOrg = *(LPDWORD)&pbyIndex[13];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		if (infFile.sizeCmp < infFile.sizeOrg) infFile.format = _T("zlib");
-		infFile.key = dwKey;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[5]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[9]);
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[13]);
+		file_info.end     = file_info.start + file_info.sizeCmp;
+		if (file_info.sizeCmp < file_info.sizeOrg)
+			file_info.format = _T("zlib");
+		file_info.key = key;
+		archive->AddFileInfo(file_info);
 
-		pbyIndex += 17;
+		index_ptr += 17;
 		i++;
 	}
 
 	return true;
 }
 
-bool CNitro::Decode(CArcFile* pclArc)
+bool CNitro::Decode(CArcFile* archive)
 {
-	if (DecodePak1(pclArc))
+	if (DecodePak1(archive))
 		return true;
-	if (DecodePak3(pclArc))
+	if (DecodePak3(archive))
 		return true;
-	if (DecodePak4(pclArc))
+	if (DecodePak4(archive))
 		return true;
-	if (DecodePK2(pclArc))
+	if (DecodePK2(archive))
 		return true;
-	if (DecodeN3Pk(pclArc))
+	if (DecodeN3Pk(archive))
 		return true;
-//	if (DecodeNpa(pclArc))
+//	if (DecodeNpa(archive))
 //		return true;
 	return false;
 }
 
-bool CNitro::DecodePak1(CArcFile* pclArc)
+bool CNitro::DecodePak1(CArcFile* archive)
 {
-	SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->title != _T("Pak1") && file_info->title != _T("Pak2"))
 		return false;
@@ -677,37 +683,37 @@ bool CNitro::DecodePak1(CArcFile* pclArc)
 		return false;
 
 	// Create output file
-	pclArc->OpenScriptFile();
+	archive->OpenScriptFile();
 
 	// zlib compressed data
 	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffer exists
-		YCMemory<BYTE> z_buf(file_info->sizeCmp);
-		YCMemory<BYTE> buf(file_info->sizeOrg);
+		std::vector<u8> z_buf(file_info->sizeCmp);
+		std::vector<u8> dst(file_info->sizeOrg);
 
 		// Reading
-		pclArc->Read(&z_buf[0], file_info->sizeCmp);
+		archive->Read(z_buf.data(), z_buf.size());
 
 		// Decompression
 		CZlib zlib;
-		zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
+		zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
 
 		// Output
-		pclArc->WriteFile(&buf[0], file_info->sizeOrg);
+		archive->WriteFile(dst.data(), dst.size());
 	}
 	else
 	{
 		// Uncompressed data
-		pclArc->ReadWrite();
+		archive->ReadWrite();
 	}
 
 	return true;
 }
 
-bool CNitro::DecodePak3(CArcFile* pclArc)
+bool CNitro::DecodePak3(CArcFile* archive)
 {
-	SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->title != _T("Pak3"))
 		return false;
@@ -715,55 +721,55 @@ bool CNitro::DecodePak3(CArcFile* pclArc)
 	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		YCMemory<BYTE> buf(file_info->sizeCmp);
-		pclArc->Read(&buf[0], file_info->sizeCmp);
-		DecryptPak3(&buf[0], file_info->sizeCmp, 0, file_info);
+		std::vector<u8> buffer(file_info->sizeCmp);
+		archive->Read(buffer.data(), buffer.size());
+		DecryptPak3(buffer.data(), buffer.size(), 0, file_info);
 
 		CImage image;
-		image.Init(pclArc, &buf[0]);
-		image.Write(file_info->sizeCmp);
+		image.Init(archive, buffer.data());
+		image.Write(buffer.size());
 	}
 	else
 	{
 		// Create output file
 		if (lstrcmpi(PathFindExtension(file_info->name), _T(".nps")) == 0)
-			pclArc->OpenScriptFile();
+			archive->OpenScriptFile();
 		else
-			pclArc->OpenFile();
+			archive->OpenFile();
 
 		// zlib compressed data
 		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffers exist
-			YCMemory<BYTE> z_buf(file_info->sizeCmp);
-			YCMemory<BYTE> buf(file_info->sizeOrg);
+			std::vector<u8> z_buf(file_info->sizeCmp);
+			std::vector<u8> dst(file_info->sizeOrg);
 
 			// Reading
-			pclArc->Read(&z_buf[0], file_info->sizeCmp);
+			archive->Read(z_buf.data(), z_buf.size());
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
+			zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
 
 			// Output
-			DecryptPak3(&buf[0], file_info->sizeOrg, 0, file_info);
-			pclArc->WriteFile(&buf[0], file_info->sizeOrg);
+			DecryptPak3(dst.data(), dst.size(), 0, file_info);
+			archive->WriteFile(dst.data(), dst.size());
 		}
 		else
 		{
 			// Ensure buffers exist
-			size_t buffer_size = pclArc->GetBufSize();
+			size_t buffer_size = archive->GetBufSize();
 			std::vector<u8> buffer(buffer_size);
 
 			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 			{
 				// Adjust buffer size
-				pclArc->SetBufSize(&buffer_size, write_size);
+				archive->SetBufSize(&buffer_size, write_size);
 
 				// Output
-				pclArc->Read(buffer.data(), buffer_size);
+				archive->Read(buffer.data(), buffer_size);
 				DecryptPak3(buffer.data(), buffer_size, write_size, file_info);
-				pclArc->WriteFile(buffer.data(), buffer_size);
+				archive->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 	}
@@ -771,9 +777,9 @@ bool CNitro::DecodePak3(CArcFile* pclArc)
 	return true;
 }
 
-bool CNitro::DecodePak4(CArcFile* pclArc)
+bool CNitro::DecodePak4(CArcFile* archive)
 {
-	SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->title != _T("Pak4"))
 		return false;
@@ -781,55 +787,55 @@ bool CNitro::DecodePak4(CArcFile* pclArc)
 	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		YCMemory<BYTE> buf(file_info->sizeCmp);
-		pclArc->Read(&buf[0], file_info->sizeCmp);
-		DecryptPak4(&buf[0], file_info->sizeCmp, 0, file_info);
+		std::vector<u8> buffer(file_info->sizeCmp);
+		archive->Read(buffer.data(), buffer.size());
+		DecryptPak4(buffer.data(), buffer.size(), 0, file_info);
 
 		CImage image;
-		image.Init(pclArc, &buf[0]);
-		image.Write(file_info->sizeCmp);
+		image.Init(archive, buffer.data());
+		image.Write(buffer.size());
 	}
 	else
 	{
 		// Create output file
 		if (lstrcmpi(PathFindExtension(file_info->name), _T(".nps")) == 0)
-			pclArc->OpenScriptFile();
+			archive->OpenScriptFile();
 		else
-			pclArc->OpenFile();
+			archive->OpenFile();
 
 		// zlib compressed data
 		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffer exists
-			YCMemory<BYTE> z_buf(file_info->sizeCmp);
-			YCMemory<BYTE> buf(file_info->sizeOrg);
+			std::vector<u8> z_buf(file_info->sizeCmp);
+			std::vector<u8> dst(file_info->sizeOrg);
 
 			// Read
-			pclArc->Read(&z_buf[0], file_info->sizeCmp);
+			archive->Read(z_buf.data(), z_buf.size());
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(&buf[0], &file_info->sizeOrg, &z_buf[0], file_info->sizeCmp);
+			zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
 
 			// Output
-			DecryptPak4(&buf[0], file_info->sizeOrg, 0, file_info);
-			pclArc->WriteFile(&buf[0], file_info->sizeOrg);
+			DecryptPak4(dst.data(), dst.size(), 0, file_info);
+			archive->WriteFile(dst.data(), dst.size());
 		}
 		else
 		{
 			// Ensure buffer exists
-			size_t buffer_size = pclArc->GetBufSize();
+			size_t buffer_size = archive->GetBufSize();
 			std::vector<u8> buffer(buffer_size);
 
 			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 			{
 				// Adjust buffer size
-				pclArc->SetBufSize(&buffer_size, write_size);
+				archive->SetBufSize(&buffer_size, write_size);
 
 				// Output
-				pclArc->Read(buffer.data(), buffer_size);
+				archive->Read(buffer.data(), buffer_size);
 				DecryptPak4(buffer.data(), buffer_size, write_size, file_info);
-				pclArc->WriteFile(buffer.data(), buffer_size);
+				archive->WriteFile(buffer.data(), buffer_size);
 			}
 		}
 	}
@@ -837,44 +843,49 @@ bool CNitro::DecodePak4(CArcFile* pclArc)
 	return true;
 }
 
-bool CNitro::DecodePK2(CArcFile* pclArc)
+bool CNitro::DecodePK2(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".PK2")) || (memcmp(pclArc->GetHed(), "ARCV", 4) != 0))
+	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHed(), "ARCV", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(file_info->name);
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	const YCString file_extension = PathFindExtension(file_info->name);
 
-	if (sFileExt != _T(".nps") && sFileExt != _T(".ini") && sFileExt != _T(".h") && sFileExt != _T(".txt"))
+	if (file_extension != _T(".nps") &&
+	    file_extension != _T(".ini") &&
+	    file_extension != _T(".h")   &&
+	    file_extension != _T(".txt"))
+	{
 		return false;
+	}
 
 	// Get file size
-	DWORD dwSizeOrg;
-	pclArc->Read(&dwSizeOrg, 4);
-	dwSizeOrg &= 0x00FFFFFF;
+	u32 decompressed_size;
+	archive->ReadU32(&decompressed_size);
+	decompressed_size &= 0x00FFFFFF;
 
 	// Ensure buffer exists
-	YCMemory<BYTE> vbyBufCmp(file_info->sizeCmp);
-	YCMemory<BYTE> vbyBufOrg(dwSizeOrg);
+	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> dst(decompressed_size);
 
 	// Reading
-	pclArc->Read(&vbyBufCmp[0], file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
 
 	// Decompression
 	CZlib zlib;
-	zlib.Decompress(&vbyBufOrg[0], dwSizeOrg, &vbyBufCmp[0], file_info->sizeCmp);
+	zlib.Decompress(dst.data(), dst.size(), src.data(), src.size());
 
-	if (sFileExt == _T(".nps"))
+	if (file_extension == _T(".nps"))
 	{
 		// Convert to .txt extension
-		pclArc->OpenScriptFile();
+		archive->OpenScriptFile();
 	}
 	else
 	{
-		pclArc->OpenFile();
+		archive->OpenFile();
 	}
 
-	pclArc->WriteFile(&vbyBufOrg[0], dwSizeOrg);
+	archive->WriteFile(dst.data(), dst.size());
 
 	return true;
 }
@@ -885,7 +896,7 @@ bool CNitro::DecodeN3Pk(CArcFile* archive)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
-	YCString file_extension = PathFindExtension(file_info->name);
+	const YCString file_extension = PathFindExtension(file_info->name);
 
 	// Ensure buffer exists
 	size_t buffer_size = archive->GetBufSize();
@@ -912,123 +923,113 @@ bool CNitro::DecodeN3Pk(CArcFile* archive)
 	return true;
 }
 
-bool CNitro::DecodeNpa(CArcFile* pclArc)
+bool CNitro::DecodeNpa(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".npa")) || (memcmp(pclArc->GetHed(), "NPA\x01", 4) != 0))
+	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHed(), "NPA\x01", 4) != 0)
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
-	YCString sFileExt = PathFindExtension(file_info->name);
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+	const YCString file_extension = PathFindExtension(file_info->name);
 
-	if (sFileExt == _T(".nss"))
-		pclArc->OpenScriptFile();
+	if (file_extension == _T(".nss"))
+		archive->OpenScriptFile();
 	else
-		pclArc->OpenFile();
+		archive->OpenFile();
 
 	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffers exist
-		YCMemory<BYTE> vbyBufCmp(file_info->sizeCmp);
-		YCMemory<BYTE> vbyBufOrg(file_info->sizeOrg);
+		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> dst(file_info->sizeOrg);
 
 		// Reading
-		pclArc->Read(&vbyBufCmp[0], file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		DecryptNpa(&vbyBufCmp[0], file_info->sizeCmp, 0, file_info);
+		DecryptNpa(src.data(), src.size(), 0, file_info);
 
 		// Decompression
 		CZlib zlib;
-		zlib.Decompress(&vbyBufOrg[0], file_info->sizeOrg, &vbyBufCmp[0], file_info->sizeCmp);
+		zlib.Decompress(dst.data(), dst.size(), src.data(), src.size());
 
 		// Output
-		pclArc->WriteFile(&vbyBufOrg[0], file_info->sizeOrg);
+		archive->WriteFile(dst.data(), dst.size());
 	}
 	else
 	{
 		// Ensure buffer exists
-		size_t buffer_size = pclArc->GetBufSize();
+		size_t buffer_size = archive->GetBufSize();
 		std::vector<u8> buffer(buffer_size);
 
 		for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
 		{
 			// Adjust buffer size
-			pclArc->SetBufSize(&buffer_size, write_size);
+			archive->SetBufSize(&buffer_size, write_size);
 
 			// Output
-			pclArc->Read(buffer.data(), buffer_size);
+			archive->Read(buffer.data(), buffer_size);
 			DecryptNpa(buffer.data(), buffer_size, write_size, file_info);
-			pclArc->WriteFile(buffer.data(), buffer_size);
+			archive->WriteFile(buffer.data(), buffer_size);
 		}
 	}
 
 	return true;
 }
 
-void CNitro::DecryptPak3(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
+void CNitro::DecryptPak3(u8* data, size_t size, size_t offset, const SFileInfo* file_info)
 {
-	YCString clsFileExt = PathFindExtension(file_info->name);
-
 	if (file_info->format == _T("zlib"))
 	{
 		// No decoding
-
 		return;
 	}
 
 	// Decoding the first 16 bytes at most
-
 	size = (size < 16) ? size : 16;
 
 	// Decoding
+	size_t target_idx = 0;
 
-	DWORD dwTargetPtr = 0;
-
-	for (DWORD i = offset; i < (size / 4); i++)
+	for (size_t i = offset; i < size / 4; i++)
 	{
-		*(DWORD*)&data[dwTargetPtr] ^= file_info->key;
+		*reinterpret_cast<u32*>(&data[target_idx]) ^= file_info->key;
 
-		dwTargetPtr += 4;
+		target_idx += 4;
 	}
 
-	for (DWORD i = offset; i < (size & 3); i++)
+	for (size_t i = offset; i < (size & 3); i++)
 	{
-		data[dwTargetPtr++] ^= (file_info->key >> (i * 8)) & 0xFF;
+		data[target_idx++] ^= (file_info->key >> (i * 8)) & 0xFF;
 	}
 }
 
-void CNitro::DecryptPak4(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
+void CNitro::DecryptPak4(u8* data, size_t size, size_t offset, const SFileInfo* file_info)
 {
-	YCString clsFileExt = PathFindExtension(file_info->name);
-
 	if (file_info->format != _T("zlib"))
 	{
 		// Decoding up to 1024 bytes from the beginning
-
 		size = (size < 1024) ? size : 1024;
 	}
 
 	// Decoding
 
-	DWORD dwTargetPtr = 0;
+	size_t target_idx = 0;
 
-	for (DWORD i = offset; i < (size / 4); i++)
+	for (size_t i = offset; i < size / 4; i++)
 	{
-		*(DWORD*)&data[dwTargetPtr] ^= file_info->key;
-
-		dwTargetPtr += 4;
+		*reinterpret_cast<u32*>(&data[target_idx]) ^= file_info->key;
+		target_idx += 4;
 	}
 
-	for (DWORD i = offset; i < (size & 3); i++)
+	for (size_t i = offset; i < (size & 3); i++)
 	{
-		data[dwTargetPtr++] ^= (file_info->key >> (i * 8)) & 0xFF;
+		data[target_idx++] ^= (file_info->key >> (i * 8)) & 0xFF;
 	}
 }
 
-void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info, BYTE& byKey)
+void CNitro::DecryptN3Pk(u8* data, size_t size, size_t offset, const SFileInfo* file_info, u8& byte_key)
 {
-	static const BYTE abtKey[1024] =
-	{
+	static constexpr std::array<u8, 1024> key{{
 		0xAA, 0x00, 0x00, 0x00, 0x96, 0x30, 0x07, 0x77, 0x2C, 0x61, 0x0E, 0xEE, 0xBA, 0x51, 0x09, 0x99, 0x19, 0xC4, 0x6D, 0x07, 0x8F, 0xF4, 0x6A, 0x70, 0x35, 0xA5, 0x63, 0xE9, 0xA3, 0x95, 0x64, 0x9E,
 		0x32, 0x88, 0xDB, 0x0E, 0xA4, 0xB8, 0xDC, 0x79, 0x1E, 0xE9, 0xD5, 0xE0, 0x88, 0xD9, 0xD2, 0x97, 0x2B, 0x4C, 0xB6, 0x09, 0xBD, 0x7C, 0xB1, 0x7E, 0x07, 0x2D, 0xB8, 0xE7, 0x91, 0x1D, 0xBF, 0x90,
 		0x64, 0x10, 0xB7, 0x1D, 0xF2, 0x20, 0xB0, 0x6A, 0x48, 0x71, 0xB9, 0xF3, 0xDE, 0x41, 0xBE, 0x84, 0x7D, 0xD4, 0xDA, 0x1A, 0xEB, 0xE4, 0xDD, 0x6D, 0x51, 0xB5, 0xD4, 0xF4, 0xC7, 0x85, 0xD3, 0x83,
@@ -1061,32 +1062,31 @@ void CNitro::DecryptN3Pk(LPBYTE data, DWORD size, DWORD offset, const SFileInfo*
 		0x4A, 0x6A, 0xD1, 0xAE, 0xDC, 0x5A, 0xD6, 0xD9, 0x66, 0x0B, 0xDF, 0x40, 0xF0, 0x3B, 0xD8, 0x37, 0x53, 0xAE, 0xBC, 0xA9, 0xC5, 0x9E, 0xBB, 0xDE, 0x7F, 0xCF, 0xB2, 0x47, 0xE9, 0xFF, 0xB5, 0x30,
 		0x1C, 0xF2, 0xBD, 0xBD, 0x8A, 0xC2, 0xBA, 0xCA, 0x30, 0x93, 0xB3, 0x53, 0xA6, 0xA3, 0xB4, 0x24, 0x05, 0x36, 0xD0, 0xBA, 0x93, 0x06, 0xD7, 0xCD, 0x29, 0x57, 0xDE, 0x54, 0xBF, 0x67, 0xD9, 0x23,
 		0x2E, 0x7A, 0x66, 0xB3, 0xB8, 0x4A, 0x61, 0xC4, 0x02, 0x1B, 0x68, 0x5D, 0x94, 0x2B, 0x6F, 0x2A, 0x37, 0xBE, 0x0B, 0xB4, 0xA1, 0x8E, 0x0C, 0xC3, 0x1B, 0xDF, 0x05, 0x5A, 0x8D, 0xEF, 0x02, 0x2D
-	};
+	}};
 
 	switch (file_info->type)
 	{
 	case 1: // Decode all sizes
-		for (DWORD i = 0; i < size; i++)
+		for (size_t i = 0; i < size; i++)
 		{
-			data[i] ^= abtKey[byKey++];
+			data[i] ^= key[byte_key++];
 		}
 		break;
 
 	case 2: // Decoding up to 1024 bytes from the beginning
 		size = (size < 1024) ? size : 1024;
 
-		for (DWORD i = offset, j = 0; i < size; i++, j++)
+		for (size_t i = offset, j = 0; i < size; i++, j++)
 		{
-			data[j] ^= abtKey[byKey++];
+			data[j] ^= key[byte_key++];
 		}
 		break;
 	}
 }
 
-void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* file_info)
+void CNitro::DecryptNpa(u8* data, size_t size, size_t offset, const SFileInfo* file_info)
 {
-	static const BYTE abtKey[256] =
-	{
+	static constexpr std::array<u8, 256> key{{
 		0xDF, 0x5F, 0x6E, 0xF7, 0xF5, 0xEF, 0x52, 0x5B, 0x7E, 0x25, 0xD7, 0x46, 0xBC, 0x92, 0x02, 0x2E, 0x51, 0x7C, 0x39, 0x16, 0x2A, 0x18, 0x08, 0xEB, 0x0C, 0x97, 0x3A, 0xC7, 0xAC, 0xC6, 0xB0, 0x17,
 		0x80, 0xD6, 0x86, 0x3C, 0xFB, 0xF9, 0xB1, 0x01, 0xA9, 0x79, 0x9E, 0xB3, 0x37, 0xDE, 0x19, 0xE7, 0x2B, 0xC2, 0x28, 0x1E, 0x5D, 0x67, 0x22, 0x8E, 0x58, 0x1A, 0xCC, 0xEC, 0x44, 0x9D, 0xA7, 0x24,
 		0x55, 0x0F, 0x64, 0x56, 0x4C, 0x6C, 0xC4, 0x77, 0x11, 0x09, 0xEA, 0xC8, 0x20, 0x63, 0x1C, 0x6D, 0x3D, 0x72, 0xB8, 0x8A, 0x54, 0x95, 0x3F, 0x98, 0xE9, 0xB2, 0x7F, 0x06, 0x50, 0x8C, 0xC5, 0xB4,
@@ -1095,16 +1095,16 @@ void CNitro::DecryptNpa(LPBYTE data, DWORD size, DWORD offset, const SFileInfo* 
 		0xF0, 0xE2, 0xDB, 0x03, 0x6F, 0x65, 0xCD, 0x0D, 0x4A, 0x62, 0x0A, 0x88, 0x8F, 0x8D, 0x14, 0xAB, 0x70, 0xED, 0x0B, 0x45, 0x23, 0xC0, 0xAA, 0x91, 0x0E, 0x3E, 0x29, 0xD1, 0x59, 0xFD, 0xFA, 0xE1,
 		0xA2, 0xAF, 0xF4, 0x4F, 0x4D, 0xA5, 0x9C, 0xE3, 0x8B, 0x00, 0x12, 0x90, 0x32, 0x15, 0xD5, 0xBE, 0xD8, 0x4E, 0x69, 0xF2, 0xE6, 0x9A, 0xCA, 0x99, 0x04, 0x7A, 0x35, 0x10, 0x38, 0x1D, 0x13, 0x4B,
 		0xA6, 0xA1, 0x47, 0x5A, 0x1F, 0x36, 0xC1, 0x53, 0xB6, 0xCF, 0xAE, 0x7D, 0xFF, 0x93, 0x71, 0x34, 0xD3, 0xFC, 0x9F, 0xF8, 0x5E, 0x1B, 0xD9, 0x60, 0xBA, 0xBD, 0x5C, 0xE5, 0xF3, 0x27, 0xDA, 0x96
-	};
+	}};
 
-	BYTE btKey = (BYTE) (file_info->key & 0xFF);
+	const u8 file_key = static_cast<u8>(file_info->key & 0xFF);
 
 	// Decoding up to 4096 bytes from the beginning
 	size = (size < 4096) ? size : 4096;
 
 	// Decoding
-	for (DWORD i = offset, j = 0; i < size; i++, j++)
+	for (size_t i = offset, j = 0; i < size; i++, j++)
 	{
-		data[j] = abtKey[data[j]] - btKey;
+		data[j] = key[data[j]] - file_key;
 	}
 }
