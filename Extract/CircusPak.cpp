@@ -6,20 +6,20 @@
 
 /// Mounting
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::Mount(CArcFile* pclArc)
+bool CCircusPak::Mount(CArcFile* archive)
 {
-	if (MountPakForKujiraCons(pclArc))
+	if (MountPakForKujiraCons(archive))
 		return true;
 
-	if (MountPakForKujira(pclArc))
+	if (MountPakForKujira(archive))
 		return true;
 
-	if (MountPakForACDC(pclArc))
+	if (MountPakForACDC(archive))
 		return true;
 
-	if (MountPakForDCGS(pclArc))
+	if (MountPakForDCGS(archive))
 		return true;
 
 	return false;
@@ -27,49 +27,49 @@ bool CCircusPak::Mount(CArcFile* pclArc)
 
 /// 最終試験くじら-Conservative-向けpakのマウント
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::MountPakForKujiraCons(CArcFile* pclArc)
+bool CCircusPak::MountPakForKujiraCons(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "File Pack 1.0y", 14) != 0)
+	if (memcmp(archive->GetHed(), "File Pack 1.0y", 14) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(16);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(16);
+	archive->ReadU32(&num_files);
 
 	// Decryption
-	dwFiles ^= 0xAAAAAAAA;
+	num_files ^= 0xAAAAAAAA;
 
 	// Get index
-	YCMemory<SPakFileInfoType1> clmIndex(dwFiles);
-	pclArc->SeekCur(4);
-	pclArc->Read(&clmIndex[0], (sizeof(SPakFileInfoType1) * dwFiles));
+	std::vector<PakFileInfoType1> index(num_files);
+	archive->SeekCur(4);
+	archive->Read(index.data(), sizeof(PakFileInfoType1) * num_files);
 
 	// Get file information
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (size_t i = 0; i < num_files; i++)
 	{
 		// Get file name
-		char szFileName[25];
-		for (DWORD j = 0; j < 24; j++)
+		char file_name[25];
+		for (size_t j = 0; j < 24; j++)
 		{
-			szFileName[j] = clmIndex[i].szFileName[j] ^ 0xAA;
+			file_name[j] = index[i].file_name[j] ^ 0xAA;
 		}
-		szFileName[24] = '\0';
+		file_name[24] = '\0';
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = clmIndex[i].dwOffset ^ 0xAAAAAAAA;
-		stFileInfo.sizeCmp = clmIndex[i].dwCompFileSize ^ 0xAAAAAAAA;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = index[i].offset ^ 0xAAAAAAAA;
+		file_info.sizeCmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -77,49 +77,49 @@ bool CCircusPak::MountPakForKujiraCons(CArcFile* pclArc)
 
 /// 最終試験くじら向けpakのマウント
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::MountPakForKujira(CArcFile* pclArc)
+bool CCircusPak::MountPakForKujira(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "File Pack 1.00", 14) != 0)
+	if (memcmp(archive->GetHed(), "File Pack 1.00", 14) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(16);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(16);
+	archive->ReadU32(&num_files);
 
 	// Decryption
-	dwFiles ^= 0xAAAAAAAA;
+	num_files ^= 0xAAAAAAAA;
 
 	// Get index
-	YCMemory<SPakFileInfoType2> clmIndex(dwFiles);
-	pclArc->SeekCur(4);
-	pclArc->Read(&clmIndex[0], (sizeof(SPakFileInfoType2) * dwFiles));
+	std::vector<PakFileInfoType2> index(num_files);
+	archive->SeekCur(4);
+	archive->Read(index.data(), sizeof(PakFileInfoType2) * num_files);
 
 	// Get file information
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (size_t i = 0; i < num_files; i++)
 	{
 		// Get file name
-		char szFileName[33];
-		for (DWORD j = 0; j < 32; j++)
+		char file_name[33];
+		for (size_t j = 0; j < 32; j++)
 		{
-			szFileName[j] = clmIndex[i].szFileName[j] ^ 0xAA;
+			file_name[j] = index[i].file_name[j] ^ 0xAA;
 		}
-		szFileName[32] = '\0';
+		file_name[32] = '\0';
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = clmIndex[i].dwOffset ^ 0xAAAAAAAA;
-		stFileInfo.sizeCmp = clmIndex[i].dwCompFileSize ^ 0xAAAAAAAA;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = index[i].offset ^ 0xAAAAAAAA;
+		file_info.sizeCmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -127,49 +127,49 @@ bool CCircusPak::MountPakForKujira(CArcFile* pclArc)
 
 /// pak mounting for ACDC
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::MountPakForACDC(CArcFile* pclArc)
+bool CCircusPak::MountPakForACDC(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "ACDC_RA", 7) != 0)
+	if (memcmp(archive->GetHed(), "ACDC_RA", 7) != 0)
 		return false;
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->SeekHed(8);
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->SeekHed(8);
+	archive->ReadU32(&num_files);
 
 	// Decryption
-	dwFiles ^= 0xA6A6A6A6;
+	num_files ^= 0xA6A6A6A6;
 
 	// Get index
-	YCMemory<SPakFileInfoType2>	clmIndex(dwFiles);
-	pclArc->SeekCur(4);
-	pclArc->Read(&clmIndex[0], (sizeof(SPakFileInfoType2) * dwFiles));
+	std::vector<PakFileInfoType2> index(num_files);
+	archive->SeekCur(4);
+	archive->Read(index.data(), sizeof(PakFileInfoType2) * num_files);
 
 	// Get file information
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (size_t i = 0; i < num_files; i++)
 	{
 		// Get filename
-		char szFileName[33];
-		for (DWORD j = 0; j < 32; j++)
+		char file_name[33];
+		for (size_t j = 0; j < 32; j++)
 		{
-			szFileName[j] = clmIndex[i].szFileName[j] ^ 0xA6;
+			file_name[j] = index[i].file_name[j] ^ 0xA6;
 		}
-		szFileName[32] = '\0';
+		file_name[32] = '\0';
 
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name = szFileName;
-		stFileInfo.start = clmIndex[i].dwOffset ^ 0xA6A6A6A6;
-		stFileInfo.sizeCmp = clmIndex[i].dwCompFileSize ^ 0xA6A6A6A6;
-		stFileInfo.sizeOrg = stFileInfo.sizeCmp;
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.start = index[i].offset ^ 0xA6A6A6A6;
+		file_info.sizeCmp = index[i].compressed_file_size ^ 0xA6A6A6A6;
+		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -177,58 +177,58 @@ bool CCircusPak::MountPakForACDC(CArcFile* pclArc)
 
 /// pak mounting for DCGS
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::MountPakForDCGS(CArcFile* pclArc)
+bool CCircusPak::MountPakForDCGS(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "PACK", 4) != 0)
+	if (memcmp(archive->GetHed(), "PACK", 4) != 0)
 		return false;
 
-	pclArc->SeekHed(4);
+	archive->SeekHed(4);
 
 	// Get file count
-	DWORD dwFiles;
-	pclArc->Read(&dwFiles, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get flags
-	DWORD dwFlags;
-	pclArc->Read(&dwFlags, 4);
+	u32 flags;
+	archive->ReadU32(&flags);
 
 	// Get index size
-	DWORD dwIndexSize = (sizeof(SPakFileInfoType3) * dwFiles);
+	const size_t index_size = sizeof(PakFileInfoType3) * num_files;
 
 	// Get index
-	YCMemory<SPakFileInfoType3> clmIndex(dwFiles);
-	pclArc->Read(&clmIndex[0], dwIndexSize);
+	std::vector<PakFileInfoType3> index(num_files);
+	archive->Read(index.data(), index_size);
 
 	// Decode index
-	BYTE* pbtIndex = (BYTE*)&clmIndex[0];
-	for (DWORD i = 0; i < dwIndexSize; i++)
+	u8* index_ptr = reinterpret_cast<u8*>(index.data());
+	for (size_t i = 0; i < index_size; i++)
 	{
-		pbtIndex[i] = (pbtIndex[i] << 4) | (pbtIndex[i] >> 4);
+		index_ptr[i] = (index_ptr[i] << 4) | (index_ptr[i] >> 4);
 	}
 
 	// Get file information
-	for (DWORD i = 0; i < dwFiles; i++)
+	for (size_t i = 0; i < num_files; i++)
 	{
 		// Add to listview
-		SFileInfo stFileInfo;
-		stFileInfo.name.Copy(clmIndex[i].szFileName, sizeof(clmIndex[i].szFileName));
-		stFileInfo.start = clmIndex[i].dwOffset;
-		stFileInfo.sizeCmp = clmIndex[i].dwCompFileSize;
-		stFileInfo.sizeOrg = clmIndex[i].dwFileSize;
+		SFileInfo file_info;
+		file_info.name.Copy(index[i].file_name, sizeof(index[i].file_name));
+		file_info.start = index[i].offset;
+		file_info.sizeCmp = index[i].compressed_file_size;
+		file_info.sizeOrg = index[i].file_size;
 
-		if (stFileInfo.sizeCmp == 0)
+		if (file_info.sizeCmp == 0)
 		{
-			stFileInfo.sizeCmp = stFileInfo.sizeOrg;
+			file_info.sizeCmp = file_info.sizeOrg;
 		}
 
-		stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+		file_info.end = file_info.start + file_info.sizeCmp;
 
-		pclArc->AddFileInfo(stFileInfo);
+		archive->AddFileInfo(file_info);
 	}
 
 	return true;
@@ -236,20 +236,20 @@ bool CCircusPak::MountPakForDCGS(CArcFile* pclArc)
 
 /// Decoding
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::Decode(CArcFile* pclArc)
+bool CCircusPak::Decode(CArcFile* archive)
 {
-	if (DecodePakForKujiraCons(pclArc))
+	if (DecodePakForKujiraCons(archive))
 		return true;
 
-	if (DecodePakForKujira(pclArc))
+	if (DecodePakForKujira(archive))
 		return true;
 
-	if (DecodePakForACDC(pclArc))
+	if (DecodePakForACDC(archive))
 		return true;
 
-	if (DecodePakForDCGS(pclArc))
+	if (DecodePakForDCGS(archive))
 		return true;
 
 	return false;
@@ -257,53 +257,52 @@ bool CCircusPak::Decode(CArcFile* pclArc)
 
 /// 最終試験くじら-Conservative-向けpakのデコード
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
+bool CCircusPak::DecodePakForKujiraCons(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "File Pack 1.0y", 14) != 0)
+	if (memcmp(archive->GetHed(), "File Pack 1.0y", 14) != 0)
 		return false;
 
-	BYTE abtKey[2];
-	abtKey[0] = 0xFF;
-	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
+	const std::array<u8, 2> key{{
+		0xFFU,
+		(file_info->format == _T("CS")) ? 1U : 0U
+	}};
 
 	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decode
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
+		Decrypt1(src.data(), src.size(), key.data());
 
 		// Output
-		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeBMP(archive, src.data(), src.size());
 	}
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
-		*(DWORD*)&clmbtSrc[4] ^= 0x80701084;
+		Decrypt1(src.data(), src.size(), key.data());
+		*reinterpret_cast<u32*>(&src[4]) ^= 0x80701084;
 
 		// Decoding
-		DecodeCps(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeCps(archive, src.data(), src.size());
 	}
 	else
 	{
 		// Other
-		DecodeEtc(pclArc, Decrypt2, abtKey);
+		DecodeEtc(archive, Decrypt2, key.data());
 	}
 
 	return true;
@@ -311,53 +310,52 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* pclArc)
 
 /// 最終試験くじら向けpakのデコード
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
+bool CCircusPak::DecodePakForKujira(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "File Pack 1.00", 14) != 0)
+	if (memcmp(archive->GetHed(), "File Pack 1.00", 14) != 0)
 		return false;
 
-	BYTE abtKey[2];
-	abtKey[0] = 0xFF;
-	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
+	const std::array<u8, 2> key{{
+		0xFFU,
+		file_info->format == _T("CS") ? 1U : 0U
+	}};
 
 	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
+		Decrypt1(src.data(), src.size(), key.data());
 
 		// Output
-		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeBMP(archive, src.data(), src.size());
 	}
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
-		*(DWORD*)&clmbtSrc[4] ^= 0x80701084;
+		Decrypt1(src.data(), src.size(), key.data());
+		*reinterpret_cast<u32*>(&src[4]) ^= 0x80701084;
 
 		// Decoding
-		DecodeCps(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeCps(archive, src.data(), src.size());
 	}
 	else
 	{
 		// Other
-		DecodeEtc(pclArc, Decrypt2, abtKey);
+		DecodeEtc(archive, Decrypt2, key.data());
 	}
 
 	return true;
@@ -365,87 +363,86 @@ bool CCircusPak::DecodePakForKujira(CArcFile* pclArc)
 
 /// pak decoding for ACDC
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
+bool CCircusPak::DecodePakForACDC(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "ACDC_RA", 7) != 0)
+	if (memcmp(archive->GetHed(), "ACDC_RA", 7) != 0)
 		return false;
 
-	BYTE abtKey[2];
-	abtKey[0] = 0x68;
-	abtKey[1] = (file_info->format == _T("CS")) ? 1 : 0;
+	const std::array<u8, 2> key{{
+		0x68U,
+		file_info->format == _T("CS") ? 1U : 0U
+	}};
 
 	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
+		Decrypt1(src.data(), src.size(), key.data());
 
 		// Output
-		DecodeBMP(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeBMP(archive, src.data(), src.size());
 	}
 	else if (file_info->format == _T("TGA"))
 	{
 		// TGA
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		std::vector<u8> src(file_info->sizeCmp);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
+		Decrypt1(src.data(), src.size(), key.data());
 
 		// Output
-		CTga clTGA;
-		clTGA.Decode(pclArc, &clmbtSrc[0], dwSrcSize);
+		CTga tga;
+		tga.Decode(archive, src.data(), src.size());
 	}
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		DWORD          dwSrcSize = file_info->sizeCmp;
-		YCMemory<BYTE> clmbtSrc(dwSrcSize);
-		pclArc->Read(&clmbtSrc[0], dwSrcSize);
+		const u32 src_size = file_info->sizeCmp;
+		std::vector<u8> src(src_size);
+		archive->Read(src.data(), src.size());
 
 		// Decryption
-		Decrypt1(&clmbtSrc[0], dwSrcSize, abtKey);
-		*(DWORD*)&clmbtSrc[4] ^= 0x0A415FCF;
+		Decrypt1(src.data(), src.size(), key.data());
+		*reinterpret_cast<u32*>(&src[4]) ^= 0x0A415FCF;
 
-		if (dwSrcSize >= 0x308)
+		if (src_size >= 0x308)
 		{
-			*(DWORD*)&clmbtSrc[4] ^= clmbtSrc[dwSrcSize - 1];
+			*reinterpret_cast<u32*>(&src[4]) ^= src[src_size - 1];
 
-			DWORD dwWork;
-			DWORD dwWork2;
-
-			// Replace data
-			dwWork = 8 + (dwSrcSize - 8) - 0xFF;
-			dwWork2 = 8 + ((dwSrcSize - 8) >> 9) + 0xFF;
-
-			std::swap(clmbtSrc[dwWork], clmbtSrc[dwWork2]);
+			u32 work;
+			u32 work2;
 
 			// Replace data
-			dwWork = 8 + (dwSrcSize - 8) - (0xFF << 1);
-			dwWork2 = 8 + (((dwSrcSize - 8) >> 9) << 1) + 0xFF;
+			work = 8 + (src_size - 8) - 0xFF;
+			work2 = 8 + ((src_size - 8) >> 9) + 0xFF;
 
-			std::swap(clmbtSrc[dwWork], clmbtSrc[dwWork2]);
+			std::swap(src[work], src[work2]);
+
+			// Replace data
+			work = 8 + (src_size - 8) - (0xFF << 1);
+			work2 = 8 + (((src_size - 8) >> 9) << 1) + 0xFF;
+
+			std::swap(src[work], src[work2]);
 		}
 
 		// Decoding
-		DecodeCps(pclArc, &clmbtSrc[0], dwSrcSize);
+		DecodeCps(archive, src.data(), src.size());
 	}
 	else
 	{
 		// Other
-		DecodeEtc(pclArc, Decrypt2, abtKey);
+		DecodeEtc(archive, Decrypt2, key.data());
 	}
 
 	return true;
@@ -453,70 +450,70 @@ bool CCircusPak::DecodePakForACDC(CArcFile* pclArc)
 
 /// pak decoding for DCGS
 ///
-/// @param pclArc Archive
+/// @param archive Archive
 ///
-bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
+bool CCircusPak::DecodePakForDCGS(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (pclArc->GetArcExten() != _T(".pak"))
+	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "PACK", 4) != 0)
+	if (memcmp(archive->GetHed(), "PACK", 4) != 0)
 		return false;
 
 	// Read
-	DWORD          dwSrcSize = file_info->sizeCmp;
-	YCMemory<BYTE> clmSrc(dwSrcSize);
-	pclArc->Read(&clmSrc[0], dwSrcSize);
+	const u32 src_size = file_info->sizeCmp;
+	std::vector<u8> src(src_size);
+	archive->Read(src.data(), src.size());
 
 	// Decompression
-	BYTE*          pbtDst = &clmSrc[0];
-	DWORD          dwDstSize = file_info->sizeOrg;
-	YCMemory<BYTE> clmDst;
+	u8* dst_ptr = src.data();
+	u32 dst_size = file_info->sizeOrg;
+	std::vector<u8> dst;
 
-	if (dwSrcSize != dwDstSize)
+	if (src_size != dst_size)
 	{
 		// Is compressed
-		clmDst.resize(dwDstSize);
+		dst.resize(dst_size);
 
 		// Decompression
-		CLZSS clLZSS;
-		clLZSS.Decomp(&clmDst[0], dwDstSize, &clmSrc[0], dwSrcSize, 4096, 4078, 3);
-		pbtDst = &clmDst[0];
+		CLZSS lzss;
+		lzss.Decomp(dst.data(), dst.size(), src.data(), src.size(), 4096, 4078, 3);
+		dst_ptr = dst.data();
 	}
 
 	// Output
 	if (file_info->format == _T("OP2"))
 	{
 		// Image
-		long  lWidth = *(long*)&pbtDst[4];
-		long  lHeight = *(long*)&pbtDst[8];
-		WORD  wBpp = *(WORD*)&pbtDst[12];
-		DWORD dwDataOffset = *(DWORD*)&pbtDst[20];
-		DWORD dwPalletSize = (dwDataOffset - 32);
-		DWORD dwDIBSize = *(DWORD*)&pbtDst[24];
+		const s32  width      = *reinterpret_cast<s32*>(&dst_ptr[4]);
+		const s32  height     = *reinterpret_cast<s32*>(&dst_ptr[8]);
+		const u16  bpp        = *reinterpret_cast<u16*>(&dst_ptr[12]);
+		const u32 data_offset = *reinterpret_cast<u32*>(&dst_ptr[20]);
+		const u32 pallet_size = data_offset - 32;
+		const u32 dib_size    = *reinterpret_cast<u32*>(&dst_ptr[24]);
 
-		dwDstSize = *(DWORD*)&pbtDst[28];
+		dst_size = *reinterpret_cast<u32*>(&dst_ptr[28]);
 
-		YCMemory<BYTE> clmDIB(dwDIBSize);
+		std::vector<u8> dib(dib_size);
 
 		// Decompression
-		CLZSS clLZSS;
-		clLZSS.Decomp(&clmDIB[0], dwDIBSize, &pbtDst[dwDataOffset], dwDstSize, 4096, 4078, 3);
+		CLZSS lzss;
+		lzss.Decomp(dib.data(), dib.size(), &dst_ptr[data_offset], dst_size, 4096, 4078, 3);
 
 		// Output
-		CImage clImage;
-		clImage.Init(pclArc, lWidth, lHeight, wBpp, &pbtDst[32], dwPalletSize);
-		clImage.WriteReverse(&clmDIB[0], dwDIBSize);
-		clImage.Close();
+		CImage image;
+		image.Init(archive, width, height, bpp, &dst_ptr[32], pallet_size);
+		image.WriteReverse(dib.data(), dib.size());
+		image.Close();
 	}
 	else
 	{
 		// Other
-		pclArc->OpenFile();
-		pclArc->WriteFile(pbtDst, dwDstSize);
-		pclArc->CloseFile();
+		archive->OpenFile();
+		archive->WriteFile(dst_ptr, dst_size);
+		archive->CloseFile();
 	}
 
 	return true;
@@ -524,82 +521,80 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* pclArc)
 
 /// BMP Decoding
 ///
-/// @param pclArc    Archive
-/// @param pvSrc     BMP data (to be decoded)
-/// @param dwSrcSize BMP data size
+/// @param archive  Archive
+/// @param src      BMP data (to be decoded)
+/// @param src_size BMP data size
 ///
-bool CCircusPak::DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircusPak::DecodeBMP(CArcFile* archive, const u8* src, size_t src_size)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 	if (file_info->format != _T("BMP"))
 		return false;
 
-	BYTE*             pbtSrc = (BYTE*)pvSrc;
-	BITMAPFILEHEADER* pstbmfhSrc = (BITMAPFILEHEADER*)&pbtSrc[0];
-	BITMAPINFOHEADER* pstbmihSrc = (BITMAPINFOHEADER*)&pbtSrc[14];
+	const auto* bmp_file_header = reinterpret_cast<const BITMAPFILEHEADER*>(&src[0]);
+	const auto* bmp_info_header = reinterpret_cast<const BITMAPINFOHEADER*>(&src[14]);
 
-	dwSrcSize = (pstbmihSrc->biBitCount == 8) ? (dwSrcSize - 54 - 1024) : (dwSrcSize - 54);
+	std::vector<u8> dst(src, src + src_size);
+	const u32 dst_size = (bmp_info_header->biBitCount == 8) ? (src_size - 54 - 1024) : (src_size - 54);
 
-	CImage clImage;
-	clImage.Init(pclArc, pbtSrc);
-	clImage.Write(dwSrcSize);
+	CImage image;
+	image.Init(archive, dst.data());
+	image.Write(dst_size);
 
 	return true;
 }
 
 /// CPS Decoding
 ///
-/// @param pclArc    Archive
-/// @param pvSrc     CPS data (to be decoded)
-/// @param dwSrcSize CPS data size
+/// @param archive  Archive
+/// @param src      CPS data (to be decoded)
+/// @param src_size CPS data size
 ///
-bool CCircusPak::DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
+bool CCircusPak::DecodeCps(CArcFile* archive, const u8* src, size_t src_size)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("CPS"))
 		return false;
 
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-
 	// Ensure output buffer exists
-	DWORD          dwDstSize = *(DWORD*)&pbtSrc[4];
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	u32 dst_size = *reinterpret_cast<const u32*>(&src[4]);
+	std::vector<u8> dst(dst_size);
 
 	// Decompress
-	if (memcmp(pbtSrc, "CCC0", 4) == 0)
+	if (memcmp(src, "CCC0", 4) == 0)
 	{
 		// CCC0
-		DecompCCC0(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize);
+		DecompCCC0(dst.data(), dst_size, src, src_size);
 
-		long lWidth = *(WORD*)&clmbtDst[12];
-		long lHeight = *(WORD*)&clmbtDst[14];
-		WORD wBpp = clmbtDst[16];
+		const s32 width = *reinterpret_cast<u16*>(&dst[12]);
+		const s32 height = *reinterpret_cast<u16*>(&dst[14]);
+		const u16 bpp = dst[16];
 
 		// Output
-		CImage clImage;
-		clImage.Init(pclArc, lWidth, lHeight, wBpp);
-		clImage.Write(&clmbtDst[18], (dwDstSize - 18));
+		CImage image;
+		image.Init(archive, width, height, bpp);
+		image.Write(&dst[18], dst_size - 18);
 	}
-	else if (memcmp(pbtSrc, "CCM0", 4) == 0)
+	else if (memcmp(src, "CCM0", 4) == 0)
 	{
 		// CCM0
-		DecompCCM0(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize);
+		DecompCCM0(dst.data(), dst_size, src, src_size);
 
 		// Output
-		BITMAPFILEHEADER* pstBMPFileHeader = (BITMAPFILEHEADER*)&clmbtDst[0];
-		BITMAPINFOHEADER* pstBMPInfoHeader = (BITMAPINFOHEADER*)&clmbtDst[14];
-		dwDstSize = (pstBMPInfoHeader->biBitCount == 8) ? (dwDstSize - 54 - 1024) : (dwDstSize - 54);
+		const auto* bmp_file_header = reinterpret_cast<BITMAPFILEHEADER*>(&dst[0]);
+		const auto* bmp_info_header = reinterpret_cast<BITMAPINFOHEADER*>(&dst[14]);
+		dst_size = (bmp_info_header->biBitCount == 8) ? (dst_size - 54 - 1024) : (dst_size - 54);
 
-		CImage clImage;
-		clImage.Init(pclArc, &clmbtDst[0]);
-		clImage.Write(dwDstSize);
+		CImage image;
+		image.Init(archive, dst.data());
+		image.Write(dst_size);
 	}
 	else
 	{
 		// Unknown
-		pclArc->OpenFile();
-		pclArc->WriteFile(pbtSrc, dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(src, src_size);
 	}
 
 	return true;
@@ -611,7 +606,7 @@ bool CCircusPak::DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize)
 /// @param decryption_function Pointer to the decryption function
 /// @param key                 Decryption key
 ///
-bool CCircusPak::DecodeEtc(CArcFile* archive, FDecrypt decryption_function, const void* key)
+bool CCircusPak::DecodeEtc(CArcFile* archive, DecryptionFunction decryption_function, const u8* key)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
@@ -644,55 +639,52 @@ bool CCircusPak::DecodeEtc(CArcFile* archive, FDecrypt decryption_function, cons
 
 /// CCC0 Extraction
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     CCC0 data
-/// @param dwSrcSize CCC0 data size
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      CCC0 data
+/// @param src_size CCC0 data size
 ///
-bool CCircusPak::DecompCCC0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+bool CCircusPak::DecompCCC0(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-
-	DWORD dwSrcPtrOfBit = 0x2C * 8;
-	DWORD dwDstPtr = 0;
+	size_t src_bit_idx = 0x2C * 8;
+	size_t dst_idx = 0;
 
 	// Decompression
-	for (dwDstPtr = 0; dwDstPtr < dwDstSize; dwDstPtr += 2)
+	for (dst_idx = 0; dst_idx < dst_size; dst_idx += 2)
 	{
-		DWORD dwIndex;
+		u32 index;
 
-		for (dwIndex = 0; dwIndex < 0x0F; dwIndex++)
+		for (index = 0; index < 0x0F; index++)
 		{
-			if (GetBit(pbtSrc, &dwSrcPtrOfBit, 1) == 1)
+			if (GetBit(src, &src_bit_idx, 1) == 1)
 			{
 				break;
 			}
 		}
 
-		if (dwIndex == 0x0F)
+		if (index == 0x0F)
 		{
-			if (GetBit(pbtSrc, &dwSrcPtrOfBit, 1) == 0)
+			if (GetBit(src, &src_bit_idx, 1) == 0)
 			{
-				dwIndex++;
+				index++;
 			}
 		}
 
-		if (dwIndex != 0)
+		if (index != 0)
 		{
-			*(WORD*)&pbtDst[dwDstPtr] = ((WORD*)(pbtSrc + 8))[dwIndex - 1];
+			*reinterpret_cast<u16*>(&dst[dst_idx]) = reinterpret_cast<const u16*>(src + 8)[index - 1];
 		}
 		else
 		{
-			*(WORD*)&pbtDst[dwDstPtr] = GetBit(pbtSrc, &dwSrcPtrOfBit, 16);
+			*reinterpret_cast<u16*>(&dst[dst_idx]) = GetBit(src, &src_bit_idx, 16);
 		}
 	}
 
 	// サイズが奇数の場合1余る
 
-	if (dwDstSize & 1)
+	if (dst_size & 1)
 	{
-		pbtDst[dwDstPtr] = pbtSrc[0x28];
+		dst[dst_idx] = src[0x28];
 	}
 
 	return true;
@@ -700,53 +692,51 @@ bool CCircusPak::DecompCCC0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 
 /// CCM0 Extraction
 ///
-/// @param pvDst     Destination
-/// @param dwDstSize Destination size
-/// @param pvSrc     CCM0 data
-/// @param dwSrcSize CCM0 data size
-bool CCircusPak::DecompCCM0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize)
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      CCM0 data
+/// @param src_size CCM0 data size
+///
+bool CCircusPak::DecompCCM0(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	BYTE*       pbtDst = (BYTE*)pvDst;
-
-	DWORD dwSrcPtrOfBit;
-	DWORD dwDstPtr = 0;
+	size_t src_bit_idx;
+	size_t dst_idx = 0;
 
 	// Decompression
-	if (dwDstSize < 0x80)
+	if (dst_size < 0x80)
 	{
 		// Uncompressed
-		memcpy(pbtDst, &pbtSrc[8], dwDstSize);
+		memcpy(dst, &src[8], dst_size);
 	}
 	else
 	{
-		for (DWORD i = 0; i < 0x80; i++)
+		for (size_t i = 0; i < 0x80; i++)
 		{
-			pbtDst[dwDstPtr++] = pbtSrc[8 + i] + 0xF0;
+			dst[dst_idx++] = src[8 + i] + 0xF0;
 		}
+		
+		src_bit_idx = 0x88 * 8;
 
-		dwSrcPtrOfBit = 0x88 * 8;
-
-		while (dwDstPtr < dwDstSize)
+		while (dst_idx < dst_size)
 		{
-			DWORD dwFlag = GetBit(pbtSrc, &dwSrcPtrOfBit, 1);
+			const u32 flag = GetBit(src, &src_bit_idx, 1);
 
 			// Compressed
-			if (dwFlag & 1)
+			if (flag & 1)
 			{
-				DWORD dwBack = GetBit(pbtSrc, &dwSrcPtrOfBit, 7) + 1;
-				DWORD dwLength = GetBit(pbtSrc, &dwSrcPtrOfBit, 4) + 2;
+				const u32 back = GetBit(src, &src_bit_idx, 7) + 1;
+				const u32 length = GetBit(src, &src_bit_idx, 4) + 2;
 
-				for (DWORD i = 0; i < dwLength; i++)
+				for (size_t i = 0; i < length; i++)
 				{
-					pbtDst[dwDstPtr + i] = pbtDst[dwDstPtr - dwBack + i];
+					dst[dst_idx + i] = dst[dst_idx - back + i];
 				}
 
-				dwDstPtr += dwLength;
+				dst_idx += length;
 			}
 			else // Uncompressed
 			{
-				pbtDst[dwDstPtr++] = GetBit(pbtSrc, &dwSrcPtrOfBit, 8);
+				dst[dst_idx++] = GetBit(src, &src_bit_idx, 8);
 			}
 		}
 	}
@@ -756,56 +746,49 @@ bool CCircusPak::DecompCCM0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWO
 
 /// Get bit sequence
 ///
-/// @param pvSrc           Input data
-/// @param pdwSrcPtrOfBit  Position of innput data (number of bits read is added)
-/// @param dwReadBitLength Number of bits to read
+/// @param src              Input data
+/// @param src_bit_idx      Position of input data (number of bits read is added)
+/// @param num_bits_to_read Number of bits to read
 ///
-DWORD CCircusPak::GetBit(const void* pvSrc, DWORD* pdwSrcPtrOfBit, DWORD dwReadBitLength)
+u32 CCircusPak::GetBit(const u8* src, size_t* src_bit_idx, u32 num_bits_to_read)
 {
-	const BYTE* pbtSrc = (const BYTE*)pvSrc;
-	DWORD       dwData = 0;
+	u32 data = 0;
 
-	for (DWORD i = 0; i < dwReadBitLength; i++)
+	for (size_t i = 0; i < num_bits_to_read; i++)
 	{
-		dwData <<= 1;
-		dwData |= (pbtSrc[*pdwSrcPtrOfBit >> 3] >> (*pdwSrcPtrOfBit & 7)) & 1;
-		(*pdwSrcPtrOfBit)++;
+		data <<= 1;
+		data |= (src[*src_bit_idx >> 3] >> (*src_bit_idx & 7)) & 1;
+		(*src_bit_idx)++;
 	}
 
-	return dwData;
+	return data;
 }
 
 /// Decryption 1
 ///
-/// @param pvTarget     Data to be decrypted
-/// @param dwTargetSize Decryption size
-/// @param pvKey        Decryption key
+/// @param target      Data to be decrypted
+/// @param target_size Decryption size
+/// @param key         Decryption key
 ///
-void CCircusPak::Decrypt1(void* pvTarget, DWORD dwTargetSize, const void* pvKey)
+void CCircusPak::Decrypt1(u8* target, size_t target_size, const u8* key)
 {
-	BYTE*       pbtTarget = (BYTE*)pvTarget;
-	const BYTE* pbtKey = (const BYTE*)pvKey;
-
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= pbtKey[0];
+		target[i] ^= key[0];
 	}
 }
 
 /// Decryption 2
 ///
-/// @param pvTarget     Data to be decrypted
-/// @param dwTargetSize Decryption size
-/// @param pvKey        Decryption key
+/// @param target      Data to be decrypted
+/// @param target_size Decryption size
+/// @param key         Decryption key
 ///
-void CCircusPak::Decrypt2(void* pvTarget, DWORD dwTargetSize, const void* pvKey)
+void CCircusPak::Decrypt2(u8* target, size_t target_size, const u8* key)
 {
-	BYTE*       pbtTarget = (BYTE*) pvTarget;
-	const BYTE* pbtKey = (const BYTE*) pvKey;
-
-	for (DWORD i = 0; i < dwTargetSize; i++)
+	for (size_t i = 0; i < target_size; i++)
 	{
-		pbtTarget[i] ^= pbtKey[0];
-		pbtTarget[i] -= pbtKey[1];
+		target[i] ^= key[0];
+		target[i] -= key[1];
 	}
 }

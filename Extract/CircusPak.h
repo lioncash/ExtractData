@@ -5,53 +5,53 @@
 class CCircusPak final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	using FDecrypt = void(*)(void*, DWORD, const void*);
+	using DecryptionFunction = void(*)(u8*, size_t, const u8*);
 
-	struct SPakFileInfoType1
+	struct PakFileInfoType1
 	{
-		char  szFileName[24];
-		DWORD dwOffset;
-		DWORD dwCompFileSize;
+		char file_name[24];
+		u32  offset;
+		u32  compressed_file_size;
 	};
 
-	struct SPakFileInfoType2
+	struct PakFileInfoType2
 	{
-		char  szFileName[32];
-		DWORD dwOffset;
-		DWORD dwCompFileSize;
+		char file_name[32];
+		u32  offset;
+		u32  compressed_file_size;
 	};
 
-	struct SPakFileInfoType3
+	struct PakFileInfoType3
 	{
-		wchar_t szFileName[32];
-		DWORD   dwFileSize;
-		DWORD   dwCompFileSize;
-		DWORD   dwOffset;
+		wchar_t file_name[32];
+		u32     file_size;
+		u32     compressed_file_size;
+		u32     offset;
 	};
 
-	bool MountPakForKujiraCons(CArcFile* pclArc);
-	bool MountPakForKujira(CArcFile* pclArc);
-	bool MountPakForACDC(CArcFile* pclArc);
-	bool MountPakForDCGS(CArcFile* pclArc);
+	bool MountPakForKujiraCons(CArcFile* archive);
+	bool MountPakForKujira(CArcFile* archive);
+	bool MountPakForACDC(CArcFile* archive);
+	bool MountPakForDCGS(CArcFile* archive);
 
-	bool DecodePakForKujiraCons(CArcFile* pclArc);
-	bool DecodePakForKujira(CArcFile* pclArc);
-	bool DecodePakForACDC(CArcFile* pclArc);
-	bool DecodePakForDCGS(CArcFile* pclArc);
+	bool DecodePakForKujiraCons(CArcFile* archive);
+	bool DecodePakForKujira(CArcFile* archive);
+	bool DecodePakForACDC(CArcFile* archive);
+	bool DecodePakForDCGS(CArcFile* archive);
 
-	bool DecodeBMP(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	bool DecodeCps(CArcFile* pclArc, const void* pvSrc, DWORD dwSrcSize);
-	bool DecodeEtc(CArcFile* pclArc, FDecrypt pfnDecryptFunc, const void* pvKey);
+	bool DecodeBMP(CArcFile* archive, const u8* src, size_t src_size);
+	bool DecodeCps(CArcFile* archive, const u8* src, size_t src_size);
+	bool DecodeEtc(CArcFile* archive, DecryptionFunction decryption_function, const u8* key);
 
-	bool DecompCCC0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
-	bool DecompCCM0(void* pvDst, DWORD dwDstSize, const void* pvSrc, DWORD dwSrcSize);
+	bool DecompCCC0(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	bool DecompCCM0(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 
-	DWORD GetBit(const void* pvSrc, DWORD* pdwSrcPtrOfBit, DWORD dwReadBitLength);
+	u32 GetBit(const u8* src, size_t* src_bit_idx, u32 num_bits_to_read);
 
-	static void Decrypt1(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
-	static void Decrypt2(void* pvTarget, DWORD dwTargetSize, const void* pvKey);
+	static void Decrypt1(u8* target, size_t target_size, const u8* key);
+	static void Decrypt2(u8* target, size_t target_size, const u8* key);
 };
