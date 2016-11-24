@@ -286,7 +286,7 @@ void CMD5::AppendPadding(void* src, u32 src_size, u32 padding)
 
 	// Append padding
 	byte_src[src_size] = 0x80;
-	ZeroMemory(&byte_src[src_size + 1], padding - 9);
+	std::memset(&byte_src[src_size + 1], 0, padding - 9);
 
 	// Additional data size (in bits)
 	const auto bitsize = static_cast<u64>(src_size) * 8;
