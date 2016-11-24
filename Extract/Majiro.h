@@ -5,28 +5,28 @@
 class CMajiro final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
 	struct SRCHeader
 	{
-		char  szIdentifier[8];
-		long  lWidth;
-		long  lHeight;
-		DWORD dwDataSize;
+		char identifier[8];
+		s32  width;
+		s32  height;
+		u32  data_size;
 	};
 
-	bool MountArc1(CArcFile* pclArc);
-	bool MountArc2(CArcFile* pclArc);
-	bool MountMJO(CArcFile* pclArc);
-	bool MountRC(CArcFile* pclArc);
+	bool MountArc1(CArcFile* archive);
+	bool MountArc2(CArcFile* archive);
+	bool MountMJO(CArcFile* archive);
+	bool MountRC(CArcFile* archive);
 
-	bool DecodeMJO(CArcFile* pclArc);
-	bool DecodeRC(CArcFile* pclArc);
+	bool DecodeMJO(CArcFile* archive);
+	bool DecodeRC(CArcFile* archive);
 
-	void read_bits_24(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth);
-	void read_bits_8(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth);
+	void read_bits_24(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width);
+	void read_bits_8(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width);
 
-	bool AppendMask(CArcFile* pclArc, BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize);
+	bool AppendMask(CArcFile* archive, u8* dst, size_t dst_size, const u8* src, size_t src_size);
 };
