@@ -95,9 +95,9 @@ bool CImageBase::GetValidityOfAlphaBlend() const
 
 /// Set background color when alpha blending
 ///
-/// @param background_color Background color
+/// @param background_color Background color as RGBA
 ///
-void CImageBase::SetBackColorWhenAlphaBlend(COLORREF background_color)
+void CImageBase::SetBackColorWhenAlphaBlend(u32 background_color)
 {
 	m_background_color_when_alpha_blending.color = background_color;
 }
