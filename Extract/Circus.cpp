@@ -3,7 +3,6 @@
 #include "Arc/Zlib.h"
 #include "Extract/Circus.h"
 #include "Sound/Wav.h"
-#include "Utils/ArrayUtils.h"
 
 /// Mounting
 ///
@@ -36,33 +35,32 @@ bool CCircus::MountPCK(CArcFile* archive)
 		return false;
 
 	// Get file count
-	DWORD files;
-	archive->Read(&files, 4);
+	u32 files;
+	archive->ReadU32(&files);
 
 	// Get index size
-	const DWORD index_size = files * 64;
+	const u32 index_size = files * 64;
 
 	// Read index
-	YCMemory<BYTE> index(index_size);
+	std::vector<u8> index(index_size);
 	archive->SeekCur(files * 8);
-	archive->Read(&index[0], index_size);
+	archive->Read(index.data(), index.size());
 
 	// Store file information in memory
-	for (DWORD i = 0; i < files; i++)
+	for (size_t i = 0; i < files; i++)
 	{
 		// Get filename
 		char file_name[57];
 		memcpy(file_name, &index[i * 64], 56);
-
 		file_name[56] = '\0';
 
 		// Store file information in memory
 		SFileInfo file_info;
-		file_info.name = file_name;
-		file_info.sizeCmp = *(DWORD*) &index[i * 64 + 60];
+		file_info.name    = file_name;
+		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[i * 64 + 60]);
 		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.start = *(DWORD*) &index[i * 64 + 56];
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.start   = *reinterpret_cast<u32*>(&index[i * 64 + 56]);
+		file_info.end     = file_info.start + file_info.sizeCmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -86,18 +84,18 @@ bool CCircus::MountVoiceDat(CArcFile* archive)
 	}
 
 	// Get file count
-	DWORD files;
-	archive->Read(&files, 4);
+	u32 files;
+	archive->ReadU32(&files);
 
 	// Get index size
-	DWORD index_size = files * 52;
+	const u32 index_size = files * 52;
 
 	// Read index
-	YCMemory<BYTE> index(index_size);
-	archive->Read(&index[0], index_size);
+	std::vector<u8> index(index_size);
+	archive->Read(index.data(), index.size());
 
 	// Store file information in memory
-	for (DWORD i = 0; i < files; i++)
+	for (size_t i = 0; i < files; i++)
 	{
 		// Get file name
 		char file_name[49];
@@ -107,15 +105,15 @@ bool CCircus::MountVoiceDat(CArcFile* archive)
 		if (strcmpi(PathFindExtensionA(file_name), ".pcm") != 0)
 		{
 			// Unsupported archive
-			archive->SeekCur(-(INT64)(4 + index_size));
+			archive->SeekCur(-static_cast<s64>(4 + index_size));
 			return false;
 		}
 
 		// Store file information in memory
 		SFileInfo file_info;
-		file_info.name = file_name;
-		file_info.start = *(DWORD*) &index[i * 52 + 48];
-		file_info.end = (i < (files - 1)) ? *(DWORD*) &index[(i + 1) * 52 + 48] : archive->GetArcSize();
+		file_info.name    = file_name;
+		file_info.start   = *reinterpret_cast<u32*>(&index[i * 52 + 48]);
+		file_info.end     = (i < (files - 1)) ? *reinterpret_cast<u32*>(&index[(i + 1) * 52 + 48]) : archive->GetArcSize();
 		file_info.sizeCmp = file_info.end - file_info.start;
 		file_info.sizeOrg = file_info.sizeCmp;
 
@@ -181,28 +179,28 @@ bool CCircus::DecodeCRX(CArcFile* archive)
 		return false;
 
 	// Ensure input buffer exists
-	const DWORD src_size = file_info->sizeCmp;
-	YCMemory<BYTE> src(src_size);
+	std::vector<u8> src(file_info->sizeCmp);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// Determine CRX type
-	const WORD type = *(WORD*) &src[12];
+	const u16 type = *reinterpret_cast<const u16*>(&src[12]);
 
 	switch (type)
 	{
 	case 1: // LZSS compression type
-		DecodeCRX1(archive, &src[0], src_size);
+		DecodeCRX1(archive, src.data(), src.size());
 		break;
 
 	case 2: // ZLIB compression type
-		DecodeCRX2(archive, &src[0], src_size);
+		DecodeCRX2(archive, src.data(), src.size());
 		break;
 
 	default: // Unknown compression format
 		archive->OpenFile();
-		archive->WriteFile(&src[0], src_size);
+		archive->WriteFile(src.data(), src.size());
+		break;
 	}
 
 	return true;
@@ -217,28 +215,28 @@ bool CCircus::DecodeCRX(CArcFile* archive)
 bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 {
 	// Get header information
-	const long width = *(WORD*) &src[8];
-	const long height = *(WORD*) &src[10];
-	DWORD pallet_size = *(WORD*) &src[16] * 3;
-	const WORD bpp = (pallet_size == 0) ? 24 : 8;
-	const DWORD src_data_offset = 20 + pallet_size;
+	const s32 width  = *reinterpret_cast<const u16*>(&src[8]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[10]);
+	u32 pallet_size  = *reinterpret_cast<const u16*>(&src[16]) * 3;
+	const u16 bpp    = (pallet_size == 0) ? 24 : 8;
+	const u32 src_data_offset = 20 + pallet_size;
 
 	// Ensure the output buffer exists
-	YCMemory<BYTE> pallet;
-	BYTE*          pallet_ptr = nullptr;
-	const DWORD    dst_size = width * height * (bpp >> 3);
-	YCMemory<BYTE> dst(dst_size);
+	std::vector<u8> pallet;
+	u8* pallet_ptr = nullptr;
+
+	const u32 dst_size = width * height * (bpp >> 3);
+	std::vector<u8> dst(dst_size);
 
 	// Get palette
 	if (bpp == 8)
 	{
 		// Expand the palette
-
-		const DWORD pallet_size2 = pallet_size;
+		const u32 pallet_size2 = pallet_size;
 		pallet_size = 1024;
 		pallet.resize(pallet_size, 0);
 
-		for (DWORD i = 0, j = 0; (i < pallet_size) && (j < pallet_size2); i += 4, j += 3)
+		for (size_t i = 0, j = 0; i < pallet_size && j < pallet_size2; i += 4, j += 3)
 		{
 			pallet[i + 0] = src[20 + j + 2];
 			pallet[i + 1] = src[20 + j + 1];
@@ -246,16 +244,16 @@ bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 			pallet[i + 3] = 0;
 		}
 
-		pallet_ptr = &pallet[0];
+		pallet_ptr = pallet.data();
 	}
 
 	// LZSS decompression
-	DecompLZSS(&dst[0], dst_size, &src[src_data_offset], (src_size - src_data_offset));
+	DecompLZSS(dst.data(), dst.size(), &src[src_data_offset], (src_size - src_data_offset));
 
 	// Output
 	CImage image;
 	image.Init(archive, width, height, bpp, pallet_ptr, pallet_size);
-	image.WriteReverse(&dst[0], dst_size, src_size != 0);
+	image.WriteReverse(dst.data(), dst.size(), src_size != 0);
 
 	return true;
 }
@@ -269,12 +267,12 @@ bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 {
 	// Get header information
-	const long width = *(WORD*)&src[8];
-	const long height = *(WORD*)&src[10];
-	DWORD pallet_size = *(WORD*)&src[16] * 3;
-	const WORD flags = *(WORD*)&src[18];
-	WORD  bpp;
-	DWORD src_data_offset = 20 + pallet_size;
+	const s32 width  = *reinterpret_cast<const u16*>(&src[8]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[10]);
+	u32 pallet_size  = *reinterpret_cast<const u16*>(&src[16]) * 3;
+	const u16 flags  = *reinterpret_cast<const u16*>(&src[18]);
+	u16  bpp;
+	u32 src_data_offset = 20 + pallet_size;
 
 	switch (pallet_size)
 	{
@@ -289,28 +287,29 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 
 	default:
 		bpp = 8;
+		break;
 	}
 
 	// Ensure the output buffer exists
-	YCMemory<BYTE> pallet;
-	BYTE*          pallet_ptr = nullptr;
+	std::vector<u8> pallet;
+	u8* pallet_ptr = nullptr;
 
-	DWORD          dst_size = width * height * 4;//(bpp >> 3);
-	YCMemory<BYTE> dst(dst_size);
+	unsigned long dst_size = width * height * 4;
+	std::vector<u8> dst(dst_size);
 
-	DWORD          dst_size2 = width * height * (bpp >> 3);
-	YCMemory<BYTE> dst2(dst_size2);
+	unsigned long dst2_size = width * height * (bpp >> 3);
+	std::vector<u8> dst2(dst2_size);
 
 	// Get palette
 	if (bpp == 8)
 	{
 		// Expand the palette
 
-		const DWORD pallet_size2 = pallet_size;
+		const u32 pallet_size2 = pallet_size;
 		pallet_size = 1024;
-		pallet.resize(pallet_size, 0);
+		pallet.resize(pallet_size);
 
-		for (DWORD i = 0, j = 0; (i < pallet_size) && (j < pallet_size2); i += 4, j += 3)
+		for (size_t i = 0, j = 0; i < pallet_size && j < pallet_size2; i += 4, j += 3)
 		{
 			pallet[i + 0] = src[20 + j + 2];
 			pallet[i + 1] = src[20 + j + 1];
@@ -318,16 +317,15 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 			pallet[i + 3] = 0;
 		}
 
-		pallet_ptr = &pallet[0];
+		pallet_ptr = pallet.data();
 	}
 
 	// Decompression
 	if (bpp == 8)
 	{
 		// zlib decompression
-
 		CZlib zlib;
-		zlib.Decompress(&dst2[0], &dst_size2, &src[src_data_offset], src_size - src_data_offset);
+		zlib.Decompress(dst2.data(), &dst2_size, &src[src_data_offset], src_size - src_data_offset);
 	}
 	else
 	{
@@ -336,7 +334,7 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 
 		while (true)
 		{
-			const int result = zlib.Decompress(&dst[0], &dst_size, &src[src_data_offset], src_size - src_data_offset);
+			const int result = zlib.Decompress(dst.data(), &dst_size, &src[src_data_offset], src_size - src_data_offset);
 
 			if (result == Z_BUF_ERROR)
 			{
@@ -351,13 +349,13 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
 		}
 
 		// CRX Decompression
-		DecompCRX2(&dst2[0], dst_size2, &dst[0], dst_size, width, height, bpp, flags);
+		DecompCRX2(dst2.data(), dst2.size(), dst.data(), dst.size(), width, height, bpp, flags);
 	}
 
 	// Output
 	CImage image;
 	image.Init(archive, width, height, bpp, pallet_ptr, pallet_size);
-	image.WriteReverse(&dst2[0], dst_size2, src_size != 0);
+	image.WriteReverse(dst2.data(), dst2.size(), src_size != 0);
 
 	return true;
 }
@@ -399,7 +397,7 @@ bool CCircus::DecodePCM(CArcFile* archive)
 		break;
 
 	default: // Unknown format
-		archive->SeekCur(-(INT64)sizeof(SPCMHeader));
+		archive->SeekCur(-(s64)sizeof(SPCMHeader));
 		archive->OpenFile();
 		archive->ReadWrite();
 	}
@@ -415,31 +413,27 @@ bool CCircus::DecodePCM(CArcFile* archive)
 bool CCircus::DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header)
 {
 	// Get input data size
-	DWORD src_size;
-	archive->Read(&src_size, 4);
+	u32 src_size;
+	archive->ReadU32(&src_size);
 
-	// Ensure buffer exists 
-	YCMemory<BYTE> src(src_size);
-
-	const DWORD    dst_size = pcm_header.data_size;
-	YCMemory<BYTE> dst(dst_size);
-
-	const DWORD    dst_size2 = dst_size;
-	YCMemory<BYTE> dst2(dst_size2);
+	// Ensure buffers exist
+	std::vector<u8> src(src_size);
+	std::vector<u8> dst(pcm_header.data_size);
+	std::vector<u8> dst2(pcm_header.data_size);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// LZSS Decompression
-	DecompLZSS(&dst[0], dst_size, &src[0], src_size);
+	DecompLZSS(dst.data(), dst.size(), src.data(), src.size());
 
 	// VQ Decompression
-	DecompPCM1(&dst2[0], dst_size2, &dst[0], dst_size);
+	DecompPCM1(dst2.data(), dst2.size(), dst.data(), dst.size());
 
 	// Output
 	CWav wav;
 	wav.Init(archive, pcm_header.data_size, pcm_header.freq, pcm_header.channels, pcm_header.bits);
-	wav.Write(&dst[0], dst_size);
+	wav.Write(dst.data(), dst.size());
 
 	return true;
 }
@@ -451,23 +445,19 @@ bool CCircus::DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header)
 ///
 bool CCircus::DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header)
 {
-	// Ensure buffer exists
-	const DWORD    src_size = archive->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader);
-	YCMemory<BYTE> src(src_size);
-
-	const DWORD    dst_size = pcm_header.data_size;
-	YCMemory<BYTE> dst(dst_size);
+	std::vector<u8> src(archive->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader));
+	std::vector<u8> dst(pcm_header.data_size);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// Decompression
-	DecompPCM2(&dst[0], dst_size, &src[0], src_size);
+	DecompPCM2(dst.data(), dst.size(), src.data(), src.size());
 
 	// Output
 	CWav wav;
 	wav.Init(archive, pcm_header.data_size, pcm_header.freq, pcm_header.channels, pcm_header.bits);
-	wav.Write(&dst[0], dst_size);
+	wav.Write(dst.data(), dst.size());
 
 	return true;
 }
@@ -479,11 +469,11 @@ bool CCircus::DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CCircus::DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
+bool CCircus::DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD src_ptr = 0;
-	DWORD dst_ptr = 0;
-	DWORD flags = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	u32 flags = 0;
 
 	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
@@ -501,10 +491,10 @@ bool CCircus::DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 		}
 		else // Compressed data
 		{
-			DWORD length;
-			DWORD back;
+			u32 length;
+			u32 back;
 
-			const BYTE data = src[src_ptr++];
+			const u8 data = src[src_ptr++];
 
 			if (data >= 0xC0)
 			{
@@ -523,29 +513,28 @@ bool CCircus::DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 			}
 			else if (data == 0x7F)
 			{
-				length = *(WORD*)&src[src_ptr] + 2;
+				length = *reinterpret_cast<const u16*>(&src[src_ptr]) + 2;
 				src_ptr += 2;
 
-				back = *(WORD*)&src[src_ptr];
+				back = *reinterpret_cast<const u16*>(&src[src_ptr]);
 				src_ptr += 2;
 			}
 			else
 			{
 				length = data + 4;
 
-				back = *(WORD*)&src[src_ptr];
+				back = *reinterpret_cast<const u16*>(&src[src_ptr]);
 				src += 2;
 			}
 
-			if ((dst_ptr + length) > dst_size)
+			if (dst_ptr + length > dst_size)
 			{
 				length = dst_size - dst_ptr;
 			}
 
-			for (DWORD i = 0; i < length; i++)
+			for (size_t i = 0; i < length; i++)
 			{
 				dst[dst_ptr] = dst[dst_ptr - back];
-
 				dst_ptr++;
 			}
 		}
@@ -567,24 +556,24 @@ bool CCircus::DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 ///
 bool CCircus::DecompCRX2(
 	u8*       dst,
-	DWORD     dst_size,
+	size_t    dst_size,
 	const u8* src,
-	DWORD     src_size,
-	long      width,
-	long      height,
-	WORD      bpp,
-	WORD      flags
+	size_t    src_size,
+	s32       width,
+	s32       height,
+	u16       bpp,
+	u16       flags
 	)
 {
-	const WORD  colors = bpp >> 3;
-	const DWORD line_size = width * colors;
+	const u16 colors = bpp >> 3;
+	const u32 line_size = width * colors;
+	
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
+	size_t dst_ptr_prev = 0;
+	size_t dst_ptr_temp = 0;
 
-	DWORD src_ptr = 0;
-	DWORD dst_ptr = 0;
-	DWORD dst_ptr_prev = 0;
-	DWORD dst_ptr_temp = 0;
-
-	for (long i = 0; i < height; i++)
+	for (s32 i = 0; i < height; i++)
 	{
 		u8 data = src[src_ptr++];
 
@@ -595,15 +584,15 @@ bool CCircus::DecompCRX2(
 			dst_ptr_temp = dst_ptr;
 
 			// Output one pixel
-			for (DWORD j = 0; j < colors; j++)
+			for (size_t j = 0; j < colors; j++)
 			{
 				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 
 			// Difference between the previous pixel
-			for (long j = 0; j < (width - 1); j++)
+			for (s32 j = 0; j < width - 1; j++)
 			{
-				for (DWORD k = 0; k < colors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
 					dst[dst_ptr_temp] = src[src_ptr++] + dst[dst_ptr_temp - colors];
 					dst_ptr_temp++;
@@ -615,9 +604,9 @@ bool CCircus::DecompCRX2(
 			dst_ptr_temp = dst_ptr;
 
 			// Difference between the previous line
-			for (long j = 0; j < width; j++)
+			for (s32 j = 0; j < width; j++)
 			{
-				for (DWORD k = 0; k < colors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
 					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
@@ -628,15 +617,15 @@ bool CCircus::DecompCRX2(
 			dst_ptr_temp = dst_ptr;
 
 			// Output one pixel
-			for (DWORD j = 0; j < colors; j++)
+			for (size_t j = 0; j < colors; j++)
 			{
 				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 
 			// Difference between the previous line
-			for (long j = 0; j < (width - 1); j++)
+			for (s32 j = 0; j < width - 1; j++)
 			{
-				for (DWORD k = 0; k < colors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
 					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
@@ -648,36 +637,34 @@ bool CCircus::DecompCRX2(
 			dst_ptr_prev += colors;
 
 			// Difference between the previous line
-			for (int j = 0; j < (width - 1); j++)
+			for (s32 j = 0; j < width - 1; j++)
 			{
-				for (DWORD k = 0; k < colors; k++)
+				for (size_t k = 0; k < colors; k++)
 				{
 					dst[dst_ptr_temp++] = src[src_ptr++] + dst[dst_ptr_prev++];
 				}
 			}
 
 			// Output one pixel
-			for (int j = 0; j < colors; j++)
+			for (size_t j = 0; j < colors; j++)
 			{
 				dst[dst_ptr_temp++] = src[src_ptr++];
 			}
 			break;
 
 		case 4:
-			for (int j = 0; j < colors; j++)
+			for (size_t j = 0; j < colors; j++)
 			{
-				long width_temp = width;
+				s32 width_temp = width;
 
-				dst_ptr_temp = (dst_ptr + j);
+				dst_ptr_temp = dst_ptr + j;
 
 				while (width_temp > 0)
 				{
 					// Output one byte
-
 					data = src[src_ptr++];
 
 					dst[dst_ptr_temp] = data;
-
 					dst_ptr_temp += colors;
 
 					if (--width_temp == 0)
@@ -693,7 +680,7 @@ bool CCircus::DecompCRX2(
 
 						width_temp -= length;
 
-						for (int k = 0; k < length; k++)
+						for (size_t k = 0; k < length; k++)
 						{
 							dst[dst_ptr_temp] = data;
 							dst_ptr_temp += colors;
@@ -713,7 +700,7 @@ bool CCircus::DecompCRX2(
 	case 0: // Data is stored in the order ABGR (It is necessary to fix the order of BGRA)
 		if (bpp == 32)
 		{
-			for (long i = 0; i < (width * height * 4); i += 4)
+			for (s32 i = 0; i < (width * height * 4); i += 4)
 			{
 				const u8 work = dst[i + 0];
 				dst[i + 0] = dst[i + 1];
@@ -722,7 +709,6 @@ bool CCircus::DecompCRX2(
 				dst[i + 3] = ~work;
 			}
 		}
-
 		break;
 
 	case 1: // Do nothing
@@ -739,17 +725,17 @@ bool CCircus::DecompCRX2(
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CCircus::DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
+bool CCircus::DecompPCM1(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD src_ptr = 0;
-	DWORD dst_ptr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
 	// Create tables
-	static const DWORD table[8] = {
+	static const std::array<u32, 8> table{{
 		0x800, 0x800, 0x800, 0x100, 0x100, 0x100, 0x200, 0x400
-	};
+	}};
 
-	static const DWORD table2[8192] = {
+	static const std::array<u32, 8192> table2{{
 		0x00001000, 0x00000000, 0x00000FFF, 0x00000006, 0x00000FFF, 0x0000000C, 0x00000FFF, 0x00000012, 0x00000FFF, 0x00000019, 0x00000FFF, 0x0000001F, 0x00000FFF, 0x00000025, 0x00000FFF, 0x0000002B, 0x00000FFF, 0x00000032, 0x00000FFF, 0x00000038, 0x00000FFF, 0x0000003E, 0x00000FFF, 0x00000045, 0x00000FFF, 0x0000004B, 0x00000FFF, 0x00000051, 0x00000FFF, 0x00000057, 0x00000FFE, 0x0000005E,
 		0x00000FFE, 0x00000064, 0x00000FFE, 0x0000006A, 0x00000FFE, 0x00000071, 0x00000FFE, 0x00000077, 0x00000FFE, 0x0000007D, 0x00000FFD, 0x00000083, 0x00000FFD, 0x0000008A, 0x00000FFD, 0x00000090, 0x00000FFD, 0x00000096, 0x00000FFC, 0x0000009D, 0x00000FFC, 0x000000A3, 0x00000FFC, 0x000000A9, 0x00000FFC, 0x000000AF, 0x00000FFB, 0x000000B6, 0x00000FFB, 0x000000BC, 0x00000FFB, 0x000000C2,
 		0x00000FFB, 0x000000C8, 0x00000FFA, 0x000000CF, 0x00000FFA, 0x000000D5, 0x00000FFA, 0x000000DB, 0x00000FF9, 0x000000E2, 0x00000FF9, 0x000000E8, 0x00000FF9, 0x000000EE, 0x00000FF8, 0x000000F4, 0x00000FF8, 0x000000FB, 0x00000FF7, 0x00000101, 0x00000FF7, 0x00000107, 0x00000FF7, 0x0000010D, 0x00000FF6, 0x00000114, 0x00000FF6, 0x0000011A, 0x00000FF5, 0x00000120, 0x00000FF5, 0x00000127,
@@ -1006,23 +992,23 @@ bool CCircus::DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 		0x00000FF4, 0xFFFFFED3, 0x00000FF5, 0xFFFFFED9, 0x00000FF5, 0xFFFFFEE0, 0x00000FF6, 0xFFFFFEE6, 0x00000FF6, 0xFFFFFEEC, 0x00000FF7, 0xFFFFFEF3, 0x00000FF7, 0xFFFFFEF9, 0x00000FF7, 0xFFFFFEFF, 0x00000FF8, 0xFFFFFF05, 0x00000FF8, 0xFFFFFF0C, 0x00000FF9, 0xFFFFFF12, 0x00000FF9, 0xFFFFFF18, 0x00000FF9, 0xFFFFFF1E, 0x00000FFA, 0xFFFFFF25, 0x00000FFA, 0xFFFFFF2B, 0x00000FFA, 0xFFFFFF31,
 		0x00000FFB, 0xFFFFFF38, 0x00000FFB, 0xFFFFFF3E, 0x00000FFB, 0xFFFFFF44, 0x00000FFB, 0xFFFFFF4A, 0x00000FFC, 0xFFFFFF51, 0x00000FFC, 0xFFFFFF57, 0x00000FFC, 0xFFFFFF5D, 0x00000FFC, 0xFFFFFF63, 0x00000FFD, 0xFFFFFF6A, 0x00000FFD, 0xFFFFFF70, 0x00000FFD, 0xFFFFFF76, 0x00000FFD, 0xFFFFFF7D, 0x00000FFE, 0xFFFFFF83, 0x00000FFE, 0xFFFFFF89, 0x00000FFE, 0xFFFFFF8F, 0x00000FFE, 0xFFFFFF96,
 		0x00000FFE, 0xFFFFFF9C, 0x00000FFE, 0xFFFFFFA2, 0x00000FFF, 0xFFFFFFA9, 0x00000FFF, 0xFFFFFFAF, 0x00000FFF, 0xFFFFFFB5, 0x00000FFF, 0xFFFFFFBB, 0x00000FFF, 0xFFFFFFC2, 0x00000FFF, 0xFFFFFFC8, 0x00000FFF, 0xFFFFFFCE, 0x00000FFF, 0xFFFFFFD5, 0x00000FFF, 0xFFFFFFDB, 0x00000FFF, 0xFFFFFFE1, 0x00000FFF, 0xFFFFFFE7, 0x00000FFF, 0xFFFFFFEE, 0x00000FFF, 0xFFFFFFF4, 0x00000FFF, 0xFFFFFFFA
-	};
+	}};
 
-	WORD awTable[65536 * 2];
-	WORD low = 0;
-	WORD high = 1;
+	std::array<u16, 65536 * 2> awTable;
+	u16 low = 0;
+	u16 high = 1;
 
-	for (size_t i = 0; i < ArrayUtils::ArraySize(awTable); i += 2)
+	for (size_t i = 0; i < awTable.size(); i += 2)
 	{
 		awTable[i + 0] = low--;
 		awTable[i + 1] = high++;
 	}
 
 	// Decode
-	const DWORD dst_size_half = dst_size >> 1;
-	BYTE abtTable1[4096];
-	BYTE abtTable2[4096];
-	BYTE abtTable3[4096];
+	const u32 dst_size_half = dst_size >> 1;
+	std::array<u8, 4096> abtTable1;
+	std::array<u8 ,4096> abtTable2;
+	std::array<u8, 4096> abtTable3;
 
 	while (src_ptr < dst_size_half)
 	{
@@ -1039,13 +1025,13 @@ bool CCircus::DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CCircus::DecompPCM2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size)
+bool CCircus::DecompPCM2(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	DWORD src_ptr = 0;
-	DWORD dst_ptr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
-	DWORD channel = 0;
-	DWORD table[6] = {};
+	u32 channel = 0;
+	std::array<u32, 6> table{};
 
 	while (src_ptr < src_size && dst_ptr < dst_size)
 	{

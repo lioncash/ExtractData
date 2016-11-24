@@ -34,8 +34,8 @@ private:
 	bool DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header);
 	bool DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header);
 
-	bool DecompLZSS(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
-	bool DecompCRX2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size, long width, long height, WORD bpp, WORD flags);
-	bool DecompPCM1(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
-	bool DecompPCM2(u8* dst, DWORD dst_size, const u8* src, DWORD src_size);
+	bool DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	bool DecompCRX2(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp, u16 flags);
+	bool DecompPCM1(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	bool DecompPCM2(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 };
