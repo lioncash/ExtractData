@@ -7,6 +7,19 @@
 #include "Tlg.h"
 #include "Krkr.h"
 
+namespace
+{
+bool IsXP3File(const CArcFile* archive)
+{
+	return memcmp(archive->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0;
+}
+
+bool IsEXEFile(const CArcFile* archive)
+{
+	return memcmp(archive->GetHed(), "MZ", 2) == 0;
+}
+} // Anonymous namespace
+
 /// Mount
 ///
 /// @param archive Archive
@@ -15,14 +28,11 @@ bool CKrkr::Mount(CArcFile* archive)
 {
 	size_t offset;
 
-	// XP3
-	if (memcmp(archive->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0)
+	if (IsXP3File(archive))
 	{
-		// XP3
 		offset = 0;
 	}
-	// EXE type
-	else if (memcmp(archive->GetHed(), "MZ", 2) == 0)
+	else if (IsEXEFile(archive))
 	{
 		if (!FindXP3FromExecuteFile(archive, &offset))
 		{
