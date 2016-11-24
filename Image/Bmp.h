@@ -10,7 +10,7 @@ public:
 private:
 	BITMAPFILEHEADER m_bmp_file_header;
 	BITMAPINFOHEADER m_bmp_info_header;
-	RGBQUAD          m_pallet[256];
+	std::array<RGBQUAD, 256> m_pallet;
 
 	bool OnInit(const YCString& file_name) override;
 	bool OnCreatePallet(const void* pallet, size_t pallet_size) override;

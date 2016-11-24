@@ -21,7 +21,7 @@ bool CBmp::Mount(CArcFile* archive)
 bool CBmp::OnInit(const YCString& file_name)
 {
 	// Set file header
-	ZeroMemory(&m_bmp_file_header, sizeof(BITMAPFILEHEADER));
+	m_bmp_file_header = {};
 	m_bmp_file_header.bfType = 'MB';
 	m_bmp_file_header.bfSize = 54 + m_pitch * m_height;
 	m_bmp_file_header.bfReserved1 = 0;
@@ -36,7 +36,7 @@ bool CBmp::OnInit(const YCString& file_name)
 	}
 
 	// Set info header
-	ZeroMemory(&m_bmp_info_header, sizeof(BITMAPINFOHEADER));
+	m_bmp_info_header = {};
 	m_bmp_info_header.biSize = sizeof(BITMAPINFOHEADER);
 	m_bmp_info_header.biWidth = m_width;
 	m_bmp_info_header.biHeight = m_height;
@@ -70,7 +70,7 @@ void CBmp::WriteHed(const YCString& file_name)
 	// Output palette (8-bit)
 	if (m_bmp_info_header.biBitCount == 8)
 	{
-		m_archive->WriteFile(m_pallet, sizeof(m_pallet), 0);
+		m_archive->WriteFile(m_pallet.data(), sizeof(m_pallet), 0);
 	}
 }
 
@@ -83,12 +83,12 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 {
 	const u8* byte_src_pallet = reinterpret_cast<const u8*>(src_pallet);
 
-	ZeroMemory(m_pallet, sizeof(m_pallet));
+	m_pallet = {};
 
 	if (byte_src_pallet == nullptr)
 	{
 		// Use default palette (Grayscale)
-		for (size_t i = 0; i < 256; i++)
+		for (size_t i = 0; i < m_pallet.size(); i++)
 		{
 			m_pallet[i].rgbBlue = static_cast<u8>(i);
 			m_pallet[i].rgbGreen = static_cast<u8>(i);
@@ -103,7 +103,7 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		if (src_pallet_size == 1024)
 		{
 			// 1024 byte palette
-			for (size_t i = 0; i < 256; i++)
+			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
 				m_pallet[i].rgbBlue = *byte_src_pallet++;
 				m_pallet[i].rgbGreen = *byte_src_pallet++;
@@ -114,7 +114,7 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		else if (src_pallet_size == 768)
 		{
 			// 768 byte palette (No alpha)
-			for (size_t i = 0; i < 256; i++)
+			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
 				m_pallet[i].rgbBlue = *byte_src_pallet++;
 				m_pallet[i].rgbGreen = *byte_src_pallet++;
