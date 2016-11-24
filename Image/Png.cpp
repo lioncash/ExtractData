@@ -278,7 +278,7 @@ bool CPng::OnInit(const YCString& file_name)
 
 	if (m_bpp == 8)
 	{
-		png_set_PLTE(m_png_ptr, m_info_ptr, m_pallet, 256);
+		png_set_PLTE(m_png_ptr, m_info_ptr, m_pallet.data(), static_cast<int>(m_pallet.size()));
 	}
 
 	png_set_IHDR(m_png_ptr, m_info_ptr, m_width, m_height, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
@@ -299,19 +299,18 @@ bool CPng::OnInit(const YCString& file_name)
 ///
 bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 {
-	png_colorp pstPallet = m_pallet;
 	const u8* pbtSrcPallet = reinterpret_cast<const u8*>(src_pallet);
 
-	ZeroMemory(m_pallet, sizeof(m_pallet));
+	m_pallet = {};
 
 	// Use the default palette (Grayscale)
 	if (pbtSrcPallet == nullptr)
 	{
-		for (size_t i = 0; i < 256; i++)
+		for (size_t i = 0; i < m_pallet.size(); i++)
 		{
-			pstPallet[i].blue = static_cast<u8>(i);
-			pstPallet[i].green = static_cast<u8>(i);
-			pstPallet[i].red = static_cast<u8>(i);
+			m_pallet[i].blue = static_cast<u8>(i);
+			m_pallet[i].green = static_cast<u8>(i);
+			m_pallet[i].red = static_cast<u8>(i);
 		}
 	}
 	else // Refer to the palette
@@ -319,22 +318,22 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		// 1024 byte palette
 		if (src_pallet_size == 1024)
 		{
-			for (size_t i = 0; i < 256; i++)
+			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				pstPallet[i].blue = *pbtSrcPallet++;
-				pstPallet[i].green = *pbtSrcPallet++;
-				pstPallet[i].red = *pbtSrcPallet++;
+				m_pallet[i].blue = *pbtSrcPallet++;
+				m_pallet[i].green = *pbtSrcPallet++;
+				m_pallet[i].red = *pbtSrcPallet++;
 				pbtSrcPallet++;
 			}
 		}
 		// 768 byte palette (No alpha)
 		else if (src_pallet_size == 768)
 		{
-			for (size_t i = 0; i < 256; i++)
+			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				pstPallet[i].blue = *pbtSrcPallet++;
-				pstPallet[i].green = *pbtSrcPallet++;
-				pstPallet[i].red = *pbtSrcPallet++;
+				m_pallet[i].blue = *pbtSrcPallet++;
+				m_pallet[i].green = *pbtSrcPallet++;
+				m_pallet[i].red = *pbtSrcPallet++;
 			}
 		}
 		// Other palette sizes
@@ -342,9 +341,9 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		{
 			for (size_t i = 0; i < src_pallet_size / 4; i++)
 			{
-				pstPallet[i].blue = *pbtSrcPallet++;
-				pstPallet[i].green = *pbtSrcPallet++;
-				pstPallet[i].red = *pbtSrcPallet++;
+				m_pallet[i].blue = *pbtSrcPallet++;
+				m_pallet[i].green = *pbtSrcPallet++;
+				m_pallet[i].red = *pbtSrcPallet++;
 				pbtSrcPallet++;
 			}
 		}

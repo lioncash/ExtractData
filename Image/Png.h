@@ -48,7 +48,7 @@ private:
 
 	png_structp m_png_ptr;
 	png_infop   m_info_ptr;
-	png_color   m_pallet[256];
+	std::array<png_color, 256> m_pallet;
 
 	png_structp m_png = nullptr;
 	png_infop   m_png_info = nullptr;
