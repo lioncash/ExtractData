@@ -11,9 +11,9 @@ COggSearch::COggSearch()
 void COggSearch::OnInit(SOption* option)
 {
 	if (option->bHighSearchOgg)
-		InitHed("\x4F\x67\x67\x53\x00\x02", 6);
+		InitHeader("\x4F\x67\x67\x53\x00\x02", 6);
 	else
-		InitHed("\x4F\x67\x67\x53", 4);
+		InitHeader("\x4F\x67\x67\x53", 4);
 }
 
 void COggSearch::Mount(CArcFile* archive)
@@ -51,14 +51,14 @@ void COggSearch::Mount(CArcFile* archive)
 		}
 
 		// If it is no longer OggS
-		if (memcmp(header.pattern, GetHed(), 4) != 0)
+		if (memcmp(header.pattern, GetHeader(), 4) != 0)
 		{
 			ogg.BackHed();
 			break;
 		}
 
 		// Exit after the beginning of the OGG until we hit the next header
-		if (read_count > 1 && memcmp(header.pattern, GetHed(), 4) == 0 && header.type == 2)
+		if (read_count > 1 && memcmp(header.pattern, GetHeader(), 4) == 0 && header.type == 2)
 		{
 			ogg.BackHed();
 			break;
@@ -85,5 +85,5 @@ void COggSearch::Mount(CArcFile* archive)
 	// Get exit address
 	file_info.end = file_info.start + file_info.sizeOrg;
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".ogg"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".ogg"));
 }

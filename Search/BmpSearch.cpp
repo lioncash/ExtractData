@@ -3,7 +3,7 @@
 
 CBmpSearch::CBmpSearch()
 {
-	InitHed("BM****\0\0\0\0\x36*\0\0\x28\0\0\0", 18);
+	InitHeader("BM****\0\0\0\0\x36*\0\0\x28\0\0\0", 18);
 }
 
 void CBmpSearch::Mount(CArcFile* archive)
@@ -41,5 +41,5 @@ void CBmpSearch::Mount(CArcFile* archive)
 	archive->Seek(file_info.end, FILE_BEGIN);
 	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".bmp"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".bmp"));
 }

@@ -3,7 +3,7 @@
 
 CWavSearch::CWavSearch()
 {
-	InitHed("RIFF****WAVE", 12);
+	InitHeader("RIFF****WAVE", 12);
 }
 
 void CWavSearch::Mount(CArcFile* archive)
@@ -26,5 +26,5 @@ void CWavSearch::Mount(CArcFile* archive)
 	archive->Seek(file_info.end, FILE_BEGIN);
 	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".wav"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".wav"));
 }

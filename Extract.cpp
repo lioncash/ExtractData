@@ -279,7 +279,7 @@ bool CExtract::Search(CArcFile* archive)
 			Class.push_back(SearchClass[i]);
 
 			// Keep looking for the maximum length of the header in the class to use
-			const u32 header_size = SearchClass[i]->GetHedSize();
+			const u32 header_size = SearchClass[i]->GetHeaderSize();
 			if (header_size > max_header_size)
 				max_header_size = header_size;
 		}

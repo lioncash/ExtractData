@@ -29,12 +29,12 @@ void CSearchBase::InitPattern(const void* pattern, u32 size, u32 num)
 }
 
 // Enter the header
-void CSearchBase::InitHed(const void* pattern, u32 size)
+void CSearchBase::InitHeader(const void* pattern, u32 size)
 {
 	InitPattern(pattern, size, 0);
 }
 // Enter the footer
-void CSearchBase::InitFot(const void* pattern, u32 size)
+void CSearchBase::InitFooter(const void* pattern, u32 size)
 {
 	InitPattern(pattern, size, 1);
 }
@@ -50,7 +50,7 @@ bool CSearchBase::Search(const u8* data, u32 search_size)
 {
 	for (int offset = 0; offset <= static_cast<int>(search_size); offset++)
 	{
-		if (CmpHed(&data[offset]))
+		if (CmpHeader(&data[offset]))
 		{
 			SetOffset(offset);
 			return true;
@@ -60,9 +60,9 @@ bool CSearchBase::Search(const u8* data, u32 search_size)
 	return false;
 }
 
-bool CSearchBase::SearchFot(CArcFile* archive)
+bool CSearchBase::SearchFooter(CArcFile* archive)
 {
-	const u32 footer_size = GetFotSize();
+	const u32 footer_size = GetFooterSize();
 	while (true)
 	{
 		std::array<u8, SEARCH_BUFFER_SIZE> buffer;
@@ -77,7 +77,7 @@ bool CSearchBase::SearchFot(CArcFile* archive)
 		const u32 search_size = read_size - footer_size;
 		for (int i = 0; i <= (int)search_size; i++)
 		{
-			if (CmpFot(&buffer[i]))
+			if (CmpFooter(&buffer[i]))
 			{
 				// read_size - i -- Moves back to position found by i, has moved to the footer file and proceeds from the footer_size
 				archive->Seek(-((int)read_size-i - (int)footer_size), FILE_CURRENT);

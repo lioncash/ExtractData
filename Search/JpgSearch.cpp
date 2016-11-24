@@ -4,8 +4,8 @@
 
 CJpgSearch::CJpgSearch()
 {
-	InitHed("\xFF\xD8\xFF\xE0**JFIF", 10);
-	InitFot("\xFF\xD9", 2);
+	InitHeader("\xFF\xD8\xFF\xE0**JFIF", 10);
+	InitFooter("\xFF\xD9", 2);
 }
 
 void CJpgSearch::Mount(CArcFile* archive)
@@ -44,7 +44,7 @@ void CJpgSearch::Mount(CArcFile* archive)
 	archive->GetProg()->UpdatePercent(archive->GetArcPointer() - file_info.start);
 
 	// Get footer
-	if (!SearchFot(archive))
+	if (!SearchFooter(archive))
 		return;
 
 	// Get exit address
@@ -54,5 +54,5 @@ void CJpgSearch::Mount(CArcFile* archive)
 	file_info.sizeOrg = file_info.end - file_info.start;
 	file_info.sizeCmp = file_info.sizeOrg;
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".jpg"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".jpg"));
 }

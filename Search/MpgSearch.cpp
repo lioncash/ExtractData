@@ -3,8 +3,8 @@
 
 CMpgSearch::CMpgSearch()
 {
-	InitHed("\x00\x00\x01\xBA\x21\x00\x01\x00", 8);
-	InitFot("\xFF\xFF\xFF\xFF\x00\x00\x01\xB9", 8);
+	InitHeader("\x00\x00\x01\xBA\x21\x00\x01\x00", 8);
+	InitFooter("\xFF\xFF\xFF\xFF\x00\x00\x01\xB9", 8);
 }
 
 void CMpgSearch::Mount(CArcFile* archive)
@@ -16,11 +16,11 @@ void CMpgSearch::Mount(CArcFile* archive)
 
 	// Get start address
 	file_info.start = archive->GetArcPointer();
-	archive->Seek(GetHedSize(), FILE_CURRENT);
-	archive->GetProg()->UpdatePercent(GetHedSize());
+	archive->Seek(GetHeaderSize(), FILE_CURRENT);
+	archive->GetProg()->UpdatePercent(GetHeaderSize());
 
 	// Get footer
-	if (!SearchFot(archive))
+	if (!SearchFooter(archive))
 		return;
 
 	// Get exit address
@@ -30,5 +30,5 @@ void CMpgSearch::Mount(CArcFile* archive)
 	file_info.sizeOrg = file_info.end - file_info.start;
 	file_info.sizeCmp = file_info.sizeOrg;
 
-	archive->AddFileInfo(file_info, GetCtFile(), file_extension);
+	archive->AddFileInfo(file_info, GetNumFiles(), file_extension);
 }

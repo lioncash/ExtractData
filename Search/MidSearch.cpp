@@ -2,16 +2,10 @@
 #include "MidSearch.h"
 #include "Utils/BitUtils.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Constructor
-
 CMidSearch::CMidSearch()
 {
-	InitHed("MThd\0\0\0\x06", 8);
+	InitHeader("MThd\0\0\0\x06", 8);
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// Mount
 
 void CMidSearch::Mount(CArcFile* archive)
 {
@@ -22,7 +16,7 @@ void CMidSearch::Mount(CArcFile* archive)
 
 	// Get the number of tracks
 	u16 tracks;
-	archive->SeekCur(GetHedSize() + 2);
+	archive->SeekCur(GetHeaderSize() + 2);
 	archive->ReadU16(&tracks);
 	tracks = BitUtils::Swap16(tracks);
 	archive->SeekCur(2);
@@ -57,5 +51,5 @@ void CMidSearch::Mount(CArcFile* archive)
 	// Update progress bar
 	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".mid"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".mid"));
 }

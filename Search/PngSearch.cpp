@@ -4,8 +4,8 @@
 
 CPngSearch::CPngSearch()
 {
-	InitHed("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
-	InitFot("\x49\x45\x4E\x44\xAE\x42\x60\x82", 8);
+	InitHeader("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
+	InitFooter("\x49\x45\x4E\x44\xAE\x42\x60\x82", 8);
 }
 
 void CPngSearch::Mount(CArcFile* archive)
@@ -14,7 +14,7 @@ void CPngSearch::Mount(CArcFile* archive)
 
 	// Get start address
 	file_info.start = archive->GetArcPointer();
-	archive->SeekCur(GetHedSize());
+	archive->SeekCur(GetHeaderSize());
 
 	// Search the file end
 	std::array<u8, 4> chunk_name;
@@ -51,5 +51,5 @@ void CPngSearch::Mount(CArcFile* archive)
 	// Update progress bar
 	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".png"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".png"));
 }

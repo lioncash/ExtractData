@@ -3,8 +3,8 @@
 
 CWmvSearch::CWmvSearch()
 {
-	InitHed("\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16);
-	InitFot("\xA1\xDC\xAB\x8C\x47\xA9\xCF\x11\x8E\xE4\x00\xC0\x0C\x20\x53\x65\x68", 17);
+	InitHeader("\x30\x26\xB2\x75\x8E\x66\xCF\x11\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16);
+	InitFooter("\xA1\xDC\xAB\x8C\x47\xA9\xCF\x11\x8E\xE4\x00\xC0\x0C\x20\x53\x65\x68", 17);
 }
 
 void CWmvSearch::Mount(CArcFile* archive)
@@ -13,14 +13,14 @@ void CWmvSearch::Mount(CArcFile* archive)
 
 	// Get start address
 	file_info.start = archive->GetArcPointer();
-	archive->Seek(GetHedSize(), FILE_CURRENT);
+	archive->Seek(GetHeaderSize(), FILE_CURRENT);
 
 	// Search the auxiliary header
-	if (!SearchFot(archive))
+	if (!SearchFooter(archive))
 		return;
 
 	// Amount of progress advanced by the search bar
-	const u64 search_offset = archive->GetArcPointer() - file_info.start - GetHedSize();
+	const u64 search_offset = archive->GetArcPointer() - file_info.start - GetHeaderSize();
 
 	// Get file size
 	archive->Seek(23, FILE_CURRENT);
@@ -34,5 +34,5 @@ void CWmvSearch::Mount(CArcFile* archive)
 	archive->Seek(file_info.end, FILE_BEGIN);
 	archive->GetProg()->UpdatePercent(file_info.sizeOrg - search_offset);
 
-	archive->AddFileInfo(file_info, GetCtFile(), _T(".wmv"));
+	archive->AddFileInfo(file_info, GetNumFiles(), _T(".wmv"));
 }
