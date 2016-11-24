@@ -73,11 +73,11 @@ protected:
 	bool FindXP3FromExecuteFile(CArcFile* archive, size_t* offset);
 
 private:
-	bool        m_decrypt;      // Decryption request
-	u32         m_decrypt_key;
-	size_t      m_decrypt_size; // Decryption size
+	bool        m_decrypt = false; // Decryption request
+	u32         m_decrypt_key = 0;
+	size_t      m_decrypt_size = 0; // Decryption size
 	YCString    m_tpm_path;
-	CArcFile*   m_archive;
+	CArcFile*   m_archive = nullptr;
 
 	void SetMD5ForTpm(CArcFile* archive);
 };
