@@ -65,8 +65,8 @@ bool CSearchBase::SearchFot(CArcFile* archive)
 	const u32 footer_size = GetFotSize();
 	while (true)
 	{
-		u8 buf[SEARCH_BUFFER_SIZE];
-		const u32 read_size = archive->Read(buf, SEARCH_BUFFER_SIZE);
+		std::array<u8, SEARCH_BUFFER_SIZE> buffer;
+		const u32 read_size = archive->Read(buffer.data(), buffer.size());
 		
 		if (read_size < footer_size)
 		{
@@ -77,7 +77,7 @@ bool CSearchBase::SearchFot(CArcFile* archive)
 		const u32 search_size = read_size - footer_size;
 		for (int i = 0; i <= (int)search_size; i++)
 		{
-			if (CmpFot(&buf[i]))
+			if (CmpFot(&buffer[i]))
 			{
 				// read_size - i -- Moves back to position found by i, has moved to the footer file and proceeds from the footer_size
 				archive->Seek(-((int)read_size-i - (int)footer_size), FILE_CURRENT);
