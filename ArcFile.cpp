@@ -608,7 +608,7 @@ YCString CArcFile::CreateFileName(LPCTSTR rename_file_ext)
 	return m_file_path;
 }
 
-bool CArcFile::CheckExe(LPCTSTR exe_name)
+bool CArcFile::CheckExe(LPCTSTR exe_name) const
 {
 	// Gets the path to the executable file
 	TCHAR exe_path[MAX_PATH];
@@ -619,7 +619,7 @@ bool CArcFile::CheckExe(LPCTSTR exe_name)
 	return PathFileExists(exe_path) == TRUE;
 }
 
-bool CArcFile::CheckDir(LPCTSTR dir_name)
+bool CArcFile::CheckDir(LPCTSTR dir_name) const
 {
 	// Get directory name
 	TCHAR dir_path[MAX_PATH];

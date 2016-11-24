@@ -121,8 +121,8 @@ public:
 	void      ReplaceBackslash(LPTSTR file_name);
 	void      MakeDirectory(LPCTSTR file_name);
 
-	bool      CheckExe(LPCTSTR exe_name);
-	bool      CheckDir(LPCTSTR dir_name);
+	bool      CheckExe(LPCTSTR exe_name) const;
+	bool      CheckDir(LPCTSTR dir_name) const;
 
 	// Susie plugin mounting
 	void      SetMountSusie() { m_mounted_with_susie = true; }
