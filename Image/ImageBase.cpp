@@ -322,6 +322,7 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 				*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + m_bg[i] * (255 - pbtBuffer32[3])) / 255;
 				// *pbtBuffer24++ = (pbtBuffer32[i] - pbtBG[i]) * pbtBuffer32[3] / 255 + pbtBG[i];
 			}
+			break;
 		}
 
 		pbtBuffer32 += 4;
