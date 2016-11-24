@@ -300,7 +300,7 @@ bool CHimauri::Decode(CArcFile* archive)
 			// There is a difference
 
 			// Get TGA image-based header
-			const auto* tga_header = reinterpret_cast<const CTga::STGAHeader*>(&dst[0]);
+			const auto* tga_header = reinterpret_cast<const CTga::TGAHeader*>(&dst[0]);
 
 			// TGA Decompression
 			const u32 dst2_size = ((tga_header->width * (tga_header->depth >> 3) + 3) & 0xFFFFFFFC) * tga_header->height;
@@ -340,7 +340,7 @@ bool CHimauri::Decode(CArcFile* archive)
 				}
 
 				// Get TGA image header difference
-				const auto* tga_header_diff = reinterpret_cast<const CTga::STGAHeader*>(&dst_diff[0]);
+				const auto* tga_header_diff = reinterpret_cast<const CTga::TGAHeader*>(&dst_diff[0]);
 
 				// TGA Decompression
 				const u32 dst_diff2_size = ((tga_header_diff->width * (tga_header_diff->depth >> 3) + 3) & 0xFFFFFFFC) * tga_header_diff->height;

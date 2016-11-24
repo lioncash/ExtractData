@@ -3,7 +3,7 @@
 class CTga final
 {
 public:
-	struct STGAHeader
+	struct TGAHeader
 	{
 		u8  id;
 		u8  color_map;

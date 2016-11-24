@@ -12,10 +12,10 @@
 ///
 bool CTga::Decode(CArcFile* archive, const u8* src, size_t src_size, const YCString& file_last_name)
 {
-	const STGAHeader* tga_header = reinterpret_cast<const STGAHeader*>(src);
+	const auto* tga_header = reinterpret_cast<const TGAHeader*>(src);
 
-	src += sizeof(STGAHeader);
-	src_size -= sizeof(STGAHeader);
+	src += sizeof(TGAHeader);
+	src_size -= sizeof(TGAHeader);
 
 	// Decompression
 	std::vector<u8> src2;
@@ -60,11 +60,11 @@ bool CTga::Decode(CArcFile* archive, const u8* src, size_t src_size, const YCStr
 ///
 bool CTga::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	STGAHeader tga_header;
-	std::memcpy(&tga_header, src, sizeof(STGAHeader));
+	TGAHeader tga_header;
+	std::memcpy(&tga_header, src, sizeof(TGAHeader));
 
-	src += sizeof(STGAHeader);
-	src_size -= sizeof(STGAHeader);
+	src += sizeof(TGAHeader);
+	src_size -= sizeof(TGAHeader);
 
 	// Decompression
 	switch (tga_header.depth)
