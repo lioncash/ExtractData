@@ -3,81 +3,81 @@
 #include "Navel.h"
 
 // Function that gets file information from Navel's .pac files
-bool CNavel::Mount(CArcFile* pclArc)
+bool CNavel::Mount(CArcFile* archive)
 {
-	if (MountPac(pclArc))
+	if (MountPac(archive))
 		return true;
-	if (MountWpd(pclArc))
+	if (MountWpd(archive))
 		return true;
 
 	return false;
 }
 
-bool CNavel::MountPac(CArcFile* pclArc)
+bool CNavel::MountPac(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".pac")) || (memcmp(pclArc->GetHed(), "CAPF", 4) != 0))
+	if (archive->GetArcExten() != _T(".pac") || memcmp(archive->GetHed(), "CAPF", 4) != 0)
 		return false;
 
 	// Get index size
-	DWORD index_size;
-	pclArc->Seek(8, FILE_BEGIN);
-	pclArc->Read(&index_size, 4);
+	u32 index_size;
+	archive->Seek(8, FILE_BEGIN);
+	archive->ReadU32(&index_size);
 	index_size -= 32;
 
 	// Get file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index
-	YCMemory<BYTE> index(index_size);
-	LPBYTE pIndex = &index[0];
-	pclArc->Seek(16, FILE_CURRENT);
-	pclArc->Read(pIndex, index_size);
+	std::vector<u8> index(index_size);
+	archive->Seek(16, FILE_CURRENT);
+	archive->Read(index.data(), index.size());
 
-	for (DWORD i = 0; i < ctFile; i++)
+	const u8* index_ptr = index.data();
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get file name
-		TCHAR szFileName[32];
-		memcpy(szFileName, &pIndex[8], 32);
+		TCHAR file_name[32];
+		memcpy(file_name, &index_ptr[8], 32);
 
 		// Add to list view
-		SFileInfo infFile;
-		infFile.name = szFileName;
-		infFile.sizeOrg = *(LPDWORD)&pIndex[4];
-		infFile.sizeCmp = infFile.sizeOrg;
-		infFile.start = *(LPDWORD)&pIndex[0];
-		infFile.end = infFile.start + infFile.sizeOrg;
-		pclArc->AddFileInfo(infFile);
+		SFileInfo file_info;
+		file_info.name = file_name;
+		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.end = file_info.start + file_info.sizeOrg;
+		archive->AddFileInfo(file_info);
 
-		pIndex += 40;
+		index_ptr += 40;
 	}
 
 	return true;
 }
 
-bool CNavel::MountWpd(CArcFile* pclArc)
+bool CNavel::MountWpd(CArcFile* archive)
 {
-	if ((pclArc->GetArcExten() != _T(".WPD")) || (memcmp(pclArc->GetHed(), " DPW", 4) != 0))
+	if (archive->GetArcExten() != _T(".WPD") || memcmp(archive->GetHed(), " DPW", 4) != 0)
 		return false;
 
-	return pclArc->Mount();
+	return archive->Mount();
 }
 
 // Function to convert to WAV files
-bool CNavel::Decode(CArcFile* pclArc)
+bool CNavel::Decode(CArcFile* archive)
 {
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	if (file_info->format != _T("WPD"))
 		return false;
 
 	// Read WPD Format
-	FormatWPD fWPD;
-	pclArc->Read(&fWPD, sizeof(FormatWPD));
+	FormatWPD wpd;
+	archive->Read(&wpd, sizeof(FormatWPD));
 
 	// Output
 	CWav wav;
-	wav.Init(pclArc, file_info->sizeOrg - 44, fWPD.freq, fWPD.channels, fWPD.bits);
+	wav.Init(archive, file_info->sizeOrg - 44, wpd.freq, wpd.channels, wpd.bits);
 	wav.Write();
 
 	return true;
