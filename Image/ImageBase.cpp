@@ -56,6 +56,7 @@ bool CImageBase::Init(
 				m_bg[i] = static_cast<u8>((archive->GetOpt()->BgRGB >> (i << 3)) & 0xFF);
 			}
 		}
+		break;
 	}
 
 	m_bpp = bpp;
@@ -296,17 +297,15 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 {
 	u8*        pbtBuffer24 = reinterpret_cast<u8*>(pvBuffer24);
 	const u8*  pbtBuffer32 = reinterpret_cast<const u8*>(pvBuffer32);
-	const u8*  pbtBG = m_bg;
-	const long width = m_width;
 
-	for (long x = 0; x < width; x++)
+	for (long x = 0; x < m_width; x++)
 	{
 		switch (pbtBuffer32[3])
 		{
 		case 0x00: // Alpha value is 0
 			for (size_t i = 0; i < 3; i++)
 			{
-				*pbtBuffer24++ = pbtBG[i];
+				*pbtBuffer24++ = m_bg[i];
 			}
 			break;
 
@@ -320,7 +319,7 @@ void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
 		default: // Other
 			for (size_t i = 0; i < 3; i++)
 			{
-				*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + pbtBG[i] * (255 - pbtBuffer32[3])) / 255;
+				*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + m_bg[i] * (255 - pbtBuffer32[3])) / 255;
 				// *pbtBuffer24++ = (pbtBuffer32[i] - pbtBG[i]) * pbtBuffer32[3] / 255 + pbtBG[i];
 			}
 		}
@@ -447,11 +446,11 @@ bool CImageBase::ComposeBGRA(void* dst, const void* buffer, size_t buffer_size)
 	if (bpp == 24 || bpp == 32)
 	{
 		// Only supports 24-bit and 32-bit
-		const u16  byte_count = bpp >> 3;
+		const u16 byte_count = bpp >> 3;
 		const size_t color_size = buffer_size / byte_count;
 
 		// Get pointers to B, G, R and A
-		const u8* bgra[4];
+		std::array<const u8*, 4> bgra;
 
 		for (size_t i = 0; i < byte_count; i++)
 		{
@@ -537,7 +536,7 @@ bool CImageBase::ComposeRGBA(void* dst, const void* buffer, size_t buffer_size)
 		const size_t color_size = buffer_size / byte_count;
 
 		// Get pointers to R, G, B and A
-		const u8* bgra[4];
+		std::array<const u8*, 4> bgra;
 
 		for (size_t i = 0, j = 2; i < 3; i++, j--)
 		{

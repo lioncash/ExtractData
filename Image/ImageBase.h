@@ -54,7 +54,7 @@ protected:
 	static long CalculatePitch(long width, u16 bpp);
 
 	CArcFile* m_archive = nullptr;
-	u8 m_bg[4];
+	std::array<u8, 4> m_bg;
 
 	u32 m_row_size = 0;
 	u32 m_row_size_remainder = 0;
