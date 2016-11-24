@@ -633,7 +633,7 @@ bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, size_t* offset)
 		// If canceled
 		if (archive->GetProg()->OnCancel())
 		{
-			throw - 1;
+			throw -1;
 		}
 	} while (read_size == sizeof(buffer));
 
