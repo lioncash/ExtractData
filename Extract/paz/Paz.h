@@ -9,7 +9,7 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 protected:
-	struct SKeyInfo
+	struct KeyInfo
 	{
 		YCString type;
 		u8       key[64];
@@ -27,7 +27,7 @@ protected:
 	// Set 32 byte keys (Keys differ for each file)
 	virtual void InitMountKey(CArcFile* archive) = 0;
 	virtual void InitDecodeKey(CArcFile* archive) = 0;
-	u32 SetKey(CArcFile* archive, const SKeyInfo* key_info);
+	u32 SetKey(CArcFile* archive, const KeyInfo* key_info);
 
 	// Decrypt the table
 	virtual void DecodeTable1();

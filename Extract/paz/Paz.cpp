@@ -325,7 +325,7 @@ void CPaz::GetBaseArcName(LPTSTR dst, LPCTSTR archive_name)
 /// @param archive  Archive
 /// @param key_info Key info
 ///
-u32 CPaz::SetKey(CArcFile* archive, const SKeyInfo* key_info)
+u32 CPaz::SetKey(CArcFile* archive, const KeyInfo* key_info)
 {
 	TCHAR base_archive_name[_MAX_FNAME];
 
