@@ -7,21 +7,31 @@ class CTlg final : public CExtractBase
 public:
 	bool Mount(CArcFile* archive) override;
 	bool Decode(CArcFile* archive) override;
-	bool Decode(CArcFile* archive, LPBYTE src);
+	bool Decode(CArcFile* archive, u8* src);
 
 private:
-	bool DecompTLG5(CArcFile* archive, LPBYTE src);
-	bool DecompTLG6(CArcFile* archive, LPBYTE src);
-	DWORD DecompLZSS(LPBYTE out, LPBYTE in, DWORD insize, LPBYTE dic, DWORD initialr);
-	void ComposeColors(LPBYTE outp, LPBYTE upper, LPBYTE const* buf, DWORD width, DWORD colors);
+	bool DecompTLG5(CArcFile* archive, const u8* src);
+	bool DecompTLG6(CArcFile* archive, const u8* src);
+	u32 DecompLZSS(u8* dst, const u8* src, size_t src_size, u8* dictionary, u32 initial_r);
+	void ComposeColors(u8* dst, const u8* upper, const u8* const* buffer, u32 width, u32 colors);
 
-	void TVPTLG6DecodeGolombValues(LPBYTE pixelbuf, DWORD pixel_count, LPBYTE bit_pool, BYTE color);
-	void TVPTLG6DecodeLineGeneric(LPDWORD prevline, LPDWORD curline, DWORD width, DWORD start_block, DWORD block_limit, LPBYTE filtertypes, DWORD skipblockbytes, LPDWORD in, DWORD initialp, DWORD oddskip, DWORD dir);
-	void TVPTLG6DecodeLine(LPDWORD prevline, LPDWORD curline, DWORD width, DWORD block_count, LPBYTE filtertypes, DWORD skipblockbytes, LPDWORD in, DWORD initialp, DWORD oddskip, DWORD dir);
-	DWORD make_gt_mask(DWORD a, DWORD b);
-	DWORD packed_bytes_add(DWORD a, DWORD b);
-	DWORD med2(DWORD a, DWORD b, DWORD c);
-	DWORD med(DWORD a, DWORD b, DWORD c, DWORD v);
-	DWORD avg(DWORD a, DWORD b, DWORD c, DWORD v);
+	void TVPTLG6DecodeGolombValues(u8* pixelbuf, u32 pixel_count, const u8* bit_pool, u8 color);
+
+	void TVPTLG6DecodeLineGeneric(const u32* prev_line, u32* current_line, u32 width,
+	                              u32 start_block, u32 block_limit, const u8* filter_types,
+	                              u32 skip_block_bytes, const u32* in, u32 initial_p,
+	                              u32 odd_skip, u32 dir);
+	
+	void TVPTLG6DecodeLine(const u32* prev_line, u32* current_line, u32 width,
+	                       u32 block_count, const u8* filter_types, u32 skip_block_bytes,
+	                       const u32* in, u32 initial_p, u32 odd_skip,
+	                       u32 dir);
+	
+	u32 make_gt_mask(u32 a, u32 b);
+	u32 packed_bytes_add(u32 a, u32 b);
+	u32 med2(u32 a, u32 b, u32 c);
+	u32 med(u32 a, u32 b, u32 c, u32 v);
+	u32 avg(u32 a, u32 b, u32 c, u32 v);
+
 	void InitTLG6Table();
 };
