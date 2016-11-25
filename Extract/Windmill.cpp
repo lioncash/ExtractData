@@ -4,7 +4,7 @@
 
 bool CWindmill::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".int") || memcmp(archive->GetHed(), "KIF", 3) != 0)
+	if (archive->GetArcExten() != _T(".int") || memcmp(archive->GetHeader(), "KIF", 3) != 0)
 		return false;
 
 	// Get file count

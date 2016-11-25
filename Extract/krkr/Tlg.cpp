@@ -28,7 +28,7 @@ bool CTlg::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".tlg"))
 		return false;
 
-	const u8* header = archive->GetHed();
+	const u8* header = archive->GetHeader();
 
 	if (memcmp(header, "TLG0.0\x00sds\x1a", 11) == 0)
 	{

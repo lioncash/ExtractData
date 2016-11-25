@@ -11,12 +11,12 @@ namespace
 {
 bool IsXP3File(const CArcFile* archive)
 {
-	return memcmp(archive->GetHed(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0;
+	return memcmp(archive->GetHeader(), "XP3\r\n \n\x1A\x8B\x67\x01", 11) == 0;
 }
 
 bool IsEXEFile(const CArcFile* archive)
 {
-	return memcmp(archive->GetHed(), "MZ", 2) == 0;
+	return memcmp(archive->GetHeader(), "MZ", 2) == 0;
 }
 } // Anonymous namespace
 

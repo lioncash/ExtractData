@@ -8,14 +8,14 @@ bool CAxl::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (*(u32*)&archive->GetHed()[4] != 0 && *(u32*)&archive->GetHed()[4] != 1)
+	if (*(u32*)&archive->GetHeader()[4] != 0 && *(u32*)&archive->GetHeader()[4] != 1)
 		return false;
 
 	// Get file count
-	const u32 num_files = *(u32*)&archive->GetHed()[0];
+	const u32 num_files = *(u32*)&archive->GetHeader()[0];
 
 	// Get filetype
-	const u32 type = *(u32*)&archive->GetHed()[4];
+	const u32 type = *(u32*)&archive->GetHeader()[4];
 
 	// Number of files retrieved from the index size
 	const u32 index_size = num_files * 44;

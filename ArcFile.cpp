@@ -130,7 +130,7 @@ bool CArcFile::ReadU64(u64* out)
 	return Read(out, sizeof(u64)) == sizeof(u64);
 }
 
-u8* CArcFile::ReadHed()
+u8* CArcFile::ReadHeader()
 {
 	Read(m_header.data(), m_header.size());
 	return m_header.data();

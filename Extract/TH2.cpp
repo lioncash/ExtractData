@@ -28,7 +28,7 @@ bool CTH2::MountKCAP(CArcFile* archive)
 	if (archive->GetArcExten().CompareNoCase(_T(".pak")) != 0)
 		return false;
 
-	if (memcmp(archive->GetHed(), "KCAP", 4) != 0)
+	if (memcmp(archive->GetHeader(), "KCAP", 4) != 0)
 		return false;
 
 	// Get file count
@@ -88,7 +88,7 @@ bool CTH2::MountLAC(CArcFile* archive)
 	if (archive->GetArcExten().CompareNoCase(_T(".pak")) != 0)
 		return false;
 
-	if (memcmp(archive->GetHed(), "LAC", 3) != 0)
+	if (memcmp(archive->GetHeader(), "LAC", 3) != 0)
 		return false;
 
 	// Get file count
@@ -137,7 +137,7 @@ bool CTH2::MountDpl(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".a"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "\x1E\xAF", 2) != 0)
+	if (memcmp(archive->GetHeader(), "\x1E\xAF", 2) != 0)
 		return false;
 
 	// Get file count
@@ -183,7 +183,7 @@ bool CTH2::MountWMV(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".wmv"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
+	if (memcmp(archive->GetHeader(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
 		return false;
 
 	return archive->Mount();
@@ -209,7 +209,7 @@ bool CTH2::DecodeWMV(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".wmv"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
+	if (memcmp(archive->GetHeader(), "\x00\x00\x00\x00\x00\x00\x00\x00\xA6\xD9\x00\xAA\x00\x62\xCE\x6C", 16) != 0)
 		return false;
 
 	// Output

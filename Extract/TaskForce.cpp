@@ -25,7 +25,7 @@ bool CTaskForce::MountDat(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".dat"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "tskforce", 8) != 0)
+	if (memcmp(archive->GetHeader(), "tskforce", 8) != 0)
 		return false;
 
 	archive->SeekHed(8);
@@ -61,10 +61,10 @@ bool CTaskForce::MountDat(CArcFile* archive)
 /// tlz mounting
 bool CTaskForce::MountTlz(CArcFile* archive)
 {
-	if ((archive->GetArcExten() != _T(".tsk")) && (archive->GetArcExten() != _T(".tfz")))
+	if (archive->GetArcExten() != _T(".tsk") && archive->GetArcExten() != _T(".tfz"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "tlz", 3) != 0)
+	if (memcmp(archive->GetHeader(), "tlz", 3) != 0)
 		return false;
 
 	return archive->Mount();
@@ -76,7 +76,7 @@ bool CTaskForce::MountBma(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".tsz"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "bma", 3) != 0)
+	if (memcmp(archive->GetHeader(), "bma", 3) != 0)
 		return false;
 
 	return archive->Mount();

@@ -4,7 +4,7 @@
 // Function to get file information from IZUMO *.dat files
 bool CIzumo::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".dat") || memcmp(archive->GetHed(), "PAK0", 4) != 0)
+	if (archive->GetArcExten() != _T(".dat") || memcmp(archive->GetHeader(), "PAK0", 4) != 0)
 		return false;
 
 	// Get index size (Starting address of the first file)

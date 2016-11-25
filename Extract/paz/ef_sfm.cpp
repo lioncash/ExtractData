@@ -7,7 +7,7 @@
 ///
 bool CEFsfm::IsSupported(const CArcFile* archive) const
 {
-	return memcmp(archive->GetHed(), "ef_sfm", 6) == 0;
+	return memcmp(archive->GetHeader(), "ef_sfm", 6) == 0;
 }
 
 /// Mount

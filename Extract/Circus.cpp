@@ -77,7 +77,7 @@ bool CCircus::MountVoiceDat(CArcFile* archive)
 	if (lstrcmpi(archive->GetArcName(), _T("voice.dat")) != 0)
 		return false;
 
-	if (memcmp(archive->GetHed(), "tskforce", 8) == 0)
+	if (memcmp(archive->GetHeader(), "tskforce", 8) == 0)
 	{
 		// Not the right archive
 		return false;
@@ -132,7 +132,7 @@ bool CCircus::MountCRX(CArcFile* archive)
 	if (lstrcmpi(archive->GetArcExten(), _T(".CRX")) != 0)
 		return false;
 
-	if (memcmp(archive->GetHed(), "CRXG", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CRXG", 4) != 0)
 		return false;
 
 	return archive->Mount();
@@ -147,7 +147,7 @@ bool CCircus::MountPCM(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pcm"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "XPCM", 4) != 0)
+	if (memcmp(archive->GetHeader(), "XPCM", 4) != 0)
 		return false;
 
 	return archive->Mount();

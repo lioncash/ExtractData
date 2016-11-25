@@ -30,7 +30,7 @@ bool CNitro::MountPak1(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(archive->GetHed(), "\x01\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHeader(), "\x01\0\0\0", 4) != 0)
 		return false;
 
 	// Get file count
@@ -100,7 +100,7 @@ bool CNitro::MountPak2(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "\x02\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHeader(), "\x02\0\0\0", 4) != 0)
 		return false;
 
 	// Get file count
@@ -179,7 +179,7 @@ bool CNitro::MountPak3(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(archive->GetHed(), "\x03\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHeader(), "\x03\0\0\0", 4) != 0)
 		return false;
 
 	// Read signature
@@ -269,7 +269,7 @@ bool CNitro::MountPak4(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
-	if (memcmp(archive->GetHed(), "\x04\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHeader(), "\x04\0\0\0", 4) != 0)
 		return false;
 
 	// Read signature
@@ -354,7 +354,7 @@ bool CNitro::MountPak4(CArcFile* archive)
 
 bool CNitro::MountPK2(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHed(), "ARCV", 4) != 0)
+	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHeader(), "ARCV", 4) != 0)
 		return false;
 
 	archive->Seek(4, FILE_BEGIN);
@@ -430,7 +430,7 @@ bool CNitro::MountPK2(CArcFile* archive)
 
 bool CNitro::MountN3Pk(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHed(), "N3Pk", 4) != 0)
+	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHeader(), "N3Pk", 4) != 0)
 		return false;
 
 	archive->Seek(4, FILE_BEGIN);
@@ -475,7 +475,7 @@ bool CNitro::MountN3Pk(CArcFile* archive)
 
 bool CNitro::MountPck(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".pck") || memcmp(&archive->GetHed()[12], "\x00\x00\x00\x00", 4) != 0)
+	if (archive->GetArcExten() != _T(".pck") || memcmp(&archive->GetHeader()[12], "\x00\x00\x00\x00", 4) != 0)
 		return false;
 
 	// Get file count
@@ -538,7 +538,7 @@ bool CNitro::MountPck(CArcFile* archive)
 // This: http://www.nitroplus.co.jp/pc/lineup/into_07/
 bool CNitro::MountNpp(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".npp") || memcmp(archive->GetHed(), "nitP", 4) != 0)
+	if (archive->GetArcExten() != _T(".npp") || memcmp(archive->GetHeader(), "nitP", 4) != 0)
 		return false;
 
 	// Get file count
@@ -585,7 +585,7 @@ bool CNitro::MountNpp(CArcFile* archive)
 
 bool CNitro::MountNpa(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHed(), "NPA\x01", 4) != 0)
+	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHeader(), "NPA\x01", 4) != 0)
 		return false;
 
 	archive->Seek(25, FILE_BEGIN);
@@ -845,7 +845,7 @@ bool CNitro::DecodePak4(CArcFile* archive)
 
 bool CNitro::DecodePK2(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHed(), "ARCV", 4) != 0)
+	if (archive->GetArcExten() != _T(".PK2") || memcmp(archive->GetHeader(), "ARCV", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
@@ -892,7 +892,7 @@ bool CNitro::DecodePK2(CArcFile* archive)
 
 bool CNitro::DecodeN3Pk(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHed(), "N3Pk", 4) != 0)
+	if (archive->GetArcExten() != _T(".pak") || memcmp(archive->GetHeader(), "N3Pk", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
@@ -925,7 +925,7 @@ bool CNitro::DecodeN3Pk(CArcFile* archive)
 
 bool CNitro::DecodeNpa(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHed(), "NPA\x01", 4) != 0)
+	if (archive->GetArcExten() != _T(".npa") || memcmp(archive->GetHeader(), "NPA\x01", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();

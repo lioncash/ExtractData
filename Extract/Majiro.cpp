@@ -54,7 +54,7 @@ bool CMajiro::MountArc1(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "MajiroArcV1.000", 15) != 0)
+	if (memcmp(archive->GetHeader(), "MajiroArcV1.000", 15) != 0)
 		return false;
 
 	// Get file count
@@ -175,7 +175,7 @@ bool CMajiro::MountArc2(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "MajiroArcV2.000", 15) != 0)
+	if (memcmp(archive->GetHeader(), "MajiroArcV2.000", 15) != 0)
 		return false;
 
 	// Get file count
@@ -294,7 +294,7 @@ bool CMajiro::MountArc2(CArcFile* archive)
 ///
 bool CMajiro::MountMJO(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "MajiroObjX", 10) != 0)
+	if (memcmp(archive->GetHeader(), "MajiroObjX", 10) != 0)
 		return false;
 
 	return archive->Mount();
@@ -306,7 +306,7 @@ bool CMajiro::MountMJO(CArcFile* archive)
 ///
 bool CMajiro::MountRC(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "˜Z’š", 4) != 0)
+	if (memcmp(archive->GetHeader(), "˜Z’š", 4) != 0)
 		return false;
 
 	return archive->Mount();

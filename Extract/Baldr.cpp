@@ -23,10 +23,10 @@ bool CBaldr::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pac"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "PAC", 3) != 0)
+	if (memcmp(archive->GetHeader(), "PAC", 3) != 0)
 		return false;
 
-	if (memcmp(&archive->GetHed()[72], "\0\0\0\0", 4) != 0)
+	if (memcmp(&archive->GetHeader()[72], "\0\0\0\0", 4) != 0)
 		return false;
 
 	// Get filecount

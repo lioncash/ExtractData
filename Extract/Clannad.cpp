@@ -7,8 +7,12 @@
 // Functions to get file information for Clannad's VOICE.MRG
 bool CClannad::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".MRG") || memcmp(archive->GetHed(), "LV", 2) != 0 || memcmp(archive->GetHed() + 7, "MZX0", 4) != 0)
+	if (archive->GetArcExten() != _T(".MRG") ||
+	    memcmp(archive->GetHeader(), "LV", 2) != 0 ||
+	    memcmp(archive->GetHeader() + 7, "MZX0", 4) != 0)
+	{
 		return false;
+	}
 
 	// Open VOICE.HED
 	TCHAR hed_file_path[MAX_PATH];

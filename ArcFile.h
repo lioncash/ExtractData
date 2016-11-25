@@ -30,7 +30,7 @@ public:
 	bool ReadU16(u16* out);
 	bool ReadU32(u32* out);
 	bool ReadU64(u64* out);
-	u8* ReadHed();
+	u8* ReadHeader();
 
 	template <typename T, size_t N>
 	bool ReadArray(T (&arr)[N])
@@ -96,8 +96,8 @@ public:
 	const YCString& GetArcExten() const       { return m_archive_extensions[m_split_archive_id]; }
 
 	// Returns previously loaded archive file header
-	u8*       GetHed()       { return m_header.data(); }
-	const u8* GetHed() const { return m_header.data(); }
+	u8*       GetHeader()       { return m_header.data(); }
+	const u8* GetHeader() const { return m_header.data(); }
 
 	SFileInfo*              GetFileInfo(size_t num) const { return &(*m_entries)[num]; }
 	SFileInfo*              GetFileInfo(LPCTSTR filepath, bool compare_filename_only = false) const;

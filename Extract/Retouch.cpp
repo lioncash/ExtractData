@@ -25,7 +25,7 @@ bool CRetouch::MountGYU(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".gyu"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "GYU\x1A", 4) != 0)
+	if (memcmp(archive->GetHeader(), "GYU\x1A", 4) != 0)
 		return false;
 
 	return archive->Mount();

@@ -35,7 +35,7 @@ bool CCpz::Mount(CArcFile* archive)
 ///
 bool CCpz::MountCpz1(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ1", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ1", 4) != 0)
 		return false;
 
 	// Read header
@@ -79,7 +79,7 @@ bool CCpz::MountCpz1(CArcFile* archive)
 ///
 bool CCpz::MountCpz2(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ2", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ2", 4) != 0)
 		return false;
 
 	// Read header
@@ -126,7 +126,7 @@ bool CCpz::MountCpz2(CArcFile* archive)
 ///
 bool CCpz::MountCpz3(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ3", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ3", 4) != 0)
 		return false;
 
 	// Read header
@@ -184,11 +184,11 @@ bool CCpz::MountCpz3(CArcFile* archive)
 ///
 bool CCpz::MountCpz5(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ5", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ5", 4) != 0)
 		return false;
 
 	// Get header
-	SCPZ5Header* header = (SCPZ5Header*)archive->GetHed();
+	auto* header = reinterpret_cast<SCPZ5Header*>(archive->GetHeader());
 	archive->SeekCur(sizeof(SCPZ5Header));
 
 	// Decrypt header
@@ -392,7 +392,7 @@ bool CCpz::Decode(CArcFile* archive)
 ///
 bool CCpz::DecodeCpz1(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ1", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ1", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
@@ -436,7 +436,7 @@ bool CCpz::DecodeCpz1(CArcFile* archive)
 ///
 bool CCpz::DecodeCpz2(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ2", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ2", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
@@ -480,7 +480,7 @@ bool CCpz::DecodeCpz2(CArcFile* archive)
 ///
 bool CCpz::DecodeCpz3(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ3", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ3", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
@@ -513,11 +513,11 @@ bool CCpz::DecodeCpz3(CArcFile* archive)
 ///
 bool CCpz::DecodeCpz5(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "CPZ5", 4) != 0)
+	if (memcmp(archive->GetHeader(), "CPZ5", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
-	SCPZ5Header*     cpz5_header = (SCPZ5Header*)archive->GetHed();
+	const auto* cpz5_header = reinterpret_cast<const SCPZ5Header*>(archive->GetHeader());
 
 	// Read CPZ5
 	DWORD          src_size = file_info->sizeCmp;
@@ -806,8 +806,8 @@ void CCpz::OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive
 ///
 void CCpz::OnDecrypt5FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info)
 {
-	const SCPZ5Header* cpz5_header = (SCPZ5Header*)archive->GetHed();
-	const BYTE*        pbtTable = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
+	const auto* cpz5_header = reinterpret_cast<const SCPZ5Header*>(archive->GetHeader());
+	const BYTE* pbtTable = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
 
 	DecryptOfData5(target, target_size, pbtTable, cpz5_header->adwMD5, file_info.key);
 }

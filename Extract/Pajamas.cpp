@@ -26,7 +26,7 @@ bool CPajamas::MountDat1(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".dat") && archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "GAMEDAT PACK", 12) != 0)
+	if (memcmp(archive->GetHeader(), "GAMEDAT PACK", 12) != 0)
 		return false;
 
 	// Get file count
@@ -81,7 +81,7 @@ bool CPajamas::MountDat2(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".dat"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "GAMEDAT PAC2", 12) != 0)
+	if (memcmp(archive->GetHeader(), "GAMEDAT PAC2", 12) != 0)
 		return false;
 
 	// Get file count

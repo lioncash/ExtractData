@@ -3,7 +3,7 @@
 
 bool CYkc::Mount(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "YKC001", 6) != 0)
+	if (memcmp(archive->GetHeader(), "YKC001", 6) != 0)
 		return false;
 
 	// Get the index size and the offset to the index
@@ -54,7 +54,7 @@ bool CYkc::Mount(CArcFile* archive)
 
 bool CYkc::Decode(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "YKC001", 6) != 0)
+	if (memcmp(archive->GetHeader(), "YKC001", 6) != 0)
 		return false;
 
 	if (DecodeYKS(archive))

@@ -2,6 +2,14 @@
 #include "../Image.h"
 #include "Cyc.h"
 
+namespace
+{
+bool HasValidHeaderID(const CArcFile* archive)
+{
+	return std::memcmp(&archive->GetHeader()[48], "PACKTYPE=", 9) == 0;
+}
+} // Anonymous namespace
+
 bool CCyc::Mount(CArcFile* archive)
 {
 	if (MountGpk(archive))
@@ -26,7 +34,7 @@ bool CCyc::MountGpk(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".gpk"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	// Get gtb file path
@@ -84,7 +92,7 @@ bool CCyc::MountVpk(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".vpk"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	// Get vtb file path
@@ -131,7 +139,7 @@ bool CCyc::MountDwq(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".dwq"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	return archive->Mount();
@@ -141,7 +149,7 @@ bool CCyc::MountWgq(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".wgq"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	return archive->Mount();
@@ -151,7 +159,7 @@ bool CCyc::MountVaw(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".vaw"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	return archive->Mount();
@@ -195,7 +203,7 @@ bool CCyc::DecodeDwq(CArcFile* archive)
 
 	if (file_info->format != _T("DWQ"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	// Read
@@ -324,7 +332,7 @@ bool CCyc::DecodeWgq(CArcFile* archive)
 
 	if (file_info->format != _T("WGQ"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	// Read
@@ -344,7 +352,7 @@ bool CCyc::DecodeVaw(CArcFile* archive)
 
 	if (file_info->format != _T("VAW"))
 		return false;
-	if (memcmp(&archive->GetHed()[48], "PACKTYPE=", 9) != 0)
+	if (!HasValidHeaderID(archive))
 		return false;
 
 	// Read

@@ -53,7 +53,7 @@ void CSusie::Apply()
 bool CSusie::Mount(CArcFile* pclArc)
 {
 	// Get header
-	BYTE* pbtHeader = pclArc->GetHed();
+	const u8* pbtHeader = pclArc->GetHeader();
 
 	// Mount
 	for (auto& pstsiTarget : m_stsiMain)
@@ -178,7 +178,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 	YCStringA clsFileName = pclArc->GetOpenFileInfo()->name;
 
 	// Get header
-	BYTE* pbtHeader = pclArc->GetHed();
+	const u8* pbtHeader = pclArc->GetHeader();
 
 	// GetPicture() file input
 	std::vector<YCLibrary*> vtSupportPlugin;

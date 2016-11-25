@@ -5,7 +5,7 @@
 
 bool CAlcot::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".arc") || memcmp(archive->GetHed(), "ARC\x1a", 4) != 0)
+	if (archive->GetArcExten() != _T(".arc") || memcmp(archive->GetHeader(), "ARC\x1a", 4) != 0)
 		return false;
 
 	// Get file count

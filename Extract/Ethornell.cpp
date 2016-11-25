@@ -11,7 +11,7 @@ bool CEthornell::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "PackFile    ", 12) != 0)
+	if (memcmp(archive->GetHeader(), "PackFile    ", 12) != 0)
 		return false;
 
 	archive->SeekHed(12);

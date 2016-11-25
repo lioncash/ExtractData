@@ -59,7 +59,7 @@ bool CSpitan::MountGraphic1(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".aif"))
 		return false;
-	if (memcmp(archive->GetHed(), "\x10\0\0\0", 4) != 0)
+	if (memcmp(archive->GetHeader(), "\x10\0\0\0", 4) != 0)
 		return false;
 
 	for (int i = 1; ; i++)

@@ -35,7 +35,7 @@ bool CNscr::MountNsa(CArcFile* archive)
 	// Get file count
 	u32 num_files = 0;
 
-	if (memcmp(archive->GetHed(), "\0\0", 2) == 0)
+	if (memcmp(archive->GetHeader(), "\0\0", 2) == 0)
 	{
 		// Each 4 bytes
 		archive->Read(&num_files, 4);
@@ -53,14 +53,14 @@ bool CNscr::MountNsa(CArcFile* archive)
 	archive->ReadU32(&offset);
 	offset = BitUtils::Swap32(offset);
 
-	if (memcmp(archive->GetHed(), "\0\0", 2) == 0)
+	if (memcmp(archive->GetHeader(), "\0\0", 2) == 0)
 	{
 		offset += 2;
 	}
 
 	// Get index size
 	u32 index_size = offset;
-	index_size -= (memcmp(archive->GetHed(), "\0\0", 2) == 0) ? 8 : 6;
+	index_size -= (memcmp(archive->GetHeader(), "\0\0", 2) == 0) ? 8 : 6;
 
 	// Get the index
 	std::vector<u8> index(index_size);

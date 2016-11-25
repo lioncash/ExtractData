@@ -4,7 +4,7 @@
 
 bool CTrH::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".px") || memcmp(archive->GetHed(), "fPX ", 4) != 0)
+	if (archive->GetArcExten() != _T(".px") || memcmp(archive->GetHeader(), "fPX ", 4) != 0)
 		return false;
 
 	return archive->Mount();
@@ -15,7 +15,7 @@ bool CTrH::Decode(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	if (file_info->format != _T("PX") || memcmp(archive->GetHed(), "fPX ", 4) != 0)
+	if (file_info->format != _T("PX") || memcmp(archive->GetHeader(), "fPX ", 4) != 0)
 		return false;
 
 	// Read px header

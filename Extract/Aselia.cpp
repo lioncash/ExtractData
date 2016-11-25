@@ -32,11 +32,11 @@ bool CAselia::Mount(CArcFile* archive)
 
 	// Get file extension
 	YCString file_ext;
-	if (memcmp(&archive->GetHed()[4], "OggS", 4) == 0)
+	if (memcmp(&archive->GetHeader()[4], "OggS", 4) == 0)
 	{
 		file_ext = _T(".ogg");
 	}
-	else if (memcmp(&archive->GetHed()[4], "PNG" /*‰PNG" NOTE: is that the actual way it is (‰PNG), or was it an encoding error in this cpp file? */, 4) == 0)
+	else if (memcmp(&archive->GetHeader()[4], "PNG" /*‰PNG" NOTE: is that the actual way it is (‰PNG), or was it an encoding error in this cpp file? */, 4) == 0)
 	{
 		file_ext = _T(".png");
 	}

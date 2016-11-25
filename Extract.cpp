@@ -198,7 +198,7 @@ bool CExtract::Mount(CArcFile* archive)
 {
 	// Read the archive header
 
-	archive->ReadHed();
+	archive->ReadHeader();
 	archive->SeekHed();
 
 	if (archive->GetOpt()->bSusieFirst)

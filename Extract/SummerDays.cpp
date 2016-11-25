@@ -11,7 +11,7 @@ enum : s32
 
 bool CSummerDays::Mount(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "Í2nY", 4) != 0)
+	if (memcmp(archive->GetHeader(), "Í2nY", 4) != 0)
 		return false;
 
 	// Code starts at 0x8003

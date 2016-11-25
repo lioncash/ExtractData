@@ -34,7 +34,7 @@ bool CCircusPak::MountPakForKujiraCons(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "File Pack 1.0y", 14) != 0)
+	if (memcmp(archive->GetHeader(), "File Pack 1.0y", 14) != 0)
 		return false;
 
 	// Get file count
@@ -84,7 +84,7 @@ bool CCircusPak::MountPakForKujira(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "File Pack 1.00", 14) != 0)
+	if (memcmp(archive->GetHeader(), "File Pack 1.00", 14) != 0)
 		return false;
 
 	// Get file count
@@ -134,7 +134,7 @@ bool CCircusPak::MountPakForACDC(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "ACDC_RA", 7) != 0)
+	if (memcmp(archive->GetHeader(), "ACDC_RA", 7) != 0)
 		return false;
 
 	// Get file count
@@ -184,7 +184,7 @@ bool CCircusPak::MountPakForDCGS(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "PACK", 4) != 0)
+	if (memcmp(archive->GetHeader(), "PACK", 4) != 0)
 		return false;
 
 	archive->SeekHed(4);
@@ -266,7 +266,7 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "File Pack 1.0y", 14) != 0)
+	if (memcmp(archive->GetHeader(), "File Pack 1.0y", 14) != 0)
 		return false;
 
 	const std::array<u8, 2> key{{
@@ -319,7 +319,7 @@ bool CCircusPak::DecodePakForKujira(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "File Pack 1.00", 14) != 0)
+	if (memcmp(archive->GetHeader(), "File Pack 1.00", 14) != 0)
 		return false;
 
 	const std::array<u8, 2> key{{
@@ -372,7 +372,7 @@ bool CCircusPak::DecodePakForACDC(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "ACDC_RA", 7) != 0)
+	if (memcmp(archive->GetHeader(), "ACDC_RA", 7) != 0)
 		return false;
 
 	const std::array<u8, 2> key{{
@@ -459,7 +459,7 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".pak"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "PACK", 4) != 0)
+	if (memcmp(archive->GetHeader(), "PACK", 4) != 0)
 		return false;
 
 	// Read

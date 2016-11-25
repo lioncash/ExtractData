@@ -8,7 +8,7 @@
 ///
 bool CLostChild::Mount(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "EPK ", 4) != 0)
+	if (memcmp(archive->GetHeader(), "EPK ", 4) != 0)
 		return false;
 
 	archive->SeekHed(4);

@@ -10,7 +10,7 @@ bool HasValidHeaderID(const CArcFile* archive)
 		"OGG", "WSC", "ANM", "MSK", "WIP", "TBL", "SCR"
 	}};
 
-	const u8* const archive_id_start = &archive->GetHed()[4];
+	const u8* const archive_id_start = &archive->GetHeader()[4];
 
 	return std::any_of(header_ids.begin(), header_ids.end(), [archive_id_start](const char* id) {
 		return std::memcmp(archive_id_start, id, 4) == 0;

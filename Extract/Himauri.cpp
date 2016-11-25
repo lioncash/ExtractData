@@ -28,7 +28,7 @@ bool CHimauri::Mount(CArcFile* archive)
 ///
 bool CHimauri::MountHim4(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "Him4", 4) != 0)
+	if (memcmp(archive->GetHeader(), "Him4", 4) != 0)
 		return false;
 
 	// Get file count
@@ -79,7 +79,7 @@ bool CHimauri::MountHim4(CArcFile* archive)
 ///
 bool CHimauri::MountHim5(CArcFile* archive)
 {
-	if (memcmp(archive->GetHed(), "Him5", 4) != 0)
+	if (memcmp(archive->GetHeader(), "Him5", 4) != 0)
 		return false;
 
 	// Get file count
@@ -232,7 +232,7 @@ bool CHimauri::Decode(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".hxp"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "Him", 3) != 0)
+	if (memcmp(archive->GetHeader(), "Him", 3) != 0)
 		return false;
 
 	// Get input size

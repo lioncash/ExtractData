@@ -15,7 +15,7 @@ bool CNavel::Mount(CArcFile* archive)
 
 bool CNavel::MountPac(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".pac") || memcmp(archive->GetHed(), "CAPF", 4) != 0)
+	if (archive->GetArcExten() != _T(".pac") || memcmp(archive->GetHeader(), "CAPF", 4) != 0)
 		return false;
 
 	// Get index size
@@ -57,7 +57,7 @@ bool CNavel::MountPac(CArcFile* archive)
 
 bool CNavel::MountWpd(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".WPD") || memcmp(archive->GetHed(), " DPW", 4) != 0)
+	if (archive->GetArcExten() != _T(".WPD") || memcmp(archive->GetHeader(), " DPW", 4) != 0)
 		return false;
 
 	return archive->Mount();

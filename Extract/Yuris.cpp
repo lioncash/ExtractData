@@ -17,7 +17,7 @@ bool CYuris::MountYPF(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".ypf"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "YPF", 3) != 0)
+	if (memcmp(archive->GetHeader(), "YPF", 3) != 0)
 		return false;
 
 	static constexpr std::array<u8, 256> file_name_length_table =
@@ -178,7 +178,7 @@ bool CYuris::MountYMV(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".ymv"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "YSMV", 4) != 0)
+	if (memcmp(archive->GetHeader(), "YSMV", 4) != 0)
 		return false;
 
 	archive->SeekHed(8);
@@ -225,7 +225,7 @@ bool CYuris::DecodeYMV(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".ymv"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "YSMV", 4) != 0)
+	if (memcmp(archive->GetHeader(), "YSMV", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();

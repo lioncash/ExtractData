@@ -4,7 +4,7 @@
 // Function that gets file information from MELTY BLOOD *.data files
 bool CMeltyBlood::Mount(CArcFile* archive)
 {
-	if (archive->GetHed()[0] != 0x00 && archive->GetHed()[0] != 0x01)
+	if (archive->GetHeader()[0] != 0x00 && archive->GetHeader()[0] != 0x01)
 		return false;
 
 	if (archive->GetArcName().Left(5) != _T("data0") || archive->GetArcExten() != _T(".p"))

@@ -4,7 +4,7 @@
 
 bool CInnocentGrey::Mount(CArcFile* archive)
 {
-	if (archive->GetArcExten() != _T(".dat") || memcmp(archive->GetHed(), "PACKDAT.", 8) != 0)
+	if (archive->GetArcExten() != _T(".dat") || memcmp(archive->GetHeader(), "PACKDAT.", 8) != 0)
 		return false;
 
 	// Get file count

@@ -9,7 +9,7 @@ bool Cef_first::IsSupported(const CArcFile* archive)
 {
 	// Get header
 	u8 header[32];
-	memcpy(header, archive->GetHed(), sizeof(header));
+	memcpy(header, archive->GetHeader(), sizeof(header));
 
 	// Get decryption key
 	m_key = header[8];

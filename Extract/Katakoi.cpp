@@ -20,11 +20,11 @@ bool CKatakoi::MountIar(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".iar"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
+	if (memcmp(pclArc->GetHeader(), "iar ", 4) != 0)
 		return false;
 
 	// Version check
-	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
+	DWORD dwVersion = *(LPDWORD)&pclArc->GetHeader()[4];
 	DWORD dwFileEntrySize = 0;
 
 	if (dwVersion == 2)
@@ -107,11 +107,11 @@ bool CKatakoi::MountWar(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".war"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
+	if (memcmp(pclArc->GetHeader(), "war ", 4) != 0)
 		return false;
 
 	// Version check
-	DWORD dwVersion = *(LPDWORD)&pclArc->GetHed()[4];
+	DWORD dwVersion = *(LPDWORD)&pclArc->GetHeader()[4];
 	DWORD dwFileEntrySize = 0;
 
 	if (dwVersion == 8)
@@ -356,7 +356,7 @@ bool CKatakoi::DecodeIar(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".iar"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "iar ", 4) != 0)
+	if (memcmp(pclArc->GetHeader(), "iar ", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
@@ -413,7 +413,7 @@ bool CKatakoi::DecodeWar(CArcFile* pclArc)
 	if (pclArc->GetArcExten() != _T(".war"))
 		return false;
 
-	if (memcmp(pclArc->GetHed(), "war ", 4) != 0)
+	if (memcmp(pclArc->GetHeader(), "war ", 4) != 0)
 		return false;
 
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();

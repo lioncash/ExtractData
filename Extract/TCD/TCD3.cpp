@@ -12,7 +12,7 @@ bool CTCD3::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".TCD"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "TCD3", 4) != 0)
+	if (memcmp(archive->GetHeader(), "TCD3", 4) != 0)
 		return false;
 
 	archive->SeekHed(4);

@@ -10,7 +10,7 @@ bool CEntisGLS::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".noa"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "Entis\x1A\0\0", 8) != 0)
+	if (memcmp(archive->GetHeader(), "Entis\x1A\0\0", 8) != 0)
 		return false;
 
 //	if( memcmp( archive->GetHed(), ""

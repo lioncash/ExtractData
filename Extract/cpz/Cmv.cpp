@@ -8,7 +8,7 @@ bool CCmv::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".cmv"))
 		return false;
 
-	if (memcmp(archive->GetHed(), "CMV", 3) != 0)
+	if (memcmp(archive->GetHeader(), "CMV", 3) != 0)
 		return false;
 
 	// Read Header
