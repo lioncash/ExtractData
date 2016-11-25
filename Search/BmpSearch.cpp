@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "BmpSearch.h"
 
+#include "ArcFile.h"
+
 CBmpSearch::CBmpSearch()
 {
 	InitHeader("BM****\0\0\0\0\x36*\0\0\x28\0\0\0", 18);

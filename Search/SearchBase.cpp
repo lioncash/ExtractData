@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "SearchBase.h"
 
+#include "ArcFile.h"
+
 CSearchBase::CSearchBase()
 {
 	Init();

@@ -1,10 +1,7 @@
 #pragma once
 
-#include "stdafx.h"
-#include "ArcFile.h"
-
-#include <array>
-#include <cstddef>
+class CArcFile;
+struct SOption;
 
 class CSearchBase
 {

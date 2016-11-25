@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "JpgSearch.h"
+
+#include "ArcFile.h"
 #include "Utils/BitUtils.h"
 
 CJpgSearch::CJpgSearch()

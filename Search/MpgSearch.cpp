@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "MpgSearch.h"
 
+#include "ArcFile.h"
+
 CMpgSearch::CMpgSearch()
 {
 	InitHeader("\x00\x00\x01\xBA\x21\x00\x01\x00", 8);

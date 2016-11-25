@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "MidSearch.h"
+
+#include "ArcFile.h"
 #include "Utils/BitUtils.h"
 
 CMidSearch::CMidSearch()

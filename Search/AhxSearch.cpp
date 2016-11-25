@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "AhxSearch.h"
+
+#include "ArcFile.h"
 #include "Utils/BitUtils.h"
 
 CAhxSearch::CAhxSearch()

@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "WavSearch.h"
 
+#include "ArcFile.h"
+
 CWavSearch::CWavSearch()
 {
 	InitHeader("RIFF****WAVE", 12);

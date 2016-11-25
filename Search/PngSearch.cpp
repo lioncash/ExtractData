@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "PngSearch.h"
+
+#include "ArcFile.h"
 #include "Utils/BitUtils.h"
 
 CPngSearch::CPngSearch()
