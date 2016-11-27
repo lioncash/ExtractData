@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "ExtractBase.h"
-#include "Image.h"
 #include "Susie.h"
+
+#include "ArcFile.h"
+#include "Common.h"
+#include "Image.h"
 
 typedef int (WINAPI* SPI_PROGRESS)(int, int, long);
 typedef int (WINAPI* GetPluginInfoProc)(int infono, LPSTR buf, int buflen);

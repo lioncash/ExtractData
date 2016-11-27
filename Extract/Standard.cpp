@@ -1,10 +1,12 @@
 #include "StdAfx.h"
-#include "../Arc/LZSS.h"
-#include "../Arc/Zlib.h"
-#include "Ahx.h"
-#include "../Image.h"
-#include "../Sound/Ogg.h"
-#include "Standard.h"
+#include "Extract/Standard.h"
+
+#include "ArcFile.h"
+#include "Arc/LZSS.h"
+#include "Arc/Zlib.h"
+#include "Extract/Ahx.h"
+#include "Image.h"
+#include "Sound/Ogg.h"
 
 /// Mounting
 bool CStandard::Mount(CArcFile* archive)

@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../Arc/Zlib.h"
-#include "../Image.h"
-#include "Nitro.h"
+#include "Extract/Nitro.h"
+
+#include "ArcFile.h"
+#include "Arc/Zlib.h"
+#include "Image.h"
 
 bool CNitro::Mount(CArcFile* archive)
 {

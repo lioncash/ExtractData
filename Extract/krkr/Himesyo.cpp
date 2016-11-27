@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Himesyo.h"
+#include "Extract/krkr/Himesyo.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

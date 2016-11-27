@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "AOS.h"
+#include "Extract/AOS.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Mounting
 ///

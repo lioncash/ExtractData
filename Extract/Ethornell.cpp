@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "Ethornell.h"
+#include "Extract/Ethornell.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Mount
 ///

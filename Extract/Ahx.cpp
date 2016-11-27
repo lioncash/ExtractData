@@ -22,8 +22,10 @@
 // http://www.mpg123.de/
 
 #include "StdAfx.h"
-#include "../Sound/Wav.h"
-#include "Ahx.h"
+#include "Extract/Ahx.h"
+
+#include "ArcFile.h"
+#include "Sound/Wav.h"
 #include "Utils/BitUtils.h"
 
 #include <array>

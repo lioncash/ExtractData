@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../ExtractBase.h"
-#include "../../MD5.h"
 
 class CKrkr : public CExtractBase
 {

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Spitan.h"
+#include "Extract/Spitan.h"
+
+#include "ArcFile.h"
 
 bool CSpitan::Mount(CArcFile* archive)
 {

@@ -1,9 +1,11 @@
 #include "StdAfx.h"
-#include "../../Image.h"
-#include "../../MD5.h"
-#include "PB2A.h"
-#include "PB3B.h"
-#include "Cpz.h"
+#include "Extract/cpz/Cpz.h"
+
+#include "ArcFile.h"
+#include "Extract/cpz/PB2A.h"
+#include "Extract/cpz/PB3B.h"
+#include "Image.h"
+#include "MD5.h"
 
 /// Mounting
 ///

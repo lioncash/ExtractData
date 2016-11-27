@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "LostChild.h"
+#include "Extract/LostChild.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Mounting
 ///

@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "WavSearch.h"
+#include "Search/WavSearch.h"
 
 #include "ArcFile.h"
 

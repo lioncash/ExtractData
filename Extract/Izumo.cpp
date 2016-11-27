@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Izumo.h"
+#include "Extract/Izumo.h"
+
+#include "ArcFile.h"
 
 // Function to get file information from IZUMO *.dat files
 bool CIzumo::Mount(CArcFile* archive)

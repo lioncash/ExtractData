@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Krkr.h"
+#include "Extract/krkr/Krkr.h"
 
 class CYotsunoha final : public CKrkr
 {

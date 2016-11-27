@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "Pajamas.h"
+#include "Extract/Pajamas.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Mounting
 ///

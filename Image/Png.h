@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ImageBase.h"
+#include "Image/ImageBase.h"
 
 class CPng final : public CImageBase
 {

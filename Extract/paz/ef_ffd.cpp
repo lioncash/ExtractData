@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ef_ffd.h"
+#include "Extract/paz/ef_ffd.h"
+
+#include "ArcFile.h"
 
 bool Cef_ffd::Mount(CArcFile* archive)
 {

@@ -1,8 +1,10 @@
 #include "StdAfx.h"
-#include "Arc/LZSS.h"
-#include "../Image.h"
-#include "../Image/Tga.h"
 #include "TaskForce.h"
+
+#include "ArcFile.h"
+#include "Arc/LZSS.h"
+#include "Image.h"
+#include "Image/Tga.h"
 
 /// Mounting
 bool CTaskForce::Mount(CArcFile* archive)

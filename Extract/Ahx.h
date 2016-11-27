@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ExtractBase.h"
+#include "ExtractBase.h"
 
 class CAhx final : public CExtractBase
 {

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ef_first.h"
+#include "Extract/paz/ef_first.h"
+
+#include "ArcFile.h"
 
 /// Dealing with files
 ///

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ExtractBase.h"
+class CArcFile;
 
 ///
 /// Base class for dealing with images

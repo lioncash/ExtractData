@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../../Image.h"
-#include "JBP1.h"
-#include "PB3B.h"
+#include "Extract/cpz/PB3B.h"
+
+#include "ArcFile.h"
+#include "Extract/cpz/JBP1.h"
+#include "Image.h"
 
 /// Decoding
 ///

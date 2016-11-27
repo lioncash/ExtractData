@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../Arc/Zlib.h"
-#include "../Image.h"
-#include "Alcot.h"
+#include "Extract/Alcot.h"
+
+#include "ArcFile.h"
+#include "Image.h"
+#include "Arc/Zlib.h"
 
 bool CAlcot::Mount(CArcFile* archive)
 {

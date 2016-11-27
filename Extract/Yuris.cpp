@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Yuris.h"
+#include "Extract/Yuris.h"
+
+#include "ArcFile.h"
 
 bool CYuris::Mount(CArcFile* archive)
 {

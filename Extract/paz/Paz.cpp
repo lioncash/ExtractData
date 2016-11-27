@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../../Arc/Zlib.h"
-#include "Paz.h"
+#include "Extract/paz/Paz.h"
+
+#include "ArcFile.h"
+#include "Arc/Zlib.h"
 
 /// Mount
 ///

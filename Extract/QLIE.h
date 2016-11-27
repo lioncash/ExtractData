@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ExtractBase.h"
+#include "ExtractBase.h"
 
 class CQLIE final : public CExtractBase
 {
@@ -32,7 +32,7 @@ private:
 	static void DecryptFileName(LPBYTE in, DWORD size, DWORD seed);
 	static void Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed);
 
-	QWORD padw(QWORD a, QWORD b);
+	u64 padw(u64 a, u64 b);
 	DWORD crc_or_something(LPBYTE buff, DWORD len);
 	static void DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed);
 	static void DecryptV3(LPBYTE buff, DWORD len, DWORD seed);

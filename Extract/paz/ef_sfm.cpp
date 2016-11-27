@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ef_sfm.h"
+#include "Extract/paz/ef_sfm.h"
+
+#include "ArcFile.h"
 
 /// Check if files are supported
 ///

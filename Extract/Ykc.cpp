@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Ykc.h"
+#include "Extract/Ykc.h"
+
+#include "ArcFile.h"
 
 bool CYkc::Mount(CArcFile* archive)
 {

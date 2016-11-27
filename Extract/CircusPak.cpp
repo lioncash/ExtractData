@@ -1,8 +1,10 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "../Image/Tga.h"
-#include "../Arc/LZSS.h"
-#include "CircusPak.h"
+#include "Extract/CircusPak.h"
+
+#include "ArcFile.h"
+#include "Arc/LZSS.h"
+#include "Image.h"
+#include "Image/Tga.h"
 
 /// Mounting
 ///

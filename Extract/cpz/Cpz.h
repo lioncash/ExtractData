@@ -2,6 +2,8 @@
 
 #include "../../ExtractBase.h"
 
+struct SFileInfo;
+
 class CCpz final : public CExtractBase
 {
 public:

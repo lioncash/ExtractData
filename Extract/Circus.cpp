@@ -1,7 +1,9 @@
 #include "StdAfx.h"
+#include "Extract/Circus.h"
+
+#include "ArcFile.h"
 #include "Image.h"
 #include "Arc/Zlib.h"
-#include "Extract/Circus.h"
 #include "Sound/Wav.h"
 
 /// Mounting

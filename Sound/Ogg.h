@@ -1,9 +1,10 @@
 #pragma once
 
-#include "../ExtractBase.h"
+#include "ExtractBase.h"
+
+class CArcFile;
 
 #pragma pack(push, 1)
-
 struct VH
 {
 	u8  pattern[4];
@@ -16,7 +17,6 @@ struct VH
 	u8  page_segments;
 	u8  segment_table[256];
 };
-
 #pragma pack(pop, 1)
 
 class COgg final : public CExtractBase

@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
 #include "QLIE.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 bool CQLIE::Mount(CArcFile* pclArc)
 {
@@ -786,7 +788,7 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 // asmodean氏が作成・公開しているexfp3のソースコードを参考にして作成しました。
 
 // Emulate mmx padw instruction
-QWORD CQLIE::padw(QWORD a, QWORD b)
+u64 CQLIE::padw(u64 a, u64 b)
 {
 	LPWORD a_words = (LPWORD)&a;
 	LPWORD b_words = (LPWORD)&b;

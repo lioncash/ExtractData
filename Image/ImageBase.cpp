@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ImageBase.h"
+#include "Image/ImageBase.h"
+
+#include "ArcFile.h"
 
 /// Constructor
 CImageBase::CImageBase()

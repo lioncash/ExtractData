@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "MpgSearch.h"
+#include "Search/MpgSearch.h"
 
 #include "ArcFile.h"
 

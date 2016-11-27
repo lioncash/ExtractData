@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ef_latter.h"
+#include "Extract/paz/ef_latter.h"
+
+#include "ArcFile.h"
 
 /// Check if files are supported
 ///

@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Sound/Wav.h"
-#include "Navel.h"
+#include "Extract/Navel.h"
+
+#include "ArcFile.h"
+#include "Sound/Wav.h"
 
 // Function that gets file information from Navel's .pac files
 bool CNavel::Mount(CArcFile* archive)

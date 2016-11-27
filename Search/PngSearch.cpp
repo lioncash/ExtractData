@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "PngSearch.h"
+#include "Search/PngSearch.h"
 
 #include "ArcFile.h"
 #include "Utils/BitUtils.h"

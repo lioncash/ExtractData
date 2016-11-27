@@ -1,5 +1,7 @@
 #pragma once
 
+#include "WindowBase.h"
+
 class CWinMain : public CWindowBase
 {
 public:

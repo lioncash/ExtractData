@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Sound/Wav.h"
-#include "TrH.h"
+#include "Extract/TrH.h"
+
+#include "ArcFile.h"
+#include "Sound/Wav.h"
 
 bool CTrH::Mount(CArcFile* archive)
 {

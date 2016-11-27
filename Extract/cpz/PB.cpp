@@ -1,5 +1,4 @@
 #include "StdAfx.h"
-#include "../../ExtractBase.h"
 #include "PB.h"
 
 /// Decompress LZSS

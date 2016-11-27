@@ -1,8 +1,11 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "../Sound/Wav.h"
-#include "../Sound/Ogg.h"
-#include "Katakoi.h"
+#include "Extract/Katakoi.h"
+
+#include "ArcFile.h"
+#include "File.h"
+#include "Image.h"
+#include "Sound/Ogg.h"
+#include "Sound/Wav.h"
 
 bool CKatakoi::Mount(CArcFile* pclArc)
 {

@@ -1,6 +1,7 @@
 #include "StdAfx.h"
-#include "../ExtractBase.h"
 #include "Png.h"
+
+#include "ArcFile.h"
 
 CPng::CPng()
 {

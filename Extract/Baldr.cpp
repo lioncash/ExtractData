@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "Baldr.h"
+#include "Extract/Baldr.h"
+#include "ArcFile.h"
 
 namespace
 {

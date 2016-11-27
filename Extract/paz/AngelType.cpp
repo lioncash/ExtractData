@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "AngelType.h"
+#include "Extract/paz/AngelType.h"
+
+#include "ArcFile.h"
 
 bool CAngelType::Mount(CArcFile* archive)
 {

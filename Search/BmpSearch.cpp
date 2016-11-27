@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "BmpSearch.h"
+#include "Search/BmpSearch.h"
 
 #include "ArcFile.h"
 

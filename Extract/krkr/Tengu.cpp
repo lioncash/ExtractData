@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Tengu.h"
+#include "Extract/krkr/Tengu.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

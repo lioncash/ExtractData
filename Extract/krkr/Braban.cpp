@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Braban.h"
+#include "Extract/krkr/Braban.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

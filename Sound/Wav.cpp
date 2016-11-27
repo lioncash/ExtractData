@@ -1,6 +1,7 @@
 #include "StdAfx.h"
-#include "../ArcFile.h"
-#include "Wav.h"
+#include "Sound/Wav.h"
+
+#include "ArcFile.h"
 
 void CWav::Init(CArcFile* archive, u32 data_size, u32 freq, u16 channels, u16 bits)
 {

@@ -21,8 +21,10 @@
 */
 
 #include "StdAfx.h"
-#include "../Image.h"
-#include "Majiro.h"
+#include "Extract/Majiro.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Mounting
 ///

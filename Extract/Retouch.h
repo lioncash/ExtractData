@@ -1,6 +1,6 @@
-#pragma	once
+#pragma once
 
-#include "../ExtractBase.h"
+#include "ExtractBase.h"
 
 class CRetouch final : public CExtractBase
 {

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Hachukano.h"
+#include "Extract/krkr/Hachukano.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

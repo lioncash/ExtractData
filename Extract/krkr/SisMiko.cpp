@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "SisMiko.h"
+#include "Extract/krkr/SisMiko.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

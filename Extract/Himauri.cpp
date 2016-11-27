@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "../Image/Tga.h"
-#include "Himauri.h"
+#include "Extract/Himauri.h"
+
+#include "ArcFile.h"
+#include "Image.h"
+#include "Image/Tga.h"
 #include "Utils/BitUtils.h"
 
 /// Mount

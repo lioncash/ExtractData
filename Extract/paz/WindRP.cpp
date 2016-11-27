@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "WindRP.h"
+#include "Extract/paz/WindRP.h"
+
+#include "ArcFile.h"
 
 bool CWindRP::Mount(CArcFile* archive)
 {

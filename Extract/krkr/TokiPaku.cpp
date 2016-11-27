@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "TokiPaku.h"
+#include "Extract/krkr/TokiPaku.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

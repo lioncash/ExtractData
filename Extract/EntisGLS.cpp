@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "EntisGLS.h"
+#include "Extract/EntisGLS.h"
+
+#include "ArcFile.h"
 
 /// Mount
 ///

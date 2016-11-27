@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "BSFre.h"
+#include "Extract/paz/BSFre.h"
+
+#include "ArcFile.h"
 
 bool CBSFre::Mount(CArcFile* archive)
 {

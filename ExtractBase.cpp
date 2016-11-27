@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ExtractBase.h"
+#include "ArcFile.h"
 
 bool CExtractBase::Decode(CArcFile* archive)
 {

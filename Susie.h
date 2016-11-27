@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Common.h"
-#include "ArcFile.h"
+class CArcFile;
 
 struct SSusieInfo
 {

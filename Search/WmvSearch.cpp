@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "WmvSearch.h"
+#include "Search/WmvSearch.h"
 
 #include "ArcFile.h"
 

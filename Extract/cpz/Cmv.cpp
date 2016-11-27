@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../../Image.h"
-#include "JBP1.h"
-#include "Cmv.h"
+#include "Extract/cpz/Cmv.h"
+
+#include "ArcFile.h"
+#include "Extract/cpz/JBP1.h"
+#include "Image.h"
 
 bool CCmv::Mount(CArcFile* archive)
 {

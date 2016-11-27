@@ -1,5 +1,8 @@
 #include "StdAfx.h"
-#include "Oyatu.h"
+#include "Extract/Oyatu.h"
+
+#include "ArcFile.h"
+#include "File.h"
 
 /// Determine if file is supported
 ///

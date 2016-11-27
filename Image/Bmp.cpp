@@ -1,6 +1,7 @@
 #include "StdAfx.h"
-#include "../ExtractBase.h"
-#include "Bmp.h"
+#include "Image/Bmp.h"
+
+#include "ArcFile.h"
 
 /// Mount
 ///

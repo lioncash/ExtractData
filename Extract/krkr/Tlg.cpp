@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../../Image.h"
-#include "Tlg.h"
+#include "Extract/krkr/Tlg.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 #define TVP_TLG6_H_BLOCK_SIZE 8
 #define TVP_TLG6_W_BLOCK_SIZE 8

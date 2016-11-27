@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "Will.h"
+#include "Extract/Will.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 namespace
 {

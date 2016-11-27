@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Yotsunoha.h"
+#include "Extract/krkr/Yotsunoha.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

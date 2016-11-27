@@ -1,10 +1,10 @@
 #include "StdAfx.h"
+#include "ArcFile.h"
+
 #include "Common.h"
 #include "Dialog/ExistsDialog.h"
-#include "ExtractBase.h"
 #include "Extract/Standard.h"
 #include "MD5.h"
-#include "ArcFile.h"
 
 CArcFile::CArcFile()
 {

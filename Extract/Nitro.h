@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../ExtractBase.h"
+#include "ExtractBase.h"
+
+struct SFileInfo;
 
 class CNitro final : public CExtractBase
 {

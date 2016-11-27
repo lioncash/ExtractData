@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Haruoto.h"
+#include "Extract/paz/Haruoto.h"
+
+#include "ArcFile.h"
 
 bool CHaruoto::Mount(CArcFile* archive)
 {

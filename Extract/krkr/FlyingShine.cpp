@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "FlyingShine.h"
+#include "Extract/krkr/FlyingShine.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

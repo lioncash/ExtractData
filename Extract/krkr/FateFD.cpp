@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "FateFD.h"
+#include "Extract/krkr/FateFD.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

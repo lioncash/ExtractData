@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Specialite.h"
+#include "Extract/krkr/Specialite.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

@@ -1,7 +1,7 @@
 #include "StdAfx.h"
-#include "SummerDays.h"
+#include "Extract/SummerDays.h"
 
-#include <algorithm>
+#include "ArcFile.h"
 
 enum : s32
 {

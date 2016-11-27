@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Common.h"
-
 class CFile
 {
 public:

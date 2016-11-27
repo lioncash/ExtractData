@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "InnocentGrey.h"
+#include "Extract/InnocentGrey.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 bool CInnocentGrey::Mount(CArcFile* archive)
 {

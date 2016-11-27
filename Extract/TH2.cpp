@@ -1,8 +1,10 @@
 #include "StdAfx.h"
-#include "../Arc/LZSS.h"
-#include "../Image.h"
-#include "../Image/Tga.h"
-#include "TH2.h"
+#include "Extract/TH2.h"
+
+#include "ArcFile.h"
+#include "Arc/LZSS.h"
+#include "Image.h"
+#include "Image/Tga.h"
 
 /// Mounting
 bool CTH2::Mount(CArcFile* archive)

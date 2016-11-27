@@ -1,6 +1,8 @@
 #pragma once
 
-#include "ImageBase.h"
+#include "Image/ImageBase.h"
+
+class CArcFile;
 
 class CBmp final : public CImageBase
 {

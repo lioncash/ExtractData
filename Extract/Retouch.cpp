@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../Arc/LZSS.h"
-#include "../Image.h"
-#include "Retouch.h"
+#include "Extract/Retouch.h"
+
+#include "ArcFile.h"
+#include "Arc/LZSS.h"
+#include "Image.h"
 
 /// Mounting
 ///

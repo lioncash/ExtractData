@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "HaruotoFD.h"
+#include "Extract/paz/HaruotoFD.h"
+
+#include "ArcFile.h"
 
 /// Mount
 ///

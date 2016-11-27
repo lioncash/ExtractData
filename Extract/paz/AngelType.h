@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Paz.h"
+#include "Extract/paz/Paz.h"
 
 class CAngelType final : public CPaz
 {

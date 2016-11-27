@@ -1,8 +1,8 @@
 #include "StdAfx.h"
-#include "OggSearch.h"
+#include "Search/OggSearch.h"
 
 #include "ArcFile.h"
-#include "../Sound/Ogg.h"
+#include "Sound/Ogg.h"
 
 COggSearch::COggSearch()
 {

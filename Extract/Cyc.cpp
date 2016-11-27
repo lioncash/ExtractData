@@ -1,6 +1,9 @@
 #include "StdAfx.h"
-#include "../Image.h"
-#include "Cyc.h"
+#include "Extract/Cyc.h"
+
+#include "ArcFile.h"
+#include "File.h"
+#include "Image.h"
 
 namespace
 {

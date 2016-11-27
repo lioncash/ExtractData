@@ -1,6 +1,7 @@
 #include "StdAfx.h"
-#include "ArcFile.h"
 #include "ExtractData.h"
+
+#include "ArcFile.h"
 #include "File.h"
 #include "MainListView.h"
 #include "ProgressBar.h"
@@ -27,6 +28,8 @@ CExtractData::CExtractData()
 	PathRemoveFileSpec(m_szPathToTmpFileList);
 	PathAppend(m_szPathToTmpFileList, _T("TmpFileList.txt"));
 }
+
+CExtractData::~CExtractData() = default;
 
 void CExtractData::Init(HWND hWnd, SOption& option, CMainListView& listview)
 {

@@ -1,5 +1,8 @@
 #include "StdAfx.h"
-#include "Aselia.h"
+#include "Extract/Aselia.h"
+
+#include "ArcFile.h"
+#include "File.h"
 
 bool CAselia::Mount(CArcFile* archive)
 {

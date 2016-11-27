@@ -1,4 +1,6 @@
 #include "StdAfx.h"
+#include "WinMain.h"
+
 #include "res/ResExtractData.h"
 #include "Common.h"
 #include "WindowBase.h"
@@ -13,7 +15,6 @@
 #include "Option.h"
 #include "LastDir.h"
 #include "Susie.h"
-#include "WinMain.h"
 
 #pragma comment( lib, "ShLwApi.Lib" )
 #pragma comment( lib, "ComCtl32.Lib" )

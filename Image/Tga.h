@@ -1,5 +1,7 @@
 #pragma once
 
+class CArcFile;
+
 class CTga final
 {
 public:

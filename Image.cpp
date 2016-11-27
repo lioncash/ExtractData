@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "ExtractBase.h"
 #include "Image.h"
+
+#include "ArcFile.h"
+#include "Common.h"
 
 /// Constructor
 CImage::CImage()

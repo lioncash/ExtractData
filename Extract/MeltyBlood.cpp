@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "MeltyBlood.h"
+#include "Extract/MeltyBlood.h"
+
+#include "ArcFile.h"
 
 // Function that gets file information from MELTY BLOOD *.data files
 bool CMeltyBlood::Mount(CArcFile* archive)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HaruotoFD.h"
+#include "Extract/paz/HaruotoFD.h"
 
 class CEFLatter final : public CHaruotoFD
 {

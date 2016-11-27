@@ -89,6 +89,7 @@
 #include "Search/WavSearch.h"
 #include "Search/WmvSearch.h"
 
+#include "ArcFile.h"
 #include "Image.h" // α processing (alpha processing)
 #include "Sound/Ogg.h" // CRC correction
 

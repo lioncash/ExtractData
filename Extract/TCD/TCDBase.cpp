@@ -1,7 +1,9 @@
 #include "StdAfx.h"
+#include "Extract/TCD/TCDBase.h"
+
+#include "ArcFile.h"
 #include "Image.h"
 #include "Sound/Ogg.h"
-#include "Extract/TCD/TCDBase.h"
 #include "Utils/BitUtils.h"
 
 bool CTCDBase::Mount(CArcFile* archive)

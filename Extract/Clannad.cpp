@@ -1,8 +1,11 @@
 #include "StdAfx.h"
-#include "../Mzx.h"
-#include "../Sound/Wav.h"
-#include "Ahx.h"
-#include "Clannad.h"
+#include "Extract/Clannad.h"
+
+#include "ArcFile.h"
+#include "Extract/Ahx.h"
+#include "File.h"
+#include "Mzx.h"
+#include "Sound/Wav.h"
 
 // Functions to get file information for Clannad's VOICE.MRG
 bool CClannad::Mount(CArcFile* archive)

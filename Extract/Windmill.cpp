@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include "../Arc/Zlib.h"
-#include "Windmill.h"
+#include "Extract/Windmill.h"
+
+#include "ArcFile.h"
+#include "Arc/Zlib.h"
 
 bool CWindmill::Mount(CArcFile* archive)
 {

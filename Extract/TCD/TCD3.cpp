@@ -1,7 +1,7 @@
 #include "StdAfx.h"
-#include "../../Image.h"
-#include "../../Sound/Ogg.h"
-#include "TCD3.h"
+#include "Extract/TCD/TCD3.h"
+
+#include "ArcFile.h"
 
 /// Mount
 ///

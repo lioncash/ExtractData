@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "ef_trial.h"
+#include "Extract/paz/ef_trial.h"
+
+#include "ArcFile.h"
 
 bool Cef_trial::Mount(CArcFile* archive)
 {

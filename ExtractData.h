@@ -18,6 +18,8 @@ class CExtractData : public CWindowBase, public CExtract
 	using ArchiveVector = std::vector<std::unique_ptr<CArcFile>>;
 public:
 	CExtractData();
+	~CExtractData();
+
 	void Init(HWND hWnd, SOption& option, CMainListView& listview);
 
 	void Open(LPTSTR pOpenDir);

@@ -1,7 +1,8 @@
 #include "StdAfx.h"
-#include "../ExtractBase.h"
-#include "../Image.h"
-#include "Tga.h"
+#include "Image/Tga.h"
+
+#include "ArcFile.h"
+#include "Image.h"
 
 /// Decoding
 ///

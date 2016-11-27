@@ -1,8 +1,9 @@
 #include "StdAfx.h"
+#include "Extract/Nscr.h"
+
 #include "../bzip2/bzlib.h"
-#include "../Image.h"
-#include "Standard.h"
-#include "Nscr.h"
+#include "ArcFile.h"
+#include "Image.h"
 #include "Utils/BitUtils.h"
 
 /// Mounting

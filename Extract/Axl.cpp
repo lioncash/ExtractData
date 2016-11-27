@@ -1,7 +1,9 @@
 ﻿#include "StdAfx.h"
-#include "../Arc/LZSS.h"
-#include "../Image.h"
-#include "Axl.h"
+#include "Extract/Axl.h"
+
+#include "ArcFile.h"
+#include "Image.h"
+#include "Arc/LZSS.h"
 
 bool CAxl::Mount(CArcFile* archive)
 {

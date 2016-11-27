@@ -1,11 +1,12 @@
 #include "StdAfx.h"
-#include "../../ExtractBase.h"
-#include "../../Arc/Zlib.h"
-#include "../../Image.h"
-#include "../../Sound/Ogg.h"
-#include "../../FindFile.h"
-#include "Tlg.h"
-#include "Krkr.h"
+#include "Extract/krkr/Krkr.h"
+
+#include "ArcFile.h"
+#include "Arc/Zlib.h"
+#include "Extract/krkr/Tlg.h"
+#include "FindFile.h"
+#include "Image.h"
+#include "Sound/Ogg.h"
 
 namespace
 {

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
-#include "Natsupochi.h"
+#include "Extract/krkr/Natsupochi.h"
+
+#include "ArcFile.h"
 
 /// Determine if decryption is possible
 ///

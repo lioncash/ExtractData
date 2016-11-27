@@ -1,7 +1,8 @@
 #pragma once
 
-#include "PB.h"
-#include "../../ArcFile.h"
+#include "Extract/cpz/PB.h"
+
+class CArcFile;
 
 class CPB2A final : public CPB
 {

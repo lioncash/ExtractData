@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Haruoto.h"
+#include "Extract/paz/Haruoto.h"
 
 class CWindRP final : public CHaruoto
 {

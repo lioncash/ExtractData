@@ -1,8 +1,7 @@
 #include "StdAfx.h"
-#include "Ogg.h"
+#include "Sound/Ogg.h"
 
-#include <array>
-#include <vector>
+#include "ArcFile.h"
 
 namespace
 {

@@ -1,9 +1,6 @@
 #pragma once
 
-#include "stdafx.h"
-#include "Common.h"
-#include "File.h"
-#include "ArcFile.h"
+class CArcFile;
 
 class CExtractBase
 {
