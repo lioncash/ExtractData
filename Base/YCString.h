@@ -111,9 +111,6 @@ public:
 
 	// Extraction
 	YCStringT<TYPE> Left(int nCount) const;
-	YCStringT<TYPE> Right(int nCount) const;
-	YCStringT<TYPE> Mid(int nFirst) const;
-	YCStringT<TYPE> Mid(int nFirst, int nCount) const;
 
 	// Gets a string buffer
 	TYPE* GetBuffer(int nBufferSize);
@@ -1567,46 +1564,6 @@ YCStringT<TYPE> YCStringT<TYPE>::Left(int nCount) const
 
 	return clsResult;
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Extracts the right side of the string
-//
-//  return  Extracted character string
-//
-//  TODO: Not implemented yet
-
-template<class TYPE>
-YCStringT<TYPE> YCStringT<TYPE>::Right(int nCount) const
-{
-
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Extracts the center part of a string
-//
-//  return  Extracted character string
-//
-//  TODO: Not implemented yet
-
-template<class TYPE>
-YCStringT<TYPE> YCStringT<TYPE>::Mid(int nFirst) const
-{
-
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//  Extracts the center part of a string
-//
-//  return  Extracted character string
-//
-//  TODO: Not implemented yet
-
-template<class TYPE>
-YCStringT<TYPE> YCStringT<TYPE>::Mid(int nFirst, int nCount) const
-{
-
-}
-
 
 ///  Gets the string buffer
 template<class TYPE> TYPE* YCStringT<TYPE>::GetBuffer(int nBufferSize)
