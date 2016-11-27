@@ -146,50 +146,45 @@ void COgg::Init(CArcFile* archive)
 
 u32 COgg::ReadHeader()
 {
-	CArcFile* pclArc = m_archive;
-	VH& vheader = m_vheader;
-
-	u32 read_size = pclArc->Read(vheader.pattern, 4);
-	read_size = pclArc->Read(&vheader.version, 1);
-	read_size = pclArc->Read(&vheader.type, 1);
-	read_size = pclArc->Read(vheader.granpos, 8);
-	read_size = pclArc->Read(&vheader.serialno, 4);
-	read_size = pclArc->Read(&vheader.pageno, 4);
-	read_size = pclArc->Read(&vheader.checksum, 4);
-	read_size = pclArc->Read(&vheader.page_segments, 1);
-	read_size = pclArc->Read(vheader.segment_table, vheader.page_segments);
+	u32 read_size = m_archive->Read(m_vheader.pattern, 4);
+	read_size = m_archive->Read(&m_vheader.version, 1);
+	read_size = m_archive->Read(&m_vheader.type, 1);
+	read_size = m_archive->Read(m_vheader.granpos, 8);
+	read_size = m_archive->Read(&m_vheader.serialno, 4);
+	read_size = m_archive->Read(&m_vheader.pageno, 4);
+	read_size = m_archive->Read(&m_vheader.checksum, 4);
+	read_size = m_archive->Read(&m_vheader.page_segments, 1);
+	read_size = m_archive->Read(m_vheader.segment_table, m_vheader.page_segments);
 
 	if (read_size == 0)
 		return 0;
 
 	// Get segment size
-	m_segment_size = GetSegSize(vheader);
+	m_segment_size = GetSegSize(m_vheader);
 
 	// Get page size
-	m_page_size = GetPageSize(vheader, m_segment_size);
+	m_page_size = GetPageSize(m_vheader, m_segment_size);
 
 	return m_page_size;
 }
 
 u32 COgg::ReadHeader(const u8* buf)
 {
-	VH& vheader = m_vheader;
-
-	memcpy(vheader.pattern, &buf[0], 4);
-	vheader.version = buf[4];
-	vheader.type = buf[5];
-	memcpy(vheader.granpos, &buf[6], 8);
-	memcpy(&vheader.serialno, &buf[14], sizeof(u32));
-	memcpy(&vheader.pageno, &buf[18], sizeof(u32));
-	memcpy(&vheader.checksum, &buf[22], sizeof(u32));
-	vheader.page_segments = buf[26];
-	memcpy(vheader.segment_table, &buf[27], vheader.page_segments);
+	memcpy(m_vheader.pattern, &buf[0], 4);
+	m_vheader.version = buf[4];
+	m_vheader.type = buf[5];
+	memcpy(m_vheader.granpos, &buf[6], 8);
+	memcpy(&m_vheader.serialno, &buf[14], sizeof(u32));
+	memcpy(&m_vheader.pageno, &buf[18], sizeof(u32));
+	memcpy(&m_vheader.checksum, &buf[22], sizeof(u32));
+	m_vheader.page_segments = buf[26];
+	memcpy(m_vheader.segment_table, &buf[27], m_vheader.page_segments);
 
 	// Get segment size
-	m_segment_size = GetSegSize(vheader);
+	m_segment_size = GetSegSize(m_vheader);
 
 	// Get page size
-	m_page_size = GetPageSize(vheader, m_segment_size);
+	m_page_size = GetPageSize(m_vheader, m_segment_size);
 
 	return m_page_size;
 }
