@@ -24,21 +24,21 @@ void CSearchBase::Init(SOption* option)
 	OnInit(option);
 }
 
-void CSearchBase::InitPattern(const void* pattern, u32 size, u32 num)
+void CSearchBase::InitPattern(const void* pattern, u32 size, PatternType type)
 {
-	memcpy(m_pattern[num].pattern, pattern, size);
-	m_pattern[num].size = size;
+	memcpy(m_pattern[type].pattern, pattern, size);
+	m_pattern[type].size = size;
 }
 
 // Enter the header
 void CSearchBase::InitHeader(const void* pattern, u32 size)
 {
-	InitPattern(pattern, size, 0);
+	InitPattern(pattern, size, PATTERN_HEADER);
 }
 // Enter the footer
 void CSearchBase::InitFooter(const void* pattern, u32 size)
 {
-	InitPattern(pattern, size, 1);
+	InitPattern(pattern, size, PATTERN_FOOTER);
 }
 
 bool CSearchBase::CmpMem(const u8* data, const u8* pattern, size_t size) const

@@ -5,6 +5,13 @@ struct SOption;
 
 class CSearchBase
 {
+private:
+	enum PatternType
+	{
+		PATTERN_HEADER,
+		PATTERN_FOOTER
+	};
+
 public:
 	static constexpr size_t SEARCH_BUFFER_SIZE = 4096;
 
@@ -14,10 +21,10 @@ public:
 	void Init();
 	void Init(SOption* option);
 
-	u8*     GetHeader()           { return m_pattern[0].pattern; }
-	u32     GetHeaderSize() const { return m_pattern[0].size; }
-	u8*     GetFooter()           { return m_pattern[1].pattern; }
-	u32     GetFooterSize() const { return m_pattern[1].size; }
+	u8*     GetHeader()           { return m_pattern[PATTERN_HEADER].pattern; }
+	u32     GetHeaderSize() const { return m_pattern[PATTERN_HEADER].size; }
+	u8*     GetFooter()           { return m_pattern[PATTERN_FOOTER].pattern; }
+	u32     GetFooterSize() const { return m_pattern[PATTERN_FOOTER].size; }
 	u32&    GetNumFiles()         { return m_num_files; }
 
 	bool    CmpHeader(const u8* buf) { return CmpMem(buf, GetHeader(), GetHeaderSize()); }
@@ -50,5 +57,5 @@ private:
 	std::array<Pattern, 2> m_pattern;
 	u32 m_offset = 0;
 	u32 m_num_files = 0;
-	void InitPattern(const void* pattern, u32 size, u32 num);
+	void InitPattern(const void* pattern, u32 size, PatternType type);
 };
