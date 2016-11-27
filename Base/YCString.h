@@ -1,9 +1,5 @@
 #pragma once
 
-#define YCSTRINGT_BUFFERSIZE_ALIGNMENT 64 // Buffer alignment
-#define YCSTRINGT_OFFSET_BUFFERSIZE    16
-#define YCSTRINGT_OFFSET_LENGTH        12
-
 //----------------------------------------------------------------------------------------
 //-- Basic String Class ------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
@@ -33,6 +29,10 @@ class YCStringT : protected YCBaseString
 {
 private:
 	TYPE* m_ptString;
+
+	static constexpr size_t YCSTRINGT_BUFFERSIZE_ALIGNMENT = 64; // Buffer alignment
+	static constexpr size_t YCSTRINGT_OFFSET_BUFFERSIZE = 16;
+	static constexpr size_t YCSTRINGT_OFFSET_LENGTH = 12;
 
 public:
 	// Constructor
