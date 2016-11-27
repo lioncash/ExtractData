@@ -41,27 +41,27 @@ void COggSearch::Mount(CArcFile* archive)
 		read_count++;
 
 		// Read the OGG header
-		const u32 page_size = ogg.ReadHed();
-		VH header = ogg.GetHed();
+		const u32 page_size = ogg.ReadHeader();
+		VH header = ogg.GetHeader();
 
 		//If the serial number is different than what we have
 		if (header.serialno != serial_no)
 		{
-			ogg.BackHed();
+			ogg.SeekToPreviousHeader();
 			break;
 		}
 
 		// If it is no longer OggS
 		if (memcmp(header.pattern, GetHeader(), 4) != 0)
 		{
-			ogg.BackHed();
+			ogg.SeekToPreviousHeader();
 			break;
 		}
 
 		// Exit after the beginning of the OGG until we hit the next header
 		if (read_count > 1 && memcmp(header.pattern, GetHeader(), 4) == 0 && header.type == 2)
 		{
-			ogg.BackHed();
+			ogg.SeekToPreviousHeader();
 			break;
 		}
 

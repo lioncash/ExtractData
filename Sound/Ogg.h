@@ -27,14 +27,14 @@ public:
 	void Decode(CArcFile* archive, u8* buf);
 
 	void Init(CArcFile* archive);
-	u32 ReadHed();
-	u32 ReadHed(const u8* buf);
+	u32 ReadHeader();
+	u32 ReadHeader(const u8* buf);
 	void NextPage();
-	void BackHed();
+	void SeekToPreviousHeader();
 
 	void FixCRC(u8* data, u32 page_size);
 
-	const VH& GetHed() const { return m_vheader; }
+	const VH& GetHeader() const { return m_vheader; }
 
 private:
 	u32 GetSegSize(const VH& vheader) const;

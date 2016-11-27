@@ -77,7 +77,7 @@ bool COgg::Decode(CArcFile* archive)
 
 		for (size_t write_size = 0; write_size != buf.size(); )
 		{
-			const u32 page_size = ReadHed(pbuf);
+			const u32 page_size = ReadHeader(pbuf);
 
 			// Simple Decoding
 			if (memcmp(pbuf, "OggS", 4) != 0)
@@ -144,7 +144,7 @@ void COgg::Init(CArcFile* archive)
 	m_archive = archive;
 }
 
-u32 COgg::ReadHed()
+u32 COgg::ReadHeader()
 {
 	CArcFile* pclArc = m_archive;
 	VH& vheader = m_vheader;
@@ -171,7 +171,7 @@ u32 COgg::ReadHed()
 	return m_page_size;
 }
 
-u32 COgg::ReadHed(const u8* buf)
+u32 COgg::ReadHeader(const u8* buf)
 {
 	VH& vheader = m_vheader;
 
@@ -221,7 +221,7 @@ void COgg::NextPage()
 	m_archive->Seek(m_segment_size, FILE_CURRENT);
 }
 
-void COgg::BackHed()
+void COgg::SeekToPreviousHeader()
 {
 	m_archive->Seek(-27 - m_vheader.page_segments, FILE_CURRENT);
 }
