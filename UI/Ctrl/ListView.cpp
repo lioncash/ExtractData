@@ -149,7 +149,7 @@ UINT CListView::GetCountSel() const
 	return ListView_GetSelectedCount(m_hList);
 }
 
-INT  CListView::GetCount() const
+INT CListView::GetCount() const
 {
 	return ListView_GetItemCount(m_hList);
 }
