@@ -7,7 +7,7 @@ public:
 	virtual ~CFont();
 
 	HFONT Create();
-	HFONT GetFont() const { return m_hFont; }
+	HFONT GetFont() const;
 
 private:
 	HFONT m_hFont = nullptr;

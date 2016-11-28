@@ -38,3 +38,8 @@ HFONT CFont::Create()
 
 	return m_hFont;
 }
+
+HFONT CFont::GetFont() const
+{
+	return m_hFont;
+}
