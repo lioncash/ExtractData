@@ -2,7 +2,6 @@
 #include "UI/WinMain.h"
 
 #include "Common.h"
-//#include "DataBase/DataBase.h"
 #include "ExtractData.h"
 #include "LastDir.h"
 #include "res/ResExtractData.h"
@@ -27,8 +26,6 @@
 #pragma comment(lib, "zlib.lib")
 #pragma comment(lib, "libpng16.lib")
 #endif
-
-//#pragma comment (lib, "libjpeg.lib")
 
 // Main Function
 int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow)
@@ -79,27 +76,17 @@ int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, i
 	if (!hAccel)
 		return FALSE;
 
-	COption option;
 	MSG msg;
 	int bRet;
 	while ((bRet = GetMessage(&msg, nullptr, 0, 0)) != 0)
 	{
 		if (bRet == -1)
-		{
 			break;
-		}
-		else if (!TranslateAccelerator(m_hWnd, hAccel, &msg))
+
+		if (!TranslateAccelerator(m_hWnd, hAccel, &msg))
 		{
-			//if (option.GetHandle() || !PropSheet_IsDialogMessage(option.GetHandle(), &msg))
-			//{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			//}
-			//if (option.GetHandle() && PropSheet_GetCurrentPageHwnd(option.GetHandle()) == nullptr)
-			//{
-				// Exits the property sheet
-			//  option.Close();
-			//}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 	}
 
