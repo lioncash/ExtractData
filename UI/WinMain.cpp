@@ -39,20 +39,8 @@ int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, in
 #define WINDOWCLASS_NAME   _T("ExtractDataClass")
 #define WINDOW_NAME        _T("ExtractData")
 
-CWinMain::CWinMain()
-{
-	m_hWnd = nullptr;
-	ZeroMemory(&m_wc, sizeof(WNDCLASSEX));
-
-	m_hInst = nullptr;
-	m_hPrevInst = nullptr;
-	m_lpsCmdLine = nullptr;
-	m_nCmdShow = 0;
-}
-
-CWinMain::~CWinMain()
-{
-}
+CWinMain::CWinMain() = default;
+CWinMain::~CWinMain() = default;
 
 int CWinMain::WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow)
 {
