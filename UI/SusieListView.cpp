@@ -60,21 +60,21 @@ void CSusieListView::Show(NMLVDISPINFO* pDispInfo)
 	{
 		switch (pDispInfo->item.iSubItem)
 		{
-			case 0: // Show plug-in name
-				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsName);
-				break;
+		case 0: // Show plug-in name
+			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsName);
+			break;
 
-			case 1: // Show plug-in info
-				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsInfo);
-				break;
+		case 1: // Show plug-in info
+			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsInfo);
+			break;
 
-			case 2: // Show supported formats
-				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsSupportFormat);
-				break;
+		case 2: // Show supported formats
+			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsSupportFormat);
+			break;
 
-			case 3: // Show version info
-				lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsVersion);
-				break;
+		case 3: // Show version info
+			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsVersion);
+			break;
 		}
 	}
 
@@ -92,27 +92,27 @@ void CSusieListView::ShowTip(LPNMLVGETINFOTIP ptip)
 
 	switch (ptip->iSubItem)
 	{
-		case 0:
-			// dwFlags to display (when the character is hidden) in which case 0
-			// Even when dwFlags is 1 (when the left-most column is not hidden)
+	case 0:
+		// dwFlags to display (when the character is hidden) in which case 0
+		// Even when dwFlags is 1 (when the left-most column is not hidden)
 
-			if (ptip->dwFlags == 0)
-			{
-				lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsName);
-			}
-			break;
+		if (ptip->dwFlags == 0)
+		{
+			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsName);
+		}
+		break;
 
-		case 1:
-			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsInfo);
-			break;
+	case 1:
+		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsInfo);
+		break;
 
-		case 2:
-			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsSupportFormat);
-			break;
+	case 2:
+		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsSupportFormat);
+		break;
 
-		case 3:
-			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsVersion);
-			break;
+	case 3:
+		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsVersion);
+		break;
 	}
 }
 
@@ -125,20 +125,20 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
 
 	switch (plvcd->nmcd.dwDrawStage)
 	{
-		case CDDS_PREPAINT: // Before drawing
-			SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
+	case CDDS_PREPAINT: // Before drawing
+		SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
+		return TRUE;
+
+	case CDDS_ITEMPREPAINT: // Item before it is drawn
+		if (rvcSusieInfos[plvcd->nmcd.dwItemSpec].bConfig && pOption->bSusieUse)
+		{
+			// ConfigurationDlg has been defined
+			plvcd->clrText = RGB(0, 0, 255);
+			SetWindowLong(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
+
 			return TRUE;
-
-		case CDDS_ITEMPREPAINT: // Item before it is drawn
-			if (rvcSusieInfos[plvcd->nmcd.dwItemSpec].bConfig && pOption->bSusieUse)
-			{
-				// ConfigurationDlg has been defined
-				plvcd->clrText = RGB(0, 0, 255);
-				SetWindowLong(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
-
-				return TRUE;
-			}
-			break;
+		}
+		break;
 	}
 
 	return FALSE;
