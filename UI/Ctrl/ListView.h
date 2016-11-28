@@ -35,11 +35,11 @@ public:
 	void Update();
 
 	UINT GetCountSel() const;
-	INT  GetCount()    const;
-	HWND GetHandle()   const;
+	INT  GetCount() const;
+	HWND GetHandle() const;
 
 	int GetNextItem(int nItem) const;
-	int GetFocusItem()         const;
+	int GetFocusItem() const;
 
 protected:
 	HWND m_hWnd = nullptr;
