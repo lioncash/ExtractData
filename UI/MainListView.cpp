@@ -64,12 +64,10 @@ void CMainListView::Show()
 
 void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
 {
-	static std::vector<SFileInfo>& rfEnt = m_ent;
-
 	if (pstDispInfo->item.mask & LVIF_TEXT)
 	{
-		SFileInfo& rfstFileInfo = rfEnt[pstDispInfo->item.iItem];
-		int        nTextMax = (pstDispInfo->item.cchTextMax - 1 );
+		const SFileInfo& file_info = m_ent[pstDispInfo->item.iItem];
+		const int        text_max = pstDispInfo->item.cchTextMax - 1;
 
 		switch(pstDispInfo->item.iSubItem)
 		{
@@ -79,39 +77,39 @@ void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
 
 		case 1: // Show file name
 			//_tcscpy_s(pstDispInfo->item.pszText, pstDispInfo->item.cchTextMax-100, pEnt[pstDispInfo->item.iItem].name);
-			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.name.Left(nTextMax));
+			lstrcpy(pstDispInfo->item.pszText, file_info.name.Left(text_max));
 			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].name.GetBuffer(0);
 			break;
 
 		case 2: // Show file size
-			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.sSizeOrg.Left(nTextMax));
+			lstrcpy(pstDispInfo->item.pszText, file_info.sSizeOrg.Left(text_max));
 			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeOrg.GetBuffer(0);
 			break;
 
 		case 3: // Show compressed file size
-			if (rfstFileInfo.sizeCmp != rfstFileInfo.sizeOrg)
+			if (file_info.sizeCmp != file_info.sizeOrg)
 			{
 				//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeCmp.GetBuffer(0);
-				lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.sSizeCmp.Left(nTextMax));
+				lstrcpy(pstDispInfo->item.pszText, file_info.sSizeCmp.Left(text_max));
 			}
 			break;
 
 		case 4: // Show file format
-			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.format.Left(nTextMax));
+			lstrcpy(pstDispInfo->item.pszText, file_info.format.Left(text_max));
 			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].format.GetBuffer(0);
 			break;
 
 		case 5: // Display the archive filename
-			lstrcpy(pstDispInfo->item.pszText, rfstFileInfo.arcName.Left(nTextMax));
+			lstrcpy(pstDispInfo->item.pszText, file_info.arcName.Left(text_max));
 			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].arcName.GetBuffer(0);
 			break;
 
 		case 6: // Display the start address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), rfstFileInfo.start);
+			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), file_info.start);
 			break;
 
 		case 7: // Display the end address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), rfstFileInfo.end);
+			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), file_info.end);
 			break;
 		}
 	}
@@ -119,61 +117,58 @@ void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
 
 void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
 {
-	static std::vector<SFileInfo>& pEnt = m_ent;
-
 	switch (ptip->iSubItem)
 	{
-		case 0:
-			// dwFlags to display (when the character is hidden), in this case 0
-			// dwFlags (even when the left-most column is not hidden) in this case 1
-			if (ptip->dwFlags == 0)
-				_stprintf(ptip->pszText, _T("%6d"), ptip->iItem + 1);
-			break;
-		case 1:
-			lstrcpy(ptip->pszText, pEnt[ptip->iItem].name);
-			break;
-		case 2:
-			lstrcpy(ptip->pszText, pEnt[ptip->iItem].sSizeOrg);
-			break;
-		case 3:
-			if (pEnt[ptip->iItem].sizeCmp != pEnt[ptip->iItem].sizeOrg)
-				lstrcpy(ptip->pszText, pEnt[ptip->iItem].sSizeCmp);
-			break;
-		case 4:
-			lstrcpy(ptip->pszText, pEnt[ptip->iItem].format);
-			break;
-		case 5:
-			lstrcpy(ptip->pszText, pEnt[ptip->iItem].arcName);
-			break;
-		case 6:
-			_stprintf(ptip->pszText, _T("0x%llx"), pEnt[ptip->iItem].start);
-			break;
-		case 7:
-			_stprintf(ptip->pszText, _T("0x%llx"), pEnt[ptip->iItem].end);
-			break;
+	case 0:
+		// dwFlags to display (when the character is hidden), in this case 0
+		// dwFlags (even when the left-most column is not hidden) in this case 1
+		if (ptip->dwFlags == 0)
+			_stprintf(ptip->pszText, _T("%6d"), ptip->iItem + 1);
+		break;
+	case 1:
+		lstrcpy(ptip->pszText, m_ent[ptip->iItem].name);
+		break;
+	case 2:
+		lstrcpy(ptip->pszText, m_ent[ptip->iItem].sSizeOrg);
+		break;
+	case 3:
+		if (m_ent[ptip->iItem].sizeCmp != m_ent[ptip->iItem].sizeOrg)
+			lstrcpy(ptip->pszText, m_ent[ptip->iItem].sSizeCmp);
+		break;
+	case 4:
+		lstrcpy(ptip->pszText, m_ent[ptip->iItem].format);
+		break;
+	case 5:
+		lstrcpy(ptip->pszText, m_ent[ptip->iItem].arcName);
+		break;
+	case 6:
+		_stprintf(ptip->pszText, _T("0x%llx"), m_ent[ptip->iItem].start);
+		break;
+	case 7:
+		_stprintf(ptip->pszText, _T("0x%llx"), m_ent[ptip->iItem].end);
+		break;
 	}
 }
 
 // Comparison function for sorting
 bool CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 {
-	static SORTPARAM* pSort = m_pSort;
-	switch (pSort->column)
+	switch (m_pSort->column)
 	{
-		case 1:
-			return retCompare(a.name, b.name);
-		case 2:
-			return retCompare(a.sizeOrg, b.sizeOrg);
-		case 3:
-			return retCompare(a.sizeCmp, b.sizeCmp);
-		case 4:
-			return retCompare(a.format, b.format);
-		case 5:
-			return retCompare(a.arcName, b.arcName);
-		case 6:
-			return retCompare(a.start, b.start);
-		case 7:
-			return retCompare(a.end, b.end);
+	case 1:
+		return retCompare(a.name, b.name);
+	case 2:
+		return retCompare(a.sizeOrg, b.sizeOrg);
+	case 3:
+		return retCompare(a.sizeCmp, b.sizeCmp);
+	case 4:
+		return retCompare(a.format, b.format);
+	case 5:
+		return retCompare(a.arcName, b.arcName);
+	case 6:
+		return retCompare(a.start, b.start);
+	case 7:
+		return retCompare(a.end, b.end);
 	}
 
 	return false;
