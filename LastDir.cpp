@@ -35,13 +35,13 @@ void CLastDir::SaveIni()
 }
 
 /// Get the last opened folder
-LPTSTR  CLastDir::GetOpen()
+LPTSTR CLastDir::GetOpen()
 {
 	return m_open;
 }
 
 /// Get the last folder where something was saved to it
-LPTSTR  CLastDir::GetSave()
+LPTSTR CLastDir::GetSave()
 {
 	return m_save;
 }
