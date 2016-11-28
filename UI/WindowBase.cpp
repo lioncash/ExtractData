@@ -103,14 +103,14 @@ bool CWindowBase::Attach(HWND hWnd)
 	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
 
 	// Determine window or dialog
-	m_bDialog = GetWindowLong(hWnd, DWL_DLGPROC) != 0;
-	int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
+	m_bDialog = GetWindowLongPtr(hWnd, DWL_DLGPROC) != 0;
+	const int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
 
 	SetProp(m_hWnd, _T("CWindowBase"), static_cast<HANDLE>(this));
 
 	// Subclass an existing window
-	if (GetWindowLong(m_hWnd, tproc) != reinterpret_cast<LONG>(WndStaticProc))
-		m_oldWndProc = reinterpret_cast<WNDPROC>(SetWindowLong(m_hWnd, tproc, reinterpret_cast<LONG>(WndStaticProc)));
+	if (GetWindowLongPtr(m_hWnd, tproc) != reinterpret_cast<LONG_PTR>(WndStaticProc))
+		m_oldWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(m_hWnd, tproc, reinterpret_cast<LONG_PTR>(WndStaticProc)));
 
 	return true;
 }
@@ -123,8 +123,8 @@ bool CWindowBase::Detach()
 	// Remove the subclass
 	if (m_oldWndProc)
 	{
-		int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
-		SetWindowLong(m_hWnd, tproc, reinterpret_cast<DWORD>(m_oldWndProc));
+		const int tproc = m_bDialog ? DWL_DLGPROC : GWL_WNDPROC;
+		SetWindowLongPtr(m_hWnd, tproc, reinterpret_cast<LONG_PTR>(m_oldWndProc));
 	}
 
 	RemoveProp(m_hWnd, _T("CWindowBase"));
@@ -158,7 +158,7 @@ LRESULT CALLBACK CWindowBase::WndStaticProc(HWND hWnd, UINT msg, WPARAM wp, LPAR
 	}
 
 	// If dialog, returns FALSE
-	if (GetWindowLong(hWnd, DWL_DLGPROC))
+	if (GetWindowLongPtr(hWnd, DWL_DLGPROC))
 		return FALSE;
 
 	return DefWindowProc(hWnd, msg, wp, lp);
