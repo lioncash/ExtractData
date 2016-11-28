@@ -325,6 +325,21 @@ HWND COption::CreateProp(HWND hWnd)
 	return reinterpret_cast<HWND>(PropertySheet(&psh));
 }
 
+SOption& COption::GetOpt()
+{
+	return m_option;
+}
+
+HWND COption::GetParent() const
+{
+	return m_hParentWnd;
+}
+
+HWND COption::GetHandle() const
+{
+	return m_hDlg;
+}
+
 int COption::PropSheetProc(HWND hWnd, UINT msg, LPARAM lParam)
 {
 	switch (msg)
