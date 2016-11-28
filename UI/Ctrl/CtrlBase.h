@@ -12,11 +12,11 @@ public:
 
 	virtual HWND Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x = 0, int y = 0, int cx = 0, int cy = 0) = 0;
 
-	HWND      GetHandle()     const { return m_hWnd; }
-	HINSTANCE GetInst()       const { return m_hInst; }
-	HWND      GetCtrlHandle() const { return m_hCtrl; }
-	UINT      GetID()         const { return m_ID; }
-	HFONT     GetFont()       const { return m_font.GetFont(); }
+	HWND      GetHandle() const;
+	HINSTANCE GetInst() const;
+	HWND      GetCtrlHandle() const;
+	UINT      GetID() const;
+	HFONT     GetFont() const;
 
 	void      SetFont();
 	void      SetFocus();

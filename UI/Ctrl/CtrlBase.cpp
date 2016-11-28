@@ -13,6 +13,31 @@ void CCtrlBase::Init(HWND hWnd, UINT ID)
 	m_font.Create();
 }
 
+HWND CCtrlBase::GetHandle() const
+{
+	return m_hWnd;
+}
+
+HINSTANCE CCtrlBase::GetInst() const
+{
+	return m_hInst;
+}
+
+HWND CCtrlBase::GetCtrlHandle() const
+{
+	return m_hCtrl;
+}
+
+UINT CCtrlBase::GetID() const
+{
+	return m_ID;
+}
+
+HFONT CCtrlBase::GetFont() const
+{
+	return m_font.GetFont();
+}
+
 HWND CCtrlBase::CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption, int x, int y, int cx, int cy, DWORD dwExStyle)
 {
 	dwStyle |= WS_CHILD | WS_VISIBLE;
