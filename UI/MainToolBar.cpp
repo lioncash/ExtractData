@@ -13,19 +13,19 @@
 ///////////////////////////////////////////////////////////////////////////
 HWND CMainToolBar::Create(HWND hWnd)
 {
-	TBBUTTON tbButton[] = {
+	std::array<TBBUTTON, 3> buttons{{
 		{0, IDM_OPEN, TBSTATE_ENABLED, TBSTYLE_DROPDOWN, 0, 0},
 		{1, IDM_EXTRACT, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0},
 		{2, IDM_EXTRACTALL, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0}
-	};
+	}};
 
-	HWND hToolBar = CToolBar::Create(hWnd, tbButton, IDI_MAIN_TOOLBAR, 16, ARRAYSIZE(tbButton));
+	HWND toolbar = CToolBar::Create(hWnd, buttons.data(), IDI_MAIN_TOOLBAR, 16, buttons.size());
 
-	TBBUTTON tbSpace = {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0};
-	SendMessage(hToolBar, TB_INSERTBUTTON, 0, reinterpret_cast<LPARAM>(&tbSpace));
-	SendMessage(hToolBar, TB_INSERTBUTTON, 4, reinterpret_cast<LPARAM>(&tbSpace));
+	TBBUTTON space = {0, 0, TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0};
+	SendMessage(toolbar, TB_INSERTBUTTON, 0, reinterpret_cast<LPARAM>(&space));
+	SendMessage(toolbar, TB_INSERTBUTTON, 4, reinterpret_cast<LPARAM>(&space));
 
-	return hToolBar;
+	return toolbar;
 }
 
 void CMainToolBar::CreateMenuHistory(int iItem)
@@ -155,7 +155,7 @@ void CMainToolBar::SaveIni()
 ///////////////////////////////////////////////////////////////////////////
 HWND CSearchToolBar::Create(HWND hWnd)
 {
-	TBBUTTON tbButton[] = {
+	std::array<TBBUTTON, 9> buttons{{
 		{0, IDM_AHX, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
 		{1, IDM_BMP, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
 		{2, IDM_JPG, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
@@ -165,14 +165,14 @@ HWND CSearchToolBar::Create(HWND hWnd)
 		{6, IDM_PNG, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
 		{7, IDM_WAV, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0},
 		{8, IDM_WMV, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0}
-	};
+	}};
 
 	m_nBeginID = IDM_AHX;
 
-	HWND hToolBar = CToolBar::Create(hWnd, tbButton, IDI_SEARCH_TOOLBAR, 25, ARRAYSIZE(tbButton));
+	HWND toolbar = CToolBar::Create(hWnd, buttons.data(), IDI_SEARCH_TOOLBAR, 25, buttons.size());
 	SetCheckSearch();
 
-	return hToolBar;
+	return toolbar;
 }
 
 void CSearchToolBar::SetCheckSearch()
