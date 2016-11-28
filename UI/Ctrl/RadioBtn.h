@@ -10,9 +10,9 @@ public:
 	void Close();
 	void SetCheck(BOOL flag);
 	void SetCheck(DWORD num, BOOL flag);
-	BOOL GetCheck()          const;
+	BOOL GetCheck() const;
 	BOOL GetCheck(DWORD num) const;
-	UINT GetID(DWORD num)    const;
+	UINT GetID(DWORD num) const;
 
 private:
 	std::vector<HWND> m_hRadios;
