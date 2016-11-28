@@ -10,7 +10,7 @@ HWND CButton::Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x, int y, int cx
 
 void CButton::SetDef()
 {
-	DWORD dwStyle = GetWindowLongPtr(GetCtrlHandle(), GWL_STYLE);
-	dwStyle |= BS_DEFPUSHBUTTON;
-	SetWindowLongPtr(GetCtrlHandle(), GWL_STYLE, dwStyle);
+	LONG_PTR style = GetWindowLongPtr(GetCtrlHandle(), GWL_STYLE);
+	style |= BS_DEFPUSHBUTTON;
+	SetWindowLongPtr(GetCtrlHandle(), GWL_STYLE, style);
 }
