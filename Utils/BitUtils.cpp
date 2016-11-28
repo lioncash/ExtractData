@@ -1,11 +1,10 @@
-#include <climits>
 #include "StdAfx.h"
 #include "Utils/BitUtils.h"
 
 namespace BitUtils
 {
 
-unsigned short Swap16(unsigned short value)
+u16 Swap16(u16 value)
 {
 #ifdef _MSC_VER
 	return _byteswap_ushort(value);
@@ -16,7 +15,7 @@ unsigned short Swap16(unsigned short value)
 #endif
 }
 
-unsigned int Swap32(unsigned int value)
+u32 Swap32(u32 value)
 {
 #ifdef _MSC_VER
 	return _byteswap_ulong(value);
@@ -27,7 +26,7 @@ unsigned int Swap32(unsigned int value)
 #endif
 }
 
-unsigned long long Swap64(unsigned long long value)
+u64 Swap64(u64 value)
 {
 #ifdef _MSC_VER
 	return _byteswap_uint64(value);
@@ -38,7 +37,7 @@ unsigned long long Swap64(unsigned long long value)
 #endif
 }
 
-unsigned int RotateLeft(const unsigned int value, int shift)
+u32 RotateLeft(const u32 value, int shift)
 {
 	shift &= sizeof(value) * CHAR_BIT - 1;
 
@@ -48,7 +47,7 @@ unsigned int RotateLeft(const unsigned int value, int shift)
 	return (value << shift) | (value >> (sizeof(value) * CHAR_BIT - shift));
 }
 
-unsigned int RotateRight(const unsigned int value, int shift)
+u32 RotateRight(const u32 value, int shift)
 {
 	shift &= sizeof(value) * CHAR_BIT - 1;
 

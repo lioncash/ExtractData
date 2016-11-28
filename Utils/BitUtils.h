@@ -2,12 +2,10 @@
 
 namespace BitUtils
 {
+u16 Swap16(u16);
+u32 Swap32(u32);
+u64 Swap64(u64);
 
-unsigned short Swap16(unsigned short);
-unsigned int Swap32(unsigned int);
-unsigned long long Swap64(unsigned long long);
-
-unsigned int RotateLeft(unsigned int value, int shift);
-unsigned int RotateRight(unsigned int value, int shift);
-
+u32 RotateLeft(u32 value, int shift);
+u32 RotateRight(u32 value, int shift);
 }
