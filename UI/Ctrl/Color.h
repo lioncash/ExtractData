@@ -10,5 +10,4 @@ public:
 
 private:
 	CHOOSECOLOR m_cc;
-	static COLORREF m_CustColors[16];
 };

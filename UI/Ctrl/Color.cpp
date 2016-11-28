@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "UI/Ctrl/Color.h"
 
-COLORREF CColor::m_CustColors[16];
-
 void CColor::Init(COLORREF color)
 {
 	m_cc.lStructSize = sizeof(CHOOSECOLOR);
