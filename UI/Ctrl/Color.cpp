@@ -5,10 +5,9 @@ COLORREF CColor::m_CustColors[16];
 
 void CColor::Init(COLORREF color)
 {
-	CHOOSECOLOR& cc = m_cc;
-	cc.lStructSize = sizeof(CHOOSECOLOR);
-	cc.rgbResult = color;
-	cc.Flags = CC_RGBINIT;
+	m_cc.lStructSize = sizeof(CHOOSECOLOR);
+	m_cc.rgbResult = color;
+	m_cc.Flags = CC_RGBINIT;
 }
 
 BOOL CColor::DoModal(HWND hWnd)
