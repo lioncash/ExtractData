@@ -134,7 +134,7 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
 		{
 			// ConfigurationDlg has been defined
 			plvcd->clrText = RGB(0, 0, 255);
-			SetWindowLong(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
+			SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
 
 			return TRUE;
 		}
