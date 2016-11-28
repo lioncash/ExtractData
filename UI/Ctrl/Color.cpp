@@ -16,3 +16,8 @@ BOOL CColor::DoModal(HWND hWnd)
 	m_cc.hwndOwner = hWnd;
 	return ChooseColor(&m_cc);
 }
+
+COLORREF CColor::GetColor() const
+{
+	return m_cc.rgbResult;
+}
