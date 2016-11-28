@@ -418,68 +418,68 @@ void CWinMain::CreateMenu(LPARAM lp)
 
 void CWinMain::SetQuickMenu(HMENU hMenu)
 {
-	COption clOption;
-	SOption& stOption = clOption.GetOpt();
+	COption option_dialog;
+	const SOption& options = option_dialog.GetOpt();
 
 	struct SQuickSet 
 	{
-		LPBOOL pbOption;
-		int nID;
-	} stQuickSet[] = {
-		{&stOption.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},
-		{&stOption.bCreateFolder,   IDM_QUICKSET_EXTRACT_CREATEFOLDER},
-		{&stOption.bFixOgg,         IDM_QUICKSET_EXTRACT_FIXOGG},
-		{&stOption.bEasyDecrypt,    IDM_QUICKSET_EXTRACT_EASYDECRYPT},
-		{&stOption.bDstPNG,         IDM_QUICKSET_EXTRACT_DSTPNG},
-		{&stOption.bAlphaBlend,     IDM_QUICKSET_EXTRACT_ALPHABLEND},
-		{&stOption.bSusieUse,       IDM_QUICKSET_SUSIE_USE},
-		{&stOption.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
+		const BOOL* option;
+		int id;
+	} quick_set[] = {
+		{&options.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},
+		{&options.bCreateFolder,   IDM_QUICKSET_EXTRACT_CREATEFOLDER},
+		{&options.bFixOgg,         IDM_QUICKSET_EXTRACT_FIXOGG},
+		{&options.bEasyDecrypt,    IDM_QUICKSET_EXTRACT_EASYDECRYPT},
+		{&options.bDstPNG,         IDM_QUICKSET_EXTRACT_DSTPNG},
+		{&options.bAlphaBlend,     IDM_QUICKSET_EXTRACT_ALPHABLEND},
+		{&options.bSusieUse,       IDM_QUICKSET_SUSIE_USE},
+		{&options.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
 	};
 
-	for (const auto& quickSet : stQuickSet)
+	for (const auto& entry : quick_set)
 	{
-		UINT uCheck = MF_BYCOMMAND | (*quickSet.pbOption == TRUE) ? MF_CHECKED : MF_UNCHECKED;
-		CheckMenuItem(hMenu, quickSet.nID, uCheck);
+		const u32 check = MF_BYCOMMAND | (*entry.option == TRUE) ? MF_CHECKED : MF_UNCHECKED;
+		CheckMenuItem(hMenu, entry.id, check);
 	}
 }
 
-void CWinMain::SetQuickMenuItem(int nID)
+void CWinMain::SetQuickMenuItem(int id)
 {
-	COption clOption;
-	SOption& stOption = clOption.GetOpt();
+	COption option_dialog;
+	SOption& options = option_dialog.GetOpt();
 
 	struct SQuickSet
 	{
-		LPBOOL pbOption;
-		int nID;
-	} stQuickSet[] = {
-		{&stOption.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},
-		{&stOption.bCreateFolder,   IDM_QUICKSET_EXTRACT_CREATEFOLDER},
-		{&stOption.bFixOgg,         IDM_QUICKSET_EXTRACT_FIXOGG},
-		{&stOption.bEasyDecrypt,    IDM_QUICKSET_EXTRACT_EASYDECRYPT},
-		{&stOption.bDstPNG,         IDM_QUICKSET_EXTRACT_DSTPNG},
-		{&stOption.bAlphaBlend,     IDM_QUICKSET_EXTRACT_ALPHABLEND},
-		{&stOption.bSusieUse,       IDM_QUICKSET_SUSIE_USE},
-		{&stOption.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
+		LPBOOL option;
+		int id;
+	} quick_set[] = {
+		{&options.bHighSearchOgg,  IDM_QUICKSET_STD_SEARCHOGG},
+		{&options.bCreateFolder,   IDM_QUICKSET_EXTRACT_CREATEFOLDER},
+		{&options.bFixOgg,         IDM_QUICKSET_EXTRACT_FIXOGG},
+		{&options.bEasyDecrypt,    IDM_QUICKSET_EXTRACT_EASYDECRYPT},
+		{&options.bDstPNG,         IDM_QUICKSET_EXTRACT_DSTPNG},
+		{&options.bAlphaBlend,     IDM_QUICKSET_EXTRACT_ALPHABLEND},
+		{&options.bSusieUse,       IDM_QUICKSET_SUSIE_USE},
+		{&options.bSusieFirst,     IDM_QUICKSET_SUSIE_FIRST}
 	};
 
-	for (auto& quickSet : stQuickSet)
+	for (auto& entry : quick_set)
 	{
-		if (quickSet.nID == nID)
-			*quickSet.pbOption ^= 1;
+		if (entry.id == id)
+			*entry.option ^= 1;
 	}
 
-	if (nID == IDM_QUICKSET_EXTRACT_DSTPNG)
+	if (id == IDM_QUICKSET_EXTRACT_DSTPNG)
 	{
 		// Extract images as PNG or BMP depending on setting
-		stOption.bDstBMP ^= 1;
+		options.bDstBMP ^= 1;
 	}
-	else if (nID == IDM_QUICKSET_SUSIE_USE && stOption.bSusieUse == TRUE)
+	else if (id == IDM_QUICKSET_SUSIE_USE && options.bSusieUse == TRUE)
 	{
 		// Load Susie Plug-ins
-		CSusie clSusie;
-		clSusie.LoadSpi(stOption.SusieDir);
+		CSusie susie;
+		susie.LoadSpi(options.SusieDir);
 	}
 
-	clOption.SaveIni();
+	option_dialog.SaveIni();
 }
