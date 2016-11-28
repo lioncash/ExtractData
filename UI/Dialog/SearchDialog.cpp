@@ -20,7 +20,7 @@ LRESULT CSearchDialog::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INITDIALOG:
 			Init();
 			TCHAR message[1024];
-			_stprintf(message, _T("%s is a non-supported file. \n Do you want to search it anyway?"), m_pclArcPath);
+			_stprintf(message, _T("%s is an unsupported file. \n Do you want to search through it anyway?"), m_pclArcPath);
 			SetWindowText(GetDlgItem(hWnd, IDC_SEARCH_MESSAGE), message);
 			return FALSE;
 
