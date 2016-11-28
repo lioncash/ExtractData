@@ -496,13 +496,12 @@ void CExtractData::DeleteTmpFile()
 	// Add the last remaining temporary files
 	LoadTmpFileList();
 
-	for (std::set<YCString>::iterator itr = m_ssTmpFile.begin(); itr != m_ssTmpFile.end(); )
+	for (auto iter = m_ssTmpFile.begin(); iter != m_ssTmpFile.end(); )
 	{
 		TCHAR szTmp[MAX_PATH];
-		lstrcpy(szTmp, *itr);
+		lstrcpy(szTmp, *iter);
 
 		// Delete temporary files
-
 		if (PathFileExists(szTmp))
 		{
 			// File exists
@@ -510,7 +509,7 @@ void CExtractData::DeleteTmpFile()
 			if (!DeleteFile(szTmp))
 			{
 				// Fails to remove it
-				++itr;
+				++iter;
 				continue;
 			}
 		}
@@ -518,7 +517,6 @@ void CExtractData::DeleteTmpFile()
 		while (lstrcmp(szTmp, m_pOption->TmpDir) != 0)
 		{
 			// Delete folder
-
 			if (!PathRemoveFileSpec(szTmp))
 			{
 				break;
@@ -527,7 +525,7 @@ void CExtractData::DeleteTmpFile()
 			RemoveDirectory(szTmp);
 		}
 
-		itr = m_ssTmpFile.erase(itr);
+		iter = m_ssTmpFile.erase(iter);
 	}
 
 	// Save the list of remaining temp files
