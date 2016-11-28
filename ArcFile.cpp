@@ -2,7 +2,7 @@
 #include "ArcFile.h"
 
 #include "Common.h"
-#include "Dialog/ExistsDialog.h"
+#include "UI/Dialog/ExistsDialog.h"
 #include "Extract/Standard.h"
 #include "MD5.h"
 

@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 
 //#include "DataBase/DataBase.h"
-#include "Dialog/ExistsDialog.h"
-#include "Dialog/SearchDialog.h"
 #include "ExtractBase.h"
 //#include "FileMap.h"
 #include "Extract.h"
@@ -88,6 +86,10 @@
 #include "Search/SearchBase.h"
 #include "Search/WavSearch.h"
 #include "Search/WmvSearch.h"
+
+#include "UI/Dialog/ExistsDialog.h"
+#include "UI/Dialog/SearchDialog.h"
+#include "UI/ProgressBar.h"
 
 #include "ArcFile.h"
 #include "Image.h" // α processing (alpha processing)

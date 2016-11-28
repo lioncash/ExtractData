@@ -1,3 +1,5 @@
+#pragma once
+
 //-----------------------------------------
 //             BCCForm Ver 2.41
 //   Header File for Resource Script File

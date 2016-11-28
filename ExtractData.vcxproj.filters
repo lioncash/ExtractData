@@ -46,63 +46,6 @@
     <ClCompile Include="bzip2\randtable.cpp">
       <Filter>Source Files\bzip2</Filter>
     </ClCompile>
-    <ClCompile Include="Ctrl\Button.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\CheckBox.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\Color.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\CtrlBase.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\EditBox.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\GroupBox.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\ListView.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\Label.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\RadioBtn.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\StatusBar.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\ToolBar.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\UpDown.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Ctrl\Font.cpp">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\ExistsDialog.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\FileDialog.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\FolderInputDialog.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\SearchDialog.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\VersionInfo.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialog\FolderDialog.cpp">
-      <Filter>Source Files\Dialog</Filter>
-    </ClCompile>
     <ClCompile Include="Extract\Ahx.cpp">
       <Filter>Source Files\Extract</Filter>
     </ClCompile>
@@ -367,9 +310,6 @@
     <ClCompile Include="ExtractBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExtractData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FindFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -382,40 +322,19 @@
     <ClCompile Include="LastDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainListView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MainToolBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MD5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mzx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProgressBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Reg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Option.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Susie.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdAfx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SusieListView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bzip2\compress.cpp">
@@ -436,6 +355,87 @@
     <ClCompile Include="Utils\BitUtils.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="UI\MainListView.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\MainToolBar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Option.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\SusieListView.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\WindowBase.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\WinMain.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\Button.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\CheckBox.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\Color.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\CtrlBase.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\EditBox.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\Font.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\GroupBox.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\Label.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\RadioBtn.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\StatusBar.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\ToolBar.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\UpDown.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Ctrl\ListView.cpp">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\ExistsDialog.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\FileDialog.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\FolderDialog.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\FolderInputDialog.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\SearchDialog.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Dialog\VersionInfo.cpp">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ProgressBar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ExtractData.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArcFile.h">
@@ -453,9 +453,6 @@
     <ClInclude Include="ExtractBase.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExtractData.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="File.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -468,22 +465,10 @@
     <ClInclude Include="LastDir.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="MainListView.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MainToolBar.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Mzx.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Option.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProgressBar.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Reg.h">
@@ -498,13 +483,7 @@
     <ClInclude Include="Susie.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="SusieListView.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Types.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowBase.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Arc\Zlib.h">
@@ -545,63 +524,6 @@
     </ClInclude>
     <ClInclude Include="bzip2\bzlib_private.h">
       <Filter>Source Files\bzip2</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Button.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\CheckBox.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Color.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\CtrlBase.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\EditBox.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Font.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\GroupBox.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\Label.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\ListView.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\RadioBtn.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\StatusBar.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\ToolBar.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Ctrl\UpDown.h">
-      <Filter>Source Files\Ctrl</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\VersionInfo.h">
-      <Filter>Source Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\SearchDialog.h">
-      <Filter>Source Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FolderInputDialog.h">
-      <Filter>Source Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FolderDialog.h">
-      <Filter>Source Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\FileDialog.h">
-      <Filter>Source Files\Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="Dialog\ExistsDialog.h">
-      <Filter>Source Files\Dialog</Filter>
     </ClInclude>
     <ClInclude Include="Extract\Ahx.h">
       <Filter>Source Files\Extract</Filter>
@@ -864,14 +786,92 @@
     <ClInclude Include="Sound\Wav.h">
       <Filter>Source Files\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="WinMain.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\BitUtils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Utils\ArrayUtils.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\MainListView.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\MainToolBar.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Option.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\SusieListView.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\WindowBase.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\WinMain.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\Button.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\CheckBox.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\Color.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\CtrlBase.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\EditBox.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\Font.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\GroupBox.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\Label.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\RadioBtn.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\StatusBar.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\ToolBar.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\UpDown.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Ctrl\ListView.h">
+      <Filter>Source Files\UI\Ctrl</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\ExistsDialog.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\FileDialog.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\FolderDialog.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\FolderInputDialog.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\SearchDialog.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Dialog\VersionInfo.h">
+      <Filter>Source Files\UI\Dialog</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ProgressBar.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ExtractData.h">
+      <Filter>Source Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -887,12 +887,6 @@
     </Filter>
     <Filter Include="Source Files\bzip2">
       <UniqueIdentifier>{4e234f12-a0cc-4c35-9b6f-6792964ae638}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Ctrl">
-      <UniqueIdentifier>{5336c4e4-cc91-414a-9b91-e58bc782f620}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Dialog">
-      <UniqueIdentifier>{026b3257-f8be-46f9-bfc7-0f0cc563aeba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Extract">
       <UniqueIdentifier>{f2073de1-6a38-42c4-90cc-2b848b015967}</UniqueIdentifier>
@@ -923,6 +917,15 @@
     </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{2b56d6c5-3a42-46ca-9112-e01c41f8bd52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{6baf6358-05d5-4893-9623-ceede2ed0474}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Ctrl">
+      <UniqueIdentifier>{e4f781f9-4fb9-4154-9ecc-b3686f5424bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Dialog">
+      <UniqueIdentifier>{bde8cb42-cd98-406a-9206-36e724e71589}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

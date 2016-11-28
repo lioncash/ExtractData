@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ProgressBar.h"
+
 #include "MD5.h"
+#include "UI/ProgressBar.h"
 
 #include <cstddef>
 #include <cstdint>
