@@ -42,10 +42,7 @@ void CWindowBase::Init(UINT uID, LONG cx, LONG cy)
 	clIni.SetKey(_T("Height"));
 	clIni.ReadDec(&cy);
 
-	WINDOWPLACEMENT wndpl;
-
-	memset(&wndpl, 0, sizeof(WINDOWPLACEMENT));
-
+	WINDOWPLACEMENT wndpl = {};
 	wndpl.length = sizeof(WINDOWPLACEMENT);
 	wndpl.showCmd = SW_HIDE;
 
