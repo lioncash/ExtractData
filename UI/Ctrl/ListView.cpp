@@ -95,6 +95,21 @@ void CListView::Enable(BOOL flag)
 	EnableWindow(m_hList, flag);
 }
 
+void CListView::SetItemSelAll(UINT flag)
+{
+	ListView_SetItemState(m_hList, -1, flag, LVIS_SELECTED);
+}
+
+void CListView::SetFocus()
+{
+	::SetFocus(m_hList);
+}
+
+void CListView::SetWindowPos(int x, int y, int cx, int cy)
+{
+	MoveWindow(m_hList, x, y, cx, cy, TRUE);
+}
+
 void CListView::SaveIni()
 {
 	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
@@ -127,4 +142,29 @@ void CListView::Update()
 	RECT rc;
 	GetClientRect(m_hList, &rc);
 	InvalidateRect(m_hList, &rc, FALSE);
+}
+
+UINT CListView::GetCountSel() const
+{
+	return ListView_GetSelectedCount(m_hList);
+}
+
+INT  CListView::GetCount() const
+{
+	return ListView_GetItemCount(m_hList);
+}
+
+HWND CListView::GetHandle() const
+{
+	return m_hList;
+}
+
+int CListView::GetNextItem(int nItem) const
+{
+	return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED);
+}
+
+int CListView::GetFocusItem()         const
+{
+	return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED);
 }

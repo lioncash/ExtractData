@@ -29,17 +29,17 @@ public:
 
 	void Sort(int column);
 	void Enable(BOOL flag);
-	void SetItemSelAll(UINT flag) { ListView_SetItemState(m_hList, -1, flag, LVIS_SELECTED); }
-	void SetFocus() { ::SetFocus(m_hList); }
-	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(m_hList, x, y, cx, cy, TRUE); }
+	void SetItemSelAll(UINT flag);
+	void SetFocus();
+	void SetWindowPos(int x, int y, int cx, int cy);
 	void Update();
 
-	UINT GetCountSel() const { return ListView_GetSelectedCount(m_hList); }
-	INT  GetCount()    const { return ListView_GetItemCount(m_hList); }
-	HWND GetHandle()   const { return m_hList; }
+	UINT GetCountSel() const;
+	INT  GetCount()    const;
+	HWND GetHandle()   const;
 
-	int GetNextItem(int nItem) const { return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED); }
-	int GetFocusItem()         const { return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED); }
+	int GetNextItem(int nItem) const;
+	int GetFocusItem()         const;
 
 protected:
 	HWND m_hWnd = nullptr;
