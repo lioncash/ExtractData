@@ -39,8 +39,8 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 	m_hToolBar = hToolBar;
 
 	// Flat
-	LONG ToolType = GetWindowLong(hToolBar, GWL_STYLE) | TBSTYLE_FLAT;
-	SetWindowLong(hToolBar, GWL_STYLE, ToolType);
+	LONG_PTR ToolType = GetWindowLongPtr(hToolBar, GWL_STYLE) | TBSTYLE_FLAT;
+	SetWindowLongPtr(hToolBar, GWL_STYLE, ToolType);
 	InvalidateRect(hToolBar, nullptr, TRUE);
 	SendMessage(hToolBar, TB_SETEXTENDEDSTYLE, 0, static_cast<LPARAM>(TBSTYLE_EX_DRAWDDARROWS));
 
