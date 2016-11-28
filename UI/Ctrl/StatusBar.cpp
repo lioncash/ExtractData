@@ -29,8 +29,7 @@ HWND CStatusBar::Create(HWND hWnd, SOption& option, CMainListView& listview)
 		ID_STATUS);
 	m_hSBWnd = hSBWnd;
 
-	int sb_size[SBSIZE];
-	memset(sb_size, 0, sizeof(sb_size));
+	int sb_size[SBSIZE] = {};
 	SendMessage(hSBWnd, SB_SETPARTS, SBSIZE, reinterpret_cast<LPARAM>(sb_size));
 
 	SetCount();
