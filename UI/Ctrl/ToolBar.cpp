@@ -75,3 +75,18 @@ HWND CToolBar::Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, i
 
 	return hToolBar;
 }
+
+void CToolBar::SetWindowPos()
+{
+	SendMessage(m_hToolBar, WM_SIZE, 0, 0);
+}
+
+HWND CToolBar::GetHandle() const
+{
+	return m_hWnd;
+}
+
+HWND CToolBar::GetCtrlHandle() const
+{
+	return m_hToolBar;
+}

@@ -9,13 +9,13 @@ public:
 	void Init(HWND hWnd);
 	HWND Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, int ctIcon);
 
-	virtual void LoadIni() {};
-	virtual void SaveIni() {};
+	virtual void LoadIni() {}
+	virtual void SaveIni() {}
 
-	virtual void SetWindowPos() { SendMessage(m_hToolBar, WM_SIZE, 0, 0); }
+	virtual void SetWindowPos();
 
-	HWND GetHandle()     const { return m_hWnd; }
-	HWND GetCtrlHandle() const { return m_hToolBar; }
+	HWND GetHandle() const;
+	HWND GetCtrlHandle() const;
 
 private:
 	HWND m_hWnd = nullptr;
