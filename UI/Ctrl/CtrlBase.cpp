@@ -26,6 +26,21 @@ HWND CCtrlBase::CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption
 	return m_hCtrl;
 }
 
+void CCtrlBase::SetFont()
+{
+	SendMessage(GetCtrlHandle(), WM_SETFONT, (WPARAM)GetFont(), MAKELPARAM(TRUE, 0));
+}
+
+void CCtrlBase::SetFocus()
+{
+	::SetFocus(GetCtrlHandle());
+}
+
+void CCtrlBase::SetWindowPos(int x, int y, int cx, int cy)
+{
+	MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE);
+};
+
 void CCtrlBase::Enable(BOOL flag)
 {
 	EnableWindow(m_hCtrl, flag);

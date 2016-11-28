@@ -18,9 +18,9 @@ public:
 	UINT      GetID()         const { return m_ID; }
 	HFONT     GetFont()       const { return m_font.GetFont(); }
 
-	void      SetFont()       { SendMessage(GetCtrlHandle(), WM_SETFONT, (WPARAM)GetFont(), MAKELPARAM(TRUE, 0)); }
-	void      SetFocus()      { ::SetFocus(GetCtrlHandle()); }
-	void      SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); };
+	void      SetFont();
+	void      SetFocus();
+	void      SetWindowPos(int x, int y, int cx, int cy);
 
 	void Enable(BOOL flag);
 
