@@ -4,7 +4,7 @@
 #include "Common.h"
 #include "UI/MainListView.h"
 
-#define SBSIZE 2
+constexpr u32 SB_SIZE = 2;
 
 CStatusBar::CStatusBar()
 {
@@ -29,8 +29,8 @@ HWND CStatusBar::Create(HWND hWnd, SOption& option, CMainListView& listview)
 		ID_STATUS);
 	m_hSBWnd = hSBWnd;
 
-	int sb_size[SBSIZE] = {};
-	SendMessage(hSBWnd, SB_SETPARTS, SBSIZE, reinterpret_cast<LPARAM>(sb_size));
+	int sb_size[SB_SIZE] = {};
+	SendMessage(hSBWnd, SB_SETPARTS, SB_SIZE, reinterpret_cast<LPARAM>(sb_size));
 
 	SetCount();
 
@@ -47,9 +47,9 @@ void CStatusBar::SetCount()
 
 void CStatusBar::SetWindowPos(int cx)
 {
-	int sb_size[SBSIZE];
+	int sb_size[SB_SIZE];
 	sb_size[1] = cx;
 	sb_size[0] = cx / 2;
-	SendMessage(m_hSBWnd, SB_SETPARTS, SBSIZE, reinterpret_cast<LPARAM>(sb_size));
+	SendMessage(m_hSBWnd, SB_SETPARTS, SB_SIZE, reinterpret_cast<LPARAM>(sb_size));
 	SendMessage(m_hSBWnd, WM_SIZE, 0, 0); 
 }
