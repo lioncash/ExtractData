@@ -22,7 +22,6 @@ public:
 private:
 	static SOption m_option;
 	static SOption m_option_tmp;
-	static std::vector<YCString> m_SearchFiles;
 	static CMainListView* m_pListView;
 	static CSearchToolBar* m_pToolBar;
 	static HWND m_hDlg;

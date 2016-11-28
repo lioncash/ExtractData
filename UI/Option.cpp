@@ -16,11 +16,25 @@
 #include "UI/SusieListView.h"
 #include "Utils/ArrayUtils.h"
 
+namespace
+{
 using ConfigurationDlgProc = int (WINAPI*)(HWND, int);
+
+const std::vector<YCString> search_files_labels{
+	_T("AHX"),
+	_T("BMP"),
+	_T("JPG"),
+	_T("MID"),
+	_T("MPG"),
+	_T("OGG"),
+	_T("PNG"),
+	_T("WAV"),
+	_T("WMV")
+};
+}
 
 SOption COption::m_option;
 SOption COption::m_option_tmp;
-std::vector<YCString> COption::m_SearchFiles;
 CMainListView* COption::m_pListView;
 CSearchToolBar* COption::m_pToolBar;
 HWND COption::m_hDlg = nullptr;
@@ -30,18 +44,6 @@ void COption::Init(CSearchToolBar& toolbar, CMainListView& listview)
 {
 	m_pToolBar = &toolbar;
 	m_pListView = &listview;
-
-	m_SearchFiles.insert(m_SearchFiles.end(), {
-		_T("AHX"),
-		_T("BMP"),
-		_T("JPG"),
-		_T("MID"),
-		_T("MPG"),
-		_T("OGG"),
-		_T("PNG"),
-		_T("WAV"),
-		_T("WMV")
-	});
 
 	LoadIni();
 
@@ -164,7 +166,7 @@ void COption::LoadIni()
 	// Set of files to search through
 	clIni.SetSection(_T("Search"));
 
-	for (const auto& searchFile : m_SearchFiles)
+	for (const auto& searchFile : search_files_labels)
 	{
 		BOOL bSearch;
 
@@ -267,9 +269,9 @@ void COption::SaveIni()
 	// Set of files to search
 	clIni.SetSection(_T("Search"));
 
-	for (size_t i = 0; i < m_SearchFiles.size(); i++)
+	for (size_t i = 0; i < search_files_labels.size(); i++)
 	{
-		clIni.SetKey(m_SearchFiles[i]);
+		clIni.SetKey(search_files_labels[i]);
 		clIni.WriteDec(pOption.bSearch[i]);
 	}
 
@@ -350,9 +352,8 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	static CLabel ListLabelBk, ListLabelText;
 	static CEditBox ListEditBk, ListEditText;
 	// Search settings
-	static std::vector<YCString>& SearchCheckText = m_SearchFiles;
-	static std::vector<CCheckBox> SearchCheck(SearchCheckText.size());
-	static int SearchCheckNum = SearchCheckText.size();
+	static std::vector<CCheckBox> SearchCheck(search_files_labels.size());
+	static int SearchCheckNum = static_cast<int>(search_files_labels.size());
 	static CButton SearchBtn[2];
 	static CGroupBox SearchGroup;
 	// Search accuracy
@@ -387,7 +388,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					 xxx = 0, y += 20;
 				}
 
-				SearchCheck[i].Create(hWnd, SearchCheckText[i], ID++, x + xx + xxx, y, 50, 20);
+				SearchCheck[i].Create(hWnd, search_files_labels[i], ID++, x + xx + xxx, y, 50, 20);
 				SearchCheck[i].SetCheck(pOption->bSearch[i]);
 			}
 
