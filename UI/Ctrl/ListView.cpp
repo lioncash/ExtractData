@@ -124,7 +124,7 @@ void CListView::SaveIni()
 		_stprintf(szColumn, _T("Column%d"), i);
 
 		clIni.SetKey(szColumn);
-		clIni.WriteDec( ListView_GetColumnWidth(m_hList, i));
+		clIni.WriteDec(ListView_GetColumnWidth(m_hList, i));
 	}
 }
 
@@ -164,7 +164,7 @@ int CListView::GetNextItem(int nItem) const
 	return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED);
 }
 
-int CListView::GetFocusItem()         const
+int CListView::GetFocusItem() const
 {
 	return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED);
 }
