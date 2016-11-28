@@ -5,13 +5,13 @@
 #include "Common.h"
 #include "Image.h"
 
-typedef int (WINAPI* SPI_PROGRESS)(int, int, long);
-typedef int (WINAPI* GetPluginInfoProc)(int infono, LPSTR buf, int buflen);
-typedef int (WINAPI* IsSupportedProc)(LPSTR filename, DWORD dw);
-typedef int (WINAPI* GetArchiveInfoProc)(LPSTR buf, long len, unsigned int flag, HLOCAL* lphInf);
-typedef int (WINAPI* GetFileProc)(LPSTR src, long len, LPSTR dest, unsigned int flag, FARPROC prgressCallback, long lData);
-typedef int (WINAPI* GetPictureProc)(LPSTR buf, long len, unsigned int flag, HLOCAL* pHBInfo, HLOCAL* pHBm, SPI_PROGRESS lpPrgressCallback, long lData);
-typedef int (WINAPI* ConfigurationDlgProc)(HWND, int);
+using SPI_PROGRESS         = int (WINAPI*)(int, int, long);
+using GetPluginInfoProc    = int (WINAPI*)(int infono, LPSTR buf, int buflen);
+using IsSupportedProc      = int (WINAPI*)(LPSTR filename, DWORD dw);
+using GetArchiveInfoProc   = int (WINAPI*)(LPSTR buf, long len, unsigned int flag, HLOCAL* lphInf);
+using GetFileProc          = int (WINAPI*)(LPSTR src, long len, LPSTR dest, unsigned int flag, FARPROC prgressCallback, long lData);
+using GetPictureProc       = int (WINAPI*)(LPSTR buf, long len, unsigned int flag, HLOCAL* pHBInfo, HLOCAL* pHBm, SPI_PROGRESS lpPrgressCallback, long lData);
+using ConfigurationDlgProc = int (WINAPI*)(HWND, int);
 
 #pragma pack(push, 1)
 struct fileInfo
