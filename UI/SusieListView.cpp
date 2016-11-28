@@ -78,7 +78,7 @@ void CSusieListView::Show(NMLVDISPINFO* pDispInfo)
 		}
 	}
 
-	if( pDispInfo->item.mask & LVIF_STATE )
+	if (pDispInfo->item.mask & LVIF_STATE)
 	{
 		pDispInfo->item.state = m_pOption->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[pDispInfo->item.iItem].bValidity + 1) : 0;
 	}
