@@ -7,8 +7,6 @@
 #include "res/ResExtractData.h"
 #include "Susie.h"
 #include "UI/Ctrl/StatusBar.h"
-#include "UI/Dialog/FileDialog.h"
-#include "UI/Dialog/FolderDialog.h"
 #include "UI/Dialog/VersionInfo.h"
 #include "UI/MainListView.h"
 #include "UI/MainToolBar.h"
