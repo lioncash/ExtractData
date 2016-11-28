@@ -39,9 +39,8 @@ void CProgBar::ReplaceAllFileSize(QWORD newFileSize)
 // Function to update the percentage
 void CProgBar::UpdatePercent(QWORD BufSize)
 {
-	LPQWORD pProgSize = &m_ProgSize;
-	*pProgSize += BufSize;
-	int percent = static_cast<double>(*pProgSize) / m_AllFileSize * 100;
+	m_ProgSize += BufSize;
+	int percent = static_cast<double>(m_ProgSize) / m_AllFileSize * 100;
 	
 	if (percent > m_percent)
 	{
