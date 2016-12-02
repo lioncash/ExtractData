@@ -171,7 +171,7 @@ bool CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	YCMemory<BYTE> clmbtBase(dwBaseSize);
 
 	// Decompress base image
-	Decomp5(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, NULL, 0);
+	Decomp5(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, nullptr, 0);
 
 	// Output base image
 	CImage clImage;
@@ -200,8 +200,8 @@ bool CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 		// Output image difference
 		TCHAR szDiffName[256];
 		_stprintf(szDiffName, _T("_%02d"), (dwFrameNumber - 1));
-		clImage.Init(pclArc, lWidth, lHeight, 32, NULL, 0, szDiffName);
-		clImage.WriteReverse(&clmbtDst[0], dwDstSize, FALSE);
+		clImage.Init(pclArc, lWidth, lHeight, 32, nullptr, 0, szDiffName);
+		clImage.WriteReverse(&clmbtDst[0], dwDstSize, false);
 		clImage.Close();
 	}
 
@@ -224,7 +224,7 @@ bool CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 	YCMemory<BYTE> clmbtBase(dwBaseSize);
 
 	// Decompress base image
-	Decomp6(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, 32, NULL, 0);
+	Decomp6(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, 32, nullptr, 0);
 
 	// Output base image
 	CImage clImage;
@@ -253,8 +253,8 @@ bool CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 		// Output difference image
 		TCHAR szDiffName[256];
 		_stprintf(szDiffName, _T("_%02d"), (dwFrameNumber - 1));
-		clImage.Init(pclArc, lWidth, lHeight, 32, NULL, 0, szDiffName);
-		clImage.WriteReverse(&clmbtDst[0], dwDstSize, FALSE);
+		clImage.Init(pclArc, lWidth, lHeight, 32, nullptr, 0, szDiffName);
+		clImage.WriteReverse(&clmbtDst[0], dwDstSize, false);
 		clImage.Close();
 	}
 

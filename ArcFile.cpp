@@ -43,7 +43,7 @@ bool CArcFile::Extract()
 ///
 bool CArcFile::Open(LPCTSTR archive_path)
 {
-	HANDLE archive_handle = CreateFile(archive_path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE archive_handle = CreateFile(archive_path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (archive_handle == INVALID_HANDLE_VALUE)
 	{
 		CError error;
