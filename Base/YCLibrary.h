@@ -16,5 +16,5 @@ public:
 	FARPROC GetProcAddress(LPCTSTR pszProcName) const;
 
 protected:
-	HMODULE m_hModule;
+	HMODULE m_hModule = nullptr;
 };

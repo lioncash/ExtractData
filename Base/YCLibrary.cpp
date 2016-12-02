@@ -1,13 +1,10 @@
 #include "StdAfx.h"
 #include "YCLibrary.h"
 
-/// Constructor
 YCLibrary::YCLibrary()
 {
-	m_hModule = nullptr;
 }
 
-/// Destructor
 YCLibrary::~YCLibrary()
 {
 	Free();
