@@ -1,18 +1,13 @@
 #include "StdAfx.h"
 #include "YCLocalMemory.h"
 
-/// Constructor
 YCLocalMemory::YCLocalMemory()
 {
-	m_hMemory = nullptr;
-	m_pvMemory = nullptr;
 }
 
-/// Destructor
 YCLocalMemory::~YCLocalMemory()
 {
 	// Free memory
-
 	Free();
 }
 

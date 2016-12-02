@@ -22,6 +22,6 @@ public:
 	void* GetPtr() const;
 
 protected:
-	HLOCAL m_hMemory;
-	void* m_pvMemory;
+	HLOCAL m_hMemory = nullptr;
+	void* m_pvMemory = nullptr;
 };
