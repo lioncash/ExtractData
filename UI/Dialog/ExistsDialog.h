@@ -5,11 +5,11 @@
 class CExistsDialog : public CWindowBase
 {
 public:
-	void DoModal(HWND hWnd, LPCTSTR pFilePath);
+	void DoModal(HWND hWnd, LPCTSTR file_path);
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
-	DWORD& GetOverWrite() { return (m_fOverWrite); }
+	DWORD& GetOverWrite() { return m_overwrite; }
 
 private:
-	static DWORD m_fOverWrite;
-	LPCTSTR m_pFilePath;
+	static DWORD m_overwrite;
+	LPCTSTR m_file_path;
 };
