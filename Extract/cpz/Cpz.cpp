@@ -793,7 +793,7 @@ void CCpz::DecryptOfData5(BYTE* target, DWORD size, const BYTE* decryption_table
 /// @param archive     Archive
 /// @param file_info   File info
 ///
-void CCpz::OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info)
+void CCpz::OnDecrypt3FromPB3B(u8* target, size_t target_size, CArcFile* archive, const SFileInfo& file_info)
 {
 	Decrypt3(target, target_size, file_info.key);
 }
@@ -806,10 +806,10 @@ void CCpz::OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive
 /// @param archive      Archive
 /// @param file_info    File info
 ///
-void CCpz::OnDecrypt5FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info)
+void CCpz::OnDecrypt5FromPB3B(u8* target, size_t target_size, CArcFile* archive, const SFileInfo& file_info)
 {
 	const auto* cpz5_header = reinterpret_cast<const SCPZ5Header*>(archive->GetHeader());
-	const BYTE* pbtTable = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
+	const u8* table = InitDecryptWithTable5(cpz5_header->adwMD5[3], cpz5_header->dwIndexKey);
 
-	DecryptOfData5(target, target_size, pbtTable, cpz5_header->adwMD5, file_info.key);
+	DecryptOfData5(target, target_size, table, cpz5_header->adwMD5, file_info.key);
 }

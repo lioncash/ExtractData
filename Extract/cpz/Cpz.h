@@ -43,6 +43,6 @@ private:
 	static void DecryptOfData5(BYTE* target, DWORD size, const BYTE* decryption_table, const DWORD* pdwKey, DWORD seed);
 
 	// Callback function from PB3B
-	static void OnDecrypt3FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info);
-	static void OnDecrypt5FromPB3B(BYTE* target, DWORD target_size, CArcFile* archive, const SFileInfo& file_info);
+	static void OnDecrypt3FromPB3B(u8* target, size_t target_size, CArcFile* archive, const SFileInfo& file_info);
+	static void OnDecrypt5FromPB3B(u8* target, size_t target_size, CArcFile* archive, const SFileInfo& file_info);
 };
