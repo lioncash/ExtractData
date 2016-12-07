@@ -18,15 +18,15 @@ bool CTCD3::Mount(CArcFile* archive)
 	archive->SeekHed(4);
 
 	// Get file count
-	DWORD files;
-	archive->Read(&files, 4);
+	u32 files;
+	archive->ReadU32(&files);
 
 	// Get index info
-	STCD3IndexInfo tcd3_index_info[5];
-	archive->Read(tcd3_index_info, (sizeof(STCD3IndexInfo)* 5));
+	std::array<STCD3IndexInfo, 5> tcd3_index_info;
+	archive->Read(tcd3_index_info.data(), sizeof(STCD3IndexInfo) * tcd3_index_info.size());
 
 	// Create Key Table
-	static constexpr BYTE key[5] = {
+	static constexpr u8 key[5] = {
 		0xB7, 0x39, 0x24, 0x8D, 0x8D
 	};
 
@@ -37,7 +37,7 @@ bool CTCD3::Mount(CArcFile* archive)
 	};
 
 	// Read index
-	for (DWORD file_type = 0; file_type < 5; file_type++)
+	for (size_t file_type = 0; file_type < tcd3_index_info.size(); file_type++)
 	{
 		if (tcd3_index_info[file_type].file_size == 0)
 		{
@@ -49,44 +49,44 @@ bool CTCD3::Mount(CArcFile* archive)
 		archive->SeekHed(tcd3_index_info[file_type].index_offset);
 
 		// Folder name
-		const DWORD all_dir_name_length = (tcd3_index_info[file_type].dir_name_length * tcd3_index_info[file_type].dir_count);
-		YCMemory<BYTE> all_dir_names(all_dir_name_length);
-		archive->Read(&all_dir_names[0], all_dir_name_length);
+		const u32 all_dir_name_length = tcd3_index_info[file_type].dir_name_length * tcd3_index_info[file_type].dir_count;
+		std::vector<u8> all_dir_names(all_dir_name_length);
+		archive->Read(all_dir_names.data(), all_dir_names.size());
 
 		// Decode folder name
-		for (size_t i = 0; i < all_dir_name_length; i++)
+		for (size_t i = 0; i < all_dir_names.size(); i++)
 		{
 			all_dir_names[i] -= key[file_type];
 		}
 
 		// Get folder info
-		YCMemory<STCD3DirInfo> tcd3_dir_info(tcd3_index_info[file_type].dir_count);
-		archive->Read(&tcd3_dir_info[0], (sizeof(STCD3DirInfo)* tcd3_index_info[file_type].dir_count));
+		std::vector<STCD3DirInfo> tcd3_dir_info(tcd3_index_info[file_type].dir_count);
+		archive->Read(tcd3_dir_info.data(), sizeof(STCD3DirInfo) * tcd3_dir_info.size());
 
 		// File name
-		const DWORD all_file_name_length = (tcd3_index_info[file_type].file_name_length * tcd3_index_info[file_type].file_count);
-		YCMemory<BYTE> all_file_names(all_file_name_length);
-		archive->Read(&all_file_names[0], all_file_name_length);
+		const u32 all_file_name_length = tcd3_index_info[file_type].file_name_length * tcd3_index_info[file_type].file_count;
+		std::vector<u8> all_file_names(all_file_name_length);
+		archive->Read(all_file_names.data(), all_file_names.size());
 
 		// Decode file name
-		for (size_t i = 0; i < all_file_name_length; i++)
+		for (size_t i = 0; i < all_file_names.size(); i++)
 		{
 			all_file_names[i] -= key[file_type];
 		}
 
 		// File offset
-		const DWORD all_file_offset_length = (tcd3_index_info[file_type].file_count + 1);
-		YCMemory<DWORD> all_file_offsets(all_file_offset_length);
-		archive->Read(&all_file_offsets[0], (sizeof(DWORD)* all_file_offset_length));
+		const u32 all_file_offset_length = tcd3_index_info[file_type].file_count + 1;
+		std::vector<u32> all_file_offsets(all_file_offset_length);
+		archive->Read(all_file_offsets.data(), sizeof(u32)* all_file_offsets.size());
 
 		// Store Info
-		for (DWORD dir = 0; dir < tcd3_index_info[file_type].dir_count; dir++)
+		for (size_t dir = 0; dir < tcd3_index_info[file_type].dir_count; dir++)
 		{
 			// Get folder info
 			TCHAR dir_name[_MAX_DIR];
 			memcpy(dir_name, &all_dir_names[tcd3_index_info[file_type].dir_name_length * dir], tcd3_index_info[file_type].dir_name_length);
 
-			for (DWORD file = 0; file < tcd3_dir_info[dir].file_count; file++)
+			for (size_t file = 0; file < tcd3_dir_info[dir].file_count; file++)
 			{
 				// Get file name
 				TCHAR file_name[_MAX_FNAME];
@@ -120,26 +120,23 @@ bool CTCD3::Mount(CArcFile* archive)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CTCD3::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
+bool CTCD3::DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* byte_src = (const BYTE*)src;
-	BYTE*       byte_dst = (BYTE*)dst;
+	const u32 offset = *reinterpret_cast<const u32*>(&src[0]);
+	const u32 pixel_count = *reinterpret_cast<const u32*>(&src[4]);
 
-	const DWORD offset = *(DWORD*)&byte_src[0];
-	const DWORD pixel_count = *(DWORD*)&byte_src[4];
+	size_t src_header_ptr = 8;
+	size_t src_data_ptr = offset;
+	size_t dst_ptr = 0;
 
-	DWORD src_header_ptr = 8;
-	DWORD src_data_ptr = offset;
-	DWORD dst_ptr = 0;
-
-	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
+	while (src_header_ptr < offset && src_data_ptr < src_size && dst_ptr < dst_size)
 	{
-		const WORD work = *(WORD*)&byte_src[src_header_ptr];
+		const u16 work = *reinterpret_cast<const u16*>(&src[src_header_ptr]);
 
 		src_header_ptr += 2;
 
-		const WORD type = work >> 14;
-		const WORD length = work & 0x3FFF;
+		const u16 type = work >> 14;
+		const u16 length = work & 0x3FFF;
 
 		if ((dst_ptr + (length * 4)) > dst_size)
 		{
@@ -149,11 +146,11 @@ bool CTCD3::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_siz
 		switch (type)
 		{
 		case 0: // Fill in 0
-			for (DWORD i = 0; i < length; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 4; j++)
+				for (u32 j = 0; j < 4; j++)
 				{
-					byte_dst[dst_ptr++] = 0x00;
+					dst[dst_ptr++] = 0x00;
 				}
 			}
 			break;
@@ -164,14 +161,14 @@ bool CTCD3::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_siz
 				MessageBox(nullptr, _T("Input buffer to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < length; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 3; j++)
+				for (u32 j = 0; j < 3; j++)
 				{
-					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
+					dst[dst_ptr++] = src[src_data_ptr++];
 				}
 
-				byte_dst[dst_ptr++] = 0xFF;
+				dst[dst_ptr++] = 0xFF;
 			}
 			break;
 
@@ -186,14 +183,14 @@ bool CTCD3::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_siz
 				MessageBox(nullptr, _T("Input buffer needed to decompress RLE2 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < length; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 3; j++)
+				for (u32 j = 0; j < 3; j++)
 				{
-					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
+					dst[dst_ptr++] = src[src_data_ptr++];
 				}
 
-				byte_dst[dst_ptr++] = byte_src[src_header_ptr++];
+				dst[dst_ptr++] = src[src_header_ptr++];
 			}
 			break;
 		}

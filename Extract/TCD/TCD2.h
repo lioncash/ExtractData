@@ -10,23 +10,23 @@ public:
 private:
 	struct STCD2IndexInfo
 	{
-		DWORD file_size;             // File size
-		DWORD file_count;            // Number of files
-		DWORD dir_count;             // Number of folders
-		DWORD index_offset;          // Absolute offset value to the index
-		DWORD dir_name_length;       // Folder name length
-		DWORD file_name_length;      // File name length
-		DWORD file_count_ex;         // File count(Extended version)
-		DWORD file_name_length_ex;   // File name length(Extended version)
+		u32 file_size;             // File size
+		u32 file_count;            // Number of files
+		u32 dir_count;             // Number of folders
+		u32 index_offset;          // Absolute offset value to the index
+		u32 dir_name_length;       // Folder name length
+		u32 file_name_length;      // File name length
+		u32 file_count_ex;         // File count(Extended version)
+		u32 file_name_length_ex;   // File name length(Extended version)
 	};
 
 	struct STCD2DirInfo
 	{
-		DWORD file_count;            // Number of files
-		DWORD file_name_offset;      // File name offset value
-		DWORD file_offset;           // File offset value
-		DWORD reserved;              // Reserved
+		u32 file_count;            // Number of files
+		u32 file_name_offset;      // File name offset value
+		u32 file_offset;           // File offset value
+		u32 reserved;              // Reserved
 	};
 
-	bool DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size) override;
+	bool DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_size) override;
 };

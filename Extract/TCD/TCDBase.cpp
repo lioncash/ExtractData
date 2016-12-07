@@ -317,7 +317,7 @@ bool CTCDBase::DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CTCDBase::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
+bool CTCDBase::DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
 	return false;
 }

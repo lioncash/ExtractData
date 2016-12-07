@@ -18,15 +18,15 @@ bool CTCD2::Mount(CArcFile* archive)
 	archive->SeekHed(4);
 
 	// Get file count
-	DWORD files;
-	archive->Read(&files, 4);
+	u32 files;
+	archive->ReadU32(&files);
 
 	// Get index info
-	STCD2IndexInfo tcd2_index_info[5];
-	archive->Read(tcd2_index_info, (sizeof(STCD2IndexInfo)* 5));
+	std::array<STCD2IndexInfo, 5> tcd2_index_info;
+	archive->Read(tcd2_index_info.data(), sizeof(STCD2IndexInfo) * tcd2_index_info.size());
 
 	// Create key table
-	static constexpr BYTE key[5] =
+	static constexpr u8 key[5] =
 	{
 		0x1F, 0x61, 0x43, 0x76, 0x76
 	};
@@ -38,7 +38,7 @@ bool CTCD2::Mount(CArcFile* archive)
 	};
 
 	// Read index
-	for (DWORD file_type = 0; file_type < 5; file_type++)
+	for (size_t file_type = 0; file_type < tcd2_index_info.size(); file_type++)
 	{
 		if (tcd2_index_info[file_type].file_size == 0)
 		{
@@ -50,9 +50,9 @@ bool CTCD2::Mount(CArcFile* archive)
 		archive->SeekHed(tcd2_index_info[file_type].index_offset);
 
 		// Folder name
-		const DWORD all_dir_name_length = tcd2_index_info[file_type].dir_name_length;
-		YCMemory<BYTE> all_dir_names(all_dir_name_length);
-		archive->Read(&all_dir_names[0], all_dir_name_length);
+		const u32 all_dir_name_length = tcd2_index_info[file_type].dir_name_length;
+		std::vector<u8> all_dir_names(all_dir_name_length);
+		archive->Read(all_dir_names.data(), all_dir_names.size());
 
 		// Decode folder name
 		for (size_t i = 0; i < all_dir_name_length; i++)
@@ -61,13 +61,13 @@ bool CTCD2::Mount(CArcFile* archive)
 		}
 
 		// Get folder info
-		YCMemory<STCD2DirInfo> tcd2_dir_info(tcd2_index_info[file_type].dir_count);
-		archive->Read(&tcd2_dir_info[0], (sizeof(STCD2DirInfo)* tcd2_index_info[file_type].dir_count));
+		std::vector<STCD2DirInfo> tcd2_dir_info(tcd2_index_info[file_type].dir_count);
+		archive->Read(tcd2_dir_info.data(), sizeof(STCD2DirInfo) * tcd2_dir_info.size());
 
 		// File name
-		const DWORD    all_file_name_length = tcd2_index_info[file_type].file_name_length;
-		YCMemory<BYTE> all_file_names(all_file_name_length);
-		archive->Read(&all_file_names[0], all_file_name_length);
+		const u32 all_file_name_length = tcd2_index_info[file_type].file_name_length;
+		std::vector<u8> all_file_names(all_file_name_length);
+		archive->Read(all_file_names.data(), all_file_names.size());
 
 		// Decode file name
 		for (size_t i = 0; i < all_file_name_length; i++)
@@ -76,25 +76,25 @@ bool CTCD2::Mount(CArcFile* archive)
 		}
 
 		// File offset
-		const DWORD     all_file_offset_length = (tcd2_index_info[file_type].file_count + 1);
-		YCMemory<DWORD> all_file_offsets(all_file_offset_length);
-		archive->Read(&all_file_offsets[0], (sizeof(DWORD)* all_file_offset_length));
+		const u32 all_file_offset_length = tcd2_index_info[file_type].file_count + 1;
+		std::vector<u32> all_file_offsets(all_file_offset_length);
+		archive->Read(all_file_offsets.data(), sizeof(u32) * all_file_offsets.size());
 
 		// Store info
-		DWORD dir_name_ptr = 0;
-		for (DWORD dir = 0; dir < tcd2_index_info[file_type].dir_count; dir++)
+		size_t dir_name_ptr = 0;
+		for (size_t dir = 0; dir < tcd2_index_info[file_type].dir_count; dir++)
 		{
 			// Get folder name
 			char dir_name[_MAX_DIR];
-			strcpy(dir_name, (char*)&all_dir_names[dir_name_ptr]);
+			strcpy(dir_name, reinterpret_cast<char*>(&all_dir_names[dir_name_ptr]));
 			dir_name_ptr += strlen(dir_name) + 1;
 
-			DWORD file_name_ptr = 0;
-			for (DWORD file = 0; file < tcd2_dir_info[dir].file_count; file++)
+			size_t file_name_ptr = 0;
+			for (size_t file = 0; file < tcd2_dir_info[dir].file_count; file++)
 			{
 				// Get file name
 				char file_name[_MAX_FNAME];
-				strcpy(file_name, (char*)&all_file_names[tcd2_dir_info[dir].file_name_offset + file_name_ptr]);
+				strcpy(file_name, reinterpret_cast<char*>(&all_file_names[tcd2_dir_info[dir].file_name_offset + file_name_ptr]));
 				file_name_ptr += strlen(file_name) + 1;
 
 				// Folder name + File name + Extension
@@ -124,55 +124,55 @@ bool CTCD2::Mount(CArcFile* archive)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CTCD2::DecompRLE2(void* dst, DWORD dst_size, const void* src, DWORD src_size)
+bool CTCD2::DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* byte_src = (const BYTE*)src;
-	BYTE*       byte_dst = (BYTE*)dst;
+	const u32 offset = *reinterpret_cast<const u32*>(&src[0]);
+	const u32 pixel_count = *reinterpret_cast<const u32*>(&src[4]);
 
-	const DWORD offset = *(DWORD*)&byte_src[0];
-	const DWORD pixel_count = *(DWORD*)&byte_src[4];
+	size_t src_header_ptr = 8;
+	size_t src_data_ptr = offset;
+	size_t dst_ptr = 0;
 
-	DWORD src_header_ptr = 8;
-	DWORD src_data_ptr = offset;
-	DWORD dst_ptr = 0;
-
-	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
+	while (src_header_ptr < offset && src_data_ptr < src_size && dst_ptr < dst_size)
 	{
-		const BYTE work = byte_src[src_header_ptr++];
-		WORD length;
+		const u8 work = src[src_header_ptr++];
 
 		switch (work)
 		{
 		case 0: // Fill in 0
-			length = byte_src[src_header_ptr++] + 1;
-			for (DWORD i = 0; i < length; i++)
+		{
+			const u16 length = src[src_header_ptr++] + 1;
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 4; j++)
+				for (u32 j = 0; j < 4; j++)
 				{
-					byte_dst[dst_ptr++] = 0x00;
+					dst[dst_ptr++] = 0x00;
 				}
 			}
 			break;
+		}
 
 		case 1: // Alpha value 0xFF
-			length = byte_src[src_header_ptr++] + 1;
-			for (DWORD i = 0; i < length; i++)
+		{
+			const u16 length = src[src_header_ptr++] + 1;
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 3; j++)
+				for (u32 j = 0; j < 3; j++)
 				{
-					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
+					dst[dst_ptr++] = src[src_data_ptr++];
 				}
 
-				byte_dst[dst_ptr++] = 0xFF;
+				dst[dst_ptr++] = 0xFF;
 			}
 			break;
+		}
 
 		default: // Alpha values 0x01~0xFE
-			for (DWORD j = 0; j < 3; j++)
+			for (u32 j = 0; j < 3; j++)
 			{
-				byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
+				dst[dst_ptr++] = src[src_data_ptr++];
 			}
-			byte_dst[dst_ptr++] = ~(work - 1);
+			dst[dst_ptr++] = ~(work - 1);
 			break;
 		}
 	}
