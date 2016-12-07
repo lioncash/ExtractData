@@ -214,7 +214,7 @@ bool CCircus::DecodeCRX(CArcFile* archive)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
+bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, size_t src_size)
 {
 	// Get header information
 	const s32 width  = *reinterpret_cast<const u16*>(&src[8]);
@@ -250,7 +250,7 @@ bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 	}
 
 	// LZSS decompression
-	DecompLZSS(dst.data(), dst.size(), &src[src_data_offset], (src_size - src_data_offset));
+	DecompLZSS(dst.data(), dst.size(), &src[src_data_offset], src_size - src_data_offset);
 
 	// Output
 	CImage image;
@@ -266,7 +266,7 @@ bool CCircus::DecodeCRX1(CArcFile* archive, const u8* src, DWORD src_size)
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, DWORD src_size)
+bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, size_t src_size)
 {
 	// Get header information
 	const s32 width  = *reinterpret_cast<const u16*>(&src[8]);
