@@ -9,50 +9,48 @@
 ///
 /// Remark: pvSrc can be used to decrypt the first part
 ///
-/// @param pclArc - Archive
-/// @param pvSrc  - Compressed data
-/// @param dwSize - Compressed data size
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
 ///
-bool CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
+bool CPB2A::Decode(CArcFile* archive, u8* src, size_t src_size)
 {
-	BYTE* pbtSrc = (BYTE*)pvSrc;
-
 	// Decrypt
-	Decrypt(pbtSrc, dwSrcSize);
+	Decrypt(src, src_size);
 
 	// Get image information
-	WORD wType = *(WORD*)&pbtSrc[16];
-	long lWidth = *(WORD*)&pbtSrc[18];
-	long lHeight = *(WORD*)&pbtSrc[20];
-	WORD wBpp = *(WORD*)&pbtSrc[22];
+	const u16 type    = *reinterpret_cast<u16*>(&src[16]);
+	const long width  = *reinterpret_cast<u16*>(&src[18]);
+	const long height = *reinterpret_cast<u16*>(&src[20]);
+	const u16 bpp     = *reinterpret_cast<u16*>(&src[22]);
 
 	// Decompression
-	switch (wType)
+	switch (type)
 	{
 	case 1:
-		Decode1(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		Decode1(archive, src, src_size, width, height, bpp);
 		break;
 
 	case 2:
-		Decode2(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		Decode2(archive, src, src_size, width, height, bpp);
 		break;
 
 	case 3:
 	case 4:
-		Decode4(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		Decode4(archive, src, src_size, width, height, bpp);
 		break;
 
 	case 5:
-		Decode5(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		Decode5(archive, src, src_size, width, height, bpp);
 		break;
 
 	case 6:
-		Decode6(pclArc, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+		Decode6(archive, src, src_size, width, height, bpp);
 		break;
 
 	default: // Unknown
-		pclArc->OpenFile();
-		pclArc->WriteFile(pbtSrc, dwSrcSize);
+		archive->OpenFile();
+		archive->WriteFile(src, src_size);
 		break;
 	}
 
@@ -61,148 +59,148 @@ bool CPB2A::Decode(CArcFile* pclArc, void* pvSrc, DWORD dwSrcSize)
 
 ///  Decoding
 ///
-/// @param pbtTarget Data to be decoded
-/// @param dwSize    Data size
+/// @param target Data to be decoded
+/// @param size   Data size
 ///
-void CPB2A::Decrypt(BYTE* pbtTarget, DWORD dwSize)
+void CPB2A::Decrypt(u8* target, size_t size)
 {
-	for (int i = 8; i < 32; i += 2)
+	for (size_t i = 8; i < 32; i += 2)
 	{
-		*(WORD*)&pbtTarget[i] ^= *(WORD*)&pbtTarget[dwSize - 3];
+		*reinterpret_cast<u16*>(&target[i]) ^= *reinterpret_cast<u16*>(&target[size - 3]);
 	}
 
-	for (int i = 8, j = 0; i < 32; i++, j++)
+	for (size_t i = 8, j = 0; i < 32; i++, j++)
 	{
-		pbtTarget[i] -= pbtTarget[dwSize - 27 + j];
+		target[i] -= target[size - 27 + j];
 	}
 }
 
 /// Decode 1
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Number of bits
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decode1(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode1(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Ensure output buffer
-	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst( dwDstSize );
+	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
+	std::vector<u8> dst(dst_size);
 
 	// Decompression
-	Decomp1( &clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp );
+	Decomp1(dst.data(), dst.size(), src, src_size, width, height, bpp);
 
 	// Output
-	CImage clImage;
-	clImage.Init( pclArc, lWidth, lHeight, wBpp );
-	clImage.WriteReverse( &clmbtDst[0], dwDstSize );
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(dst.data(), dst.size());
 
 	return true;
 }
 
 /// Decode 2
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Number of bits
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decode2(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode2(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Ensure output buffer
-	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
+	std::vector<u8> dst(dst_size);
 
 	// Decompression
-	Decomp2(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+	Decomp2(dst.data(), dst.size(), src, src_size, width, height, bpp);
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(dst.data(), dst.size());
 
 	return true;
 }
 
 /// Decode 4
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Number of bits
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decode4(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode4(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Ensure output buffer
-	DWORD dwDstSize = (lWidth * lHeight * (wBpp >> 3));
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
+	std::vector<u8> dst(dst_size);
 
 	// Decompression
-	Decomp4(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp);
+	Decomp4(dst.data(), dst.size(), src, src_size, width, height, bpp);
 
 	// Output
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, wBpp);
-	clImage.WriteReverse(&clmbtDst[0], dwDstSize);
+	CImage image;
+	image.Init(archive, width, height, bpp);
+	image.WriteReverse(dst.data(), dst.size());
 
 	return true;
 }
 
 /// Decode 5
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Number of bits
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode5(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Ensure base image buffer
-	DWORD dwBaseSize = (lWidth * lHeight * 4);
-	YCMemory<BYTE> clmbtBase(dwBaseSize);
+	const u32 base_size = static_cast<u32>(width * height * 4);
+	std::vector<u8> base(base_size);
 
 	// Decompress base image
-	Decomp5(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, nullptr, 0);
+	Decomp5(base.data(), base.size(), src, src_size, width, height, bpp, nullptr, 0);
 
 	// Output base image
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, 32);
-	clImage.WriteReverse(&clmbtBase[0], dwBaseSize);
-	clImage.Close();
+	CImage image;
+	image.Init(archive, width, height, 32);
+	image.WriteReverse(base.data(), base.size());
+	image.Close();
 
 	// Get number of image files
-	DWORD dwImageFiles = *(DWORD*)&pbtSrc[8];
-	if (dwImageFiles == 1)
+	const u32 num_image_files = *reinterpret_cast<const u32*>(&src[8]);
+	if (num_image_files == 1)
 	{
 		// Only the base image exists
 		return true;
 	}
 
 	// Ensure image difference buffer
-	DWORD dwDstSize = dwBaseSize;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const size_t dst_size = base.size();
+	std::vector<u8> dst(dst_size);
 
 	// Output image difference
-	for (DWORD dwFrameNumber = 1; dwFrameNumber < dwImageFiles; dwFrameNumber++)
+	for (u32 frame_number = 1; frame_number < num_image_files; frame_number++)
 	{
 		// Decompress image difference
-		Decomp5(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, wBpp, &clmbtBase[0], dwFrameNumber);
+		Decomp5(dst.data(), dst.size(), src, src_size, width, height, bpp, base.data(), frame_number);
 
 		// Output image difference
-		TCHAR szDiffName[256];
-		_stprintf(szDiffName, _T("_%02d"), (dwFrameNumber - 1));
-		clImage.Init(pclArc, lWidth, lHeight, 32, nullptr, 0, szDiffName);
-		clImage.WriteReverse(&clmbtDst[0], dwDstSize, false);
-		clImage.Close();
+		TCHAR diff_name[256];
+		_stprintf(diff_name, _T("_%02u"), frame_number - 1);
+		image.Init(archive, width, height, 32, nullptr, 0, diff_name);
+		image.WriteReverse(dst.data(), dst.size(), false);
+		image.Close();
 	}
 
 	return true;
@@ -210,52 +208,52 @@ bool CPB2A::Decode5(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 
 /// Decode 6
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    Compressed data
-/// @param dwSrcSize Compressed data size
-/// @param lWidth    Width
-/// @param lHeight   Height
-/// @param wBpp      Number of bits
+/// @param archive  Archive
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decode6(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Ensure base image buffer
-	DWORD dwBaseSize = (lWidth * lHeight * 4);
-	YCMemory<BYTE> clmbtBase(dwBaseSize);
+	const u32 base_size = static_cast<u32>(width * height * 4);
+	std::vector<u8> base(base_size);
 
 	// Decompress base image
-	Decomp6(&clmbtBase[0], dwBaseSize, pbtSrc, dwSrcSize, lWidth, lHeight, 32, nullptr, 0);
+	Decomp6(base.data(), base.size(), src, src_size, width, height, 32, nullptr, 0);
 
 	// Output base image
-	CImage clImage;
-	clImage.Init(pclArc, lWidth, lHeight, 32);
-	clImage.WriteReverse(&clmbtBase[0], dwBaseSize);
-	clImage.Close();
+	CImage image;
+	image.Init(archive, width, height, 32);
+	image.WriteReverse(base.data(), base.size());
+	image.Close();
 
 	// Get number of image files
-	DWORD dwImageFiles = *(DWORD*)&pbtSrc[8];
-	if (dwImageFiles == 1)
+	const u32 num_image_files = *reinterpret_cast<const u32*>(&src[8]);
+	if (num_image_files == 1)
 	{
 		// Only the base image exists
 		return true;
 	}
 
 	// Ensure difference image buffer
-	DWORD dwDstSize = dwBaseSize;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
+	const size_t dst_size = base.size();
+	std::vector<u8> dst(dst_size);
 
 	// Output difference image 
-	for (DWORD dwFrameNumber = 1; dwFrameNumber < dwImageFiles; dwFrameNumber++)
+	for (u32 frame_number = 1; frame_number < num_image_files; frame_number++)
 	{
 		// Decompress difference image
-		Decomp6(&clmbtDst[0], dwDstSize, pbtSrc, dwSrcSize, lWidth, lHeight, 32, &clmbtBase[0], dwFrameNumber);
+		Decomp6(dst.data(), dst.size(), src, src_size, width, height, 32, base.data(), frame_number);
 
 		// Output difference image
-		TCHAR szDiffName[256];
-		_stprintf(szDiffName, _T("_%02d"), (dwFrameNumber - 1));
-		clImage.Init(pclArc, lWidth, lHeight, 32, nullptr, 0, szDiffName);
-		clImage.WriteReverse(&clmbtDst[0], dwDstSize, false);
-		clImage.Close();
+		TCHAR diff_name[256];
+		_stprintf(diff_name, _T("_%02u"), frame_number - 1);
+		image.Init(archive, width, height, 32, nullptr, 0, diff_name);
+		image.WriteReverse(dst.data(), dst.size(), false);
+		image.Close();
 	}
 
 	return true;
@@ -263,72 +261,72 @@ bool CPB2A::Decode6(CArcFile* pclArc, const BYTE* pbtSrc, DWORD dwSrcSize, long 
 
 /// Decompression 1
 ///
-/// @param pbtDst        Destination
-/// @param dwDstSize     Destination size
-/// @param pbtSrc        Compressed data
-/// @param dwSrcSize     Compressed data size
-/// @param lWidth        Width
-/// @param lHeight       Height
-/// @param wBpp          Number of bits
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
-	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
-	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[28];
-	long  lWidthOfBlock = 8;
-	long  lHeightOfBlock = 8;
-	WORD  wByteCount = (wBpp >> 3);
-	long  lLine = (lWidth * wByteCount);
+	const u32  flags_offset = *reinterpret_cast<const u32*>(&src[24]);
+	const u32  compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
+	const long block_width = 8;
+	const long block_height = 8;
+	const u16  byte_count = bpp >> 3;
+	const long line = width * byte_count;
 
 	// Ensure LZSS decompression buffer
-	DWORD dwTempSize = (lWidth * lHeight * wByteCount);
-	DWORD dwTempPtr = 0;
-	YCMemory<BYTE> clmbtTemp(dwTempSize);
+	const u32 temp_size = width * height * byte_count;
+	std::vector<u8> temp(temp_size);
+	size_t temp_idx = 0;
 
 	// LZSS Decompression
-	const BYTE* pbtFlags = &pbtSrc[dwOffsetOfFlags];
-	const BYTE* pbtCompData = &pbtSrc[dwOffsetOfCompData];
-	DWORD       dwFlagsSize = (dwOffsetOfCompData - dwOffsetOfFlags);
-	DWORD       dwCompDataSize = (dwSrcSize - dwOffsetOfCompData);
+	const u8* flags = &src[flags_offset];
+	const u8* compressed_data = &src[compressed_data_offset];
+	const u32 flags_size = compressed_data_offset - flags_offset;
+	const u32 compressed_data_size = src_size - compressed_data_offset;
 
-	DecompLZSS(&clmbtTemp[0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+	DecompLZSS(temp.data(), temp.size(), flags, flags_size, compressed_data, compressed_data_size);
 
 	// Change color componentss
-	long lBlockCountOfWidth = ((lWidth + (lWidthOfBlock - 1)) / lWidthOfBlock);
-	long lBlockCountOfHeight = ((lHeight + (lHeightOfBlock - 1)) / lHeightOfBlock);
+	const long block_count_width = ((width + (block_width - 1)) / block_width);
+	const long block_count_height = ((height + (block_height - 1)) / block_height);
 
-	for (WORD wColor = 0; wColor < wByteCount; wColor++)
+	for (u16 color = 0; color < byte_count; color++)
 	{
-		BYTE* pbtWorkOfDst = &pbtDst[wColor];
+		u8* dst_ptr = &dst[color];
 
-		for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
+		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
-			BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
-			long  lHeightOfBlockMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
+			u8* next_block_ptr = dst_ptr;
+			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
 			// Process the block in one column
-			for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
+			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
-				BYTE* pbtWorkOfDst3 = pbtWorkOfDst2;
-				long  lWidthOfBlockMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
+				u8* block_ptr = next_block_ptr;
+				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				// Process 1 block
-				for (long i = 0; i < lHeightOfBlockMax; i++)
+				for (long i = 0; i < max_block_height; i++)
 				{
-					for (long j = 0; j < lWidthOfBlockMax; j++)
+					for (long j = 0; j < max_block_width; j++)
 					{
-						pbtWorkOfDst3[j * wByteCount] = clmbtTemp[dwTempPtr++];
+						block_ptr[j * byte_count] = temp[temp_idx++];
 					}
 
-					pbtWorkOfDst3 += lLine;
+					block_ptr += line;
 				}
 
 				// Refer to the next block
-				pbtWorkOfDst2 += (lWidthOfBlock * wByteCount);
+				next_block_ptr += block_width * byte_count;
 			}
 
 			// Refers to the bottom block
-			pbtWorkOfDst += (lLine * lHeightOfBlock);
+			dst_ptr += line * block_height;
 		}
 	}
 
@@ -337,135 +335,133 @@ bool CPB2A::Decomp1(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 
 /// Decompression 2
 ///
-/// @param pbtDst        Destination
-/// @param dwDstSize     Destination size
-/// @param pbtSrc        Compressed data
-/// @param dwSrcSize     Compressed data size
-/// @param lWidth        Width
-/// @param lHeight       Height
-/// @param wBpp          Number of bits
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
-	DWORD dwOffsetOfFlags = *(DWORD*)&pbtSrc[24];
-	DWORD dwOffsetOfCompData = *(DWORD*)&pbtSrc[28];
-	long  lWidthOfBlock = 8;
-	long  lHeightOfBlock = 8;
-	WORD  wByteCount = (wBpp >> 3);
-	long  lLine = (lWidth * wByteCount);
+	const u32  flags_offset = *reinterpret_cast<const u32*>(&src[24]);
+	const u32  compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
+	const long block_width = 8;
+	const long block_height = 8;
+	const u16  byte_count = bpp >> 3;
+	const long line = width * byte_count;
 
 	// Ensure LZSS decompression buffer
-	DWORD dwTempSize = (lWidth * lHeight);
-	YCMemory<BYTE> clmbtTemp(dwTempSize);
+	const u32 temp_size = width * height;
+	std::vector<u8> temp(temp_size);
 
 	// Decompression
-	for (WORD wColor = 0; wColor < wByteCount; wColor++)
+	for (u16 color = 0; color < byte_count; color++)
 	{
-		const BYTE* pbtWorkOfSrc = &pbtSrc[dwOffsetOfFlags];
-		DWORD dwWork = (wByteCount * 4);
+		const u8* src_work_ptr = &src[flags_offset];
+		u32 work = byte_count * 4;
 
-		for (WORD i = 0; i < wColor; i++)
+		for (size_t i = 0; i < color; i++)
 		{
-			dwWork += ((DWORD*)pbtWorkOfSrc)[i];
+			work += reinterpret_cast<const u32*>(src_work_ptr)[i];
 		}
 
-		pbtWorkOfSrc += dwWork;
+		src_work_ptr += work;
 
 		// Get LZSS size after decompression
-		DWORD dwLZSSDecodeSize = *(DWORD*)&pbtWorkOfSrc[8];
+		const u32 lzss_decode_size = *reinterpret_cast<const u32*>(&src_work_ptr[8]);
 
 		// Get pointer to data flag
-		const BYTE* pbtFlags = pbtWorkOfSrc + *(DWORD*)&pbtWorkOfSrc[0] + *(DWORD*)&pbtWorkOfSrc[4] + 12;
+		const u8* flags = src_work_ptr + *reinterpret_cast<const u32*>(&src_work_ptr[0]) + *reinterpret_cast<const u32*>(&src_work_ptr[4]) + 12;
 
 		// Get pointer to compressed data 
-		const BYTE* pbtCompData = &pbtSrc[dwOffsetOfCompData];
+		const u8* compressed_data = &src[compressed_data_offset];
 
-		dwWork = (wByteCount * 4);
-		for (WORD i = 0; i < wColor; i++)
+		work = byte_count * 4;
+		for (size_t i = 0; i < color; i++)
 		{
-			dwWork += ((DWORD*)pbtCompData)[i];
+			work += reinterpret_cast<const u32*>(compressed_data)[i];
 		}
-		pbtCompData += dwWork;
+		compressed_data += work;
 
 		// Handle insufficient buffer space
 		// Do not need to gurantee the size of dwLZSSDecodeSize anymore, this minimizes allocation
-		if (dwTempSize < dwLZSSDecodeSize)
+		if (temp_size < lzss_decode_size)
 		{
-			clmbtTemp.resize(dwLZSSDecodeSize);
+			temp.resize(lzss_decode_size);
 		}
 
 		// LZSS Decompression
-		DWORD dwFlagsSize = 0xFFFFFFFF;	// Unknown Size
-		DWORD dwCompDataSize = 0xFFFFFFFF;	// Unknown Size
-		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+		const u32 flags_size = 0xFFFFFFFF; // Unknown Size
+		const u32 compressed_data_size = 0xFFFFFFFF; // Unknown Size
+		DecompLZSS(temp.data(), lzss_decode_size , flags, flags_size, compressed_data, compressed_data_size);
 
 		// Decompress compressed blocks
-		long  lBlockCountOfWidth = ((lWidth + (lWidthOfBlock - 1)) / lWidthOfBlock);
-		long  lBlockCountOfHeight = ((lHeight + (lHeightOfBlock - 1)) / lHeightOfBlock);
-		BYTE  btCode = 0x80;
-		DWORD dwTempPtr = 0;
-		DWORD dwFlagsPtr = 0;
-		DWORD dwCompDataPtr = 0;
+		const long block_count_width = ((width + (block_width - 1)) / block_width);
+		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		u8 code = 0x80;
+		size_t temp_idx = 0;
+		size_t flags_idx = 0;
+		size_t compressed_data_idx = 0;
 
-		pbtFlags = pbtWorkOfSrc + 12;
-		pbtCompData = pbtWorkOfSrc + *(DWORD*)&pbtWorkOfSrc[0] + 12;
+		flags = src_work_ptr + 12;
+		compressed_data = src_work_ptr + *reinterpret_cast<const u32*>(&src_work_ptr[0]) + 12;
 
-		BYTE* pbtWorkOfDst = &pbtDst[wColor];
+		u8* dst_ptr = &dst[color];
 
-		for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
+		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
-			BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
-			long  lHeightOfBlockMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
+			u8* next_block_ptr = dst_ptr;
+			const long  max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-			for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
+			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
-				if (btCode == 0)
+				if (code == 0)
 				{
 					// Processed 8 blocks
-
-					dwFlagsPtr++;
-					btCode = 0x80;
+					flags_idx++;
+					code = 0x80;
 				}
 
 				// Process 1 block
-
-				BYTE* pbtWorkOfDst3 = pbtWorkOfDst2;
-				long  lWidthOfBlockMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
+				u8* block_ptr = next_block_ptr;
+				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				// Compressed
-				if (pbtFlags[dwFlagsPtr] & btCode)
+				if (flags[flags_idx] & code)
 				{
-					for (long i = 0; i < lHeightOfBlockMax; i++)
+					for (long i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < lWidthOfBlockMax; j++)
+						for (long j = 0; j < max_block_width; j++)
 						{
-							pbtWorkOfDst3[j * wByteCount] = pbtCompData[dwCompDataPtr];
+							block_ptr[j * byte_count] = compressed_data[compressed_data_idx];
 						}
 
-						pbtWorkOfDst3 += lLine;
+						block_ptr += line;
 					}
 
-					dwCompDataPtr++;
+					compressed_data_idx++;
 				}
 				else // Not compressed
 				{
-					for (long i = 0; i < lHeightOfBlockMax; i++)
+					for (long i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < lWidthOfBlockMax; j++)
+						for (long j = 0; j < max_block_width; j++)
 						{
-							pbtWorkOfDst3[j * wByteCount] = clmbtTemp[dwTempPtr++];
+							block_ptr[j * byte_count] = temp[temp_idx++];
 						}
 
-						pbtWorkOfDst3 += lLine;
+						block_ptr += line;
 					}
 				}
 
 				// Refer to next block
-				pbtWorkOfDst2 += (lWidthOfBlock * wByteCount);
-				btCode >>= 1;
+				next_block_ptr += block_width * byte_count;
+				code >>= 1;
 			}
 
-			pbtWorkOfDst += (lLine * lHeightOfBlock);
+			dst_ptr += line * block_height;
 		}
 	}
 
@@ -474,23 +470,23 @@ bool CPB2A::Decomp2(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 
 /// Decompression 4
 ///
-/// @param pbtDst        Destination
-/// @param dwDstSize     Destination size
-/// @param pbtSrc        Compressed data
-/// @param dwSrcSize     Compressed data size
-/// @param lWidth        Width
-/// @param lHeight       Height
-/// @param wBpp          Number of bits
+/// @param dst      Destination
+/// @param dst_size Destination size
+/// @param src      Compressed data
+/// @param src_size Compressed data size
+/// @param width    Width
+/// @param height   Height
+/// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwSrcSize, long lWidth, long lHeight, WORD wBpp)
+bool CPB2A::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
 {
 	// Get alpha value
-	const BYTE* pbtAlpha = pbtSrc + *(DWORD*) &pbtSrc[24];
-	DWORD dwAlphaSize = *(DWORD*) &pbtSrc[28];
+	const u8* alpha = src + *reinterpret_cast<const u32*>(&src[24]);
+	const u32 alpha_size = *reinterpret_cast<const u32*>(&src[28]);
 
 	// Decompress
-	CJBP1 clJBP1;
-	clJBP1.Decomp( pbtDst, &pbtSrc[32], wBpp, pbtAlpha, dwAlphaSize );
+	CJBP1 jbp1;
+	jbp1.Decomp(dst, &src[32], bpp, alpha, alpha_size);
 
 	return true;
 }
@@ -499,158 +495,158 @@ bool CPB2A::Decomp4(BYTE* pbtDst, DWORD dwDstSize, const BYTE* pbtSrc, DWORD dwS
 ///
 /// Remark: if pbtBast is null, then difference compositing is not performed
 ///
-/// @param pbtDst        Destination
-/// @param dwDstSize     Destination size
-/// @param pbtSrc        Compressed data
-/// @param dwSrcSize     Compressed data size
-/// @param lWidth        Width
-/// @param lHeight       Height
-/// @param wBpp          Number of bits
-/// @param pbtBase       Base image
-/// @param dwFrameNumber Frame number
+/// @param dst          Destination
+/// @param dst_size     Destination size
+/// @param src          Compressed data
+/// @param src_size     Compressed data size
+/// @param width        Width
+/// @param height       Height
+/// @param bpp          Number of bits
+/// @param base         Base image
+/// @param frame_number Frame number
 ///
 bool CPB2A::Decomp5(
-	BYTE*       pbtDst,
-	DWORD       dwDstSize,
-	const BYTE* pbtSrc,
-	DWORD       dwSrcSize,
-	long        lWidth,
-	long        lHeight,
-	WORD        wBpp,
-	const BYTE* pbtBase,
-	DWORD       dwFrameNumber
+	u8*       dst,
+	size_t    dst_size,
+	const u8* src,
+	size_t    src_size,
+	long      width,
+	long      height,
+	u16       bpp,
+	const u8* base,
+	u32       frame_number
 	)
 {
 	// Decompression
 
 	// Base image
-	if (dwFrameNumber == 0)
+	if (frame_number == 0)
 	{
 		// Buffer allocation for LZSS extraction
-		DWORD dwTempSize = (lWidth * lHeight);
-		YCMemory<BYTE> aclmbtTemp[4];
+		const u32 temp_size = static_cast<u32>(width * height);
+		std::vector<u8> temp[4];
 
 		// LZSS Decompression
-		for (WORD i = 0; i < 4; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			// Ensure the buffer can hold the LZSS data for extraction
-			aclmbtTemp[i].resize(dwTempSize);
+			temp[i].resize(temp_size);
 
 			// LZSS Decompression
-			const BYTE* pbtFlags = pbtSrc + 64 + *(DWORD*)&pbtSrc[i * 8 + 32];
-			const BYTE* pbtCompData = pbtSrc + 64 + *(DWORD*)&pbtSrc[i * 8 + 36];
-			DWORD       dwFlagsSize = 0xFFFFFFFF;    // Unknown
-			DWORD       dwCompDataSize = 0xFFFFFFFF; // Unknown
+			const u8* flags = src + 64 + *reinterpret_cast<const u32*>(&src[i * 8 + 32]);
+			const u8* compressed_data = src + 64 + *reinterpret_cast<const u32*>(&src[i * 8 + 36]);
+			const u32 flags_size = 0xFFFFFFFF;    // Unknown
+			const u32 compressed_data_size = 0xFFFFFFFF; // Unknown
 
-			DecompLZSS(&aclmbtTemp[i][0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+			DecompLZSS(temp[i].data(), temp_size, flags, flags_size, compressed_data, compressed_data_size);
 		}
 
-		for (DWORD i = 0; i < dwTempSize; i++)
+		for (size_t i = 0; i < temp_size; i++)
 		{
-			pbtDst[i * 4 + 0] = aclmbtTemp[0][i];
-			pbtDst[i * 4 + 1] = aclmbtTemp[1][i];
-			pbtDst[i * 4 + 2] = aclmbtTemp[2][i];
-			pbtDst[i * 4 + 3] = aclmbtTemp[3][i];
+			dst[i * 4 + 0] = temp[0][i];
+			dst[i * 4 + 1] = temp[1][i];
+			dst[i * 4 + 2] = temp[2][i];
+			dst[i * 4 + 3] = temp[3][i];
 		}
 
 		// Decryption
-		for (DWORD i = 0; i < dwTempSize; i++)
+		for (size_t i = 0; i < temp_size; i++)
 		{
-			BYTE btData1 = pbtDst[i * 4 + 2] ^ pbtDst[i * 4 + 3];
-			BYTE btData2 = pbtDst[i * 4 + 1] ^ btData1;
+			const u8 data1 = dst[i * 4 + 2] ^ dst[i * 4 + 3];
+			const u8 data2 = dst[i * 4 + 1] ^ data1;
 
-			pbtDst[i * 4 + 2] = btData1;
-			pbtDst[i * 4 + 1] = btData2;
-			pbtDst[i * 4 + 0] ^= btData2;
+			dst[i * 4 + 2] = data1;
+			dst[i * 4 + 1] = data2;
+			dst[i * 4 + 0] ^= data2;
 		}
 	}
 	else // Difference image
 	{
-		const BYTE* pbtWorkOfSrc = pbtSrc + *(DWORD*)&pbtSrc[12];
-		for (DWORD i = 1; i < dwFrameNumber; i++)
+		const u8* diff_src = src + *reinterpret_cast<const u32*>(&src[12]);
+		for (u32 i = 1; i < frame_number; i++)
 		{
-			pbtWorkOfSrc += *(DWORD*)&pbtWorkOfSrc[0];
+			diff_src += *reinterpret_cast<const u32*>(&diff_src[0]);
 		}
 
 		// Buffer allocation for LZSS extraction
-		DWORD dwLZSSDecodeSize = *(DWORD*)&pbtWorkOfSrc[12];
-		YCMemory<BYTE> clmbtTemp(dwLZSSDecodeSize);
+		const u32 lzss_decode_size = *reinterpret_cast<const u32*>(&diff_src[12]);
+		std::vector<u8> temp(lzss_decode_size);
 
 		// LZSS Decompression
-		const BYTE* pbtFlags = pbtWorkOfSrc + 16;
-		const BYTE* pbtCompData = pbtWorkOfSrc + 16 + *(DWORD*)&pbtWorkOfSrc[4];
-		DWORD       dwFlagsSize = 0xFFFFFFFF;    // Unknown
-		DWORD       dwCompDataSize = 0xFFFFFFFF; // Unknown
-		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+		const u8* flags = diff_src + 16;
+		const u8* compressed_data = diff_src + 16 + *reinterpret_cast<const u32*>(&diff_src[4]);
+		const u32 flags_size = 0xFFFFFFFF; // Unknown
+		const u32 compressed_data_size = 0xFFFFFFFF; // Unknown
+		DecompLZSS(temp.data(), temp.size(), flags, flags_size, compressed_data, compressed_data_size);
 
 		// Copy base image
-		if (pbtBase != nullptr)
+		if (base != nullptr)
 		{
-			memcpy(pbtDst, pbtBase, dwDstSize);
+			memcpy(dst, base, dst_size);
 		}
 		else
 		{
-			memset(pbtDst, 0xFF, dwDstSize);
+			memset(dst, 0xFF, dst_size);
 		}
 
 		// Decompression
-		long  lLine = (lWidth * 4);
-		long  lWidthOfBlock = 8;
-		long  lHeightOfBlock = 8;
-		long  lBlockCountOfWidth = ((lWidth + (lWidthOfBlock - 1)) / lWidthOfBlock);
-		long  lBlockCountOfHeight = ((lHeight + (lHeightOfBlock - 1)) / lHeightOfBlock);
-		DWORD dwFlagsPtr = 0;
-		DWORD dwCompDataPtr = 0;
-		BYTE  btCode = 0x80;
+		const long line = width * 4;
+		const long block_width = 8;
+		const long block_height = 8;
+		const long block_count_width = ((width + (block_width - 1)) / block_width);
+		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		size_t flags_idx = 0;
+		size_t compressed_data_idx = 0;
+		u8 code = 0x80;
 
-		pbtFlags = &clmbtTemp[8];
-		pbtCompData = &clmbtTemp[*(DWORD*)&clmbtTemp[0] + 8];
+		flags = &temp[8];
+		compressed_data = &temp[*reinterpret_cast<u32*>(&temp[0]) + 8];
 
-		BYTE* pbtWorkOfDst = pbtDst;
+		u8* dst_ptr = dst;
 
-		for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
+		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			// Process the block of one column
-			BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
-			long  lBlockOfHeightMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
+			u8* next_block_ptr = dst_ptr;
+			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-			for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
+			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
-				if (btCode == 0)
+				if (code == 0)
 				{
 					// Processed 8 blocks
-					btCode = 0x80;
-					dwFlagsPtr++;
+					code = 0x80;
+					flags_idx++;
 				}
 
 				// Process 1 block
-				BYTE* pbtWorkOfDst3 = pbtWorkOfDst2;
-				long  lBlockOfWidthMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
+				u8* block_ptr = next_block_ptr;
+				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
-				if ((pbtFlags[dwFlagsPtr] & btCode) == 0)
+				if ((flags[flags_idx] & code) == 0)
 				{
 					// Difference
 
-					for (int i = 0; i < lBlockOfHeightMax; i++)
+					for (long i = 0; i < max_block_height; i++)
 					{
-						for (int j = 0; j < lBlockOfWidthMax; j++)
+						for (long j = 0; j < max_block_width; j++)
 						{
-							memcpy(&pbtWorkOfDst3[j * 4], &pbtCompData[dwCompDataPtr + j * 3], 3);
+							memcpy(&block_ptr[j * 4], &compressed_data[compressed_data_idx + j * 3], 3);
 
-							pbtWorkOfDst3[j * 4 + 3] = 0xFF;
+							block_ptr[j * 4 + 3] = 0xFF;
 						}
 
-						dwCompDataPtr += 3;
-						pbtWorkOfDst3 += lLine;
+						compressed_data_idx += 3;
+						block_ptr += line;
 					}
 				}
 
 				// Refer to next block
-				pbtWorkOfDst2 += (lWidthOfBlock * 4);
-				btCode >>= 1;
+				next_block_ptr += block_width * 4;
+				code >>= 1;
 			}
 
-			pbtWorkOfDst += (lLine * lHeightOfBlock);
+			dst_ptr += line * block_height;
 		}
 	}
 
@@ -659,166 +655,165 @@ bool CPB2A::Decomp5(
 
 /// Decompress 6
 ///
-/// Remark: If pbtBase is NULL, then difference compositing is not performed
+/// @param dst          Destination
+/// @param dst_size     Destination size
+/// @param src          Compressed data
+/// @param src_size     Compressed data size
+/// @param width        Width
+/// @param height       Height
+/// @param bpp          Number of bits
+/// @param base         Base image
+/// @param frame_number Frame number
 ///
-/// @param pbtDst        Destination
-/// @param dwDstSize     Destination size
-/// @param pbtSrc        Compressed data
-/// @param dwSrcSize     Compressed data size
-/// @param lWidth        Width
-/// @param lHeight       Height
-/// @param wBpp          Number of bits
-/// @param pbtBase       Base image
-/// @param dwFrameNumber Frame number
+/// @remark If @a base is NULL, then difference image compositing is not performed
 ///
 bool CPB2A::Decomp6(
-	BYTE*       pbtDst,
-	DWORD       dwDstSize,
-	const BYTE* pbtSrc,
-	DWORD       dwSrcSize,
-	long        lWidth,
-	long        lHeight,
-	WORD        wBpp,
-	const BYTE* pbtBase,
-	DWORD       dwFrameNumber
+	u8*       dst,
+	size_t    dst_size,
+	const u8* src,
+	size_t    src_size,
+	long      width,
+	long      height,
+	u16       bpp,
+	const u8* base,
+	u32       frame_number
 	)
 {
 	// Decompression
 
 	// Base image
-	if (dwFrameNumber == 0)
+	if (frame_number == 0)
 	{
-		const BYTE* pbtBaseOfSrc = pbtSrc + 36 + ((strlen((char*)pbtSrc + 36) + 4) & 0xFFFFFFFC);
+		const u8* src_base = src + 36 + ((strlen(reinterpret_cast<const char*>(src) + 36) + 4) & 0xFFFFFFFC);
 
 		// Buffer allocation for LZSS extraction
-		DWORD          dwTempSize = (lWidth * lHeight);
-		YCMemory<BYTE> aclmbtTemp[4];
+		const u32 temp_size = static_cast<u32>(width * height);
+		std::array<std::vector<u8>, 4> temp;
 
 		// LZSS Decompression
-		for (WORD i = 0; i < 4; i++)
+		for (size_t i = 0; i < temp.size(); i++)
 		{
 			// Buffer allocation for LZSS extraction
-			aclmbtTemp[i].resize(dwTempSize);
+			temp[i].resize(temp_size);
 
 			// LZSS Decompression
-			const BYTE* pbtFlags = pbtBaseOfSrc + 32 + *(DWORD*)&pbtBaseOfSrc[i * 8];
-			const BYTE* pbtCompData = pbtBaseOfSrc + 32 + *(DWORD*)&pbtBaseOfSrc[i * 8 + 4];
-			DWORD       dwFlagsSize = 0xFFFFFFFF;    // Unknown
-			DWORD       dwCompDataSize = 0xFFFFFFFF; // Unknown
+			const u8* flags = src_base + 32 + *reinterpret_cast<const u32*>(&src_base[i * 8]);
+			const u8* compressed_data = src_base + 32 + *reinterpret_cast<const u32*>(&src_base[i * 8 + 4]);
+			const u32 flags_size = 0xFFFFFFFF;    // Unknown
+			const u32 compressed_data_size = 0xFFFFFFFF; // Unknown
 
-			DecompLZSS(&aclmbtTemp[i][0], dwTempSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+			DecompLZSS(&temp[i][0], temp_size, flags, flags_size, compressed_data, compressed_data_size);
 		}
 
-		for (DWORD i = 0; i < dwTempSize; i++)
+		for (size_t i = 0; i < temp_size; i++)
 		{
-			pbtDst[i * 4 + 0] = aclmbtTemp[0][i];
-			pbtDst[i * 4 + 1] = aclmbtTemp[1][i];
-			pbtDst[i * 4 + 2] = aclmbtTemp[2][i];
-			pbtDst[i * 4 + 3] = aclmbtTemp[3][i];
+			dst[i * 4 + 0] = temp[0][i];
+			dst[i * 4 + 1] = temp[1][i];
+			dst[i * 4 + 2] = temp[2][i];
+			dst[i * 4 + 3] = temp[3][i];
 		}
 
 		// Decryption
-
-		for (DWORD i = 0; i < dwTempSize; i++)
+		for (size_t i = 0; i < temp_size; i++)
 		{
-			BYTE btData1 = pbtDst[i * 4 + 2] ^ pbtDst[i * 4 + 3];
-			BYTE btData2 = pbtDst[i * 4 + 1] ^ btData1;
+			const u8 data1 = dst[i * 4 + 2] ^ dst[i * 4 + 3];
+			const u8 data2 = dst[i * 4 + 1] ^ data1;
 
-			pbtDst[i * 4 + 2] = btData1;
-			pbtDst[i * 4 + 1] = btData2;
-			pbtDst[i * 4 + 0] ^= btData2;
+			dst[i * 4 + 2] = data1;
+			dst[i * 4 + 1] = data2;
+			dst[i * 4 + 0] ^= data2;
 		}
 	}
 	else // Difference image
 	{
-		const BYTE* pbtSrcOfDiff = pbtSrc + *(DWORD*)&pbtSrc[32] + 32;
-		for (DWORD i = 1; i < dwFrameNumber; i++)
+		const u8* diff_src = src + *reinterpret_cast<const u32*>(&src[32]) + 32;
+		for (u32 i = 1; i < frame_number; i++)
 		{
-			pbtSrcOfDiff += *(DWORD*)&pbtSrcOfDiff[0];
+			diff_src += *reinterpret_cast<const u32*>(&diff_src[0]);
 		}
 
 		// Get difference image file name
-		char   szDiffName[256];
-		size_t uNameLen = ((strlen((char*)pbtSrcOfDiff + 4) + 4) & 0xFFFFFFFC) + 4;
-		strcpy(szDiffName, (char*)pbtSrcOfDiff + 4);
+		char diff_name[256];
+		const size_t name_len = ((strlen(reinterpret_cast<const char*>(diff_src) + 4) + 4) & 0xFFFFFFFC) + 4;
+		strcpy(diff_name, reinterpret_cast<const char*>(diff_src) + 4);
 
 		// Buffer allocation for LZSS extraction
-		DWORD          dwLZSSDecodeSize = *(DWORD*)&pbtSrcOfDiff[uNameLen + 8];
-		YCMemory<BYTE> clmbtTemp(dwLZSSDecodeSize);
+		const u32 lzss_decode_size = *reinterpret_cast<const u32*>(&diff_src[name_len + 8]);
+		std::vector<u8> temp(lzss_decode_size);
 
 		// LZSS Decompression
-		const BYTE* pbtFlags = pbtSrcOfDiff + 16 + uNameLen;
-		const BYTE* pbtCompData = pbtSrcOfDiff + 16 + uNameLen + *(DWORD*)&pbtSrcOfDiff[uNameLen];
-		DWORD       dwFlagsSize = 0xFFFFFFFF;    // Unknown
-		DWORD       dwCompDataSize = 0xFFFFFFFF; // Unknown
-		DecompLZSS(&clmbtTemp[0], dwLZSSDecodeSize, pbtFlags, dwFlagsSize, pbtCompData, dwCompDataSize);
+		const u8* flags = diff_src + 16 + name_len;
+		const u8* compressed_data = diff_src + 16 + name_len + *reinterpret_cast<const u32*>(&diff_src[name_len]);
+		const u32 flags_size = 0xFFFFFFFF; // Unknown
+		const u32 compressed_data_size = 0xFFFFFFFF; // Unknown
+		DecompLZSS(temp.data(), temp.size(), flags, flags_size, compressed_data, compressed_data_size);
 
 		// Copy base image
-		if (pbtBase != nullptr)
+		if (base != nullptr)
 		{
-			memcpy(pbtDst, pbtBase, dwDstSize);
+			memcpy(dst, base, dst_size);
 		}
 		else
 		{
-			memset(pbtDst, 0xFF, dwDstSize);
+			memset(dst, 0xFF, dst_size);
 		}
 
 		// Decompression
-		WORD  wByteCount = (wBpp >> 3);
-		long  lLine = (lWidth * 4);
-		long  lWidthOfBlock = 8;
-		long  lHeightOfBlock = 8;
-		long  lBlockCountOfWidth = ((lWidth + (lWidthOfBlock - 1)) / lWidthOfBlock);
-		long  lBlockCountOfHeight = ((lHeight + (lHeightOfBlock - 1)) / lHeightOfBlock);
-		DWORD dwFlagsPtr = 0;
-		DWORD dwCompDataPtr = 0;
-		BYTE  btCode = 0x80;
+		const u16  byte_count = bpp >> 3;
+		const long line = width * 4;
+		const long block_width = 8;
+		const long block_height = 8;
+		const long block_count_width = ((width + (block_width - 1)) / block_width);
+		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		size_t flags_idx = 0;
+		size_t compressed_data_idx = 0;
+		u8 code = 0x80;
 
-		pbtFlags = &clmbtTemp[8];
-		pbtCompData = &clmbtTemp[*(DWORD*)&clmbtTemp[0] + 8];
+		flags = &temp[8];
+		compressed_data = &temp[*reinterpret_cast<u32*>(&temp[0]) + 8];
 
-		BYTE* pbtWorkOfDst = pbtDst;
+		u8* dst_ptr = dst;
 
-		for (long lY = 0, lBlockY = 0; lBlockY < lBlockCountOfHeight; lY += lHeightOfBlock, lBlockY++)
+		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
-			BYTE* pbtWorkOfDst2 = pbtWorkOfDst;
-			long  lBlockOfHeightMax = ((lY + lHeightOfBlock) > lHeight) ? (lHeight - lY) : lHeightOfBlock;
+			u8* next_block_ptr = dst_ptr;
+			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
 			// Process 1 column
-			for (long lX = 0, lBlockX = 0; lBlockX < lBlockCountOfWidth; lX += lWidthOfBlock, lBlockX++)
+			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
-				if (btCode == 0)
+				if (code == 0)
 				{
 					// 8 blocks processed
-					btCode = 0x80;
-					dwFlagsPtr++;
+					code = 0x80;
+					flags_idx++;
 				}
 
 				// Process 1 block
-				BYTE* pbtWorkOfDst3 = pbtWorkOfDst2;
-				long  lBlockOfWidthMax = ((lX + lWidthOfBlock) > lWidth) ? (lWidth - lX) : lWidthOfBlock;
+				u8* block_ptr = next_block_ptr;
+				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
-				if ((pbtFlags[dwFlagsPtr] & btCode) == 0)
+				if ((flags[flags_idx] & code) == 0)
 				{
 					// Difference
-					for (long i = 0; i < lBlockOfHeightMax; i++)
+					for (long i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < lBlockOfWidthMax; j++)
+						for (long j = 0; j < max_block_width; j++)
 						{
-							memcpy(&pbtWorkOfDst3[j * 4], &pbtCompData[dwCompDataPtr + j * 4], 4);
+							memcpy(&block_ptr[j * 4], &compressed_data[compressed_data_idx + j * 4], 4);
 						}
 
-						dwCompDataPtr += (lBlockOfWidthMax * 4);
-						pbtWorkOfDst3 += lLine;
+						compressed_data_idx += max_block_width * 4;
+						block_ptr += line;
 					}
 				}
 
 				// Refer to the next block
-				pbtWorkOfDst2 += (lWidthOfBlock * 4);
-				btCode >>= 1;
+				next_block_ptr += block_width * 4;
+				code >>= 1;
 			}
 
-			pbtWorkOfDst += (lLine * lHeightOfBlock);
+			dst_ptr += line * block_height;
 		}
 	}
 
