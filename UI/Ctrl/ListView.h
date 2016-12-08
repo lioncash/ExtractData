@@ -49,7 +49,7 @@ protected:
 	SORTPARAM m_sort{};
 	static SORTPARAM* m_pSort;
 
-	HWND Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x = 0, int y = 0, int cx = 0, int cy = 0);
+	HWND Create(UINT id, std::vector<LVCOLUMN> columns, int x = 0, int y = 0, int cx = 0, int cy = 0);
 
 	template <typename TYPE>
 	static bool retCompare(TYPE a, TYPE b)

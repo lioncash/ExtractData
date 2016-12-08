@@ -8,51 +8,51 @@ void CMainListView::Create(HWND hWnd, SOption& option)
 {
 	Init(hWnd, option);
 
-	std::vector<LVCOLUMN> lvcols;
-	LVCOLUMN lvcol;
+	std::vector<LVCOLUMN> columns;
+	LVCOLUMN column;
 
-	lvcol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 45;
-	lvcol.pszText = _T("No.");
-	lvcols.push_back(lvcol);
+	column.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 45;
+	column.pszText = _T("No.");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 215;
-	lvcol.pszText = _T("File Name");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 215;
+	column.pszText = _T("File Name");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_RIGHT;
-	lvcol.cx = 90;
-	lvcol.pszText = _T("File Size");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_RIGHT;
+	column.cx = 90;
+	column.pszText = _T("File Size");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_RIGHT;
-	lvcol.cx = 105;
-	lvcol.pszText = _T("Compressed Size");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_RIGHT;
+	column.cx = 105;
+	column.pszText = _T("Compressed Size");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_RIGHT;
-	lvcol.cx = 75;
-	lvcol.pszText = _T("File Format");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_RIGHT;
+	column.cx = 75;
+	column.pszText = _T("File Format");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 85;
-	lvcol.pszText = _T("Archive File");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 85;
+	column.pszText = _T("Archive File");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_RIGHT;
-	lvcol.cx = 100;
-	lvcol.pszText = _T("Start Address");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_RIGHT;
+	column.cx = 100;
+	column.pszText = _T("Start Address");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_RIGHT;
-	lvcol.cx = 100;
-	lvcol.pszText = _T("End Address");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_RIGHT;
+	column.cx = 100;
+	column.pszText = _T("End Address");
+	columns.push_back(column);
 
-	HWND hList = CListView::Create(idsMainList, lvcols);
+	HWND hList = CListView::Create(idsMainList, std::move(columns));
 	SetBkColor();
 	SetTextColor();
 }

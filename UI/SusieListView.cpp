@@ -34,7 +34,7 @@ void CSusieListView::Create(HWND hWnd, SOption& option, int x, int y, int cx, in
 	columns.push_back(column);
 
 	// Create listview
-	HWND list = CListView::Create(idsSusieList, columns, x, y, cx, cy);
+	HWND list = CListView::Create(idsSusieList, std::move(columns), x, y, cx, cy);
 
 	// Add checkbox to listview
 	DWORD style = ListView_GetExtendedListViewStyle(list);

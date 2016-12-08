@@ -21,47 +21,47 @@ void CListView::Init(HWND hWnd, SOption& option)
 	m_pOption = &option;
 }
 
-HWND CListView::Create(UINT uID, std::vector<LVCOLUMN>& lvcols, int x, int y, int cx, int cy)
+HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int cx, int cy)
 {
-	m_uID = uID;
+	m_uID = id;
 
 	// Create listview
-	HWND hList = CreateWindowEx(WS_EX_CLIENTEDGE,
+	HWND list = CreateWindowEx(WS_EX_CLIENTEDGE,
 		WC_LISTVIEW, _T(""),
 		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA,
 		x, y, cx, cy,
 		m_hWnd,
-		reinterpret_cast<HMENU>(uID),
+		reinterpret_cast<HMENU>(id),
 		m_hInst,
 		nullptr);
-	m_hList = hList;
+	m_hList = list;
 
 	// Set style
-	DWORD dwStyle = ListView_GetExtendedListViewStyle(hList);
-	dwStyle |= LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP | LVS_EX_INFOTIP;
-	ListView_SetExtendedListViewStyle(hList, dwStyle);
+	DWORD style = ListView_GetExtendedListViewStyle(list);
+	style |= LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP | LVS_EX_INFOTIP;
+	ListView_SetExtendedListViewStyle(list, style);
 
 	// Make line spacing 16px
 	m_hImage = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
-	ListView_SetImageList(hList, m_hImage, LVSIL_STATE);
+	ListView_SetImageList(list, m_hImage, LVSIL_STATE);
 
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-	clIni.SetSection(uID);
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
+	ini.SetSection(id);
 
 	// Add a column header
 
-	for (size_t i = 0 ; i < lvcols.size() ; i++)
+	for (size_t i = 0 ; i < columns.size() ; i++)
 	{
-		TCHAR szColumn[256];
+		TCHAR column_key[256];
 
-		_stprintf(szColumn, _T("column%zu"), i);
+		_stprintf(column_key, _T("column%zu"), i);
 
-		clIni.SetKey(szColumn);
-		clIni.ReadDec(&lvcols[i].cx);
+		ini.SetKey(column_key);
+		ini.ReadDec(&columns[i].cx);
 
-		lvcols[i].iSubItem = i;
+		columns[i].iSubItem = i;
 
-		ListView_InsertColumn(hList, i, &lvcols[i]);
+		ListView_InsertColumn(list, i, &columns[i]);
 	}
 
 	return m_hList;
