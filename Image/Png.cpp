@@ -298,14 +298,12 @@ bool CPng::OnInit(const YCString& file_name)
 /// @param src_pallet      Reference palette
 /// @param src_pallet_size Reference palette size
 ///
-bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
+bool CPng::OnCreatePallet(const u8* src_pallet, size_t src_pallet_size)
 {
-	const u8* pbtSrcPallet = reinterpret_cast<const u8*>(src_pallet);
-
 	m_pallet = {};
 
 	// Use the default palette (Grayscale)
-	if (pbtSrcPallet == nullptr)
+	if (src_pallet == nullptr)
 	{
 		for (size_t i = 0; i < m_pallet.size(); i++)
 		{
@@ -321,10 +319,10 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		{
 			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				m_pallet[i].blue = *pbtSrcPallet++;
-				m_pallet[i].green = *pbtSrcPallet++;
-				m_pallet[i].red = *pbtSrcPallet++;
-				pbtSrcPallet++;
+				m_pallet[i].blue = *src_pallet++;
+				m_pallet[i].green = *src_pallet++;
+				m_pallet[i].red = *src_pallet++;
+				src_pallet++;
 			}
 		}
 		// 768 byte palette (No alpha)
@@ -332,9 +330,9 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		{
 			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				m_pallet[i].blue = *pbtSrcPallet++;
-				m_pallet[i].green = *pbtSrcPallet++;
-				m_pallet[i].red = *pbtSrcPallet++;
+				m_pallet[i].blue = *src_pallet++;
+				m_pallet[i].green = *src_pallet++;
+				m_pallet[i].red = *src_pallet++;
 			}
 		}
 		// Other palette sizes
@@ -342,10 +340,10 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 		{
 			for (size_t i = 0; i < src_pallet_size / 4; i++)
 			{
-				m_pallet[i].blue = *pbtSrcPallet++;
-				m_pallet[i].green = *pbtSrcPallet++;
-				m_pallet[i].red = *pbtSrcPallet++;
-				pbtSrcPallet++;
+				m_pallet[i].blue = *src_pallet++;
+				m_pallet[i].green = *src_pallet++;
+				m_pallet[i].red = *src_pallet++;
+				src_pallet++;
 			}
 		}
 	}
@@ -354,9 +352,9 @@ bool CPng::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 }
 
 /// Write 1 Line
-void CPng::WriteLine(const void* buffer)
+void CPng::WriteLine(const u8* buffer)
 {
-	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer));
+	png_write_row(m_png_ptr, buffer);
 	m_archive->GetProg()->UpdatePercent(m_row_size);
 }
 
@@ -365,12 +363,12 @@ void CPng::WriteLine(const void* buffer)
 /// @param buffer24 Storage Location
 /// @param buffer32 32-bit data
 ///
-void CPng::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
+void CPng::WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32)
 {
 	// Alpha blending
 	AlphaBlend(buffer24, buffer32);
 
-	png_write_row(m_png_ptr, static_cast<png_const_bytep>(buffer24));
+	png_write_row(m_png_ptr, buffer24);
 	m_archive->GetProg()->UpdatePercent(m_row_size);
 }
 

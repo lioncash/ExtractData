@@ -53,25 +53,24 @@ public:
 protected:
 	static long CalculatePitch(long width, u16 bpp);
 
+	bool IsRequireAlphaBlend() const;
+
+	void AlphaBlend(u8* buffer24, const u8* buffer32);
+
+	virtual bool OnInit(const YCString& file_name) { return true; }
+	virtual bool OnCreatePallet(const u8* pallet, size_t pallet_size) { return true; }
+	virtual bool OnWriteHeader() { return true; }
+	virtual void OnWriteFinish() {}
+
+	virtual void WriteLine(const u8* buffer) {}
+	virtual void WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32) {}
+
 	CArcFile* m_archive = nullptr;
-	std::array<u8, 4> m_bg;
+	std::array<u8, 4> m_bg{};
 
 	u32 m_row_size = 0;
 	u32 m_row_size_remainder = 0;
 
-	bool IsRequireAlphaBlend() const;
-
-	void AlphaBlend(void* pvBuffer24, const void* pvBuffer32);
-
-	virtual bool OnInit(const YCString& file_name) { return true; }
-	virtual bool OnCreatePallet(const void* pallet, size_t pallet_size) { return true; }
-	virtual bool OnWriteHeader() { return true; }
-	virtual void OnWriteFinish() {}
-
-	virtual void WriteLine(const void* buffer) {}
-	virtual void WriteLineWithAlphaBlend(void* buffer24, const void* buffer32) {}
-
-protected:
 	bool   m_validity_of_alpha_blend = false;
 	bool   m_alpha_blend_requirement = false;
 	bool   m_output_dummy_from_buffer = false;

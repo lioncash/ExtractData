@@ -15,9 +15,9 @@ private:
 	std::array<RGBQUAD, 256> m_pallet;
 
 	bool OnInit(const YCString& file_name) override;
-	bool OnCreatePallet(const void* pallet, size_t pallet_size) override;
+	bool OnCreatePallet(const u8* pallet, size_t pallet_size) override;
 
 	void WriteHed(const YCString& file_name);
-	void WriteLine(const void* buffer) override;
-	void WriteLineWithAlphaBlend(void* buffer24, const void* buffer32) override;
+	void WriteLine(const u8* buffer) override;
+	void WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32) override;
 };

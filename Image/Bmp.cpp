@@ -80,13 +80,11 @@ void CBmp::WriteHed(const YCString& file_name)
 /// @param src_pallet      Source (referenced) palette
 /// @param src_pallet_size Size Source (reference) palette size
 ///
-bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
+bool CBmp::OnCreatePallet(const u8* src_pallet, size_t src_pallet_size)
 {
-	const u8* byte_src_pallet = reinterpret_cast<const u8*>(src_pallet);
-
 	m_pallet = {};
 
-	if (byte_src_pallet == nullptr)
+	if (src_pallet == nullptr)
 	{
 		// Use default palette (Grayscale)
 		for (size_t i = 0; i < m_pallet.size(); i++)
@@ -106,10 +104,10 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 			// 1024 byte palette
 			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				m_pallet[i].rgbBlue = *byte_src_pallet++;
-				m_pallet[i].rgbGreen = *byte_src_pallet++;
-				m_pallet[i].rgbRed = *byte_src_pallet++;
-				m_pallet[i].rgbReserved = *byte_src_pallet++;
+				m_pallet[i].rgbBlue = *src_pallet++;
+				m_pallet[i].rgbGreen = *src_pallet++;
+				m_pallet[i].rgbRed = *src_pallet++;
+				m_pallet[i].rgbReserved = *src_pallet++;
 			}
 		}
 		else if (src_pallet_size == 768)
@@ -117,9 +115,9 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 			// 768 byte palette (No alpha)
 			for (size_t i = 0; i < m_pallet.size(); i++)
 			{
-				m_pallet[i].rgbBlue = *byte_src_pallet++;
-				m_pallet[i].rgbGreen = *byte_src_pallet++;
-				m_pallet[i].rgbRed = *byte_src_pallet++;
+				m_pallet[i].rgbBlue = *src_pallet++;
+				m_pallet[i].rgbGreen = *src_pallet++;
+				m_pallet[i].rgbRed = *src_pallet++;
 				m_pallet[i].rgbReserved = 0;
 			}
 		}
@@ -128,10 +126,10 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 			// Other palette sizes
 			for (size_t i = 0; i < src_pallet_size / 4; i++)
 			{
-				m_pallet[i].rgbBlue = *byte_src_pallet++;
-				m_pallet[i].rgbGreen = *byte_src_pallet++;
-				m_pallet[i].rgbRed = *byte_src_pallet++;
-				m_pallet[i].rgbReserved = *byte_src_pallet++;
+				m_pallet[i].rgbBlue = *src_pallet++;
+				m_pallet[i].rgbGreen = *src_pallet++;
+				m_pallet[i].rgbRed = *src_pallet++;
+				m_pallet[i].rgbReserved = *src_pallet++;
 			}
 		}
 	}
@@ -140,7 +138,7 @@ bool CBmp::OnCreatePallet(const void* src_pallet, size_t src_pallet_size)
 }
 
 /// Write 1 Lin
-void CBmp::WriteLine(const void* buffer)
+void CBmp::WriteLine(const u8* buffer)
 {
 	// Output
 	m_archive->WriteFile(buffer, m_line, m_row_size);
@@ -149,10 +147,7 @@ void CBmp::WriteLine(const void* buffer)
 	if (m_output_dummy_from_buffer)
 	{
 		// Output from buffer
-
-		const u8* byte_buffer = reinterpret_cast<const u8*>(buffer);
-
-		m_archive->WriteFile(&byte_buffer[m_line], m_pitch - m_line, 0);
+		m_archive->WriteFile(&buffer[m_line], m_pitch - m_line, 0);
 	}
 	else
 	{
@@ -168,10 +163,10 @@ void CBmp::WriteLine(const void* buffer)
 /// @param buffer24 Data storage destination alpha blending
 /// @param buffer32 32-bit Data
 ///
-void CBmp::WriteLineWithAlphaBlend(void* buffer24, const void* buffer32)
+void CBmp::WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32)
 {
 	// Fill with 0's (So that the dummy data can be outputted)
-	ZeroMemory(buffer24, m_pitch);
+	std::fill_n(buffer24, m_pitch, 0);
 
 	// Alpha blending
 	AlphaBlend(buffer24, buffer32);

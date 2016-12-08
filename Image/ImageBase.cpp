@@ -43,7 +43,7 @@ bool CImageBase::Init(
 	switch (bpp)
 	{
 	case 8: // 8bit
-		OnCreatePallet(pallet, pallet_size);
+		OnCreatePallet(static_cast<const u8*>(pallet), pallet_size);
 		break;
 
 	case 32: // 32bit
@@ -292,42 +292,39 @@ bool CImageBase::IsRequireAlphaBlend() const
 /// Alpha Blending
 ///
 /// Parameters:
-/// @param pvBuffer24 Storage location
-/// @param pvBuffer32 32-bit Data
+/// @param buffer24 Storage location
+/// @param buffer32 32-bit Data
 ///
-void CImageBase::AlphaBlend(void* pvBuffer24, const void* pvBuffer32)
+void CImageBase::AlphaBlend(u8* buffer24, const u8* buffer32)
 {
-	u8*        pbtBuffer24 = reinterpret_cast<u8*>(pvBuffer24);
-	const u8*  pbtBuffer32 = reinterpret_cast<const u8*>(pvBuffer32);
-
 	for (long x = 0; x < m_width; x++)
 	{
-		switch (pbtBuffer32[3])
+		switch (buffer32[3])
 		{
 		case 0x00: // Alpha value is 0
 			for (size_t i = 0; i < 3; i++)
 			{
-				*pbtBuffer24++ = m_bg[i];
+				*buffer24++ = m_bg[i];
 			}
 			break;
 
 		case 0xFF: // Alpha value is 255
 			for (size_t i = 0; i < 3; i++)
 			{
-				*pbtBuffer24++ = pbtBuffer32[i];
+				*buffer24++ = buffer32[i];
 			}
 			break;
 
 		default: // Other
 			for (size_t i = 0; i < 3; i++)
 			{
-				*pbtBuffer24++ = (pbtBuffer32[i] * pbtBuffer32[3] + m_bg[i] * (255 - pbtBuffer32[3])) / 255;
+				*buffer24++ = (buffer32[i] * buffer32[3] + m_bg[i] * (255 - buffer32[3])) / 255;
 				// *pbtBuffer24++ = (pbtBuffer32[i] - pbtBG[i]) * pbtBuffer32[3] / 255 + pbtBG[i];
 			}
 			break;
 		}
 
-		pbtBuffer32 += 4;
+		buffer32 += 4;
 	}
 }
 
