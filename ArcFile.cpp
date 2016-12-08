@@ -465,7 +465,7 @@ void CArcFile::AddFileInfo(SFileInfo& file_info, u32& file_number, LPCTSTR file_
 {
 	// Set filename
 	TCHAR szFileName[_MAX_FNAME];
-	_stprintf(szFileName, _T("%s_%06d%s"), GetArcName().GetString(), file_number++, file_extension);
+	_stprintf(szFileName, _T("%s_%06u%s"), GetArcName().GetString(), file_number++, file_extension);
 	file_info.name = szFileName;
 
 	if (file_info.format == _T(""))
