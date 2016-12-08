@@ -29,22 +29,12 @@ private:
 		Write = 0x00000001
 	};
 
-	struct SMemory
-	{
-		u8* data;
-		u32 data_ptr;
-	};
-
 	bool OnInit(const YCString& file_name) override;
 	bool OnCreatePallet(const u8* pallet, size_t pallet_size) override;
 
 	void WriteLine(const u8* buffer) override;
 	void WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32) override;
 	void OnWriteFinish() override;
-
-	static inline void PNGAPI WritePNG(png_structp png, png_bytep data, png_size_t length);
-	static inline void PNGAPI WritePNGToFile(png_structp png, png_bytep data, png_size_t length);
-	static inline void PNGAPI WritePNGToMemory(png_structp png, png_bytep data, png_size_t length);
 
 	png_structp m_png_ptr;
 	png_infop   m_info_ptr;

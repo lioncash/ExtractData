@@ -3,6 +3,40 @@
 
 #include "ArcFile.h"
 
+namespace
+{
+struct SMemory
+{
+	u8* data;
+	u32 data_ptr;
+};
+
+void PNGAPI WritePNG(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+	auto* archive = static_cast<CArcFile*>(png_get_io_ptr(png_ptr));
+
+	archive->WriteFile(data, length, 0);
+}
+
+/// File Output
+void PNGAPI WritePNGToFile(png_structp png, png_bytep data, png_size_t length)
+{
+	auto* dst = static_cast<YCFile*>(png_get_io_ptr(png));
+
+	dst->Write(data, length);
+}
+
+/// Memory Output
+void PNGAPI WritePNGToMemory(png_structp png, png_bytep data, png_size_t length)
+{
+	auto* dst = static_cast<SMemory*>(png_get_io_ptr(png));
+
+	memcpy(&dst->data[dst->data_ptr], data, length);
+
+	dst->data_ptr += length;
+}
+} // Anonymous namespace
+
 CPng::CPng()
 {
 }
@@ -377,30 +411,4 @@ void CPng::OnWriteFinish()
 {
 	png_write_end(m_png_ptr, m_info_ptr);
 	png_destroy_write_struct(&m_png_ptr, &m_info_ptr);
-}
-
-/// PNG Output
-void CPng::WritePNG(png_structp png_ptr, png_bytep data, png_size_t length)
-{
-	auto* archive = reinterpret_cast<CArcFile*>(png_get_io_ptr(png_ptr));
-
-	archive->WriteFile(data, length, 0);
-}
-
-/// File Output
-void CPng::WritePNGToFile(png_structp png, png_bytep data, png_size_t length)
-{
-	auto* dst = reinterpret_cast<YCFile*>(png_get_io_ptr(png));
-
-	dst->Write(data, length);
-}
-
-/// Memory Output
-void CPng::WritePNGToMemory(png_structp png, png_bytep data, png_size_t length)
-{
-	auto* dst = reinterpret_cast<SMemory*>(png_get_io_ptr(png));
-
-	memcpy(&dst->data[dst->data_ptr], data, length);
-
-	dst->data_ptr += length;
 }
