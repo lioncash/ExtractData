@@ -26,8 +26,8 @@ public:
 	static void MoveWindowCenter(HWND hWnd);
 	static void MoveWindowCenter(HWND hWnd, LONG cx, LONG cy);
 
-	POINT GetCenterPt(RECT& dlgrc);
-	static POINT GetCenterPt(HWND hWnd, RECT& dlgrc);
+	POINT GetCenterPt(const RECT& dlgrc);
+	static POINT GetCenterPt(HWND hWnd, const RECT& dlgrc);
 
 protected:
 	HWND m_hWnd = nullptr;

@@ -208,7 +208,7 @@ void CWindowBase::MoveWindowCenter(HWND hWnd, LONG cx, LONG cy)
 	MoveWindow(hWnd, pt.x, pt.y, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
 
-POINT CWindowBase::GetCenterPt(RECT& dlgrc)
+POINT CWindowBase::GetCenterPt(const RECT& dlgrc)
 {
 	RECT ParentRect;
 	HWND hParentWnd = GetParent(m_hWnd);
@@ -225,7 +225,7 @@ POINT CWindowBase::GetCenterPt(RECT& dlgrc)
 	return pt;
 }
 
-POINT CWindowBase::GetCenterPt(HWND hWnd, RECT& dlgrc)
+POINT CWindowBase::GetCenterPt(HWND hWnd, const RECT& dlgrc)
 {
 	RECT ParentRect;
 	HWND hParentWnd = GetParent(hWnd);
