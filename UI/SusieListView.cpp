@@ -9,39 +9,39 @@ void CSusieListView::Create(HWND hWnd, SOption& option, int x, int y, int cx, in
 {
 	Init(hWnd, option);
 
-	std::vector<LVCOLUMN> lvcols;
-	LVCOLUMN lvcol;
+	std::vector<LVCOLUMN> columns;
+	LVCOLUMN column;
 
-	lvcol.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 102;
-	lvcol.pszText = _T("Plugin Name");
-	lvcols.push_back(lvcol);
+	column.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 102;
+	column.pszText = _T("Plugin Name");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 207;
-	lvcol.pszText = _T("Info");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 207;
+	column.pszText = _T("Info");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 62;
-	lvcol.pszText = _T("Support");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 62;
+	column.pszText = _T("Support");
+	columns.push_back(column);
 
-	lvcol.fmt = LVCFMT_LEFT;
-	lvcol.cx = 54;
-	lvcol.pszText = _T("Version");
-	lvcols.push_back(lvcol);
+	column.fmt = LVCFMT_LEFT;
+	column.cx = 54;
+	column.pszText = _T("Version");
+	columns.push_back(column);
 
 	// Create listview
-	HWND hList = CListView::Create(idsSusieList, lvcols, x, y, cx, cy);
+	HWND list = CListView::Create(idsSusieList, columns, x, y, cx, cy);
 
 	// Add checkbox to listview
-	DWORD dwStyle = ListView_GetExtendedListViewStyle(hList);
-	dwStyle |= LVS_EX_CHECKBOXES;
-	ListView_SetExtendedListViewStyle(hList, dwStyle);
+	DWORD style = ListView_GetExtendedListViewStyle(list);
+	style |= LVS_EX_CHECKBOXES;
+	ListView_SetExtendedListViewStyle(list, style);
 
-	ListView_SetCallbackMask(hList, LVIS_STATEIMAGEMASK);
+	ListView_SetCallbackMask(list, LVIS_STATEIMAGEMASK);
 }
 
 void CSusieListView::Show()
@@ -50,90 +50,89 @@ void CSusieListView::Show()
 	ListView_SetItemCountEx(m_hList, susie.GetSusieTmp().size(), LVSICF_NOINVALIDATEALL);
 }
 
-void CSusieListView::Show(NMLVDISPINFO* pDispInfo)
+void CSusieListView::Show(NMLVDISPINFO* disp_info)
 {
-	CSusie clSusie;
+	CSusie susie;
 
-	static std::vector<SSusieInfo>& rvcSusieInfos = clSusie.GetSusieTmp();
+	static std::vector<SSusieInfo>& rvcSusieInfos = susie.GetSusieTmp();
 
-	if (pDispInfo->item.mask & LVIF_TEXT)
+	if (disp_info->item.mask & LVIF_TEXT)
 	{
-		switch (pDispInfo->item.iSubItem)
+		switch (disp_info->item.iSubItem)
 		{
 		case 0: // Show plug-in name
-			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsName);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsName);
 			break;
 
 		case 1: // Show plug-in info
-			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsInfo);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsInfo);
 			break;
 
 		case 2: // Show supported formats
-			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsSupportFormat);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsSupportFormat);
 			break;
 
 		case 3: // Show version info
-			lstrcpy(pDispInfo->item.pszText, rvcSusieInfos[pDispInfo->item.iItem].clsVersion);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsVersion);
 			break;
 		}
 	}
 
-	if (pDispInfo->item.mask & LVIF_STATE)
+	if (disp_info->item.mask & LVIF_STATE)
 	{
-		pDispInfo->item.state = m_pOption->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[pDispInfo->item.iItem].bValidity + 1) : 0;
+		disp_info->item.state = m_pOption->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[disp_info->item.iItem].bValidity + 1) : 0;
 	}
 }
 
-void CSusieListView::ShowTip(LPNMLVGETINFOTIP ptip)
+void CSusieListView::ShowTip(LPNMLVGETINFOTIP tip)
 {
-	CSusie clSusie;
+	CSusie susie;
 
-	static std::vector<SSusieInfo>&	rvcSusieInfos = clSusie.GetSusieTmp();
+	static std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
-	switch (ptip->iSubItem)
+	switch (tip->iSubItem)
 	{
 	case 0:
 		// dwFlags to display (when the character is hidden) in which case 0
 		// Even when dwFlags is 1 (when the left-most column is not hidden)
 
-		if (ptip->dwFlags == 0)
+		if (tip->dwFlags == 0)
 		{
-			lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsName);
+			lstrcpy(tip->pszText, susie_infos[tip->iItem].clsName);
 		}
 		break;
 
 	case 1:
-		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsInfo);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsInfo);
 		break;
 
 	case 2:
-		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsSupportFormat);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsSupportFormat);
 		break;
 
 	case 3:
-		lstrcpy(ptip->pszText, rvcSusieInfos[ptip->iItem].clsVersion);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsVersion);
 		break;
 	}
 }
 
-BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
+BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW custom_draw)
 {
-	CSusie clSusie;
+	CSusie susie;
 
-	static std::vector<SSusieInfo>&	rvcSusieInfos = clSusie.GetSusieTmp();
-	static SOption* pOption = m_pOption;
+	static std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
-	switch (plvcd->nmcd.dwDrawStage)
+	switch (custom_draw->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT: // Before drawing
 		SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
 		return TRUE;
 
 	case CDDS_ITEMPREPAINT: // Item before it is drawn
-		if (rvcSusieInfos[plvcd->nmcd.dwItemSpec].bConfig && pOption->bSusieUse)
+		if (susie_infos[custom_draw->nmcd.dwItemSpec].bConfig && m_pOption->bSusieUse)
 		{
 			// ConfigurationDlg has been defined
-			plvcd->clrText = RGB(0, 0, 255);
+			custom_draw->clrText = RGB(0, 0, 255);
 			SetWindowLongPtr(m_hWnd, DWL_MSGRESULT, CDRF_NOTIFYITEMDRAW);
 
 			return TRUE;
@@ -144,52 +143,52 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW plvcd)
 	return FALSE;
 }
 
-void CSusieListView::CreateMenu(LPARAM lp)
+void CSusieListView::CreateMenu(LPARAM param)
 {
-	int nItem = GetFocusItem();
-	if (nItem == -1)
+	int item = GetFocusItem();
+	if (item == -1)
 		return;
 
-	CSusie clSusie;
-	m_SusieInfo = clSusie.GetSusieTmp()[nItem];
-	if (!m_SusieInfo.bConfig)
+	CSusie susie;
+	m_susie_info = susie.GetSusieTmp()[item];
+	if (!m_susie_info.bConfig)
 		return;
 
 	POINT pt;
-	pt.x = LOWORD(lp);
-	pt.y = HIWORD(lp);
-	HMENU rMenu = LoadMenu(m_hInst, _T("SUSIEMENU"));
-	HMENU rSubMenu = GetSubMenu(rMenu, 0);
-	TrackPopupMenu(rSubMenu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, nullptr);
-	DestroyMenu(rMenu);
+	pt.x = LOWORD(param);
+	pt.y = HIWORD(param);
+	HMENU menu = LoadMenu(m_hInst, _T("SUSIEMENU"));
+	HMENU sub_menu = GetSubMenu(menu, 0);
+	TrackPopupMenu(sub_menu, TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, 0, m_hWnd, nullptr);
+	DestroyMenu(menu);
 }
 
 bool CSusieListView::SetCheck()
 {
 	// Get mouse cursor position on the list view
-	LVHITTESTINFO htInfo;
-	GetCursorPos(&htInfo.pt);
-	ScreenToClient(m_hList, &htInfo.pt);
+	LVHITTESTINFO info;
+	GetCursorPos(&info.pt);
+	ScreenToClient(m_hList, &info.pt);
 
 	// Get number of sub-item at the position of the mouse cursor
-	htInfo.flags = LVHT_ONITEMLABEL;
-	ListView_SubItemHitTest(m_hList, &htInfo);
+	info.flags = LVHT_ONITEMLABEL;
+	ListView_SubItemHitTest(m_hList, &info);
 
 	// Make sure we do not get a non-zero or -1 (out of range) item number
-	if (htInfo.iItem == -1 || htInfo.iSubItem != 0)
+	if (info.iItem == -1 || info.iSubItem != 0)
 		return false;
 
 	// Obtain the coordinates of the checkbox area
 	RECT rc;
-	ListView_GetSubItemRect(m_hList, htInfo.iItem, htInfo.iSubItem, LVIR_BOUNDS, &rc);
+	ListView_GetSubItemRect(m_hList, info.iItem, info.iSubItem, LVIR_BOUNDS, &rc);
 	rc.left = 0;
 	rc.right = 18;
 
 	// Check processing is performed if the X coordinate of the mouse is within the checkbox region
-	if (htInfo.pt.x >= rc.left && htInfo.pt.x <= rc.right)
+	if (info.pt.x >= rc.left && info.pt.x <= rc.right)
 	{
 		CSusie susie;
-		susie.GetSusieTmp()[htInfo.iItem].bValidity ^= 1;
+		susie.GetSusieTmp()[info.iItem].bValidity ^= 1;
 		InvalidateRect(m_hList, &rc, FALSE);
 		return true;
 	}
@@ -200,9 +199,9 @@ bool CSusieListView::SetCheck()
 void CSusieListView::SetCheckAll(bool flag)
 {
 	CSusie susie;
-	std::vector<SSusieInfo>& SusieInfos = susie.GetSusieTmp();
+	std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
-	for (auto& info : SusieInfos)
+	for (auto& info : susie_infos)
 	{
 		info.bValidity = flag;
 	}
