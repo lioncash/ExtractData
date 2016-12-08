@@ -8,7 +8,7 @@ public:
 	CPng();
 	~CPng() override;
 
-	void SetCompressLevel(int nCompressLevel);
+	void SetCompressLevel(int compression_level);
 	int  GetCompressLevel() const;
 
 	void SetCallback();
