@@ -18,10 +18,10 @@ protected:
 	virtual bool DecodeSPD(CArcFile* archive);
 	virtual bool DecodeOgg(CArcFile* archive);
 
-	virtual bool DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_size);
-	virtual bool DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_size);
+	virtual bool DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size);
+	virtual bool DecompRLE0(u8* dst, size_t dst_size, const u8* src, size_t src_size);
 	virtual bool DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_size);
-	virtual bool DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_size, long width);
+	virtual bool DecompSPD(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width);
 
-	virtual bool Decrypt(void* data, DWORD data_size);
+	virtual bool Decrypt(u8* data, size_t data_size);
 };

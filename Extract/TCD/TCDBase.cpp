@@ -50,25 +50,24 @@ bool CTCDBase::DecodeTSF(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Adjust input buffer
-	const DWORD src_size = file_info->sizeCmp;
-	YCMemory<BYTE> src(src_size);
+	std::vector<u8> src(file_info->sizeCmp);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// Ensure output buffer
-	const DWORD dst_size = *(DWORD*)&src[0];
-	YCMemory<BYTE> dst(dst_size);
+	const u32 dst_size = *reinterpret_cast<u32*>(&src[0]);
+	std::vector<u8> dst(dst_size);
 
 	// Decompress
-	DecompLZSS(&dst[0], dst_size, &src[4], (src_size - 4));
+	DecompLZSS(dst.data(), dst.size(), &src[4], src.size() - 4);
 
 	// Decode
-	Decrypt(&dst[0], dst_size);
+	Decrypt(dst.data(), dst.size());
 
 	// Output
 	archive->OpenFile();
-	archive->WriteFile(&dst[0], dst_size, src_size);
+	archive->WriteFile(dst.data(), dst.size(), src.size());
 
 	return true;
 }
@@ -82,49 +81,46 @@ bool CTCDBase::DecodeSPD(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	const DWORD src_size = file_info->sizeCmp;
-	YCMemory<BYTE> src(src_size);
+	std::vector<u8> src(file_info->sizeCmp);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// Get header info
-	const DWORD data_size = *(DWORD*)&src[16];
+	const u32 data_size = *reinterpret_cast<u32*>(&src[16]);
 
-	const long width = *(long*)&src[8] - ((data_size & 0x04DF) << 2);
-	const long height = *(long*)&src[12] - ((data_size >> 2) & 0xF731);
-	WORD bpp = *(WORD*)&src[6];
+	const s32 width = *reinterpret_cast<s32*>(&src[8]) - ((data_size & 0x04DF) << 2);
+	const s32 height = *reinterpret_cast<s32*>(&src[12]) - ((data_size >> 2) & 0xF731);
+	u16 bpp = *reinterpret_cast<u16*>(&src[6]);
 
-	const DWORD flags = *(DWORD*)&src[4] - ((data_size << 4) & 0xFFFF);
+	const u32 flags = *reinterpret_cast<u32*>(&src[4]) - ((data_size << 4) & 0xFFFF);
 
 	// Ensure output buffer
-	const DWORD dst_size = data_size;
-	YCMemory<BYTE> dst(dst_size);
+	std::vector<u8> dst(data_size);
 
-	const DWORD dst_size2 = width * height * 4;
-	YCMemory<BYTE> dst2;
+	const u32 dst_size2 = static_cast<u32>(width * height * 4);
+	std::vector<u8> dst2;
 
-	BYTE* unlzss_buffer = &src[0];
-	DWORD unlzss_buffer_size = src_size;
+	u8* unlzss_buffer = src.data();
+	size_t unlzss_buffer_size = src.size();
 
-	BYTE* output_buffer = &dst[0];
-	DWORD output_buffer_size = dst_size;
+	u8* output_buffer = dst.data();
+	size_t output_buffer_size = dst.size();
 
 	// Decompression
 
 	if ((flags & 0xFF00) == 0)
 	{
-		DecompLZSS(&dst[0], dst_size, &src[20], (src_size - 20));
+		DecompLZSS(dst.data(), dst.size(), &src[20], src.size() - 20);
 
 		// Ensure buffer to perform the following decompression
-
 		dst2.resize(dst_size2);
 
-		unlzss_buffer = &dst[0];
-		unlzss_buffer_size = dst_size;
+		unlzss_buffer = dst.data();
+		unlzss_buffer_size = dst.size();
 
-		output_buffer = &dst2[0];
-		output_buffer_size = dst_size2;
+		output_buffer = dst2.data();
+		output_buffer_size = dst2.size();
 	}
 
 	switch (flags & 0xFFFF)
@@ -150,7 +146,7 @@ bool CTCDBase::DecodeSPD(CArcFile* archive)
 
 	default: // Unknown
 		archive->OpenFile();
-		archive->WriteFile(&src[0], src_size);
+		archive->WriteFile(src.data(), src.size());
 		return true;
 	}
 
@@ -158,7 +154,7 @@ bool CTCDBase::DecodeSPD(CArcFile* archive)
 
 	CImage image;
 	image.Init(archive, width, height, bpp);
-	image.WriteReverse(output_buffer, output_buffer_size, src_size);
+	image.WriteReverse(output_buffer, output_buffer_size, src.size() != 0);
 
 	return true;
 }
@@ -172,56 +168,50 @@ bool CTCDBase::DecodeOgg(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	const DWORD src_size = file_info->sizeCmp;
-	YCMemory<BYTE> src(src_size);
+	std::vector<u8> src(file_info->sizeCmp);
 
 	// Read
-	archive->Read(&src[0], src_size);
+	archive->Read(src.data(), src.size());
 
 	// Fix the CRC of Ogg Vorbis on output
 	COgg ogg;
-	ogg.Decode(archive, &src[0]);
+	ogg.Decode(archive, src.data());
 
 	return true;
 }
 
 /// Decompress LZSS
 ///
-/// @param dst       Destination
+/// @param dst      Destination
 /// @param dst_size Destination size
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CTCDBase::DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_size)
+bool CTCDBase::DecompLZSS(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	BYTE* byte_dst = (BYTE*)dst;
-	const BYTE* byte_src = (const BYTE*)src;
-
-	DWORD src_ptr = 0;
-	DWORD dst_ptr = 0;
+	size_t src_ptr = 0;
+	size_t dst_ptr = 0;
 
 	while (src_ptr < src_size && dst_ptr < dst_size)
 	{
-		BYTE flags = byte_src[src_ptr++];
+		u8 flags = src[src_ptr++];
 
-		for (DWORD i = 0; (i < 8) && (src_ptr < src_size) && (dst_ptr < dst_size); i++)
+		for (size_t i = 0; i < 8 && src_ptr < src_size && dst_ptr < dst_size; i++)
 		{
 			if (flags & 1)
 			{
 				// No compression
-
-				byte_dst[dst_ptr++] = byte_src[src_ptr++];
+				dst[dst_ptr++] = src[src_ptr++];
 			}
 			else
 			{
 				// Is compressed 
+				const u16 work = *reinterpret_cast<const u16*>(&src[src_ptr]);
 
-				const WORD work = *(WORD*)&byte_src[src_ptr];
+				size_t length = (work & 0x0F) + 3;
+				const u16 back = work >> 4;
 
-				WORD length = (work & 0x0F) + 3;
-				const WORD back = work >> 4;
-
-				DWORD back_ptr = dst_ptr - back;
+				size_t back_ptr = dst_ptr - back;
 
 				if (dst_ptr + length > dst_size)
 				{
@@ -230,7 +220,7 @@ bool CTCDBase::DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_
 
 				for (size_t j = 0; j < length; j++)
 				{
-					byte_dst[dst_ptr++] = byte_dst[back_ptr++];
+					dst[dst_ptr++] = dst[back_ptr++];
 				}
 
 				src_ptr += 2;
@@ -250,24 +240,21 @@ bool CTCDBase::DecompLZSS(void* dst, DWORD dst_size, const void* src, DWORD src_
 /// @param src      Input data
 /// @param src_size Input data size
 ///
-bool CTCDBase::DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_size)
+bool CTCDBase::DecompRLE0(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	const BYTE* byte_src = (const BYTE*)src;
-	BYTE* byte_dst = (BYTE*)dst;
-
-	const DWORD offset = *(DWORD*)&byte_src[0];
-	const DWORD pixel_count = *(DWORD*)&byte_src[4];
-	const DWORD zero_flag = *(DWORD*)&byte_src[8];
+	const u32 offset      = *reinterpret_cast<const u32*>(&src[0]);
+	const u32 pixel_count = *reinterpret_cast<const u32*>(&src[4]);
+	const u32 zero_flag   = *reinterpret_cast<const u32*>(&src[8]);
 
 	bool is_zero = zero_flag == 0;
 
-	DWORD src_header_ptr = 12;
-	DWORD src_data_ptr = offset;
-	DWORD dst_ptr = 0;
+	size_t src_header_ptr = 12;
+	size_t src_data_ptr = offset;
+	size_t dst_ptr = 0;
 
-	while ((src_header_ptr < offset) && (src_data_ptr < src_size) && (dst_ptr < dst_size))
+	while (src_header_ptr < offset && src_data_ptr < src_size && dst_ptr < dst_size)
 	{
-		const DWORD length = *(DWORD*)&byte_src[src_header_ptr];
+		const u32 length = *reinterpret_cast<const u32*>(&src[src_header_ptr]);
 
 		src_header_ptr += 4;
 
@@ -278,11 +265,11 @@ bool CTCDBase::DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_
 
 		if (is_zero)
 		{
-			for (DWORD i = 0; i < length; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 4; j++)
+				for (u32 j = 0; j < 4; j++)
 				{
-					byte_dst[dst_ptr++] = 0x00;
+					dst[dst_ptr++] = 0x00;
 				}
 			}
 		}
@@ -293,14 +280,14 @@ bool CTCDBase::DecompRLE0(void* dst, DWORD dst_size, const void* src, DWORD src_
 				MessageBox(nullptr, _T("Input buffer needed to decompress RLE0 is too small."), _T("Error"), 0);
 			}
 
-			for (DWORD i = 0; i < length; i++)
+			for (u32 i = 0; i < length; i++)
 			{
-				for (DWORD j = 0; j < 3; j++)
+				for (u32 j = 0; j < 3; j++)
 				{
-					byte_dst[dst_ptr++] = byte_src[src_data_ptr++];
+					dst[dst_ptr++] = src[src_data_ptr++];
 				}
 
-				byte_dst[dst_ptr++] = 0xFF;
+				dst[dst_ptr++] = 0xFF;
 			}
 		}
 
@@ -330,9 +317,9 @@ bool CTCDBase::DecompRLE2(u8* dst, size_t dst_size, const u8* src, size_t src_si
 /// @param src_size Input data size
 /// @param width    Image width
 ///
-bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_size, long width)
+bool CTCDBase::DecompSPD(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width)
 {
-	static const BYTE key1[256] = {
+	static const u8 key1[256] = {
 		0x10, 0x0F, 0x0E, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1, 0xF0,
 		0x08, 0x08, 0x07, 0x07, 0x06, 0x06, 0x05, 0x05, 0xFB, 0xFB, 0xFA, 0xFA, 0xF9, 0xF9, 0xF8, 0xF8,
 		0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
@@ -351,7 +338,7 @@ bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_s
 		0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE
 	};
 
-	static const BYTE key2[1024] = {
+	static const u8 key2[1024] = {
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
 		0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00,
@@ -418,7 +405,7 @@ bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_s
 		0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00
 	};
 
-	static const BYTE key3[128] = {
+	static const u8 key3[128] = {
 		0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
 		0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
 		0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
@@ -429,14 +416,14 @@ bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_s
 		0x04, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00
 	};
 
-	long key4[28];
+	s32 key4[28];
 
 	for (size_t i = 0; i < 16; i++)
 	{
 		key4[i] = -3;
 	}
 
-	const long work = ~(width * 3) + 1;
+	const s32 work = ~(width * 3) + 1;
 
 	for (size_t i = 16; i < 24; i++)
 	{
@@ -454,84 +441,79 @@ bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_s
 	}
 
 	// Decompress
-	const BYTE* byte_src = (const BYTE*)src;
-	BYTE* byte_dst = (BYTE*)dst;
-
-	DWORD src_ptr = 20;
-	DWORD dst_ptr = 0;
-	DWORD offset = 24;
+	size_t src_ptr = 20;
+	size_t dst_ptr = 0;
+	size_t offset = 24;
 
 	for (size_t i = 0; i < 3; i++)
 	{
-		byte_dst[dst_ptr++] = byte_src[src_ptr + i];
+		dst[dst_ptr++] = src[src_ptr + i];
 	}
 
 	while (dst_ptr < dst_size)
 	{
-		const DWORD src_ptr_temp = src_ptr + (offset >> 3);
-		DWORD shift = (offset & 7);
+		const size_t src_ptr_temp = src_ptr + (offset >> 3);
+		u32 shift = static_cast<u32>(offset & 7);
 
-		DWORD data = *(DWORD*)&byte_src[src_ptr_temp + 0];
-		DWORD key_ptr = *(DWORD*)&byte_src[src_ptr_temp + 1];
+		u32 data = *reinterpret_cast<const u32*>(&src[src_ptr_temp + 0]);
+		u32 key_ptr = *reinterpret_cast<const u32*>(&src[src_ptr_temp + 1]);
 
 		data = BitUtils::Swap32(data); 
 		data = (data << shift) | (key_ptr >> (32 - shift));
-		key_ptr = (data >> 27);
+		key_ptr = data >> 27;
 
 		if (key_ptr > 0x1B)
 		{
 			data >>= 5;
 
-			for (DWORD i = 0; i < 3; i++)
+			for (u32 i = 0; i < 3; i++)
 			{
-				byte_dst[dst_ptr++] = (BYTE)((data >> (i * 8)) & 0xFF);
+				dst[dst_ptr++] = static_cast<u8>((data >> (i * 8)) & 0xFF);
 			}
 
 			offset += 0x1B;
 		}
 		else
 		{
-			DWORD back_ptr = dst_ptr + key4[key_ptr];
+			size_t back_ptr = dst_ptr + key4[key_ptr];
 
 			for (size_t i = 0; i < 3; i++)
 			{
-				byte_dst[dst_ptr + i] = byte_dst[back_ptr++];
+				dst[dst_ptr + i] = dst[back_ptr++];
 			}
 
-			shift = *(DWORD*)&key3[key_ptr * 4] >> 1;
+			shift = *reinterpret_cast<const u32*>(&key3[key_ptr * 4]) >> 1;
 
 			offset += shift;
 
-			if (*(DWORD*)&key3[key_ptr * 4] & 1)
+			if (*reinterpret_cast<const u32*>(&key3[key_ptr * 4]) & 1)
 			{
-				BYTE prev_key1 = 0;
-
 				shift += 8;
 
 				data = BitUtils::RotateLeft(data, shift);
 
-				key_ptr = (data & 0xFF);
-				shift = *(DWORD*)&key2[key_ptr * 4];
+				key_ptr = data & 0xFF;
+				shift = *reinterpret_cast<const u32*>(&key2[key_ptr * 4]);
 				offset += shift;
 
-				prev_key1 = key1[key_ptr];
-				byte_dst[dst_ptr++] += prev_key1;
+				const u8 prev_key1 = key1[key_ptr];
+				dst[dst_ptr++] += prev_key1;
 
 				data = BitUtils::RotateLeft(data, shift);
 
-				key_ptr = (data & 0xFF);
-				shift = *(DWORD*)&key2[key_ptr * 4];
+				key_ptr = data & 0xFF;
+				shift = *reinterpret_cast<const u32*>(&key2[key_ptr * 4]);
 				offset += shift;
 
-				byte_dst[dst_ptr++] += prev_key1 + key1[key_ptr];
+				dst[dst_ptr++] += prev_key1 + key1[key_ptr];
 
 				data = BitUtils::RotateLeft(data, shift);
 
-				key_ptr = (data & 0xFF);
-				shift = *(DWORD*)&key2[key_ptr * 4];
+				key_ptr = data & 0xFF;
+				shift = *reinterpret_cast<const u32*>(&key2[key_ptr * 4]);
 				offset += shift;
 
-				byte_dst[dst_ptr++] += prev_key1 + key1[key_ptr];
+				dst[dst_ptr++] += prev_key1 + key1[key_ptr];
 			}
 			else
 			{
@@ -548,13 +530,11 @@ bool CTCDBase::DecompSPD(void* dst, DWORD dst_size, const void* src, DWORD src_s
 /// @param data      Data
 /// @param data_size Data size
 ///
-bool CTCDBase::Decrypt(void* data, DWORD data_size)
+bool CTCDBase::Decrypt(u8* data, size_t data_size)
 {
-	BYTE* const pbtData = static_cast<BYTE*>(data);
-
 	for (size_t i = 0; i < data_size; i++)
 	{
-		pbtData[i] = BitUtils::RotateRight(pbtData[i], 1);
+		data[i] = BitUtils::RotateRight(data[i], 1);
 	}
 
 	return true;
