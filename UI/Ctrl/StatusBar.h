@@ -7,14 +7,14 @@ class CStatusBar
 public:
 	CStatusBar();
 
-	void Init(HWND hWnd, SOption& option, CMainListView& listview);
-	HWND Create(HWND hWnd, SOption& option, CMainListView& listview);
+	void Init(HWND window, SOption& option, CMainListView& listview);
+	HWND Create(HWND window, SOption& option, CMainListView& listview);
 	void SetCount();
 	void SetWindowPos(int cx);
 
 protected:
-	HWND m_hWnd = nullptr;
-	HWND m_hSBWnd = nullptr;
-	SOption* m_pOption = nullptr;
-	CMainListView* m_pListView = nullptr;
+	HWND m_window = nullptr;
+	HWND m_status_bar_window = nullptr;
+	SOption* m_option = nullptr;
+	CMainListView* m_list_view = nullptr;
 };

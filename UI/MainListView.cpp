@@ -59,7 +59,7 @@ void CMainListView::Create(HWND hWnd, SOption& option)
 
 void CMainListView::Show()
 {
-	ListView_SetItemCountEx(m_hList, m_ent.size(), LVSICF_NOINVALIDATEALL);
+	ListView_SetItemCountEx(m_list, m_ent.size(), LVSICF_NOINVALIDATEALL);
 }
 
 void CMainListView::Show(NMLVDISPINFO* disp_info)
@@ -153,7 +153,7 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP tip)
 // Comparison function for sorting
 bool CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 {
-	switch (m_pSort->column)
+	switch (m_sort_ptr->column)
 	{
 	case 1:
 		return retCompare(a.name, b.name);
@@ -204,8 +204,8 @@ void CMainListView::Clear()
 	m_ent.clear();
 
 	// Erase all the file information being displayed
-	ListView_DeleteAllItems(m_hList);
-	ListView_SetItemCountEx(m_hList, 0, LVSICF_NOINVALIDATEALL);
+	ListView_DeleteAllItems(m_list);
+	ListView_SetItemCountEx(m_list, 0, LVSICF_NOINVALIDATEALL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

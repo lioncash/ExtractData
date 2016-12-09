@@ -8,9 +8,9 @@ public:
 	CCtrlBase();
 	virtual ~CCtrlBase() = default;
 
-	void Init(HWND hWnd, UINT ID);
+	void Init(HWND window, UINT id);
 
-	virtual HWND Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x = 0, int y = 0, int cx = 0, int cy = 0) = 0;
+	virtual HWND Create(HWND window, LPCTSTR caption, UINT id, int x = 0, int y = 0, int cx = 0, int cy = 0) = 0;
 
 	HWND      GetHandle() const;
 	HINSTANCE GetInst() const;
@@ -25,12 +25,12 @@ public:
 	void Enable(BOOL flag);
 
 protected:
-	HWND CreateCtrl(LPCTSTR lpClassName, DWORD dwStyle, LPCTSTR lpCaption, int x, int y, int cx, int cy, DWORD dwExStyle = 0);
+	HWND CreateCtrl(LPCTSTR class_name, DWORD style, LPCTSTR caption, int x, int y, int cx, int cy, DWORD ex_style = 0);
 
 private:
-	HWND      m_hWnd = nullptr;
-	HINSTANCE m_hInst = nullptr;
-	HWND      m_hCtrl = nullptr;
-	UINT      m_ID = 0;
+	HWND      m_window = nullptr;
+	HINSTANCE m_inst = nullptr;
+	HWND      m_ctrl = nullptr;
+	UINT      m_id = 0;
 	CFont     m_font;
 };

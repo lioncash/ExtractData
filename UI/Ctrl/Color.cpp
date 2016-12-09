@@ -8,9 +8,9 @@ void CColor::Init(COLORREF color)
 	m_cc.Flags = CC_RGBINIT;
 }
 
-BOOL CColor::DoModal(HWND hWnd)
+BOOL CColor::DoModal(HWND window)
 {
-	m_cc.hwndOwner = hWnd;
+	m_cc.hwndOwner = window;
 	return ChooseColor(&m_cc);
 }
 

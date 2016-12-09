@@ -6,8 +6,8 @@ public:
 	CToolBar();
 	virtual ~CToolBar() = default;
 
-	void Init(HWND hWnd);
-	HWND Create(HWND hWnd, LPTBBUTTON tbButton, UINT BmpID, int icon_cx, int ctIcon);
+	void Init(HWND window);
+	HWND Create(HWND window, LPTBBUTTON toolbar_button, UINT bitmap_id, int icon_cx, int ctIcon);
 
 	virtual void LoadIni() {}
 	virtual void SaveIni() {}
@@ -18,7 +18,7 @@ public:
 	HWND GetCtrlHandle() const;
 
 private:
-	HWND m_hWnd = nullptr;
-	HINSTANCE m_hInst = nullptr;
-	HWND m_hToolBar = nullptr;
+	HWND m_window = nullptr;
+	HINSTANCE m_inst = nullptr;
+	HWND m_tool_bar = nullptr;
 };

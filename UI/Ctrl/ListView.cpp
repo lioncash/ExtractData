@@ -3,7 +3,7 @@
 
 #include "Common.h"
 
-SORTPARAM* CListView::m_pSort;
+SORTPARAM* CListView::m_sort_ptr;
 
 CListView::CListView()
 {
@@ -14,27 +14,27 @@ CListView::~CListView()
 	Close();
 }
 
-void CListView::Init(HWND hWnd, SOption& option)
+void CListView::Init(HWND window, SOption& option)
 {
-	m_hWnd = hWnd;
-	m_hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
-	m_pOption = &option;
+	m_window = window;
+	m_inst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));
+	m_option = &option;
 }
 
 HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int cx, int cy)
 {
-	m_uID = id;
+	m_id = id;
 
 	// Create listview
 	HWND list = CreateWindowEx(WS_EX_CLIENTEDGE,
 		WC_LISTVIEW, _T(""),
 		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA,
 		x, y, cx, cy,
-		m_hWnd,
+		m_window,
 		reinterpret_cast<HMENU>(id),
-		m_hInst,
+		m_inst,
 		nullptr);
-	m_hList = list;
+	m_list = list;
 
 	// Set style
 	DWORD style = ListView_GetExtendedListViewStyle(list);
@@ -42,8 +42,8 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 	ListView_SetExtendedListViewStyle(list, style);
 
 	// Make line spacing 16px
-	m_hImage = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
-	ListView_SetImageList(list, m_hImage, LVSIL_STATE);
+	m_image = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
+	ListView_SetImageList(list, m_image, LVSIL_STATE);
 
 	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 	ini.SetSection(id);
@@ -64,107 +64,107 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 		ListView_InsertColumn(list, i, &columns[i]);
 	}
 
-	return m_hList;
+	return m_list;
 }
 
 void CListView::SetBkColor()
 {
-	//ListView_SetBkColor(m_hList, m_pOption->ListBkColor);
-	//ListView_SetTextBkColor(m_hList, m_pOption->ListBkColor);
-	ListView_SetBkColor(m_hList, RGB((m_pOption->ListBkColor >> 16) & 0xFF, (m_pOption->ListBkColor >> 8) & 0xFF, m_pOption->ListBkColor & 0xFF));
-	ListView_SetTextBkColor(m_hList, RGB((m_pOption->ListBkColor >> 16) & 0xFF, (m_pOption->ListBkColor >> 8) & 0xFF, m_pOption->ListBkColor & 0xFF));
+	//ListView_SetBkColor(m_list, m_option->ListBkColor);
+	//ListView_SetTextBkColor(m_list, m_option->ListBkColor);
+	ListView_SetBkColor(m_list, RGB((m_option->ListBkColor >> 16) & 0xFF, (m_option->ListBkColor >> 8) & 0xFF, m_option->ListBkColor & 0xFF));
+	ListView_SetTextBkColor(m_list, RGB((m_option->ListBkColor >> 16) & 0xFF, (m_option->ListBkColor >> 8) & 0xFF, m_option->ListBkColor & 0xFF));
 }
 
 void CListView::SetTextColor()
 {
-	//ListView_SetTextColor(m_hList, m_pOption->ListTextColor);
-	ListView_SetTextColor(m_hList, RGB((m_pOption->ListTextColor >> 16) & 0xFF, (m_pOption->ListTextColor >> 8) & 0xFF, m_pOption->ListTextColor & 0xFF));
+	//ListView_SetTextColor(m_list, m_option->ListTextColor);
+	ListView_SetTextColor(m_list, RGB((m_option->ListTextColor >> 16) & 0xFF, (m_option->ListTextColor >> 8) & 0xFF, m_option->ListTextColor & 0xFF));
 }
 
 void CListView::Sort(int column)
 {
 	m_sort.column = column;
-	m_sort.direct ^= 1;
-	m_pSort = &m_sort;
+	m_sort.direction ^= 1;
+	m_sort_ptr = &m_sort;
 	OnSort();
-	InvalidateRect(m_hList, nullptr, FALSE);
+	InvalidateRect(m_list, nullptr, FALSE);
 }
 
 void CListView::Enable(BOOL flag)
 {
-	EnableWindow(m_hList, flag);
+	EnableWindow(m_list, flag);
 }
 
 void CListView::SetItemSelAll(UINT flag)
 {
-	ListView_SetItemState(m_hList, -1, flag, LVIS_SELECTED);
+	ListView_SetItemState(m_list, -1, flag, LVIS_SELECTED);
 }
 
 void CListView::SetFocus()
 {
-	::SetFocus(m_hList);
+	::SetFocus(m_list);
 }
 
 void CListView::SetWindowPos(int x, int y, int cx, int cy)
 {
-	MoveWindow(m_hList, x, y, cx, cy, TRUE);
+	MoveWindow(m_list, x, y, cx, cy, TRUE);
 }
 
 void CListView::SaveIni()
 {
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-	clIni.SetSection(m_uID);
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
+	ini.SetSection(m_id);
 
 	// Save column width
-	int nColumns = Header_GetItemCount(ListView_GetHeader(m_hList));
+	const int columns = Header_GetItemCount(ListView_GetHeader(m_list));
 
-	for (int i = 0 ; i < nColumns ; i++)
+	for (int i = 0 ; i < columns ; i++)
 	{
-		TCHAR szColumn[256];
-		_stprintf(szColumn, _T("Column%d"), i);
+		TCHAR column_name[256];
+		_stprintf(column_name, _T("Column%d"), i);
 
-		clIni.SetKey(szColumn);
-		clIni.WriteDec(ListView_GetColumnWidth(m_hList, i));
+		ini.SetKey(column_name);
+		ini.WriteDec(ListView_GetColumnWidth(m_list, i));
 	}
 }
 
 void CListView::Close()
 {
-	if (m_hImage)
+	if (m_image)
 	{
-		ImageList_Destroy(m_hImage);
-		m_hImage = nullptr;
+		ImageList_Destroy(m_image);
+		m_image = nullptr;
 	}
 }
 
 void CListView::Update()
 {
 	RECT rc;
-	GetClientRect(m_hList, &rc);
-	InvalidateRect(m_hList, &rc, FALSE);
+	GetClientRect(m_list, &rc);
+	InvalidateRect(m_list, &rc, FALSE);
 }
 
 UINT CListView::GetCountSel() const
 {
-	return ListView_GetSelectedCount(m_hList);
+	return ListView_GetSelectedCount(m_list);
 }
 
 INT CListView::GetCount() const
 {
-	return ListView_GetItemCount(m_hList);
+	return ListView_GetItemCount(m_list);
 }
 
 HWND CListView::GetHandle() const
 {
-	return m_hList;
+	return m_list;
 }
 
-int CListView::GetNextItem(int nItem) const
+int CListView::GetNextItem(int item) const
 {
-	return ListView_GetNextItem(m_hList, nItem, LVNI_ALL | LVNI_SELECTED);
+	return ListView_GetNextItem(m_list, item, LVNI_ALL | LVNI_SELECTED);
 }
 
 int CListView::GetFocusItem() const
 {
-	return ListView_GetNextItem(m_hList, -1, LVNI_ALL | LVNI_FOCUSED);
+	return ListView_GetNextItem(m_list, -1, LVNI_ALL | LVNI_FOCUSED);
 }

@@ -5,7 +5,7 @@
 class CRadioBtn : public CCtrlBase
 {
 public:
-	HWND Create(HWND hWnd, LPCTSTR lpCaption, UINT uID, int x = 0, int y = 0, int cx = 0, int cy = 0) override;
+	HWND Create(HWND window, LPCTSTR caption, UINT id, int x = 0, int y = 0, int cx = 0, int cy = 0) override;
 
 	void Close();
 	void SetCheck(BOOL flag);
@@ -15,6 +15,6 @@ public:
 	UINT GetID(DWORD num) const;
 
 private:
-	std::vector<HWND> m_hRadios;
-	std::vector<UINT> m_IDs;
+	std::vector<HWND> m_radios;
+	std::vector<UINT> m_ids;
 };

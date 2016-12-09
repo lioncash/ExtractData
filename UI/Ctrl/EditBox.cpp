@@ -3,41 +3,41 @@
 
 #include "Utils/ArrayUtils.h"
 
-HWND CEditBox::Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x, int y, int cx, int cy)
+HWND CEditBox::Create(HWND window, LPCTSTR caption, UINT id, int x, int y, int cx, int cy)
 {
-	Init(hWnd, ID);
-	return CreateCtrl(_T("EDIT"), WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP, lpCaption, x, y, cx, cy, WS_EX_CLIENTEDGE);
+	Init(window, id);
+	return CreateCtrl(_T("EDIT"), WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP, caption, x, y, cx, cy, WS_EX_CLIENTEDGE);
 }
 
-HWND CEditBox::Create(HWND hWnd, DWORD dwCaption, UINT ID, int x, int y, int cx, int cy)
+HWND CEditBox::Create(HWND window, DWORD caption_number, UINT id, int x, int y, int cx, int cy)
 {
-	TCHAR Caption[256];
-	_stprintf(Caption, _T("%u"), dwCaption);
-	return Create(hWnd, Caption, ID, x, y, cx, cy);
+	TCHAR caption[256];
+	_stprintf(caption, _T("%u"), caption_number);
+	return Create(window, caption, id, x, y, cx, cy);
 }
 
-void CEditBox::GetText(LPTSTR pText, int len) const
+void CEditBox::GetText(LPTSTR text, int length) const
 {
-	GetWindowText(GetCtrlHandle(), pText, len);
+	GetWindowText(GetCtrlHandle(), text, length);
 }
 
-void CEditBox::GetText(YCString& pText) const
+void CEditBox::GetText(YCString& text) const
 {
-	TCHAR szText[256];
-	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
-	pText = szText;
+	TCHAR window_text[256];
+	GetWindowText(GetCtrlHandle(), window_text, ArrayUtils::ArraySize(window_text));
+	text = window_text;
 }
 
-void CEditBox::GetText(LPDWORD pText, BOOL bHex) const
+void CEditBox::GetText(LPDWORD text, BOOL hex) const
 {
-	TCHAR szText[256];
-	GetWindowText(GetCtrlHandle(), szText, ArrayUtils::ArraySize(szText));
-	*pText = (lstrcmp(szText, _T("")) == 0) ? 0 : (bHex == FALSE) ? _tstoi(szText) : _tcstol(szText, nullptr, 16);
+	TCHAR window_text[256];
+	GetWindowText(GetCtrlHandle(), window_text, ArrayUtils::ArraySize(window_text));
+	*text = (lstrcmp(window_text, _T("")) == 0) ? 0 : (hex == FALSE) ? _tstoi(window_text) : _tcstol(window_text, nullptr, 16);
 }
 
-void CEditBox::SetText(LPCTSTR pText)
+void CEditBox::SetText(LPCTSTR text)
 {
-	SetWindowText(GetCtrlHandle(), pText);
+	SetWindowText(GetCtrlHandle(), text);
 }
 
 void CEditBox::SetLimit(int length)

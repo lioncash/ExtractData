@@ -7,16 +7,16 @@ CFont::CFont()
 
 CFont::~CFont()
 {
-	if (m_hFont)
-		DeleteObject(m_hFont);
+	if (m_font)
+		DeleteObject(m_font);
 }
 
 // Function to set the font
 HFONT CFont::Create()
 {
-	if (m_hFont == nullptr)
+	if (m_font == nullptr)
 	{
-		m_hFont = CreateFont(
+		m_font = CreateFont(
 			13, // 0 if default font height (in logical units)
 			0, // Width, 0 if height is 0
 			0, // 10 times the angle of the display screen and the X-Axis
@@ -36,10 +36,10 @@ HFONT CFont::Create()
 		);
 	}
 
-	return m_hFont;
+	return m_font;
 }
 
 HFONT CFont::GetFont() const
 {
-	return m_hFont;
+	return m_font;
 }

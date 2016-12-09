@@ -5,11 +5,11 @@
 class CEditBox : public CCtrlBase
 {
 public:
-	HWND Create(HWND hWnd, LPCTSTR lpCaption, UINT ID, int x = 0, int y = 0, int cx = 0, int cy = 0) override;
-	HWND Create(HWND hWnd, DWORD dwCaption, UINT ID, int x = 0, int y = 0, int cx = 0, int cy = 0);
-	void GetText(LPTSTR pText, int len) const;
-	void GetText(YCString& pText) const;
-	void GetText(LPDWORD pText, BOOL bHex) const;
-	void SetText(LPCTSTR pText);
+	HWND Create(HWND window, LPCTSTR caption, UINT id, int x = 0, int y = 0, int cx = 0, int cy = 0) override;
+	HWND Create(HWND window, DWORD caption_number, UINT id, int x = 0, int y = 0, int cx = 0, int cy = 0);
+	void GetText(LPTSTR text, int length) const;
+	void GetText(YCString& text) const;
+	void GetText(LPDWORD text, BOOL hex) const;
+	void SetText(LPCTSTR text);
 	void SetLimit(int length);
 };

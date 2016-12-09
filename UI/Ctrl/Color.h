@@ -4,7 +4,7 @@ class CColor
 {
 public:
 	void Init(COLORREF color);
-	BOOL DoModal(HWND hWnd);
+	BOOL DoModal(HWND window);
 
 	COLORREF GetColor() const;
 
