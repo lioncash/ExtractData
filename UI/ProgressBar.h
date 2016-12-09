@@ -8,26 +8,26 @@ public:
 	CProgBar();
 	~CProgBar();
 
-	void Init(HWND hDlg, QWORD AllFileSize);
+	void Init(HWND dlg, QWORD all_file_size);
 
-	void ReplaceFileSize(QWORD oldFileSize, QWORD newFileSize);
-	void ReplaceAllFileSize(QWORD newFileSize);
-	void UpdatePercent(QWORD BufSize);
+	void ReplaceFileSize(QWORD old_file_size, QWORD new_file_size);
+	void ReplaceAllFileSize(QWORD new_file_size);
+	void UpdatePercent(QWORD buffer_size);
 	void UpdatePercent();
-	void SetArcName(const YCString& pclArcName);
-	void SetFileName(const YCString& pFileName);
+	void SetArcName(const YCString& archive_name);
+	void SetFileName(const YCString& file_name);
 	BOOL OnCancel();
 
-	HWND GetHandle()    const { return m_hDlg;  }
-	HINSTANCE GetInst() const { return m_hInst; }
+	HWND GetHandle()    const { return m_dlg;  }
+	HINSTANCE GetInst() const { return m_inst; }
 
 protected:
-	HWND m_hDlg = nullptr;
-	HINSTANCE m_hInst = nullptr;
-	HWND m_hDlgItem_percent = nullptr;
-	HWND m_hDlgItem_bar = nullptr;
-	HWND m_hDlgItem_archive = nullptr;
+	HWND m_dlg = nullptr;
+	HINSTANCE m_inst = nullptr;
+	HWND m_dlg_item_percent = nullptr;
+	HWND m_dlg_item_bar = nullptr;
+	HWND m_dlg_item_archive = nullptr;
 	int m_percent = 0;
-	QWORD m_ProgSize = 0;
-	QWORD m_AllFileSize = 0;
+	QWORD m_prog_size = 0;
+	QWORD m_all_file_size = 0;
 };
