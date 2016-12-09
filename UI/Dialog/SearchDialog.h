@@ -5,9 +5,9 @@
 class CSearchDialog : public CWindowBase
 {
 public:
-	int DoModal(HWND hWnd, LPCTSTR pclArcPath);
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
+	int DoModal(HWND window, LPCTSTR archive_path);
+	LRESULT WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
-	LPCTSTR m_pclArcPath = nullptr;
+	LPCTSTR m_archive_path = nullptr;
 };

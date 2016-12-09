@@ -5,9 +5,9 @@
 class CFolderInputDialog : public CWindowBase
 {
 public:
-	INT_PTR DoModal(HWND hWnd, LPTSTR pSaveDir);
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
+	INT_PTR DoModal(HWND window, LPTSTR save_dir);
+	LRESULT WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
-	LPTSTR m_pSaveDir = nullptr;
+	LPTSTR m_save_dir = nullptr;
 };

@@ -3,8 +3,8 @@
 class CFolderDialog
 {
 public:
-	BOOL DoModal(HWND hWnd, LPCTSTR lpszTitle, LPTSTR pDir);
+	BOOL DoModal(HWND window, LPCTSTR title, LPTSTR directory);
 
 private:
-	static LRESULT CALLBACK BrowseCallBackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+	static LRESULT CALLBACK BrowseCallBackProc(HWND window, UINT msg, LPARAM param, LPARAM data);
 };

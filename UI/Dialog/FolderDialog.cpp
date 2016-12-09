@@ -3,41 +3,41 @@
 
 #include "Common.h"
 
-BOOL CFolderDialog::DoModal(HWND hWnd, LPCTSTR lpszTitle, LPTSTR pDir)
+BOOL CFolderDialog::DoModal(HWND window, LPCTSTR title, LPTSTR directory)
 {
 	BROWSEINFO bi = {};
-	bi.hwndOwner = hWnd;
+	bi.hwndOwner = window;
 	bi.lpfn = reinterpret_cast<BFFCALLBACK>(BrowseCallBackProc);
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
-	bi.lParam = reinterpret_cast<LPARAM>(pDir);
-	bi.lpszTitle = lpszTitle;
+	bi.lParam = reinterpret_cast<LPARAM>(directory);
+	bi.lpszTitle = title;
 
-	LPITEMIDLIST pItemID = SHBrowseForFolder(&bi);
-	if (pItemID == nullptr)
+	LPITEMIDLIST item_id = SHBrowseForFolder(&bi);
+	if (item_id == nullptr)
 		return FALSE;
 
-	LPMALLOC pMalloc = nullptr;
-	if (SHGetMalloc(&pMalloc) == E_FAIL)
+	LPMALLOC lp_malloc = nullptr;
+	if (SHGetMalloc(&lp_malloc) == E_FAIL)
 	{
 		CError error;
-		error.Message(hWnd, _T("SHGetMalloc Error"));
+		error.Message(window, _T("SHGetMalloc Error"));
 		return FALSE;
 	}
 
-	SHGetPathFromIDList(pItemID, pDir);
+	SHGetPathFromIDList(item_id, directory);
 
-	pMalloc->Free(pItemID);
-	pMalloc->Release();
+	lp_malloc->Free(item_id);
+	lp_malloc->Release();
 
 	return TRUE;
 }
 
-LRESULT CALLBACK CFolderDialog::BrowseCallBackProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+LRESULT CALLBACK CFolderDialog::BrowseCallBackProc(HWND window, UINT msg, LPARAM param, LPARAM data)
 {
-	switch (uMsg)
+	switch (msg)
 	{
 		case BFFM_INITIALIZED:
-			SendMessage(hWnd, BFFM_SETSELECTION, static_cast<WPARAM>(TRUE), lpData);
+			SendMessage(window, BFFM_SETSELECTION, static_cast<WPARAM>(TRUE), data);
 			break;
 	}
 

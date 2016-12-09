@@ -3,20 +3,20 @@
 
 #include "res/ResExtractData.h"
 
-void CVersionInfo::DoModal(HWND hWnd)
+void CVersionInfo::DoModal(HWND window)
 {
-	HINSTANCE hInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
-	DialogBoxParam(hInst, _T("MYVERSION"), hWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
+	HINSTANCE inst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));
+	DialogBoxParam(inst, _T("MYVERSION"), window, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 // Version info dialog
-LRESULT CVersionInfo::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT CVersionInfo::WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp)
 {
 	switch (msg)
 	{
 		case WM_INITDIALOG:
 			Init();
-			SetFocus(GetDlgItem(hWnd, IDC_OKBUTTON));
+			SetFocus(GetDlgItem(window, IDC_OKBUTTON));
 			return FALSE;
 
 		case WM_COMMAND:
@@ -24,11 +24,11 @@ LRESULT CVersionInfo::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			switch (LOWORD(wp))
 			{
 				case IDC_OKBUTTON:
-					EndDialog(hWnd, IDOK);
+					EndDialog(window, IDOK);
 					return TRUE;
 
 				case IDCANCEL:
-					EndDialog(hWnd, IDCANCEL);
+					EndDialog(window, IDCANCEL);
 					return TRUE;
 			}
 			return FALSE;

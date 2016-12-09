@@ -3,5 +3,5 @@
 class CFileDialog
 {
 public:
-	static BOOL DoModal(HWND hWnd, LPTSTR pFileNames, LPTSTR LastReadFileDir);
+	static BOOL DoModal(HWND window, LPTSTR file_names, LPTSTR last_read_file_dir);
 };
