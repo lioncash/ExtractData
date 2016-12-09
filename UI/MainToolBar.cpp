@@ -28,10 +28,10 @@ HWND CMainToolBar::Create(HWND hWnd)
 	return toolbar;
 }
 
-void CMainToolBar::CreateMenuHistory(int iItem)
+void CMainToolBar::CreateMenuHistory(int item)
 {
 	RECT rc;
-	SendMessage(GetCtrlHandle(), TB_GETRECT, static_cast<WPARAM>(iItem), reinterpret_cast<LPARAM>(&rc));
+	SendMessage(GetCtrlHandle(), TB_GETRECT, static_cast<WPARAM>(item), reinterpret_cast<LPARAM>(&rc));
 	MapWindowPoints(GetCtrlHandle(), HWND_DESKTOP, reinterpret_cast<LPPOINT>(&rc), 2);
 
 	TPMPARAMS tpm;
@@ -41,71 +41,70 @@ void CMainToolBar::CreateMenuHistory(int iItem)
 	tpm.rcExclude.bottom = rc.bottom;
 	tpm.rcExclude.right = rc.right;
 
-	HMENU hOpenMenu = CreateMenu();
-	HMENU hOpenSubMenu = CreatePopupMenu();
+	HMENU open_menu = CreateMenu();
+	HMENU open_sub_menu = CreatePopupMenu();
 
 	MENUITEMINFO mii;
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
 	mii.fType = MFT_STRING;
-	mii.hSubMenu = hOpenSubMenu;
+	mii.hSubMenu = open_sub_menu;
 	mii.dwTypeData = _T("dummy");
-	InsertMenuItem(hOpenMenu, 0, TRUE, &mii);
+	InsertMenuItem(open_menu, 0, TRUE, &mii);
 
 	// When there is no history
-	if (m_vcOpenHistoryList.empty())
+	if (m_open_history_list.empty())
 	{
 		mii.fMask = MIIM_TYPE | MIIM_STATE;
 		mii.dwTypeData = _T("No History");
 		mii.fState = MFS_DISABLED;
-		InsertMenuItem(hOpenSubMenu, 0, TRUE, &mii);
+		InsertMenuItem(open_sub_menu, 0, TRUE, &mii);
 	}
 	// When there is history
 	else
 	{
 		mii.fMask = MIIM_TYPE | MIIM_ID;
 
-		for (int i = 0; i < static_cast<int>(m_vcOpenHistoryList.size()); i++)
+		for (int i = 0; i < static_cast<int>(m_open_history_list.size()); i++)
 		{
 			mii.wID = ID_TOOLBAR_OPEN_HISTORY + i;
-			mii.dwTypeData = m_vcOpenHistoryList[i].GetBuffer( 0 );
-			InsertMenuItem(hOpenSubMenu, i, TRUE, &mii);
+			mii.dwTypeData = m_open_history_list[i].GetBuffer(0);
+			InsertMenuItem(open_sub_menu, i, TRUE, &mii);
 		}
 	}
 
-	TrackPopupMenuEx(hOpenSubMenu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_VERTICAL, rc.left, rc.bottom, GetHandle(), &tpm);
-	DestroyMenu(hOpenMenu);
+	TrackPopupMenuEx(open_sub_menu, TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_VERTICAL, rc.left, rc.bottom, GetHandle(), &tpm);
+	DestroyMenu(open_menu);
 }
 
 void CMainToolBar::AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archive_list)
 {
-	//for (int i = 0; i < (int)pclArcList.size(); i++) {
-	for (auto itrArc = archive_list.begin(); itrArc != archive_list.end(); )
+	for (auto arc_iter = archive_list.begin(); arc_iter != archive_list.end(); )
 	{
-		const CArcFile* archive = itrArc->get();
+		const CArcFile* archive = arc_iter->get();
 		// Turn off if there is any history
-		for (auto itrStr = m_vcOpenHistoryList.begin(); itrStr != m_vcOpenHistoryList.end(); ++itrStr)
+		for (auto iter_str = m_open_history_list.begin(); iter_str != m_open_history_list.end(); ++iter_str)
 		{
-			if (archive->GetArcPath() == *itrStr)
+			if (archive->GetArcPath() == *iter_str)
 			{
-				m_vcOpenHistoryList.erase(itrStr);
+				m_open_history_list.erase(iter_str);
 				break;
 			}
 		}
 		// When history entries have hit their limit, remove the oldest entry to make room for the newer one
-		if (m_vcOpenHistoryList.size() == 10)
-			m_vcOpenHistoryList.pop_back();
+		if (m_open_history_list.size() == 10)
+			m_open_history_list.pop_back();
 		// Add to the history
-		m_vcOpenHistoryList.insert(m_vcOpenHistoryList.begin(), archive->GetArcPath());
+		m_open_history_list.insert(m_open_history_list.begin(), archive->GetArcPath());
 
 		// Close a file that isn't supported
 		if (!archive->GetState())
 		{
-			itrArc = archive_list.erase(itrArc);
+			arc_iter = archive_list.erase(arc_iter);
 		}
 		else
 		{
-			++itrArc;
+			++arc_iter;
 		}
 	}
 
@@ -115,36 +114,36 @@ void CMainToolBar::AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archiv
 
 void CMainToolBar::LoadIni()
 {
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-	clIni.SetSection(_T("OpenHistory"));
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
+	ini.SetSection(_T("OpenHistory"));
 
 	for (unsigned int i = 0; i < 10; i++)
 	{
-		TCHAR szKey[256];
-		_stprintf(szKey, _T("File%u"), i);
-		clIni.SetKey(szKey);
+		TCHAR key[256];
+		_stprintf(key, _T("File%u"), i);
+		ini.SetKey(key);
 
-		YCString clsPathToArc;
-		clIni.ReadStr(clsPathToArc, _T(""));
+		YCString archive_path;
+		ini.ReadStr(archive_path, _T(""));
 
-		if (clsPathToArc == _T(""))
+		if (archive_path == _T(""))
 			break;
 
-		m_vcOpenHistoryList.push_back(clsPathToArc);
+		m_open_history_list.push_back(archive_path);
 	}
 }
 
 void CMainToolBar::SaveIni()
 {
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-	clIni.SetSection(_T("OpenHistory"));
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
+	ini.SetSection(_T("OpenHistory"));
 
-	for (size_t i = 0; i < m_vcOpenHistoryList.size(); i++)
+	for (size_t i = 0; i < m_open_history_list.size(); i++)
 	{
-		TCHAR szKey[256];
-		_stprintf(szKey, _T("File%zu"), i);
-		clIni.SetKey(szKey);
-		clIni.WriteStr(m_vcOpenHistoryList[i]);
+		TCHAR key[256];
+		_stprintf(key, _T("File%zu"), i);
+		ini.SetKey(key);
+		ini.WriteStr(m_open_history_list[i]);
 	}
 }
 
@@ -167,7 +166,7 @@ HWND CSearchToolBar::Create(HWND hWnd)
 		{8, IDM_WMV, TBSTATE_ENABLED, TBSTYLE_CHECK, 0, 0}
 	}};
 
-	m_nBeginID = IDM_AHX;
+	m_begin_id = IDM_AHX;
 
 	HWND toolbar = CToolBar::Create(hWnd, buttons.data(), IDI_SEARCH_TOOLBAR, 25, buttons.size());
 	SetCheckSearch();
@@ -177,22 +176,22 @@ HWND CSearchToolBar::Create(HWND hWnd)
 
 void CSearchToolBar::SetCheckSearch()
 {
-	HWND hToolBar = GetCtrlHandle();
+	HWND toolbar = GetCtrlHandle();
 	COption option;
 
-	for (size_t i = 0, ID = m_nBeginID; i < option.GetOpt().bSearch.size(); i++, ID++)
+	for (size_t i = 0, ID = m_begin_id; i < option.GetOpt().bSearch.size(); i++, ID++)
 	{
-		SendMessage(hToolBar, TB_CHECKBUTTON, ID, option.GetOpt().bSearch[i]);
+		SendMessage(toolbar, TB_CHECKBUTTON, ID, option.GetOpt().bSearch[i]);
 	}
 }
 
-void CSearchToolBar::SetSearch(int nID)
+void CSearchToolBar::SetSearch(int id)
 {
-	int nNumber = nID - m_nBeginID;
+	const int number = id - m_begin_id;
 
 	// Change
 	COption option;
-	option.GetOpt().bSearch[nNumber] ^= 1;
+	option.GetOpt().bSearch[number] ^= 1;
 
 	// Save ini
 	option.SaveIni();

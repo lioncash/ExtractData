@@ -13,7 +13,7 @@ public:
 	HWND Create(HWND hWnd);
 	void CreateMenuHistory(int iItem);
 	void AddOpenHistory(std::vector<std::unique_ptr<CArcFile>>& archive_list);
-	const std::vector<YCString>& GetHistory() const { return m_vcOpenHistoryList; }
+	const std::vector<YCString>& GetHistory() const { return m_open_history_list; }
 
 	void LoadIni() override;
 	void SaveIni() override;
@@ -21,7 +21,7 @@ public:
 	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); }
 
 private:
-	std::vector<YCString> m_vcOpenHistoryList;
+	std::vector<YCString> m_open_history_list;
 };
 
 // Search file toolbar
@@ -34,5 +34,5 @@ public:
 	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); }
 
 private:
-	int m_nBeginID = 0;
+	int m_begin_id = 0;
 };
