@@ -62,90 +62,90 @@ void CMainListView::Show()
 	ListView_SetItemCountEx(m_hList, m_ent.size(), LVSICF_NOINVALIDATEALL);
 }
 
-void CMainListView::Show(NMLVDISPINFO* pstDispInfo)
+void CMainListView::Show(NMLVDISPINFO* disp_info)
 {
-	if (pstDispInfo->item.mask & LVIF_TEXT)
+	if (disp_info->item.mask & LVIF_TEXT)
 	{
-		const SFileInfo& file_info = m_ent[pstDispInfo->item.iItem];
-		const int        text_max = pstDispInfo->item.cchTextMax - 1;
+		const SFileInfo& file_info = m_ent[disp_info->item.iItem];
+		const int        text_max = disp_info->item.cchTextMax - 1;
 
-		switch(pstDispInfo->item.iSubItem)
+		switch(disp_info->item.iSubItem)
 		{
 		case 0: // No view
-			_stprintf(pstDispInfo->item.pszText, _T("%6d."), (pstDispInfo->item.iItem + 1));
+			_stprintf(disp_info->item.pszText, _T("%6d."), (disp_info->item.iItem + 1));
 			break;
 
 		case 1: // Show file name
-			//_tcscpy_s(pstDispInfo->item.pszText, pstDispInfo->item.cchTextMax-100, pEnt[pstDispInfo->item.iItem].name);
-			lstrcpy(pstDispInfo->item.pszText, file_info.name.Left(text_max));
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].name.GetBuffer(0);
+			//_tcscpy_s(disp_info->item.pszText, disp_info->item.cchTextMax-100, pEnt[disp_info->item.iItem].name);
+			lstrcpy(disp_info->item.pszText, file_info.name.Left(text_max));
+			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].name.GetBuffer(0);
 			break;
 
 		case 2: // Show file size
-			lstrcpy(pstDispInfo->item.pszText, file_info.sSizeOrg.Left(text_max));
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeOrg.GetBuffer(0);
+			lstrcpy(disp_info->item.pszText, file_info.sSizeOrg.Left(text_max));
+			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].sSizeOrg.GetBuffer(0);
 			break;
 
 		case 3: // Show compressed file size
 			if (file_info.sizeCmp != file_info.sizeOrg)
 			{
-				//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].sSizeCmp.GetBuffer(0);
-				lstrcpy(pstDispInfo->item.pszText, file_info.sSizeCmp.Left(text_max));
+				//disp_info->item.pszText = rfEnt[disp_info->item.iItem].sSizeCmp.GetBuffer(0);
+				lstrcpy(disp_info->item.pszText, file_info.sSizeCmp.Left(text_max));
 			}
 			break;
 
 		case 4: // Show file format
-			lstrcpy(pstDispInfo->item.pszText, file_info.format.Left(text_max));
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].format.GetBuffer(0);
+			lstrcpy(disp_info->item.pszText, file_info.format.Left(text_max));
+			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].format.GetBuffer(0);
 			break;
 
 		case 5: // Display the archive filename
-			lstrcpy(pstDispInfo->item.pszText, file_info.arcName.Left(text_max));
-			//pstDispInfo->item.pszText = rfEnt[pstDispInfo->item.iItem].arcName.GetBuffer(0);
+			lstrcpy(disp_info->item.pszText, file_info.arcName.Left(text_max));
+			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].arcName.GetBuffer(0);
 			break;
 
 		case 6: // Display the start address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), file_info.start);
+			_stprintf(disp_info->item.pszText, _T("0x%llx"), file_info.start);
 			break;
 
 		case 7: // Display the end address
-			_stprintf(pstDispInfo->item.pszText, _T("0x%llx"), file_info.end);
+			_stprintf(disp_info->item.pszText, _T("0x%llx"), file_info.end);
 			break;
 		}
 	}
 }
 
-void CMainListView::ShowTip(LPNMLVGETINFOTIP ptip)
+void CMainListView::ShowTip(LPNMLVGETINFOTIP tip)
 {
-	switch (ptip->iSubItem)
+	switch (tip->iSubItem)
 	{
 	case 0:
 		// dwFlags to display (when the character is hidden), in this case 0
 		// dwFlags (even when the left-most column is not hidden) in this case 1
-		if (ptip->dwFlags == 0)
-			_stprintf(ptip->pszText, _T("%6d"), ptip->iItem + 1);
+		if (tip->dwFlags == 0)
+			_stprintf(tip->pszText, _T("%6d"), tip->iItem + 1);
 		break;
 	case 1:
-		lstrcpy(ptip->pszText, m_ent[ptip->iItem].name);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].name);
 		break;
 	case 2:
-		lstrcpy(ptip->pszText, m_ent[ptip->iItem].sSizeOrg);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].sSizeOrg);
 		break;
 	case 3:
-		if (m_ent[ptip->iItem].sizeCmp != m_ent[ptip->iItem].sizeOrg)
-			lstrcpy(ptip->pszText, m_ent[ptip->iItem].sSizeCmp);
+		if (m_ent[tip->iItem].sizeCmp != m_ent[tip->iItem].sizeOrg)
+			lstrcpy(tip->pszText, m_ent[tip->iItem].sSizeCmp);
 		break;
 	case 4:
-		lstrcpy(ptip->pszText, m_ent[ptip->iItem].format);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].format);
 		break;
 	case 5:
-		lstrcpy(ptip->pszText, m_ent[ptip->iItem].arcName);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].arcName);
 		break;
 	case 6:
-		_stprintf(ptip->pszText, _T("0x%llx"), m_ent[ptip->iItem].start);
+		_stprintf(tip->pszText, _T("0x%llx"), m_ent[tip->iItem].start);
 		break;
 	case 7:
-		_stprintf(ptip->pszText, _T("0x%llx"), m_ent[ptip->iItem].end);
+		_stprintf(tip->pszText, _T("0x%llx"), m_ent[tip->iItem].end);
 		break;
 	}
 }
@@ -190,16 +190,16 @@ void CMainListView::Clear()
 		return;
 
 	// Delete files
-	for (auto& fileInfo : m_ent)
+	for (auto& file_info : m_ent)
 	{
-		if (!fileInfo.sizesOrg.empty())
+		if (!file_info.sizesOrg.empty())
 		{
-			fileInfo.sizesOrg.clear();
-			fileInfo.sizesCmp.clear();
-			fileInfo.starts.clear();
-			fileInfo.bCmps.clear();
+			file_info.sizesOrg.clear();
+			file_info.sizesCmp.clear();
+			file_info.starts.clear();
+			file_info.bCmps.clear();
 		}
-		fileInfo.sTmpFilePath.clear();
+		file_info.sTmpFilePath.clear();
 	}
 	m_ent.clear();
 
@@ -211,7 +211,7 @@ void CMainListView::Clear()
 //////////////////////////////////////////////////////////////////////////////////////////
 // Drag has been initiated
 
-void CMainListView::OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult)
+void CMainListView::OnBeginDrag(NMHDR* nmhdr, LRESULT* result)
 {
-	NM_LISTVIEW* pNMListView = reinterpret_cast<NM_LISTVIEW*>(pNMHDR);
+	NM_LISTVIEW* pNMListView = reinterpret_cast<NM_LISTVIEW*>(nmhdr);
 }

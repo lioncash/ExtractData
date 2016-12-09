@@ -8,11 +8,11 @@ class CMainListView : public CListView
 public:
 	void Create(HWND hWnd, SOption& option);
 	void Show();
-	void Show(NMLVDISPINFO* pDispInfo);
-	void ShowTip(LPNMLVGETINFOTIP ptip);
+	void Show(NMLVDISPINFO* disp_info);
+	void ShowTip(LPNMLVGETINFOTIP tip);
 	void Clear();
 
-	virtual void OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult);
+	virtual void OnBeginDrag(NMHDR* nmhdr, LRESULT* result);
 
 	std::vector<SFileInfo>& GetFileInfo() { return m_ent; }
 
