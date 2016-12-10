@@ -18,7 +18,7 @@ public:
 	void LoadIni() override;
 	void SaveIni() override;
 
-	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); }
+	void SetWindowPos(int x, int y, int cx, int cy);
 
 private:
 	std::vector<YCString> m_open_history_list;
@@ -31,7 +31,7 @@ public:
 	HWND Create(HWND hWnd);
 	void SetCheckSearch();
 	void SetSearch(int nID);
-	void SetWindowPos(int x, int y, int cx, int cy) { MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE); }
+	void SetWindowPos(int x, int y, int cx, int cy);
 
 private:
 	int m_begin_id = 0;

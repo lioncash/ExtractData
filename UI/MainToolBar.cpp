@@ -147,6 +147,11 @@ void CMainToolBar::SaveIni()
 	}
 }
 
+void CMainToolBar::SetWindowPos(int x, int y, int cx, int cy)
+{
+	MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //
 //                         Search file toolbar                           //
@@ -195,4 +200,9 @@ void CSearchToolBar::SetSearch(int id)
 
 	// Save ini
 	option.SaveIni();
+}
+
+void CSearchToolBar::SetWindowPos(int x, int y, int cx, int cy)
+{
+	MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE);
 }
