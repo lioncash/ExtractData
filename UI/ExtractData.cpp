@@ -181,7 +181,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 		// Initialize the progress bar
 		CProgBar prog;
-		prog.Init(pObj->m_hWnd, AllArcSize);
+		prog.Init(pObj->m_window, AllArcSize);
 
 		// Reading
 		DWORD dwArcID = 0;
@@ -210,14 +210,14 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 	{
 		// Out of memory
 		CError error;
-		error.bad_alloc(pObj->m_hWnd);
+		error.bad_alloc(pObj->m_window);
 	}
 	catch (...)
 	{
 		// or if canceled
 	}
 
-	PostMessage(pObj->m_hWnd, WM_THREAD_END, 0, 0);
+	PostMessage(pObj->m_window, WM_THREAD_END, 0, 0);
 
 	_endthreadex(0);
 
@@ -370,7 +370,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 
 		// Initialize progressbar
 		CProgBar prog;
-		prog.Init(pObj->m_hWnd, AllFileSize);
+		prog.Init(pObj->m_window, AllFileSize);
 
 		for (size_t i = 0; i < nSelects.size(); i++)
 		{
@@ -427,7 +427,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 	{
 		// Out of memory error
 		CError error;
-		error.bad_alloc(pObj->m_hWnd);
+		error.bad_alloc(pObj->m_window);
 	}
 	catch (...)
 	{
@@ -444,7 +444,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		pclArc->CloseFile();
 
 	// Send message to terminate the thread
-	PostMessage(pObj->m_hWnd, WM_THREAD_END, 0, 0);
+	PostMessage(pObj->m_window, WM_THREAD_END, 0, 0);
 
 	_endthreadex(0);
 

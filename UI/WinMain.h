@@ -8,23 +8,23 @@ public:
 	CWinMain();
 	~CWinMain();
 
-	int WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPTSTR lpsCmdLine, int nCmdShow);
+	int WinMain(HINSTANCE inst, HINSTANCE prev_inst, LPTSTR cmd_line, int cmd_show);
 	ATOM InitApp();
 	bool InitInstance();
 
-	LRESULT WndProc(HWND hWnd, UINT Msg, WPARAM wp, LPARAM lp) override;
+	LRESULT WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp) override;
 
 	void CreateMenu(LPARAM lp);
-	void SetQuickMenu(HMENU hMenu);
-	void SetQuickMenuItem(int nID);
+	void SetQuickMenu(HMENU menu);
+	void SetQuickMenuItem(int id);
 
 protected:
 	// Declaration for use in a member function
 	WNDCLASSEX m_wc{};
 
 	// WinMain Arguments
-	HINSTANCE m_hInst = nullptr;
-	HINSTANCE m_hPrevInst = nullptr;
-	LPTSTR m_lpsCmdLine = nullptr;
-	int m_nCmdShow = 0;
+	HINSTANCE m_inst = nullptr;
+	HINSTANCE m_prev_inst = nullptr;
+	LPTSTR m_cmd_line = nullptr;
+	int m_cmd_show = 0;
 };
