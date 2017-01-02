@@ -74,10 +74,7 @@ void CProgBar::SetFileName(const YCString& file_name)
 }
 
 // Function that is executed on canceling
-BOOL CProgBar::OnCancel()
+bool CProgBar::OnCancel()
 {
-	if (g_bThreadEnd)
-		return TRUE;
-
-	return FALSE;
+	return g_bThreadEnd;
 }

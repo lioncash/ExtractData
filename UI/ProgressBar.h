@@ -16,7 +16,7 @@ public:
 	void UpdatePercent();
 	void SetArcName(const YCString& archive_name);
 	void SetFileName(const YCString& file_name);
-	BOOL OnCancel();
+	bool OnCancel();
 
 	HWND GetHandle()    const { return m_dlg;  }
 	HINSTANCE GetInst() const { return m_inst; }
