@@ -3,7 +3,7 @@
 
 #include "res/ResExtractData.h"
 
-extern BOOL g_bThreadEnd;
+extern bool g_bThreadEnd;
 
 CProgBar::CProgBar()
 {

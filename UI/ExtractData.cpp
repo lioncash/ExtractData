@@ -16,7 +16,7 @@
 #define WM_OUTPUT_FILE (WM_USER+2)
 #define WM_THREAD_END  (WM_USER+3)
 
-BOOL g_bThreadEnd;
+bool g_bThreadEnd;
 
 CExtractData::CExtractData()
 {
@@ -588,7 +588,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 			CWindowBase::Init();
 
-			g_bThreadEnd = FALSE;
+			g_bThreadEnd = false;
 
 			SetFocus(GetDlgItem(hWnd, IDC_CANCEL));
 			if (m_bInput)
@@ -613,7 +613,7 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			case IDCANCEL:
 			case IDC_CANCEL:
 				// Cancel is pressed
-				g_bThreadEnd = TRUE;
+				g_bThreadEnd = true;
 				return FALSE;
 			}
 		}

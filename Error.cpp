@@ -1,12 +1,12 @@
 #include "StdAfx.h"
 #include "Error.h"
 
-extern BOOL g_bThreadEnd;
+extern bool g_bThreadEnd;
 
 // Function that displays the error message obtained by GetLastError()
 void CError::LastError(HWND hWnd)
 {
-	g_bThreadEnd = TRUE;
+	g_bThreadEnd = true;
 	LPTSTR lpMsgBuf = nullptr;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		nullptr,
@@ -32,7 +32,7 @@ void CError::Message(HWND hWnd, LPCTSTR mes, ...)
 	wvsprintf(string, mes, list);
 	va_end(list);
 
-	g_bThreadEnd = TRUE;
+	g_bThreadEnd = true;
 	MessageBox(hWnd, string, _T("Error"), MB_OK | MB_ICONSTOP);
 }
 
