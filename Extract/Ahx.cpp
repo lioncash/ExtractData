@@ -90,47 +90,8 @@ constexpr std::array<int, 257> intwinbase{
 
 std::array<std::array<double, 16>, 5> costable;
 std::array<double, 512 + 32> decwin;
-} // Anonymous namespace
 
-bool CAhx::Mount(CArcFile* archive)
-{
-	if (lstrcmpi(archive->GetArcExten(), _T(".ahx")) != 0)
-		return false;
-
-	return archive->Mount();
-}
-
-bool CAhx::Decode(CArcFile* archive)
-{
-	const SFileInfo* file_info = archive->GetOpenFileInfo();
-
-	if (file_info->format != _T("AHX"))
-		return false;
-
-	// Read AHX
-	std::vector<u8> ahx_buf(file_info->sizeCmp);
-	archive->Read(ahx_buf.data(), ahx_buf.size());
-
-	// Output to convert WAV to AHX
-	Decode(archive, ahx_buf.data(), ahx_buf.size());
-
-	return true;
-}
-
-void CAhx::Decode(CArcFile* archive, const u8* ahx_buf, size_t ahx_buf_len)
-{
-	// Convert AHX to WAV
-	u32 wav_buf_len = BitUtils::Swap32(*(const u32*)&ahx_buf[12]) * 2;
-	std::vector<u8> wav_buf(wav_buf_len + 1152 * 16); // Advance //+ 1152 * 2); // margen = layer-2 frame size
-	wav_buf_len = Decompress(wav_buf.data(), ahx_buf, ahx_buf_len);
-
-	// Output
-	CWav wav;
-	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(const u32*)&ahx_buf[8]), ahx_buf[7], 16);
-	wav.Write(wav_buf.data());
-}
-
-int CAhx::getbits(const u8*& src, int& bit_data, int& bit_rest, int bits)
+int getbits(const u8*& src, int& bit_data, int& bit_rest, int bits)
 {
 	while (bit_rest < 24)
 	{
@@ -145,7 +106,7 @@ int CAhx::getbits(const u8*& src, int& bit_data, int& bit_rest, int bits)
 	return ret;
 }
 
-void CAhx::dct(const double* src, double* dst0, double* dst1)
+void dct(const double* src, double* dst0, double* dst1)
 {
 	double tmp[2][32];
 
@@ -264,6 +225,45 @@ void CAhx::dct(const double* src, double* dst0, double* dst1)
 	dst1[13] = tmp[0][16 +  7] + tmp[0][16 + 15];
 	dst1[14] = tmp[0][15];
 	dst1[15] = tmp[0][16 + 15];
+}
+} // Anonymous namespace
+
+bool CAhx::Mount(CArcFile* archive)
+{
+	if (lstrcmpi(archive->GetArcExten(), _T(".ahx")) != 0)
+		return false;
+
+	return archive->Mount();
+}
+
+bool CAhx::Decode(CArcFile* archive)
+{
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+
+	if (file_info->format != _T("AHX"))
+		return false;
+
+	// Read AHX
+	std::vector<u8> ahx_buf(file_info->sizeCmp);
+	archive->Read(ahx_buf.data(), ahx_buf.size());
+
+	// Output to convert WAV to AHX
+	Decode(archive, ahx_buf.data(), ahx_buf.size());
+
+	return true;
+}
+
+void CAhx::Decode(CArcFile* archive, const u8* ahx_buf, size_t ahx_buf_len)
+{
+	// Convert AHX to WAV
+	u32 wav_buf_len = BitUtils::Swap32(*(const u32*)&ahx_buf[12]) * 2;
+	std::vector<u8> wav_buf(wav_buf_len + 1152 * 16); // Advance //+ 1152 * 2); // margen = layer-2 frame size
+	wav_buf_len = Decompress(wav_buf.data(), ahx_buf, ahx_buf_len);
+
+	// Output
+	CWav wav;
+	wav.Init(archive, wav_buf_len, BitUtils::Swap32(*(const u32*)&ahx_buf[8]), ahx_buf[7], 16);
+	wav.Write(wav_buf.data());
 }
 
 int CAhx::Decompress(u8* dst, const u8* src, int srclen)
