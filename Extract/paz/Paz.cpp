@@ -327,13 +327,13 @@ void CPaz::GetBaseArcName(LPTSTR dst, LPCTSTR archive_name)
 /// @param archive  Archive
 /// @param key_info Key info
 ///
-u32 CPaz::SetKey(CArcFile* archive, const KeyInfo* key_info)
+size_t CPaz::SetKey(CArcFile* archive, const std::array<KeyInfo, 8>& key_info)
 {
 	TCHAR base_archive_name[_MAX_FNAME];
 
 	GetBaseArcName(base_archive_name, archive->GetArcName());
 
-	for (u32 i = 0; i < 8; i++)
+	for (size_t i = 0; i < key_info.size(); i++)
 	{
 		if (key_info[i].type.CompareNoCase(base_archive_name) == 0)
 		{

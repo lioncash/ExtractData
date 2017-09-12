@@ -27,7 +27,7 @@ protected:
 	// Set 32 byte keys (Keys differ for each file)
 	virtual void InitMountKey(CArcFile* archive) = 0;
 	virtual void InitDecodeKey(CArcFile* archive) = 0;
-	u32 SetKey(CArcFile* archive, const KeyInfo* key_info);
+	size_t SetKey(CArcFile* archive, const std::array<KeyInfo, 8>& key_info);
 
 	// Decrypt the table
 	virtual void DecodeTable1();
