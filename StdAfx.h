@@ -35,7 +35,6 @@
 
 #include    "Types.h"
 
-#include    "Base/YCMemory.h"
 #include    "Base/YCString.h"
 #include    "Base/YCFileFind.h"
 #include    "Base/YCFileFindSx.h"

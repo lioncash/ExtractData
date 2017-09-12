@@ -510,9 +510,6 @@
     <ClInclude Include="Base\YCLocalMemory.h">
       <Filter>Source Files\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Base\YCMemory.h">
-      <Filter>Source Files\Base</Filter>
-    </ClInclude>
     <ClInclude Include="Base\YCStdioFile.h">
       <Filter>Source Files\Base</Filter>
     </ClInclude>
