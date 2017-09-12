@@ -706,13 +706,13 @@ template<class TYPE> void YCStringT<TYPE>::Format(const TYPE* pszFormat, ...)
 
 	va_start(vaArgPtr, pszFormat);
 
-	YCMemory<TYPE> clmBuffer(1024);
+	std::vector<TYPE> clmBuffer(1024);
 
 	while (true)
 	{
 		va_list vaWork = vaArgPtr;
 
-		if (_vsntprintf(&clmBuffer[0], (clmBuffer.size() - 1), pszFormat, vaWork) == -1)
+		if (_vsntprintf(clmBuffer.data(), (clmBuffer.size() - 1), pszFormat, vaWork) == -1)
 		{
 			clmBuffer.resize(clmBuffer.size() * 2);
 		}
@@ -724,7 +724,7 @@ template<class TYPE> void YCStringT<TYPE>::Format(const TYPE* pszFormat, ...)
 
 	va_end(vaArgPtr);
 
-	Copy(&clmBuffer[0]);
+	Copy(clmBuffer.data());
 }
 
 /// Formatting settings
@@ -738,13 +738,13 @@ void YCStringT<TYPE>::AppendFormat(const TYPE* pszFormat, ...)
 
 	va_start(vaArgPtr, pszFormat);
 
-	YCMemory<TYPE> clmBuffer(1024);
+	std::vector<TYPE> clmBuffer(1024);
 
 	while (true)
 	{
 		va_list vaWork = vaArgPtr;
 
-		if (_vsntprintf(&clmBuffer[0], (clmBuffer.size() - 1), pszFormat, vaWork) == -1)
+		if (_vsntprintf(clmBuffer.data(), (clmBuffer.size() - 1), pszFormat, vaWork) == -1)
 		{
 			clmBuffer.resize(clmBuffer.size() * 2);
 		}
@@ -756,7 +756,7 @@ void YCStringT<TYPE>::AppendFormat(const TYPE* pszFormat, ...)
 
 	va_end(vaArgPtr);
 
-	Append(&clmBuffer[0]);
+	Append(clmBuffer.data());
 }
 
 
