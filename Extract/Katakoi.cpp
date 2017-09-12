@@ -53,11 +53,11 @@ bool CKatakoi::MountIar(CArcFile* pclArc)
 	DWORD dwIndexSize = dwFiles * dwFileEntrySize;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	std::vector<BYTE> clmbtIndex(dwIndexSize);
+	pclArc->Read(clmbtIndex.data(), clmbtIndex.size());
 
 	// Get index filename
-	YCMemory<BYTE> clmbtSec;
+	std::vector<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
 	const bool bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
@@ -136,12 +136,12 @@ bool CKatakoi::MountWar(CArcFile* pclArc)
 	DWORD dwIndexSize = dwFiles * dwFileEntrySize;
 
 	// Get index
-	YCMemory<BYTE> clmbtIndex(dwIndexSize);
+	std::vector<BYTE> clmbtIndex(dwIndexSize);
 	pclArc->SeekCur(0x04);
-	pclArc->Read(&clmbtIndex[0], dwIndexSize);
+	pclArc->Read(clmbtIndex.data(), clmbtIndex.size());
 
 	// Get the filename index
-	YCMemory<BYTE> clmbtSec;
+	std::vector<BYTE> clmbtSec;
 	DWORD dwNameIndex;
 
 	const bool bSec = GetNameIndex(pclArc, clmbtSec, dwNameIndex);
@@ -191,7 +191,7 @@ bool CKatakoi::MountWar(CArcFile* pclArc)
 	return true;
 }
 
-bool CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex)
+bool CKatakoi::GetNameIndex(CArcFile* pclArc, std::vector<BYTE>& clmbtSec, DWORD& dwNameIndex)
 {
 	// Open the filename represented by the index
 	TCHAR szPathToSec[MAX_PATH];
@@ -217,9 +217,9 @@ bool CKatakoi::GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& d
 
 	// Reading
 	clmbtSec.resize(dwSecSize);
-	clfSec.Read(&clmbtSec[0], dwSecSize);
+	clfSec.Read(clmbtSec.data(), clmbtSec.size());
 
-	if (memcmp(&clmbtSec[0], "SEC5", 4) != 0)
+	if (memcmp(clmbtSec.data(), "SEC5", 4) != 0)
 	{
 		// Incorrect sec5 file
 
@@ -365,15 +365,15 @@ bool CKatakoi::DecodeIar(CArcFile* pclArc)
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Reading
-	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
+	std::vector<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(clmbtSrc.data(), clmbtSrc.size());
 
 	// Output buffer
 	DWORD dwDstSize = *(LPDWORD)&clmbtSrc[8];
-	YCMemory<BYTE> clmbtDst(dwDstSize * 2);
+	std::vector<BYTE> clmbtDst(dwDstSize * 2);
 
 	// Decompression
-	DecompImage(&clmbtDst[0], dwDstSize, &clmbtSrc[64], *(LPDWORD)&clmbtSrc[16]);
+	DecompImage(clmbtDst.data(), dwDstSize, &clmbtSrc[64], *(LPDWORD)&clmbtSrc[16]);
 
 	long lWidth = *(LPLONG)&clmbtSrc[32];
 	long lHeight = *(LPLONG)&clmbtSrc[36];
@@ -399,13 +399,13 @@ bool CKatakoi::DecodeIar(CArcFile* pclArc)
 	if (bDiff)
 	{
 		// Difference file
-		DecodeCompose(pclArc, &clmbtDst[0], dwDstSize, lWidth, lHeight, wBpp);
+		DecodeCompose(pclArc, clmbtDst.data(), dwDstSize, lWidth, lHeight, wBpp);
 	}
 	else
 	{
 		CImage image;
 		image.Init(pclArc, lWidth, lHeight, wBpp);
-		image.WriteReverse(&clmbtDst[0], dwDstSize);
+		image.WriteReverse(clmbtDst.data(), dwDstSize);
 	}
 
 	return true;
@@ -422,15 +422,15 @@ bool CKatakoi::DecodeWar(CArcFile* pclArc)
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Reading
-	YCMemory<BYTE> clmbtSrc(file_info->sizeCmp);
-	pclArc->Read(&clmbtSrc[0], file_info->sizeCmp);
+	std::vector<BYTE> clmbtSrc(file_info->sizeCmp);
+	pclArc->Read(clmbtSrc.data(), clmbtSrc.size());
 
-	if (memcmp(&clmbtSrc[0], "OggS", 4) == 0)
+	if (memcmp(clmbtSrc.data(), "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
 
 		COgg ogg;
-		ogg.Decode(pclArc, &clmbtSrc[0]);
+		ogg.Decode(pclArc, clmbtSrc.data());
 	}
 	else
 	{
@@ -808,9 +808,9 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	if (bExistsForBase)
 	{
 		// Base file exists
-		YCMemory<BYTE> clmbtSrcForBase(pstfiBase->sizeCmp);
+		std::vector<BYTE> clmbtSrcForBase(pstfiBase->sizeCmp);
 		pclArc->SeekHed(pstfiBase->start);
-		pclArc->Read(&clmbtSrcForBase[0], pstfiBase->sizeCmp);
+		pclArc->Read(clmbtSrcForBase.data(), clmbtSrcForBase.size());
 
 		long lWidthForBase = *(LPLONG)&clmbtSrcForBase[32];
 		long lHeightForBase = *(LPLONG)&clmbtSrcForBase[36];
@@ -818,14 +818,14 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 		if ((lWidthForBase >= lWidthForDiff) && (lHeightForBase >= lHeightForDiff))
 		{
 			// Large base
-			DWORD          dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
-			YCMemory<BYTE> clmbtDstForBase(dwDstSizeForBase);
+			DWORD             dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
+			std::vector<BYTE> clmbtDstForBase(dwDstSizeForBase);
 
 			// Decompress base file
-			DecompImage(&clmbtDstForBase[0], dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
+			DecompImage(clmbtDstForBase.data(), dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
 
 			// Synthesize base file and delta file
-			Compose(&clmbtDstForBase[0], dwDstSizeForBase, pbyDiff, dwDiffSize, lWidthForBase, lWidthForDiff, wBppForDiff);
+			Compose(clmbtDstForBase.data(), dwDstSizeForBase, pbyDiff, dwDiffSize, lWidthForBase, lWidthForDiff, wBppForDiff);
 
 			// Output
 			CImage cliWork;
@@ -834,29 +834,28 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			WORD   wBpp = wBppForDiff;
 
 			cliWork.Init(pclArc, lWidth, lHeight, wBpp);
-			cliWork.WriteReverse(&clmbtDstForBase[0], dwDstSizeForBase);
+			cliWork.WriteReverse(clmbtDstForBase.data(), dwDstSizeForBase);
 
 			return true;
 		}
 		else if ((lWidthForDiff >= lWidthForBase) && (lHeightForDiff >= lHeightForBase))
 		{
 			// Difference is greater
-			DWORD          dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
-			YCMemory<BYTE> clmbtDstForBase(dwDstSizeForBase);
+			DWORD             dwDstSizeForBase = *(LPDWORD)&clmbtSrcForBase[8];
+			std::vector<BYTE> clmbtDstForBase(dwDstSizeForBase);
 
 			// Decompress base file
-			DecompImage(&clmbtDstForBase[0], dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
+			DecompImage(clmbtDstForBase.data(), clmbtDstForBase.size(), &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
 
 			// The difference in the size of the memory allocation
-			DWORD          dwDstSize = lWidthForDiff * lHeightForDiff * (wBppForDiff >> 3);
-			YCMemory<BYTE> clmbtDst(dwDstSize);
-			memset(&clmbtDst[0], 0, dwDstSize);
+			DWORD             dwDstSize = lWidthForDiff * lHeightForDiff * (wBppForDiff >> 3);
+			std::vector<BYTE> clmbtDst(dwDstSize);
 
 			// Align base file in the lower-right
 			long   lX = lWidthForDiff - lWidthForBase;
 			long   lY = lHeightForDiff - lHeightForBase;
-			LPBYTE pbyDstForBase = &clmbtDstForBase[0];
-			LPBYTE pbyDst = &clmbtDst[0];
+			LPBYTE pbyDstForBase = clmbtDstForBase.data();
+			LPBYTE pbyDst = clmbtDst.data();
 
 			long   lGapForX = lX * (wBppForDiff >> 3);
 			long   lLineForBase = lWidthForBase * (wBppForDiff >> 3);
@@ -877,7 +876,7 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			}
 
 			// Synthesize the base file and the delta file
-			Compose(&clmbtDst[0], dwDstSize, pbyDiff, dwDiffSize, lWidthForDiff, lWidthForDiff, wBppForDiff);
+			Compose(clmbtDst.data(), clmbtDst.size(), pbyDiff, dwDiffSize, lWidthForDiff, lWidthForDiff, wBppForDiff);
 
 			// Output
 			CImage cliWork;
@@ -886,7 +885,7 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 			WORD   wBpp = wBppForDiff;
 
 			cliWork.Init(pclArc, lWidth, lHeight, wBpp);
-			cliWork.WriteReverse(&clmbtDst[0], dwDstSize);
+			cliWork.WriteReverse(clmbtDst.data(), clmbtDst.size());
 
 			return true;
 		}
@@ -898,16 +897,15 @@ bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize,
 	WORD wBpp = wBppForDiff;
 
 	// Prepare black data
-	DWORD          dwDstSize = ((lWidth * (wBpp >> 3) + 3) & 0xFFFFFFFC) * lHeight;
-	YCMemory<BYTE> clmbtDst(dwDstSize);
-	memset(&clmbtDst[0], 0, dwDstSize);
+	DWORD             dwDstSize = ((lWidth * (wBpp >> 3) + 3) & 0xFFFFFFFC) * lHeight;
+	std::vector<BYTE> clmbtDst(dwDstSize);
 
 	// Synthesize black data
-	Compose(&clmbtDst[0], dwDstSize, pbyDiff, dwDiffSize, lWidth, lWidth, wBpp);
+	Compose(clmbtDst.data(), clmbtDst.size(), pbyDiff, dwDiffSize, lWidth, lWidth, wBpp);
 
 	CImage cliWork;
 	cliWork.Init(pclArc, lWidth, lHeight, wBpp);
-	cliWork.WriteReverse(&clmbtDst[0], dwDstSize);
+	cliWork.WriteReverse(clmbtDst.data(), clmbtDst.size());
 
 	// Error message output
 /*

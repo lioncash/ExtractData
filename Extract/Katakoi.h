@@ -15,7 +15,7 @@ private:
 	bool DecodeIar(CArcFile* pclArc);
 	bool DecodeWar(CArcFile* pclArc);
 
-	bool GetNameIndex(CArcFile* pclArc, YCMemory<BYTE>& clmbtSec, DWORD& dwNameIndex);
+	bool GetNameIndex(CArcFile* pclArc, std::vector<BYTE>& clmbtSec, DWORD& dwNameIndex);
 	bool GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc);
 
 	void GetBit(LPBYTE& pbySrc, DWORD& dwFlags);
