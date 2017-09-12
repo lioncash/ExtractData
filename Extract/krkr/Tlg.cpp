@@ -379,8 +379,8 @@ u32 CTlg::DecompLZSS(u8* dst, const u8* src, size_t src_size, u8* dictionary, u3
 // RGBA Composition
 void CTlg::ComposeColors(u8* dst, const u8* upper, const u8* const* buffer, u32 width, u32 colors)
 {
-	u8 c[4]  = {0, 0, 0, 0};
-	u8 pc[4] = {0, 0, 0, 0};
+	std::array<u8, 4> c{};
+	std::array<u8, 4> pc{};
 
 	for (size_t x = 0; x < width; x++)
 	{
