@@ -266,7 +266,7 @@ bool CTH2::DecodeEtc(CArcFile* archive)
 		archive->Read(dst.data(), dst_size);
 	}
 
-	YCString file_extension = file_info->name.GetFileExt().MakeLower();
+	const YCString file_extension = file_info->name.GetFileExt().MakeLower();
 	if (file_extension == _T(".tga"))
 	{
 		// TGA
