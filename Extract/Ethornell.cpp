@@ -15,7 +15,9 @@ bool CEthornell::Mount(CArcFile* archive)
 
 	if (memcmp(archive->GetHeader(), "PackFile    ", 12) != 0 &&
 	    memcmp(archive->GetHeader(), "BURIKO ARC20", 12) != 0)
+	{
 		return false;
+	}
 
 	archive->SeekHed(12);
 
