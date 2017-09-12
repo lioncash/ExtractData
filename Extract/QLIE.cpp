@@ -10,7 +10,7 @@ bool CQLIE::Mount(CArcFile* pclArc)
 		return false;
 
 	// Get the signature
-	BYTE signature[16];
+	u8 signature[16];
 	pclArc->Seek(-28, FILE_END);
 	pclArc->Read(signature, sizeof(signature));
 
@@ -18,59 +18,59 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	if (memcmp(signature, "FilePackVer", 11) != 0)
 	{
 		pclArc->SeekHed();
-		return FALSE;
+		return false;
 	}
 
 	// Get the file count
-	DWORD ctFile;
-	pclArc->Read(&ctFile, 4);
+	u32 ctFile;
+	pclArc->ReadU32(&ctFile);
 
 	// Get the index position/offset
-	QWORD index_ofs;
-	pclArc->Read(&index_ofs, 8);
+	u64 index_ofs;
+	pclArc->ReadU64(&index_ofs);
 
 	// Go to the index position
 	pclArc->Seek(index_ofs, FILE_BEGIN);
 
 	// Get the index size (Ver2.0 or later will be included in the hash size)
-	DWORD index_size = pclArc->GetArcSize() - 28 - index_ofs;
+	const u32 index_size = pclArc->GetArcSize() - 28 - index_ofs;
 
 	// Read the index (Ver2.0 or later will be included in the hash)
-	std::vector<BYTE> index(index_size);
+	std::vector<u8> index(index_size);
 	pclArc->Read(index.data(), index.size());
 
-	DWORD   seed = 0;
-	LPBYTE  pIndex = index.data();
+	u32      seed = 0;
+	u8*      pIndex = index.data();
 	YCString version;
-	void (*DecryptFunc)(LPBYTE, DWORD, DWORD);
+	void (*DecryptFunc)(u8*, u32, u32);
 
 	// Check the version of 'pack'
 	if (memcmp(signature, "FilePackVer1.0", 14) == 0 || memcmp(signature, "FilePackVer2.0", 14) == 0)
 	{
 		// Version
 		version = _T("FilePackVer1.0");
-		
+
 		// Set the decoding functions
 		DecryptFunc = DecryptFileName;
 	}
 	else if (memcmp(signature, "FilePackVer3.0", 14) == 0)
 	{
-		LPBYTE pIndex2 = pIndex;
-		
+		u8* pIndex2 = pIndex;
+
 		// Figure out how much data is TOC entries..
 		for (int i = 0; i < (int)ctFile; i++)
 		{
-			WORD filename_len = *(LPWORD)pIndex2;
+			u16 filename_len = *(u16*)pIndex2;
 			pIndex2 += 2 + filename_len + 28;
 		}
-		
+
 		// Compute the obfuscation seed from the CRC(?) of some hash data.
-		LPBYTE hash_bytes = pIndex2 + 32 + *(LPDWORD)&pIndex2[28] + 36;
+		u8* hash_bytes = pIndex2 + 32 + *(u32*)&pIndex2[28] + 36;
 		seed = crc_or_something(hash_bytes, 256) & 0x0FFFFFFF;
-		
+
 		// Version
 		version = _T("FilePackVer3.0");
-		
+
 		// Set the decoding functions
 		DecryptFunc = DecryptFileNameV3;
 	}
@@ -80,13 +80,13 @@ bool CQLIE::Mount(CArcFile* pclArc)
 		return false;
 	}
 
-	for (DWORD i = 0; i < ctFile; i++)
+	for (u32 i = 0; i < ctFile; i++)
 	{
 		// Get the filename length
-		WORD FileNameLen = *(LPWORD)&pIndex[0];
+		u16 FileNameLen = *(u16*)&pIndex[0];
 		
 		//pclArc->Read(&FileNameLen, 2);
-		BYTE szFileName[_MAX_FNAME];
+		u8 szFileName[_MAX_FNAME];
 		memcpy(szFileName, &pIndex[2], FileNameLen);
 		
 		//pclArc->Read(szFileName, FileNameLen);
@@ -102,12 +102,12 @@ bool CQLIE::Mount(CArcFile* pclArc)
 
 		// Add to the listview.
 		SFileInfo infFile;
-		infFile.name = (LPTSTR)szFileName;
-		infFile.start = *(LPQWORD)&pIndex[0];
-		infFile.sizeCmp = *(LPDWORD)&pIndex[8];
-		infFile.sizeOrg = *(LPDWORD)&pIndex[12];
+		infFile.name = (char*)szFileName;
+		infFile.start = *(u64*)&pIndex[0];
+		infFile.sizeCmp = *(u32*)&pIndex[8];
+		infFile.sizeOrg = *(u32*)&pIndex[12];
 		infFile.end = infFile.start + infFile.sizeCmp;
-		infFile.key = (version == _T("FilePackVer1.0")) ? *(LPDWORD)&pIndex[20] : seed;
+		infFile.key = (version == _T("FilePackVer1.0")) ? *(u32*)&pIndex[20] : seed;
 		infFile.title = version;
 		pclArc->AddFileInfo(infFile);
 
@@ -125,8 +125,8 @@ bool CQLIE::Decode(CArcFile* pclArc)
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure buffers exist
-	std::vector<BYTE> z_buf(file_info->sizeCmp);
-	std::vector<BYTE> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
+	std::vector<u8> z_buf(file_info->sizeCmp);
+	std::vector<u8> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 
 	// Read the file
 	pclArc->Read(z_buf.data(), z_buf.size());
@@ -142,7 +142,7 @@ bool CQLIE::Decode(CArcFile* pclArc)
 		DecryptV3(z_buf.data(), z_buf.size(), file_info->key);
 	}
 
-	LPBYTE pBuf = z_buf.data();
+	u8* pBuf = z_buf.data();
 
 	// Extract the file if it's compressed
 	if (file_info->sizeCmp != file_info->sizeOrg)
@@ -159,7 +159,7 @@ bool CQLIE::Decode(CArcFile* pclArc)
 		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
 
 		// Output size
-		DWORD dstSize = file_info->sizeOrg - 54;
+		u32 dstSize = file_info->sizeOrg - 54;
 
 		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != dstSize)
 			dstSize -= 2;
@@ -196,7 +196,7 @@ bool CQLIE::Decode(CArcFile* pclArc)
 /// @param pbtSrc    .b file
 /// @param dwSrcSize .b file size
 ///
-bool CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
+bool CQLIE::DecodeB(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize)
 {
 	if (memcmp(&pbtSrc[0], "ABMP7", 5) == 0)
 	{
@@ -222,9 +222,9 @@ bool CQLIE::DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize)
 /// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
 /// @param clsBFileName Current .b file name (Will change with each recursive call)
 ///
-bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex, const YCString& clsBFileName)
 {
-	DWORD dwSrcIndex = 0;
+	u32 dwSrcIndex = 0;
 
 	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
@@ -241,7 +241,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 	dwSrcIndex += 12;
 
 	// Get the amount of unnecessary data we can skip
-	DWORD dwUnKnownDataSize = *(DWORD*)&pbtSrc[dwSrcIndex];
+	const u32 dwUnKnownDataSize = *(u32*)&pbtSrc[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Skip the unnecessary data
@@ -250,7 +250,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 	//-- First read ------------------------------------------------------------------------
 
 	// Get filesize
-	DWORD dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
+	u32 dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Get the file extension
@@ -283,7 +283,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 	{
 		// Get the length of the filename
 
-		DWORD dwFileNameLength = pbtSrc[dwSrcIndex];
+		const u32 dwFileNameLength = pbtSrc[dwSrcIndex];
 
 		dwSrcIndex += 1;
 
@@ -295,14 +295,11 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 		dwSrcIndex += 31;
 
 		// Get the file size
-
-		dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
-
+		dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
 		dwSrcIndex += 4;
 
 		if (dwFileSize == 0)
 		{
-			// Filesize is 0
 			continue;
 		}
 
@@ -349,9 +346,9 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* 
 /// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
 /// @param clsBFileName Current .b file name (Will change with each recursive call)
 ///
-bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex, const YCString& clsBFileName)
 {
-	static DWORD dwDstFiles;
+	static u32 dwDstFiles;
 	static std::vector<SFileNameInfo> vtFileNameList;
 
 	if (pdwSrcIndex == nullptr)
@@ -361,7 +358,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 		vtFileNameList.clear();
 	}
 
-	DWORD dwSrcIndex = 0;
+	u32 dwSrcIndex = 0;
 
 	if ((dwSrcIndex + 16) > dwSrcSize)
 	{
@@ -386,7 +383,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 	dwSrcIndex += 16;
 
 	// Get the amount of data we can skip
-	DWORD dwUnKnownDataSize = *(DWORD*)&pbtSrc[dwSrcIndex];
+	const u32 dwUnKnownDataSize = *(u32*)&pbtSrc[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Skip the unnecessary data
@@ -417,10 +414,10 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 		dwSrcIndex += 16;
 
 		// Get file count
-		DWORD dwFiles = pbtSrc[dwSrcIndex];
+		const u32 dwFiles = pbtSrc[dwSrcIndex];
 		dwSrcIndex += 1;
 
-		for (DWORD i = 0; i < dwFiles; i++)
+		for (u32 i = 0; i < dwFiles; i++)
 		{
 			if ((dwSrcIndex + 16) > dwSrcSize)
 			{
@@ -428,7 +425,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 				break;
 			}
 
-			DWORD dwDatVersion;
+			u32 dwDatVersion;
 
 			if (memcmp(&pbtSrc[dwSrcIndex], "abimgdat10", 10) == 0)
 			{
@@ -459,7 +456,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 			dwSrcIndex += 16;
 
 			// Get the length of the filename
-			DWORD dwFileNameLength = *(WORD*)&pbtSrc[dwSrcIndex];
+			const u32 dwFileNameLength = *(u16*)&pbtSrc[dwSrcIndex];
 			dwSrcIndex += 2;
 
 			// Get the filename
@@ -470,7 +467,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 
 			if ((dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11))
 			{
-				WORD wLength = *(WORD*)&pbtSrc[dwSrcIndex];
+				const u16 wLength = *(u16*)&pbtSrc[dwSrcIndex];
 
 				dwSrcIndex += 2 + wLength;
 			}
@@ -478,7 +475,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 			dwSrcIndex += 1;
 
 			// Get file size
-			DWORD dwFileSize = *(DWORD*)&pbtSrc[dwSrcIndex];
+			const u32 dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
 			dwSrcIndex += 4;
 
 			if (dwFileSize == 0)
@@ -614,7 +611,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD*
 ///
 /// @param pbtSrc Input buffer
 ///
-YCString CQLIE::GetExtension(BYTE* pbtSrc)
+YCString CQLIE::GetExtension(u8* pbtSrc)
 {
 	YCString clsFileExt;
 
@@ -673,7 +670,7 @@ void CQLIE::EraseNotUsePathWord(YCString& clsPath)
 // DecryptFileName, Decrypt, Decompは、
 // 十一寒月氏が作成・公開しているgageのソースコードを参考にして作成しました。
 
-void CQLIE::DecryptFileName(LPBYTE in, DWORD size, DWORD seed)
+void CQLIE::DecryptFileName(u8* in, u32 size, u32 seed)
 {
 	for (int i = 1; i <= (int)size; i++)
 	{
@@ -681,30 +678,30 @@ void CQLIE::DecryptFileName(LPBYTE in, DWORD size, DWORD seed)
 	}
 }
 
-void CQLIE::Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed)
+void CQLIE::Decrypt(u8* buf, u32 buf_len, u32 seed)
 {
-	DWORD key1 = buf_len ^ 0xFEC9753E;
-	DWORD key2 = key1;
-	DWORD x1 = 0xA73C5F9D;
-	DWORD x2 = x1;
-	DWORD size = buf_len >> 3;
+	u32 key1 = buf_len ^ 0xFEC9753E;
+	u32 key2 = key1;
+	u32 x1 = 0xA73C5F9D;
+	u32 x2 = x1;
+	u32 size = buf_len >> 3;
 
-	for (DWORD i = 0; i < size; i++)
+	for (u32 i = 0; i < size; i++)
 	{
 		x1 = (x1 + 0xCE24F523) ^ key1;
 		x2 = (x2 + 0xCE24F523) ^ key2;
-		key1 = ((LPDWORD)buf)[i*2+0] ^= x1;
-		key2 = ((LPDWORD)buf)[i*2+1] ^= x2;
+		key1 = ((u32*)buf)[i*2+0] ^= x1;
+		key2 = ((u32*)buf)[i*2+1] ^= x2;
 	}
 }
 
-void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
+void CQLIE::Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize)
 {
-	BYTE buf[1024];
-	LPBYTE pdst = dst;
-	LPBYTE psrc = src + 12;
+	u8 buf[1024];
+	u8* pdst = dst;
+	u8* psrc = src + 12;
 
-	if (*(LPDWORD)src != 0xFF435031)
+	if (*(u32*)src != 0xFF435031)
 		return;
 
 	for (int i = 0; i < 256; i++)
@@ -712,7 +709,7 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 		buf[i] = i;
 	}
 
-	BYTE x = src[4];
+	u8 x = src[4];
 
 	while ((psrc - src) < ((int)srcSize - 12))
 	{
@@ -744,12 +741,12 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 		int c;
 		if (x & 1)
 		{
-			c = *(LPWORD)psrc;
+			c = *(u16*)psrc;
 			psrc += 2;
 		}
 		else
 		{
-			c = *(LPDWORD)psrc;
+			c = *(u32*)psrc;
 			psrc += 4;
 		}
 
@@ -791,11 +788,11 @@ void CQLIE::Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize)
 // Emulate mmx padw instruction
 u64 CQLIE::padw(u64 a, u64 b)
 {
-	LPWORD a_words = (LPWORD)&a;
-	LPWORD b_words = (LPWORD)&b;
+	u16* a_words = (u16*)&a;
+	u16* b_words = (u16*)&b;
 
-	QWORD ret = 0;
-	LPWORD r_words = (LPWORD)&ret;
+	u64 ret = 0;
+	u16* r_words = (u16*)&ret;
 
 	r_words[0] = a_words[0] + b_words[0];
 	r_words[1] = a_words[1] + b_words[1];
@@ -805,32 +802,31 @@ u64 CQLIE::padw(u64 a, u64 b)
 	return ret;
 }
 
-DWORD CQLIE::crc_or_something(LPBYTE buff, DWORD len)
+uint32_t CQLIE::crc_or_something(u8* buff, u32 len)
 {
-	QWORD   key    = 0;
-	QWORD   result = 0;
-	LPQWORD p      = (LPQWORD)buff;
-	LPQWORD end    = p + (len / 8);
+	u64  key    = 0;
+	u64  result = 0;
+	u64* p      = (u64*)buff;
+	u64* end    = p + (len / 8);
 
 	while (p < end)
 	{
 		key = padw(key, 0x0307030703070307);
 
-		QWORD   temp       = *p++ ^ key;
-		LPDWORD temp_sects = (LPDWORD)&temp;
+		const u64 temp = *p++ ^ key;
 
 		result = padw(result, temp);
 	}
 
 	result ^= (result >> 32);
 
-	return (DWORD)(result & 0xFFFFFFFF);
+	return static_cast<u32>(result & 0xFFFFFFFF);
 }
 
-void CQLIE::DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed)
+void CQLIE::DecryptFileNameV3(u8* buff, u32 len, u32 seed)
 {
-	DWORD mutator = seed ^ 0x3E;
-	DWORD key     = (mutator + len) & 0xFF;
+	const u32 mutator = seed ^ 0x3E;
+	const u32 key     = (mutator + len) & 0xFF;
 
 	for (int i = 1; i <= (int)len; i++)
 	{
@@ -838,16 +834,16 @@ void CQLIE::DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed)
 	}
 }
 
-void CQLIE::DecryptV3(LPBYTE buff, DWORD len, DWORD seed)
+void CQLIE::DecryptV3(u8* buff, u32 len, u32 seed)
 {
-	QWORD   key       = 0xA73C5F9DA73C5F9D;
-	LPDWORD key_words = (LPDWORD)&key;
-	QWORD   mutator   = (seed + len) ^ 0xFEC9753E;
+	u64  key       = 0xA73C5F9DA73C5F9D;
+	u32* key_words = (u32*)&key;
+	u64  mutator   = (seed + len) ^ 0xFEC9753E;
 
 	mutator = (mutator << 32) | mutator;
 
-	LPQWORD p   = (LPQWORD)buff;
-	LPQWORD end = p + (len / 8);
+	u64* p   = (u64*)buff;
+	u64* end = p + (len / 8);
 
 	while (p < end)
 	{

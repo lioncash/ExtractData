@@ -20,24 +20,24 @@ private:
 	struct SFileNameInfo
 	{
 		YCString clsFileName; // Filename
-		DWORD    dwCount;     // Number of times
+		u32      dwCount;     // Number of times
 	};
 
-	bool DecodeB(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize);
-	bool DecodeABMP7(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
-	bool DecodeABMP10(CArcFile* pclArc, BYTE* pbtSrc, DWORD dwSrcSize, DWORD* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	bool DecodeB(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize);
+	bool DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	bool DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
 
-	void Decomp(LPBYTE dst, DWORD dstSize, LPBYTE src, DWORD srcSize);
+	void Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize);
 
-	static void DecryptFileName(LPBYTE in, DWORD size, DWORD seed);
-	static void Decrypt(LPBYTE buf, DWORD buf_len, DWORD seed);
+	static void DecryptFileName(u8* in, u32 size, u32 seed);
+	static void Decrypt(u8* buf, u32 buf_len, u32 seed);
 
 	u64 padw(u64 a, u64 b);
-	DWORD crc_or_something(LPBYTE buff, DWORD len);
-	static void DecryptFileNameV3(LPBYTE buff, DWORD len, DWORD seed);
-	static void DecryptV3(LPBYTE buff, DWORD len, DWORD seed);
+	u32 crc_or_something(u8* buff, u32 len);
+	static void DecryptFileNameV3(u8* buff, u32 len, u32 seed);
+	static void DecryptV3(u8* buff, u32 len, u32 seed);
 
-	YCString GetExtension(BYTE* pbtSrc);
+	YCString GetExtension(u8* pbtSrc);
 
 	void EraseNotUsePathWord(YCString& clsPath);
 };
