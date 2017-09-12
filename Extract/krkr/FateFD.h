@@ -10,8 +10,8 @@ public:
 	size_t OnDecrypt(u8* target, size_t target_size, size_t offset, u32 decrypt_key) override;
 
 private:
-	u8  m_key[6];
-	size_t m_offset[6];
+	std::array<u8, 6> m_key;
+	std::array<size_t, 6> m_offset;
 
 	// Decode Info
 	struct DecodeInfo
