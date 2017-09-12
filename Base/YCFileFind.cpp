@@ -73,13 +73,13 @@ void YCFileFind::Close()
 }
 
 /// Gets the name of the found file
-YCString YCFileFind::GetFileName()
+YCString YCFileFind::GetFileName() const
 {
 	return m_find_data.cFileName;
 }
 
 /// Gets the file path of the found file
-YCString YCFileFind::GetFilePath()
+YCString YCFileFind::GetFilePath() const
 {
 	TCHAR file_path[_MAX_PATH];
 
@@ -89,7 +89,7 @@ YCString YCFileFind::GetFilePath()
 }
 
 /// Gets the title of the found file
-YCString YCFileFind::GetFileTitle()
+YCString YCFileFind::GetFileTitle() const
 {
 	TCHAR file_title[_MAX_FNAME];
 
@@ -100,13 +100,13 @@ YCString YCFileFind::GetFileTitle()
 }
 
 /// Check whether or not the found 'file' is a directory
-bool YCFileFind::IsDirectory()
+bool YCFileFind::IsDirectory() const
 {
 	return (m_find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 }
 
 /// Examines the marker of the current directory and its parent directory
-bool YCFileFind::IsDots()
+bool YCFileFind::IsDots() const
 {
 	return ((lstrcmp(m_find_data.cFileName, _T(".")) == 0) || (lstrcmp(m_find_data.cFileName, _T("..")) == 0));
 }

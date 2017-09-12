@@ -15,12 +15,12 @@ public:
 	virtual bool FindNextFile();
 	virtual void Close();
 
-	virtual YCString GetFileName();
-	virtual YCString GetFilePath();
-	virtual YCString GetFileTitle();
+	virtual YCString GetFileName() const;
+	virtual YCString GetFilePath() const;
+	virtual YCString GetFileTitle() const;
 
-	virtual bool IsDirectory();
-	virtual bool IsDots();
+	virtual bool IsDirectory() const;
+	virtual bool IsDots() const;
 
 private:
 	HANDLE          m_find_handle;
