@@ -13,7 +13,8 @@ bool CEthornell::Mount(CArcFile* archive)
 	if (archive->GetArcExten() != _T(".arc"))
 		return false;
 
-	if (memcmp(archive->GetHeader(), "PackFile    ", 12) != 0)
+	if (memcmp(archive->GetHeader(), "PackFile    ", 12) != 0 &&
+	    memcmp(archive->GetHeader(), "BURIKO ARC20", 12) != 0)
 		return false;
 
 	archive->SeekHed(12);
@@ -23,7 +24,12 @@ bool CEthornell::Mount(CArcFile* archive)
 	archive->ReadU32(&num_files);
 
 	// Get index size
-	const size_t index_size = 32 * num_files;
+	const size_t info_size =
+		memcmp(archive->GetHeader(), "PackFile    ", 12) == 0
+		? 32
+		: 128;
+
+	const size_t index_size = info_size * num_files;
 
 	// Get index
 	std::vector<u8> index(index_size);
@@ -33,12 +39,16 @@ bool CEthornell::Mount(CArcFile* archive)
 	const u32 offset = 16 + index.size();
 
 	// Get file info
-	for (size_t i = 0; i < index.size(); i += 32)
+	const size_t name_size = 
+		memcmp(archive->GetHeader(), "PackFile    ", 12) == 0
+		? 16
+		: 96;
+	for (size_t i = 0; i < index.size(); i += info_size)
 	{
 		SFileInfo file_info;
-		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), 16);
-		file_info.start = *reinterpret_cast<const u32*>(&index[i + 16]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + 20]);
+		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), name_size);
+		file_info.start = *reinterpret_cast<const u32*>(&index[i + name_size]) + offset;
+		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + name_size + sizeof(u32)]);
 		file_info.sizeOrg = file_info.sizeCmp;
 		file_info.end = file_info.start + file_info.sizeCmp;
 
