@@ -36,11 +36,11 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	DWORD index_size = pclArc->GetArcSize() - 28 - index_ofs;
 
 	// Read the index (Ver2.0 or later will be included in the hash)
-	YCMemory<BYTE> index(index_size);
-	pclArc->Read(&index[0], index_size);
+	std::vector<BYTE> index(index_size);
+	pclArc->Read(index.data(), index.size());
 
 	DWORD   seed = 0;
-	LPBYTE  pIndex = &index[0];
+	LPBYTE  pIndex = index.data();
 	YCString version;
 	void (*DecryptFunc)(LPBYTE, DWORD, DWORD);
 
@@ -125,30 +125,31 @@ bool CQLIE::Decode(CArcFile* pclArc)
 	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
 
 	// Ensure buffers exist
-	YCMemory<BYTE> z_buf(file_info->sizeCmp);
-	YCMemory<BYTE> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
-	LPBYTE pBuf = &z_buf[0];
+	std::vector<BYTE> z_buf(file_info->sizeCmp);
+	std::vector<BYTE> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 
 	// Read the file
-	pclArc->Read(pBuf, file_info->sizeCmp);
+	pclArc->Read(z_buf.data(), z_buf.size());
 
 	// Decrypt the encrypted file
 	if (file_info->title == _T("FilePackVer1.0"))
 	{
 		if (file_info->key)
-			Decrypt(pBuf, file_info->sizeCmp, 0);
+			Decrypt(z_buf.data(), z_buf.size(), 0);
 	}
 	else if (file_info->title == _T("FilePackVer3.0"))
 	{
-		DecryptV3(pBuf, file_info->sizeCmp, file_info->key);
+		DecryptV3(z_buf.data(), z_buf.size(), file_info->key);
 	}
+
+	LPBYTE pBuf = z_buf.data();
 
 	// Extract the file if it's compressed
 	if (file_info->sizeCmp != file_info->sizeOrg)
 	{
 		buf.resize(file_info->sizeOrg);
-		Decomp(&buf[0], file_info->sizeOrg, pBuf, file_info->sizeCmp);
-		pBuf = &buf[0];
+		Decomp(buf.data(), buf.size(), z_buf.data(), z_buf.size());
+		pBuf = buf.data();
 	}
 
 	// Output
