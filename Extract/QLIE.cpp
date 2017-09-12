@@ -39,9 +39,9 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	std::vector<u8> index(index_size);
 	pclArc->Read(index.data(), index.size());
 
-	u32      seed = 0;
-	u8*      pIndex = index.data();
-	YCString version;
+	u32       seed = 0;
+	const u8* pIndex = index.data();
+	YCString  version;
 	void (*DecryptFunc)(u8*, u32, u32);
 
 	// Check the version of 'pack'
@@ -55,17 +55,17 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	}
 	else if (memcmp(signature, "FilePackVer3.0", 14) == 0)
 	{
-		u8* pIndex2 = pIndex;
+		const u8* pIndex2 = pIndex;
 
 		// Figure out how much data is TOC entries..
 		for (int i = 0; i < (int)ctFile; i++)
 		{
-			u16 filename_len = *(u16*)pIndex2;
+			const u16 filename_len = *(const u16*)pIndex2;
 			pIndex2 += 2 + filename_len + 28;
 		}
 
 		// Compute the obfuscation seed from the CRC(?) of some hash data.
-		u8* hash_bytes = pIndex2 + 32 + *(u32*)&pIndex2[28] + 36;
+		const u8* hash_bytes = pIndex2 + 32 + *(const u32*)&pIndex2[28] + 36;
 		seed = crc_or_something(hash_bytes, 256) & 0x0FFFFFFF;
 
 		// Version
@@ -83,7 +83,7 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	for (u32 i = 0; i < ctFile; i++)
 	{
 		// Get the filename length
-		u16 FileNameLen = *(u16*)&pIndex[0];
+		const u16 FileNameLen = *(const u16*)&pIndex[0];
 		
 		//pclArc->Read(&FileNameLen, 2);
 		u8 szFileName[_MAX_FNAME];
@@ -103,11 +103,11 @@ bool CQLIE::Mount(CArcFile* pclArc)
 		// Add to the listview.
 		SFileInfo infFile;
 		infFile.name = (char*)szFileName;
-		infFile.start = *(u64*)&pIndex[0];
-		infFile.sizeCmp = *(u32*)&pIndex[8];
-		infFile.sizeOrg = *(u32*)&pIndex[12];
+		infFile.start = *(const u64*)&pIndex[0];
+		infFile.sizeCmp = *(const u32*)&pIndex[8];
+		infFile.sizeOrg = *(const u32*)&pIndex[12];
 		infFile.end = infFile.start + infFile.sizeCmp;
-		infFile.key = (version == _T("FilePackVer1.0")) ? *(u32*)&pIndex[20] : seed;
+		infFile.key = (version == _T("FilePackVer1.0")) ? *(const u32*)&pIndex[20] : seed;
 		infFile.title = version;
 		pclArc->AddFileInfo(infFile);
 
@@ -155,8 +155,8 @@ bool CQLIE::Decode(CArcFile* pclArc)
 	// Output
 	if (file_info->format == _T("BMP"))
 	{
-		LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
-		LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
+		const LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
+		const LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
 
 		// Output size
 		u32 dstSize = file_info->sizeOrg - 54;
@@ -486,7 +486,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			}
 
 			// Get the file extension
-			YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
+			const YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
 
 			if (clsFileExt == _T(".b"))
 			{
@@ -609,44 +609,44 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 
 /// Getting the file extension
 ///
-/// @param pbtSrc Input buffer
+/// @param src Input buffer
 ///
-YCString CQLIE::GetExtension(u8* pbtSrc)
+YCString CQLIE::GetExtension(const u8* src)
 {
-	YCString clsFileExt;
+	YCString file_extension;
 
-	if (memcmp(&pbtSrc[0], "\x89PNG", 4) == 0)
+	if (memcmp(&src[0], "\x89PNG", 4) == 0)
 	{
 		// PNG
-		clsFileExt = _T(".png");
+		file_extension = _T(".png");
 	}
-	else if (memcmp(&pbtSrc[0], "\xFF\xD8\xFF\xE0", 4) == 0)
+	else if (memcmp(&src[0], "\xFF\xD8\xFF\xE0", 4) == 0)
 	{
 		// JPEG
-		clsFileExt = _T(".jpg");
+		file_extension = _T(".jpg");
 	}
-	else if (memcmp(&pbtSrc[0], "BM", 2) == 0)
+	else if (memcmp(&src[0], "BM", 2) == 0)
 	{
 		// BITMAP
-		clsFileExt = _T(".bmp");
+		file_extension = _T(".bmp");
 	}
-	else if (memcmp(&pbtSrc[0], "OggS", 4) == 0)
+	else if (memcmp(&src[0], "OggS", 4) == 0)
 	{
 		// Ogg Vorbis
-		clsFileExt = _T(".ogg");
+		file_extension = _T(".ogg");
 	}
-	else if (memcmp(&pbtSrc[0], "RIFF", 4) == 0)
+	else if (memcmp(&src[0], "RIFF", 4) == 0)
 	{
 		// WAVE
-		clsFileExt = _T(".wav");
+		file_extension = _T(".wav");
 	}
-	else if (memcmp(&pbtSrc[0], "abmp", 4) == 0)
+	else if (memcmp(&src[0], "abmp", 4) == 0)
 	{
 		// abmp10
-		clsFileExt = _T(".b");
+		file_extension = _T(".b");
 	}
 
-	return clsFileExt;
+	return file_extension;
 }
 
 /// Erase path characters
@@ -684,9 +684,9 @@ void CQLIE::Decrypt(u8* buf, u32 buf_len, u32 seed)
 	u32 key2 = key1;
 	u32 x1 = 0xA73C5F9D;
 	u32 x2 = x1;
-	u32 size = buf_len >> 3;
+	const u32 size = buf_len >> 3;
 
-	for (u32 i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
 		x1 = (x1 + 0xCE24F523) ^ key1;
 		x2 = (x2 + 0xCE24F523) ^ key2;
@@ -695,13 +695,13 @@ void CQLIE::Decrypt(u8* buf, u32 buf_len, u32 seed)
 	}
 }
 
-void CQLIE::Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize)
+void CQLIE::Decomp(u8* dst, u32 dstSize, const u8* src, u32 srcSize)
 {
 	u8 buf[1024];
 	u8* pdst = dst;
-	u8* psrc = src + 12;
+	const u8* psrc = src + 12;
 
-	if (*(u32*)src != 0xFF435031)
+	if (*(const u32*)src != 0xFF435031)
 		return;
 
 	for (int i = 0; i < 256; i++)
@@ -709,7 +709,7 @@ void CQLIE::Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize)
 		buf[i] = i;
 	}
 
-	u8 x = src[4];
+	const u8 x = src[4];
 
 	while ((psrc - src) < ((int)srcSize - 12))
 	{
@@ -741,13 +741,13 @@ void CQLIE::Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize)
 		int c;
 		if (x & 1)
 		{
-			c = *(u16*)psrc;
-			psrc += 2;
+			std::memcpy(&c, psrc, sizeof(u16));
+			psrc += sizeof(u16);
 		}
 		else
 		{
-			c = *(u32*)psrc;
-			psrc += 4;
+			std::memcpy(&c, psrc, sizeof(u32));
+			psrc += sizeof(u32);
 		}
 
 		for (int n = 0; ; )
@@ -788,11 +788,11 @@ void CQLIE::Decomp(u8* dst, u32 dstSize, u8* src, u32 srcSize)
 // Emulate mmx padw instruction
 u64 CQLIE::padw(u64 a, u64 b)
 {
-	u16* a_words = (u16*)&a;
-	u16* b_words = (u16*)&b;
+	const u16* a_words = reinterpret_cast<u16*>(&a);
+	const u16* b_words = reinterpret_cast<u16*>(&b);
 
 	u64 ret = 0;
-	u16* r_words = (u16*)&ret;
+	u16* r_words = reinterpret_cast<u16*>(&ret);
 
 	r_words[0] = a_words[0] + b_words[0];
 	r_words[1] = a_words[1] + b_words[1];
@@ -802,12 +802,12 @@ u64 CQLIE::padw(u64 a, u64 b)
 	return ret;
 }
 
-uint32_t CQLIE::crc_or_something(u8* buff, u32 len)
+uint32_t CQLIE::crc_or_something(const u8* buff, size_t len)
 {
-	u64  key    = 0;
-	u64  result = 0;
-	u64* p      = (u64*)buff;
-	u64* end    = p + (len / 8);
+	u64 key = 0;
+	u64 result = 0;
+	const u64* p   = reinterpret_cast<const u64*>(buff);
+	const u64* end = p + (len / 8);
 
 	while (p < end)
 	{
@@ -842,8 +842,8 @@ void CQLIE::DecryptV3(u8* buff, u32 len, u32 seed)
 
 	mutator = (mutator << 32) | mutator;
 
-	u64* p   = (u64*)buff;
-	u64* end = p + (len / 8);
+	u64* p = (u64*)buff;
+	const u64* end = p + (len / 8);
 
 	while (p < end)
 	{
