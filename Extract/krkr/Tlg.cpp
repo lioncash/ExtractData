@@ -4,6 +4,8 @@
 #include "ArcFile.h"
 #include "Image.h"
 
+namespace
+{
 #define TVP_TLG6_H_BLOCK_SIZE 8
 #define TVP_TLG6_W_BLOCK_SIZE 8
 
@@ -19,7 +21,7 @@ constexpr s16 TVPTLG6GolombCompressed[TVP_TLG6_GOLOMB_N_COUNT][9] = {
 	// Tuned by W.Dee, 2004/03/25
 };
 char TVPTLG6GolombBitLengthTable[TVP_TLG6_GOLOMB_N_COUNT*2*128][TVP_TLG6_GOLOMB_N_COUNT];
-
+} // Anonymous namespace
 
 /// Mount
 ///
