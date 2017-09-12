@@ -64,8 +64,8 @@ bool CKrkr::Mount(CArcFile* archive)
 	archive->ReadS64(&index_pos);
 	archive->SeekCur(index_pos - 19);
 
-	u8 work[256];
-	archive->Read(work, sizeof(work));
+	std::array<u8, 256> work;
+	archive->Read(work.data(), work.size());
 
 	switch (work[0])
 	{
@@ -606,12 +606,12 @@ bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, size_t* offset)
 
 	archive->SeekHed(16);
 
-	u8 buffer[4096];
+	std::array<u8, 4096> buffer;
 	size_t read_size;
 
 	do
 	{
-		read_size = archive->Read(buffer, sizeof(buffer));
+		read_size = archive->Read(buffer.data(), buffer.size());
 
 		for (size_t i = 0, j = 0; i < read_size / 16; i++, j += 16)
 		{
@@ -636,7 +636,7 @@ bool CKrkr::FindXP3FromExecuteFile(CArcFile* archive, size_t* offset)
 		{
 			throw -1;
 		}
-	} while (read_size == sizeof(buffer));
+	} while (read_size == buffer.size());
 
 	// No XP3 archive
 	*offset = 0;
