@@ -26,16 +26,14 @@ bool CTCD2::Mount(CArcFile* archive)
 	archive->Read(tcd2_index_info.data(), sizeof(STCD2IndexInfo) * tcd2_index_info.size());
 
 	// Create key table
-	static constexpr u8 key[5] =
-	{
+	static constexpr std::array<u8, 5> key{{
 		0x1F, 0x61, 0x43, 0x76, 0x76
-	};
+	}};
 
 	// Create extension table
-	static const YCString file_exts[5] =
-	{
+	static const std::array<YCString, 5> file_exts{{
 		_T(".tct"), _T(".tsf"), _T(".spd"), _T(".ogg"), _T(".wav")
-	};
+	}};
 
 	// Read index
 	for (size_t file_type = 0; file_type < tcd2_index_info.size(); file_type++)
