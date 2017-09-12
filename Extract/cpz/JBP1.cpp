@@ -187,11 +187,11 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 								lpin2 += 4;
 							}
 
-							const u32 x = bit_buffer & 1;
+							const u32 bit = bit_buffer & 1;
 							bit_remain--;
 							bit_buffer >>= 1;
 
-							if (x == 0)
+							if (bit == 0)
 							{
 								break;
 							}
@@ -202,10 +202,10 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 					}
 					else
 					{
-						u32 x = GetNBit(lpin2, code, bit_buffer, bit_remain);
-						if (x < (1 << (code - 1)))
-							x = x - (1 << code) + 1;
-						f[original_order[i]] = x;
+						u32 bit = GetNBit(lpin2, code, bit_buffer, bit_remain);
+						if (bit < (1 << (code - 1)))
+							bit = bit - (1 << code) + 1;
+						f[original_order[i]] = bit;
 						i++;
 					}
 				}
