@@ -317,7 +317,7 @@ bool CNitro::MountPak4(CArcFile* archive)
 	const u32 offset = 0x114 + index_compsize;
 	u32 file_end_prev = 0;
 
-	const u8* index_ptr = &index[0];
+	const u8* index_ptr = index.data();
 	for (u32 i = 0; i < num_files; i++)
 	{
 		SFileInfo file_info;
