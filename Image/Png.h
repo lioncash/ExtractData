@@ -36,8 +36,8 @@ private:
 	void WriteLineWithAlphaBlend(u8* buffer24, const u8* buffer32) override;
 	void OnWriteFinish() override;
 
-	png_structp m_png_ptr;
-	png_infop   m_info_ptr;
+	png_structp m_png_ptr = nullptr;
+	png_infop   m_info_ptr = nullptr;
 	std::array<png_color, 256> m_pallet;
 
 	png_structp m_png = nullptr;
