@@ -650,8 +650,8 @@ void YCStringT<TYPE>::Append(const wchar_t* pwszAppend)
 
 /// Appending a string
 ///
-/// @param pszAppend String to append
-/// @param nCount    Number of characters to append
+/// @param pwszAppend String to append
+/// @param nCount     Number of characters to append
 ///
 template<class TYPE>
 void YCStringT<TYPE>::Append(const wchar_t* pwszAppend, int nCount)
