@@ -46,17 +46,17 @@ public:
 	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
-	HWND               m_hParentWnd;
-	HINSTANCE          m_hParentInst;
-	CMainListView*     m_pListView;
+	HWND               m_hParentWnd = nullptr;
+	HINSTANCE          m_hParentInst = nullptr;
+	CMainListView*     m_pListView = nullptr;
 	TCHAR              m_szPathToTmpFileList[MAX_PATH];
 
-	LPCTSTR            m_pclArcNames;
-	DWORD              m_dwExtractMode;
-	LPCTSTR            m_pSaveDir;
-	bool               m_bConvert;
-	SOption*           m_pOption;
-	bool               m_bInput;
+	LPCTSTR            m_pclArcNames = nullptr;
+	DWORD              m_dwExtractMode = EXTRACT_SELECT;
+	LPCTSTR            m_pSaveDir = nullptr;
+	bool               m_bConvert = false;
+	SOption*           m_pOption = nullptr;
+  bool               m_bInput = false;
 	ArchiveVector      m_ArcList;
 
 	std::set<YCString> m_ssTmpFile;

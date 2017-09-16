@@ -20,11 +20,6 @@ bool g_bThreadEnd;
 
 CExtractData::CExtractData()
 {
-	m_hParentWnd = nullptr;
-	m_hParentInst = nullptr;
-	m_pOption = nullptr;
-	m_pListView = nullptr;
-
 	GetModuleFileName(nullptr, m_szPathToTmpFileList, MAX_PATH);
 	PathRemoveFileSpec(m_szPathToTmpFileList);
 	PathAppend(m_szPathToTmpFileList, _T("TmpFileList.txt"));
