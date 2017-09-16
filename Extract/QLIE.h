@@ -17,10 +17,10 @@ private:
 		ABSNDDAT11,
 	};
 
-	struct SFileNameInfo
+	struct FileNameInfo
 	{
-		YCString clsFileName; // Filename
-		u32      dwCount;     // Number of times
+		YCString file_name; // Filename
+		u32      count;     // Number of times
 	};
 
 	bool DecodeB(CArcFile* archive, u8* src, u32 src_size);

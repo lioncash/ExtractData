@@ -349,7 +349,7 @@ bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index
 bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
 {
 	static u32 dwDstFiles;
-	static std::vector<SFileNameInfo> vtFileNameList;
+	static std::vector<FileNameInfo> vtFileNameList;
 
 	if (src_index_ptr == nullptr)
 	{
@@ -535,16 +535,16 @@ bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_inde
 
 			for (size_t uIndex = 0; uIndex < vtFileNameList.size(); uIndex++)
 			{
-				if (vtFileNameList[uIndex].clsFileName == szWork)
+				if (vtFileNameList[uIndex].file_name == szWork)
 				{
 					// Same filename
 
-					vtFileNameList[uIndex].dwCount++;
+					vtFileNameList[uIndex].count++;
 
 					// Overwrite will not occur
 
 					TCHAR szWork2[256];
-					_stprintf(szWork2, _T("_%d%s"), vtFileNameList[uIndex].dwCount, clsFileName.GetFileExt().GetString());
+					_stprintf(szWork2, _T("_%d%s"), vtFileNameList[uIndex].count, clsFileName.GetFileExt().GetString());
 
 					PathRenameExtension(szWork, szWork2);
 
@@ -556,11 +556,11 @@ bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_inde
 
 			// Register the filename
 
-			SFileNameInfo stFileNameInfo;
-			stFileNameInfo.clsFileName = szWork;
-			stFileNameInfo.dwCount = 1;
+			FileNameInfo file_name_info;
+			file_name_info.file_name = szWork;
+			file_name_info.count = 1;
 
-			vtFileNameList.push_back(stFileNameInfo);
+			vtFileNameList.push_back(file_name_info);
 
 			// Output
 
