@@ -5,8 +5,8 @@
 class CQLIE final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
 	enum
@@ -23,11 +23,11 @@ private:
 		u32      dwCount;     // Number of times
 	};
 
-	bool DecodeB(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize);
-	bool DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
-	bool DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex = nullptr, const YCString& rfclsBFileName = _T(""));
+	bool DecodeB(CArcFile* archive, u8* src, u32 src_size);
+	bool DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr = nullptr, const YCString& b_file_name = _T(""));
+	bool DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr = nullptr, const YCString& b_file_name = _T(""));
 
-	void Decomp(u8* dst, u32 dstSize, const u8* src, u32 srcSize);
+	void Decomp(u8* dst, u32 dst_size, const u8* src, u32 src_size);
 
 	static void DecryptFileName(u8* in, u32 size, u32 seed);
 	static void Decrypt(u8* buf, u32 buf_len, u32 seed);
@@ -39,5 +39,5 @@ private:
 
 	YCString GetExtension(const u8* src);
 
-	void EraseNotUsePathWord(YCString& clsPath);
+	void EraseNotUsePathWord(YCString& path);
 };

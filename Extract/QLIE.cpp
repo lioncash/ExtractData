@@ -4,40 +4,40 @@
 #include "ArcFile.h"
 #include "Image.h"
 
-bool CQLIE::Mount(CArcFile* pclArc)
+bool CQLIE::Mount(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pack"))
+	if (archive->GetArcExten() != _T(".pack"))
 		return false;
 
 	// Get the signature
 	u8 signature[16];
-	pclArc->Seek(-28, FILE_END);
-	pclArc->Read(signature, sizeof(signature));
+	archive->Seek(-28, FILE_END);
+	archive->Read(signature, sizeof(signature));
 
 	// Check the signature
 	if (memcmp(signature, "FilePackVer", 11) != 0)
 	{
-		pclArc->SeekHed();
+		archive->SeekHed();
 		return false;
 	}
 
 	// Get the file count
 	u32 ctFile;
-	pclArc->ReadU32(&ctFile);
+	archive->ReadU32(&ctFile);
 
 	// Get the index position/offset
 	u64 index_ofs;
-	pclArc->ReadU64(&index_ofs);
+	archive->ReadU64(&index_ofs);
 
 	// Go to the index position
-	pclArc->Seek(index_ofs, FILE_BEGIN);
+	archive->Seek(index_ofs, FILE_BEGIN);
 
 	// Get the index size (Ver2.0 or later will be included in the hash size)
-	const u32 index_size = pclArc->GetArcSize() - 28 - index_ofs;
+	const u32 index_size = archive->GetArcSize() - 28 - index_ofs;
 
 	// Read the index (Ver2.0 or later will be included in the hash)
 	std::vector<u8> index(index_size);
-	pclArc->Read(index.data(), index.size());
+	archive->Read(index.data(), index.size());
 
 	u32       seed = 0;
 	const u8* pIndex = index.data();
@@ -76,7 +76,7 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	}
 	else
 	{
-		pclArc->SeekHed();
+		archive->SeekHed();
 		return false;
 	}
 
@@ -85,11 +85,11 @@ bool CQLIE::Mount(CArcFile* pclArc)
 		// Get the filename length
 		const u16 FileNameLen = *(const u16*)&pIndex[0];
 		
-		//pclArc->Read(&FileNameLen, 2);
+		//archive->Read(&FileNameLen, 2);
 		u8 szFileName[_MAX_FNAME];
 		memcpy(szFileName, &pIndex[2], FileNameLen);
 		
-		//pclArc->Read(szFileName, FileNameLen);
+		//archive->Read(szFileName, FileNameLen);
 		szFileName[FileNameLen] = '\0';
 		
 		// Get the filename
@@ -97,8 +97,8 @@ bool CQLIE::Mount(CArcFile* pclArc)
 
 		pIndex += 2 + FileNameLen;
 
-		//BYTE index[28];
-		//pclArc->Read(&index, 28);
+		//u8 index[28];
+		//archive->Read(&index, 28);
 
 		// Add to the listview.
 		SFileInfo infFile;
@@ -109,7 +109,7 @@ bool CQLIE::Mount(CArcFile* pclArc)
 		infFile.end = infFile.start + infFile.sizeCmp;
 		infFile.key = (version == _T("FilePackVer1.0")) ? *(const u32*)&pIndex[20] : seed;
 		infFile.title = version;
-		pclArc->AddFileInfo(infFile);
+		archive->AddFileInfo(infFile);
 
 		pIndex += 28;
 	}
@@ -117,19 +117,19 @@ bool CQLIE::Mount(CArcFile* pclArc)
 	return true;
 }
 
-bool CQLIE::Decode(CArcFile* pclArc)
+bool CQLIE::Decode(CArcFile* archive)
 {
-	if (pclArc->GetArcExten() != _T(".pack"))
+	if (archive->GetArcExten() != _T(".pack"))
 		return false;
 
-	const SFileInfo* file_info = pclArc->GetOpenFileInfo();
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffers exist
 	std::vector<u8> z_buf(file_info->sizeCmp);
 	std::vector<u8> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 
 	// Read the file
-	pclArc->Read(z_buf.data(), z_buf.size());
+	archive->Read(z_buf.data(), z_buf.size());
 
 	// Decrypt the encrypted file
 	if (file_info->title == _T("FilePackVer1.0"))
@@ -166,25 +166,25 @@ bool CQLIE::Decode(CArcFile* pclArc)
 
 		// Output
 		CImage image;
-		image.Init(pclArc, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
+		image.Init(archive, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
 		image.Write(&pBuf[fHed->bfOffBits], dstSize);
 	}
 	else if (file_info->format == _T("B"))
 	{
 		// *.b file
 
-		if (!DecodeB(pclArc, pBuf, file_info->sizeOrg))
+		if (!DecodeB(archive, pBuf, file_info->sizeOrg))
 		{
 			// Unsupported
 
-			pclArc->OpenFile();
-			pclArc->WriteFile(pBuf, file_info->sizeOrg);
+			archive->OpenFile();
+			archive->WriteFile(pBuf, file_info->sizeOrg);
 		}
 	}
 	else
 	{
-		pclArc->OpenFile();
-		pclArc->WriteFile(pBuf, file_info->sizeOrg);
+		archive->OpenFile();
+		archive->WriteFile(pBuf, file_info->sizeOrg);
 	}
 
 	return true;
@@ -192,22 +192,22 @@ bool CQLIE::Decode(CArcFile* pclArc)
 
 /// *.b file decompressing
 ///
-/// @param pclArc    Archive
-/// @param pbtSrc    .b file
-/// @param dwSrcSize .b file size
+/// @param archive  Archive
+/// @param src      .b file
+/// @param src_size .b file size
 ///
-bool CQLIE::DecodeB(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize)
+bool CQLIE::DecodeB(CArcFile* archive, u8* src, u32 src_size)
 {
-	if (memcmp(&pbtSrc[0], "ABMP7", 5) == 0)
+	if (memcmp(&src[0], "ABMP7", 5) == 0)
 	{
 		// ABMP7
-		return DecodeABMP7(pclArc, pbtSrc, dwSrcSize);
+		return DecodeABMP7(archive, src, src_size);
 	}
 
-	if (memcmp(&pbtSrc[0], "abmp", 4) == 0)
+	if (memcmp(&src[0], "abmp", 4) == 0)
 	{
 		// abmp10
-		return DecodeABMP10(pclArc, pbtSrc, dwSrcSize);
+		return DecodeABMP10(archive, src, src_size);
 	}
 
 	// Not supported
@@ -216,23 +216,23 @@ bool CQLIE::DecodeB(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize)
 
 /// ABMP7 Decompressing
 ///
-/// @param pclArc       Archive
-/// @param pbtSrc       .b file
-/// @param dwSrcSize    .b file size
-/// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
-/// @param clsBFileName Current .b file name (Will change with each recursive call)
+/// @param archive       Archive
+/// @param src           .b file
+/// @param src_size      .b file size
+/// @param src_index_ptr Entire .b file index (You'll need to add the minutes after the recursive call)
+/// @param b_file_name   Current .b file name (Will change with each recursive call)
 ///
-bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
 {
 	u32 dwSrcIndex = 0;
 
-	if ((dwSrcIndex + 16) > dwSrcSize)
+	if ((dwSrcIndex + 16) > src_size)
 	{
 		// Exit
 		return false;
 	}
 
-	if (memcmp(&pbtSrc[dwSrcIndex], "ABMP7", 5) != 0)
+	if (memcmp(&src[dwSrcIndex], "ABMP7", 5) != 0)
 	{
 		// Unsupported
 		return false;
@@ -241,7 +241,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 	dwSrcIndex += 12;
 
 	// Get the amount of unnecessary data we can skip
-	const u32 dwUnKnownDataSize = *(u32*)&pbtSrc[dwSrcIndex];
+	const u32 dwUnKnownDataSize = *(u32*)&src[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Skip the unnecessary data
@@ -250,11 +250,11 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 	//-- First read ------------------------------------------------------------------------
 
 	// Get filesize
-	u32 dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
+	u32 dwFileSize = *(u32*)&src[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Get the file extension
-	YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
+	YCString clsFileExt = GetExtension(&src[dwSrcIndex]);
 
 	// Output
 	if (clsFileExt == _T(".bmp"))
@@ -262,7 +262,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 		// BITMAP
 
 		CImage clImage;
-		clImage.Init(pclArc, &pbtSrc[dwSrcIndex]);
+		clImage.Init(archive, &src[dwSrcIndex]);
 		clImage.Write(dwFileSize);
 		clImage.Close();
 	}
@@ -270,32 +270,32 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 	{
 		// Other
 
-		pclArc->OpenFile(clsFileExt);
-		pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
-		pclArc->CloseFile();
+		archive->OpenFile(clsFileExt);
+		archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+		archive->CloseFile();
 	}
 
 	dwSrcIndex += dwFileSize;
 
 	//-- Second read (and subsequent reads) -----------------------------------------------------------------
 
-	while (dwSrcIndex < dwSrcSize)
+	while (dwSrcIndex < src_size)
 	{
 		// Get the length of the filename
 
-		const u32 dwFileNameLength = pbtSrc[dwSrcIndex];
+		const u32 dwFileNameLength = src[dwSrcIndex];
 
 		dwSrcIndex += 1;
 
 		// Get the filename
 		char szFileName[_MAX_FNAME];
-		memcpy(szFileName, &pbtSrc[dwSrcIndex], dwFileNameLength);
+		memcpy(szFileName, &src[dwSrcIndex], dwFileNameLength);
 		szFileName[dwFileNameLength] = '\0';
 
 		dwSrcIndex += 31;
 
 		// Get the file size
-		dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
+		dwFileSize = *(u32*)&src[dwSrcIndex];
 		dwSrcIndex += 4;
 
 		if (dwFileSize == 0)
@@ -305,7 +305,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 
 		// Get file extension
 
-		clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
+		clsFileExt = GetExtension(&src[dwSrcIndex]);
 
 		// Write the .b filename extension
 
@@ -319,7 +319,7 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 			// BITMAP
 
 			CImage clImage;
-			clImage.Init(pclArc, &pbtSrc[dwSrcIndex], szWork);
+			clImage.Init(archive, &src[dwSrcIndex], szWork);
 			clImage.Write(dwFileSize);
 			clImage.Close();
 		}
@@ -327,9 +327,9 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 		{
 			// Other
 
-			pclArc->OpenFile(szWork);
-			pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
-			pclArc->CloseFile();
+			archive->OpenFile(szWork);
+			archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+			archive->CloseFile();
 		}
 
 		dwSrcIndex += dwFileSize;
@@ -340,18 +340,18 @@ bool CQLIE::DecodeABMP7(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrc
 
 /// abmp10~12 Decompression
 ///
-/// @param pclArc       Archive
-/// @param pbtSrc       .b file
-/// @param dwSrcSize    .b file size
-/// @param pdwSrcIndex  Entire .b file index (You'll need to add the minutes after the recursive call)
-/// @param clsBFileName Current .b file name (Will change with each recursive call)
+/// @param archive       Archive
+/// @param src           .b file
+/// @param src_size      .b file size
+/// @param src_index_ptr Entire .b file index (You'll need to add the minutes after the recursive call)
+/// @param b_file_name   Current .b file name (Will change with each recursive call)
 ///
-bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSrcIndex, const YCString& clsBFileName)
+bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
 {
 	static u32 dwDstFiles;
 	static std::vector<SFileNameInfo> vtFileNameList;
 
-	if (pdwSrcIndex == nullptr)
+	if (src_index_ptr == nullptr)
 	{
 		// First call
 		dwDstFiles = 0;
@@ -360,13 +360,13 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 
 	u32 dwSrcIndex = 0;
 
-	if ((dwSrcIndex + 16) > dwSrcSize)
+	if ((dwSrcIndex + 16) > src_size)
 	{
 		// Exit
 		return false;
 	}
 
-	if (memcmp(&pbtSrc[dwSrcIndex], "abmp", 4) != 0)
+	if (memcmp(&src[dwSrcIndex], "abmp", 4) != 0)
 	{
 		// Unsupported
 		return false;
@@ -374,7 +374,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 
 	dwSrcIndex += 16;
 
-	if (memcmp(&pbtSrc[dwSrcIndex], "abdata", 6) != 0)
+	if (memcmp(&src[dwSrcIndex], "abdata", 6) != 0)
 	{
 		// Unsupported
 		return false;
@@ -383,25 +383,25 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 	dwSrcIndex += 16;
 
 	// Get the amount of data we can skip
-	const u32 dwUnKnownDataSize = *(u32*)&pbtSrc[dwSrcIndex];
+	const u32 dwUnKnownDataSize = *(u32*)&src[dwSrcIndex];
 	dwSrcIndex += 4;
 
 	// Skip the unnecessary data
 	dwSrcIndex += dwUnKnownDataSize;
 
-	while (dwSrcIndex < dwSrcSize)
+	while (dwSrcIndex < src_size)
 	{
-		if ((dwSrcIndex + 16) > dwSrcSize)
+		if ((dwSrcIndex + 16) > src_size)
 		{
 			// Exit
 			break;
 		}
 
-		if (memcmp(&pbtSrc[dwSrcIndex], "abimage", 7) == 0)
+		if (memcmp(&src[dwSrcIndex], "abimage", 7) == 0)
 		{
 			// abimage10
 		}
-		else if (memcmp(&pbtSrc[dwSrcIndex], "absound", 7) == 0)
+		else if (memcmp(&src[dwSrcIndex], "absound", 7) == 0)
 		{
 			// absound10
 		}
@@ -414,12 +414,12 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 		dwSrcIndex += 16;
 
 		// Get file count
-		const u32 dwFiles = pbtSrc[dwSrcIndex];
+		const u32 dwFiles = src[dwSrcIndex];
 		dwSrcIndex += 1;
 
 		for (u32 i = 0; i < dwFiles; i++)
 		{
-			if ((dwSrcIndex + 16) > dwSrcSize)
+			if ((dwSrcIndex + 16) > src_size)
 			{
 				// Exit
 				break;
@@ -427,22 +427,22 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 
 			u32 dwDatVersion;
 
-			if (memcmp(&pbtSrc[dwSrcIndex], "abimgdat10", 10) == 0)
+			if (memcmp(&src[dwSrcIndex], "abimgdat10", 10) == 0)
 			{
 				// abimgdat10
 				dwDatVersion = ABIMGDAT10;
 			}
-			else if (memcmp(&pbtSrc[dwSrcIndex], "abimgdat11", 10) == 0)
+			else if (memcmp(&src[dwSrcIndex], "abimgdat11", 10) == 0)
 			{
 				// abimgdat11
 				dwDatVersion = ABIMGDAT11;
 			}
-			else if (memcmp(&pbtSrc[dwSrcIndex], "absnddat10", 10) == 0)
+			else if (memcmp(&src[dwSrcIndex], "absnddat10", 10) == 0)
 			{
 				// absnddat10
 				dwDatVersion = ABSNDDAT10;
 			}
-			else if (memcmp(&pbtSrc[dwSrcIndex], "absnddat11", 10) == 0)
+			else if (memcmp(&src[dwSrcIndex], "absnddat11", 10) == 0)
 			{
 				// absnddat11
 				dwDatVersion = ABSNDDAT11;
@@ -456,18 +456,18 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			dwSrcIndex += 16;
 
 			// Get the length of the filename
-			const u32 dwFileNameLength = *(u16*)&pbtSrc[dwSrcIndex];
+			const u32 dwFileNameLength = *(u16*)&src[dwSrcIndex];
 			dwSrcIndex += 2;
 
 			// Get the filename
-			YCString clsFileName((char*)&pbtSrc[dwSrcIndex], dwFileNameLength);
+			YCString clsFileName((char*)&src[dwSrcIndex], dwFileNameLength);
 			dwSrcIndex += dwFileNameLength;
 
 			// Skip unknown data
 
 			if ((dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11))
 			{
-				const u16 wLength = *(u16*)&pbtSrc[dwSrcIndex];
+				const u16 wLength = *(u16*)&src[dwSrcIndex];
 
 				dwSrcIndex += 2 + wLength;
 			}
@@ -475,7 +475,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			dwSrcIndex += 1;
 
 			// Get file size
-			const u32 dwFileSize = *(u32*)&pbtSrc[dwSrcIndex];
+			const u32 dwFileSize = *(u32*)&src[dwSrcIndex];
 			dwSrcIndex += 4;
 
 			if (dwFileSize == 0)
@@ -486,7 +486,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			}
 
 			// Get the file extension
-			const YCString clsFileExt = GetExtension(&pbtSrc[dwSrcIndex]);
+			const YCString clsFileExt = GetExtension(&src[dwSrcIndex]);
 
 			if (clsFileExt == _T(".b"))
 			{
@@ -496,14 +496,14 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 
 				if (clsFileName == _T(""))
 				{
-					clsWork = clsBFileName;
+					clsWork = b_file_name;
 				}
 				else
 				{
-					clsWork = clsBFileName + _T("_") + clsFileName;
+					clsWork = b_file_name + _T("_") + clsFileName;
 				}
 
-				DecodeABMP10(pclArc, &pbtSrc[dwSrcIndex], dwFileSize, &dwSrcIndex, clsWork);
+				DecodeABMP10(archive, &src[dwSrcIndex], dwFileSize, &dwSrcIndex, clsWork);
 
 				continue;
 			}
@@ -524,11 +524,11 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			{
 				// No filename (only put extension)
 
-				_stprintf(szWork, _T("%s%s"), clsBFileName.GetString(), clsFileName.GetString());
+				_stprintf(szWork, _T("%s%s"), b_file_name.GetString(), clsFileName.GetString());
 			}
 			else
 			{
-				_stprintf(szWork, _T("%s_%s"), clsBFileName.GetString(), clsFileName.GetString());
+				_stprintf(szWork, _T("%s_%s"), b_file_name.GetString(), clsFileName.GetString());
 			}
 
 			// Check to see if the same filename doesn't exist
@@ -569,7 +569,7 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 				// BITMAP
 
 				CImage clImage;
-				clImage.Init(pclArc, &pbtSrc[dwSrcIndex], szWork);
+				clImage.Init(archive, &src[dwSrcIndex], szWork);
 				clImage.Write(dwFileSize);
 				clImage.Close();
 			}
@@ -577,9 +577,9 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 			{
 				// Other
 
-				pclArc->OpenFile(szWork);
-				pclArc->WriteFile(&pbtSrc[dwSrcIndex], dwFileSize);
-				pclArc->CloseFile();
+				archive->OpenFile(szWork);
+				archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+				archive->CloseFile();
 			}
 
 			dwDstFiles++;
@@ -588,11 +588,11 @@ bool CQLIE::DecodeABMP10(CArcFile* pclArc, u8* pbtSrc, u32 dwSrcSize, u32* pdwSr
 		}
 	}
 
-	if (pdwSrcIndex != nullptr)
+	if (src_index_ptr != nullptr)
 	{
 		// Recursive call being performed
 
-		*pdwSrcIndex += dwSrcIndex;
+		*src_index_ptr += dwSrcIndex;
 	}
 	else
 	{
@@ -653,7 +653,7 @@ YCString CQLIE::GetExtension(const u8* src)
 ///
 /// @param clsPath Path
 ///
-void CQLIE::EraseNotUsePathWord(YCString& clsPath)
+void CQLIE::EraseNotUsePathWord(YCString& path)
 {
 	static const TCHAR aszNotUsePathWord[] =
 	{
@@ -662,7 +662,7 @@ void CQLIE::EraseNotUsePathWord(YCString& clsPath)
 
 	for (const TCHAR& c : aszNotUsePathWord)
 	{
-		clsPath.Remove(c);
+		path.Remove(c);
 	}
 }
 
@@ -695,7 +695,7 @@ void CQLIE::Decrypt(u8* buf, u32 buf_len, u32 seed)
 	}
 }
 
-void CQLIE::Decomp(u8* dst, u32 dstSize, const u8* src, u32 srcSize)
+void CQLIE::Decomp(u8* dst, u32 dst_size, const u8* src, u32 src_size)
 {
 	u8 buf[1024];
 	u8* pdst = dst;
@@ -711,7 +711,7 @@ void CQLIE::Decomp(u8* dst, u32 dstSize, const u8* src, u32 srcSize)
 
 	const u8 x = src[4];
 
-	while ((psrc - src) < ((int)srcSize - 12))
+	while ((psrc - src) < ((int)src_size - 12))
 	{
 		memcpy(&buf[256], buf, 256);
 
@@ -768,7 +768,7 @@ void CQLIE::Decomp(u8* dst, u32 dstSize, const u8* src, u32 srcSize)
 			
 			if (buf[256 + d] == d)
 			{
-				if (pdst - dst > (int)dstSize)
+				if (pdst - dst > (int)dst_size)
 					return;
 				
 				*pdst++ = d;
