@@ -27,8 +27,8 @@ bool CKatakoi::MountIar(CArcFile* archive)
 		return false;
 
 	// Version check
-	const DWORD version = *(LPDWORD)&archive->GetHeader()[4];
-	DWORD file_entry_size = 0;
+	const u32 version = *(u32*)&archive->GetHeader()[4];
+	u32 file_entry_size = 0;
 
 	if (version == 2)
 	{
@@ -46,18 +46,18 @@ bool CKatakoi::MountIar(CArcFile* archive)
 	archive->SeekHed(0x1C);
 
 	// Get number of files
-	DWORD num_files;
-	archive->Read(&num_files, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	const DWORD index_size = num_files * file_entry_size;
+	const u32 index_size = num_files * file_entry_size;
 
 	// Get index
-	std::vector<BYTE> index(index_size);
+	std::vector<u8> index(index_size);
 	archive->Read(index.data(), index.size());
 
 	// Get index filename
-	std::vector<BYTE> sec;
+	std::vector<u8> sec;
 	u32 name_index;
 
 	const bool found_sec = GetNameIndex(archive, sec, name_index);
@@ -73,7 +73,7 @@ bool CKatakoi::MountIar(CArcFile* archive)
 		PathRemoveExtension(work);
 	}
 
-	for (DWORD i = 0; i < num_files; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		if (!found_sec)
 		{
@@ -88,13 +88,13 @@ bool CKatakoi::MountIar(CArcFile* archive)
 			name_index += strlen((char*)&sec[name_index]) + 1; // Filename
 			name_index += strlen((char*)&sec[name_index]) + 1; // File type
 			name_index += strlen((char*)&sec[name_index]) + 1; // Archive type
-			name_index += 4 + *(LPDWORD)&sec[name_index];      // Archive name length + Archive name + File number
+			name_index += 4 + *(u32*)&sec[name_index];         // Archive name length + Archive name + File number
 		}
 
 		SFileInfo info;
 		info.name = file_name;
-		info.start = *(LPDWORD)&index[i * file_entry_size];
-		info.end = ((i + 1) < num_files) ? *(LPDWORD)&index[(i+1) * file_entry_size] : archive->GetArcSize();
+		info.start = *(u32*)&index[i * file_entry_size];
+		info.end = ((i + 1) < num_files) ? *(u32*)&index[(i+1) * file_entry_size] : archive->GetArcSize();
 		info.sizeCmp = info.end - info.start;
 		info.sizeOrg = info.sizeCmp;
 
@@ -113,8 +113,8 @@ bool CKatakoi::MountWar(CArcFile* archive)
 		return false;
 
 	// Version check
-	const DWORD version = *(LPDWORD)&archive->GetHeader()[4];
-	DWORD file_entry_size = 0;
+	const u32 version = *(u32*)&archive->GetHeader()[4];
+	u32 file_entry_size = 0;
 
 	if (version == 8)
 	{
@@ -128,19 +128,19 @@ bool CKatakoi::MountWar(CArcFile* archive)
 	archive->SeekHed(0x08);
 
 	// Get the number of files
-	DWORD num_files;
-	archive->Read(&num_files, 4);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get index size
-	const DWORD index_size = num_files * file_entry_size;
+	const u32 index_size = num_files * file_entry_size;
 
 	// Get index
-	std::vector<BYTE> index(index_size);
+	std::vector<u8> index(index_size);
 	archive->SeekCur(0x04);
 	archive->Read(index.data(), index.size());
 
 	// Get the filename index
-	std::vector<BYTE> sec;
+	std::vector<u8> sec;
 	u32 name_index;
 
 	const bool found_sec = GetNameIndex(archive, sec, name_index);
@@ -159,7 +159,7 @@ bool CKatakoi::MountWar(CArcFile* archive)
 		PathRemoveExtension(work);
 	}
 
-	for (DWORD i = 0; i < num_files; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		if (!found_sec)
 		{
@@ -174,13 +174,13 @@ bool CKatakoi::MountWar(CArcFile* archive)
 			name_index += strlen((char*)&sec[name_index]) + 1; // File name
 			name_index += strlen((char*)&sec[name_index]) + 1; // File type
 			name_index += strlen((char*)&sec[name_index]) + 1; // Archive type
-			name_index += 4 + *(LPDWORD)&sec[name_index];      // Archive name length + Archive name + File number
+			name_index += 4 + *(u32*)&sec[name_index];         // Archive name length + Archive name + File number
 		}
 
 		SFileInfo info;
 		info.name = file_name;
-		info.start = *(LPDWORD)&index[i * file_entry_size];
-		info.sizeCmp = *(LPDWORD)&index[i * file_entry_size + 4];
+		info.start = *(u32*)&index[i * file_entry_size];
+		info.sizeCmp = *(u32*)&index[i * file_entry_size + 4];
 		info.sizeOrg = info.sizeCmp;
 		info.end = info.start + info.sizeCmp;
 		archive->AddFileInfo(info);
@@ -208,7 +208,7 @@ bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<u8>& sec, u32& name_i
 		return false;
 	}
 
-	const DWORD sec_size = sec_file.GetFileSize();
+	const u32 sec_size = sec_file.GetFileSize();
 
 	// Reading
 	sec.resize(sec_size);
@@ -226,23 +226,23 @@ bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<u8>& sec, u32& name_i
 		if (memcmp(&sec[name_index], "RESR", 4) == 0)
 		{
 			// Found "RESR"
-			const DWORD name_index_size = *(LPDWORD)&sec[name_index + 4];
-			const DWORD num_name_index_files = *(LPDWORD)&sec[name_index + 8];
+			const u32 name_index_size = *(u32*)&sec[name_index + 4];
+			const u32 num_name_index_files = *(u32*)&sec[name_index + 8];
 
 			name_index += 12;
 
 			// Find the index that matches the name of the archive
-			for (DWORD i = 0; i < num_name_index_files; i++)
+			for (u32 i = 0; i < num_name_index_files; i++)
 			{
-				DWORD work = 0;
+				u32 work = 0;
 				work += strlen((char*)&sec[name_index + work]) + 1; // File name
 				work += strlen((char*)&sec[name_index + work]) + 1; // File type
 				work += strlen((char*)&sec[name_index + work]) + 1; // Archive type
 
-				const DWORD length = *(LPDWORD)&sec[name_index + work]; // Archive name + File number
+				const u32 length = *(u32*)&sec[name_index + work];  // Archive name + File number
 				work += 4;
 
-				for (DWORD j = name_index + work; ; j++)
+				for (u32 j = name_index + work; ; j++)
 				{
 					if (sec[j] == '\0')
 					{
@@ -273,7 +273,7 @@ bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<u8>& sec, u32& name_i
 			break;
 		}
 
-		name_index += 8 + *(LPDWORD)&sec[name_index + 4];
+		name_index += 8 + *(u32*)&sec[name_index + 4];
 	}
 
 	// No file in the index was a match
@@ -339,19 +339,19 @@ bool CKatakoi::DecodeIar(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Reading
-	std::vector<BYTE> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->sizeCmp);
 	archive->Read(src.data(), src.size());
 
 	// Output buffer
-	const DWORD dst_size = *(LPDWORD)&src[8];
-	std::vector<BYTE> dst(dst_size * 2);
+	const u32 dst_size = *(u32*)&src[8];
+	std::vector<u8> dst(dst_size * 2);
 
 	// Decompression
-	DecompImage(dst.data(), dst_size, &src[64], *(LPDWORD)&src[16]);
+	DecompImage(dst.data(), dst_size, &src[64], *(u32*)&src[16]);
 
-	const long width = *(LPLONG)&src[32];
-	const long height = *(LPLONG)&src[36];
-	WORD bpp;
+	const long width = *(s32*)&src[32];
+	const long height = *(s32*)&src[36];
+	u16 bpp;
 
 	switch (src[0])
 	{
@@ -396,7 +396,7 @@ bool CKatakoi::DecodeWar(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Reading
-	std::vector<BYTE> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->sizeCmp);
 	archive->Read(src.data(), src.size());
 
 	if (memcmp(src.data(), "OggS", 4) == 0)
@@ -408,10 +408,10 @@ bool CKatakoi::DecodeWar(CArcFile* archive)
 	else
 	{
 		// WAV (supposedly)
-		const DWORD data_size = *(LPDWORD)&src[4];
-		const DWORD frequency = *(LPDWORD)&src[12];
-		const WORD  channels = *(LPWORD)&src[10];
-		const WORD  bits = *(LPWORD)&src[22];
+		const u32 data_size = *(u32*)&src[4];
+		const u32 frequency = *(u32*)&src[12];
+		const u16 channels = *(u16*)&src[10];
+		const u16 bits = *(u16*)&src[22];
 
 		CWav wav;
 		wav.Init(archive, data_size, frequency, channels, bits);
@@ -429,7 +429,7 @@ void CKatakoi::GetBit(const u8*& src, u32& flags)
 	{
 		// Less than or equal to 0xFFFF
 
-		flags = *(LPWORD)&src[0] | 0xFFFF0000;
+		flags = *(const u16*)&src[0] | 0xFFFF0000;
 		src += 2;
 	}
 }
@@ -437,8 +437,8 @@ void CKatakoi::GetBit(const u8*& src, u32& flags)
 bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
 	u32 flags = 0; // Flag can always be initialized
-	DWORD back;
-	DWORD length;
+	u32 back;
+	u32 length;
 
 	const u8* dst_begin = dst;
 	const u8* src_end = src + src_size;
@@ -465,7 +465,7 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 				GetBit(src, flags);
 
 				// Plus one byte
-				DWORD dwWork = 1;
+				u32 work = 1;
 				back = flags & 1;
 
 				GetBit(src, flags);
@@ -474,14 +474,14 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 				{
 					// Plus 0x201 bytes
 					GetBit(src, flags);
-					dwWork = 0x201;
+					work = 0x201;
 
 					if ((flags & 1) == 0)
 					{
 						// Plus 0x401 bytes
 						GetBit(src, flags);
 
-						dwWork = 0x401;
+						work = 0x401;
 						back = (back << 1) | (flags & 1);
 
 						GetBit(src, flags);
@@ -491,7 +491,7 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 							// Plus 0x801 bytes
 							GetBit(src, flags);
 
-							dwWork = 0x801;
+							work = 0x801;
 							back = (back << 1) | (flags & 1);
 
 							GetBit(src, flags);
@@ -501,14 +501,14 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 								// Plus 0x1001 bytes
 								GetBit(src, flags);
 
-								dwWork = 0x1001;
+								work = 0x1001;
 								back = (back << 1) | (flags & 1);
 							}
 						}
 					}
 				}
 
-				back = ((back << 8) | *src++) + dwWork;
+				back = ((back << 8) | *src++) + work;
 
 				// Determine the number of compressed bytes
 				GetBit(src, flags);
@@ -626,9 +626,9 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 				return false;
 			}
 
-			LPBYTE dst_copy_ptr = dst - back;
+			const u8* dst_copy_ptr = dst - back;
 
-			for (DWORD k = 0; k < length && dst < dst_end && dst_copy_ptr < dst_end; k++)
+			for (u32 k = 0; k < length && dst < dst_end && dst_copy_ptr < dst_end; k++)
 			{
 				*dst++ = *dst_copy_ptr++;
 			}
@@ -643,7 +643,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 	const SFileInfo* diff_file_info = archive->GetOpenFileInfo();
 
 	const SFileInfo* base_file_info = nullptr;
-	BOOL             base_file_exists = FALSE;
+	bool             base_file_exists = false;
 	TCHAR            base_file_name[MAX_PATH];
 
 	lstrcpy(base_file_name, diff_file_info->name);
@@ -682,15 +682,11 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 				continue;
 			}
 
-			BYTE work;
+			u8 work;
 			archive->SeekHed(base_file_info->start + 1);
 			archive->Read(&work, 1);
 
-			if (work == 0)
-			{
-				// Found base file
-				base_file_exists = TRUE;
-			}
+			base_file_exists = work == 0;
 		}
 
 		// Base file search (find difference after the file)
@@ -718,15 +714,11 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 				continue;
 			}
 
-			BYTE work;
+			u8 work;
 			archive->SeekHed(base_file_info->start + 1);
 			archive->Read(&work, 1);
 
-			if (work == 0)
-			{
-				// Found base file
-				base_file_exists = TRUE;
-			}
+			base_file_exists = work == 0;
 		}
 
 		// Base file search (2Œ…–Ú‚ð1‚Â–ß‚µ‚ÄŒŸõ)
@@ -754,43 +746,39 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 				continue;
 			}
 
-			BYTE work;
+			u8 work;
 			archive->SeekHed(base_file_info->start + 1);
 			archive->Read(&work, 1);
 
-			if (work == 0)
-			{
-				// Found base file
-				base_file_exists = TRUE;
-			}
+			base_file_exists = work == 0;
 		}
 	}
 
 	if (base_file_exists)
 	{
 		// Base file exists
-		std::vector<BYTE> base_src(base_file_info->sizeCmp);
+		std::vector<u8> base_src(base_file_info->sizeCmp);
 		archive->SeekHed(base_file_info->start);
 		archive->Read(base_src.data(), base_src.size());
 
-		const long base_width = *(LPLONG)&base_src[32];
-		const long base_height = *(LPLONG)&base_src[36];
+		const long base_width = *(s32*)&base_src[32];
+		const long base_height = *(s32*)&base_src[36];
 
 		if (base_width >= diff_width && base_height >= diff_height)
 		{
 			// Large base
-			const DWORD       base_dst_size = *(LPDWORD)&base_src[8];
-			std::vector<BYTE> base_dst(base_dst_size);
+			const u32       base_dst_size = *(u32*)&base_src[8];
+			std::vector<u8> base_dst(base_dst_size);
 
 			// Decompress base file
-			DecompImage(base_dst.data(), base_dst.size(), &base_src[64], *(LPDWORD)&base_src[16]);
+			DecompImage(base_dst.data(), base_dst.size(), &base_src[64], *(u32*)&base_src[16]);
 
 			// Synthesize base file and delta file
 			Compose(base_dst.data(), base_dst.size(), diff, diff_size, base_width, diff_width, diff_bpp);
 
 			// Output
-			const long width = *(LPLONG)&base_src[32];
-			const long height = *(LPLONG)&base_src[36];
+			const long width = *(s32*)&base_src[32];
+			const long height = *(s32*)&base_src[36];
 
 			CImage image;
 			image.Init(archive, width, height, diff_bpp);
@@ -801,21 +789,21 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 		else if (diff_width >= base_width && diff_height >= base_height)
 		{
 			// Difference is greater
-			const DWORD       base_dst_size = *(LPDWORD)&base_src[8];
-			std::vector<BYTE> base_dst(base_dst_size);
+			const u32       base_dst_size = *(u32*)&base_src[8];
+			std::vector<u8> base_dst(base_dst_size);
 
 			// Decompress base file
-			DecompImage(base_dst.data(), base_dst.size(), &base_src[64], *(LPDWORD)&base_src[16]);
+			DecompImage(base_dst.data(), base_dst.size(), &base_src[64], *(u32*)&base_src[16]);
 
 			// The difference in the size of the memory allocation
-			const DWORD       dst_size = diff_width * diff_height * (diff_bpp >> 3);
-			std::vector<BYTE> dst(dst_size);
+			const u32       dst_size = diff_width * diff_height * (diff_bpp >> 3);
+			std::vector<u8> dst(dst_size);
 
 			// Align base file in the lower-right
 			const long start_x = diff_width - base_width;
 			const long start_y = diff_height - base_height;
-			LPBYTE base_dst_ptr = base_dst.data();
-			LPBYTE dst_ptr = dst.data();
+			const u8* base_dst_ptr = base_dst.data();
+			u8* dst_ptr = dst.data();
 
 			const long x_gap = start_x * (diff_bpp >> 3);
 			const long base_line = base_width * (diff_bpp >> 3);
@@ -849,8 +837,8 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 
 	// Base file doesn't exist.
 	// Prepare black data
-	const DWORD dst_size = ((diff_width * (diff_bpp >> 3) + 3) & 0xFFFFFFFC) * diff_height;
-	std::vector<BYTE> dst(dst_size);
+	const u32 dst_size = ((diff_width * (diff_bpp >> 3) + 3) & 0xFFFFFFFC) * diff_height;
+	std::vector<u8> dst(dst_size);
 
 	// Synthesize black data
 	Compose(dst.data(), dst.size(), diff, diff_size, diff_width, diff_width, diff_bpp);
@@ -869,9 +857,9 @@ bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size,
 {
 	const u16 colors = bpp >> 3;
 	const u32 line = src_width * colors;
-	DWORD height = *(LPDWORD)&src[8];
+	u32 height = *(const u32*)&src[8];
 
-	DWORD x_gap = 0;
+	u32 x_gap = 0;
 
 	if (dst_width > src_width)
 	{
@@ -879,26 +867,26 @@ bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size,
 	}
 
 	size_t src_idx = 12;
-	size_t dst_idx = *(LPDWORD)&src[4] * (x_gap + line);
+	size_t dst_idx = *(const u32*)&src[4] * (x_gap + line);
 
 	while (height-- && src_idx < src_size)
 	{
-		for (DWORD x = 0; x < x_gap; x++)
+		for (u32 x = 0; x < x_gap; x++)
 		{
 			dst[dst_idx++] = 0;
 		}
 
-		DWORD count = *(LPWORD)&src[src_idx];
+		u32 count = *(const u16*)&src[src_idx];
 		src_idx += 2;
 
 		size_t offset = 0;
 
 		while (count--)
 		{
-			offset += *(LPWORD)&src[src_idx] * colors;
+			offset += *(const u16*)&src[src_idx] * colors;
 			src_idx += 2;
 
-			DWORD length = *(LPWORD)&src[src_idx] * colors;
+			u32 length = *(const u16*)&src[src_idx] * colors;
 			src_idx += 2;
 
 			while (length--)
