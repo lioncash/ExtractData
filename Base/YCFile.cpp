@@ -3,8 +3,8 @@
 
 /// Constructor
 YCFile::YCFile()
+	: m_file{INVALID_HANDLE_VALUE}
 {
-	m_file = INVALID_HANDLE_VALUE;
 }
 
 /// Destructor
