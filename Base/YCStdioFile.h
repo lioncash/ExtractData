@@ -22,7 +22,7 @@ public:
 	virtual bool ReadString(YCString& buffer);
 	virtual void WriteString(LPCTSTR buffer);
 
-	u64 Seek(s64 offset, u32 seek_mode) override;
+	u64 Seek(s64 offset, SeekMode seek_mode) override;
 
 private:
 	FILE* m_stream = nullptr;

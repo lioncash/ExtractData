@@ -24,11 +24,11 @@ public:
 		osSequentialScan    = 0x00010000,
 	};
 
-	enum
+	enum class SeekMode
 	{
-		begin   = 0,
-		current = 1,
-		end     = 2,
+		begin,
+		current,
+		end,
 	};
 
 	YCFile();
@@ -41,7 +41,7 @@ public:
 	virtual DWORD Read(void* buffer, u32 read_size);
 	virtual DWORD Write(const void* buffer, u32 write_size);
 
-	virtual u64 Seek(s64 offset, u32 seek_mode);
+	virtual u64 Seek(s64 offset, SeekMode seek_mode);
 	virtual u64 SeekHed(s64 offset = 0);
 	virtual u64 SeekEnd(s64 offset = 0);
 	virtual u64 SeekCur(s64 offset);

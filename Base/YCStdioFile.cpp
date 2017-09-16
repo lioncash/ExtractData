@@ -220,28 +220,26 @@ void YCStdioFile::WriteString(LPCTSTR buffer)
 /// @param offset    Number of bytes to seek
 /// @param seek_mode Seek mode
 ///
-u64 YCStdioFile::Seek(s64 offset, u32 seek_mode)
+u64 YCStdioFile::Seek(s64 offset, SeekMode seek_mode)
 {
-	switch (seek_mode)
-	{
-	case begin:
-		seek_mode = SEEK_SET;
-		break;
+	const u32 internal_seek_mode = [seek_mode] {
+		switch (seek_mode)
+		{
+		case SeekMode::begin:
+			return SEEK_SET;
 
-	case current:
-		seek_mode = SEEK_CUR;
-		break;
+		case SeekMode::current:
+			return SEEK_CUR;
 
-	case end:
-		seek_mode = SEEK_END;
-		break;
+		case SeekMode::end:
+			return SEEK_END;
 
-	default:
-		seek_mode = SEEK_SET;
-		break;
-	}
+		default:
+			return SEEK_SET;
+		}
+	}();
 
-	if (_fseeki64(m_stream, offset, seek_mode))
+	if (_fseeki64(m_stream, offset, internal_seek_mode))
 	{
 		return static_cast<u64>(_ftelli64(m_stream));
 	}

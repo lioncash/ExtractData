@@ -168,30 +168,28 @@ DWORD YCFile::Write(const void* buffer, u32 write_size)
 /// @param offset    Number of bytes to move
 /// @param seek_mode Seek mode
 ///
-u64 YCFile::Seek(s64 offset, u32 seek_mode)
+u64 YCFile::Seek(s64 offset, SeekMode seek_mode)
 {
-	switch (seek_mode)
-	{
-	case begin:
-		seek_mode = FILE_BEGIN;
-		break;
+	const u32 internal_seek_mode = [seek_mode] {
+		switch (seek_mode)
+		{
+		case SeekMode::begin:
+			return FILE_BEGIN;
 
-	case current:
-		seek_mode = FILE_CURRENT;
-		break;
+		case SeekMode::current:
+			return FILE_CURRENT;
 
-	case end:
-		seek_mode = FILE_END;
-		break;
+		case SeekMode::end:
+			return FILE_END;
 
-	default:
-		seek_mode = FILE_BEGIN;
-	}
+		default:
+			return FILE_BEGIN;
+		}
+	}();
 
 	LARGE_INTEGER work;
-
 	work.QuadPart = offset;
-	work.LowPart = ::SetFilePointer(m_file, work.LowPart, &work.HighPart, seek_mode);
+	work.LowPart = ::SetFilePointer(m_file, work.LowPart, &work.HighPart, internal_seek_mode);
 
 	if (work.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
 	{
@@ -209,7 +207,7 @@ u64 YCFile::Seek(s64 offset, u32 seek_mode)
 ///
 u64 YCFile::SeekHed(s64 offset)
 {
-	return Seek(offset, begin);
+	return Seek(offset, SeekMode::begin);
 }
 
 /// Move the file pointer relative to the end of the file
@@ -218,7 +216,7 @@ u64 YCFile::SeekHed(s64 offset)
 ///
 u64 YCFile::SeekEnd(s64 offset)
 {
-	return Seek(-offset, end);
+	return Seek(-offset, SeekMode::end);
 }
 
 /// Move the file pointer relative to its current position
@@ -227,7 +225,7 @@ u64 YCFile::SeekEnd(s64 offset)
 ///
 u64 YCFile::SeekCur(s64 offset)
 {
-	return Seek(offset, current);
+	return Seek(offset, SeekMode::current);
 }
 
 /// Get the current file pointer position
