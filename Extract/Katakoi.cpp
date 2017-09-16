@@ -449,7 +449,7 @@ bool CKatakoi::DecodeWar(CArcFile* archive)
 	return true;
 }
 
-void CKatakoi::GetBit(u8*& src, u32& flags)
+void CKatakoi::GetBit(const u8*& src, u32& flags)
 {
 	flags >>= 1;
 
@@ -462,15 +462,15 @@ void CKatakoi::GetBit(u8*& src, u32& flags)
 	}
 }
 
-bool CKatakoi::DecompImage(u8* dst, size_t dst_size, u8* src, size_t src_size)
+bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
 	u32 dwFlags = 0; // Flag can always be initialized
 	DWORD dwBack;
 	DWORD dwLength;
 	DWORD dwWork;
-	LPBYTE pbyDstBegin = dst;
-	LPBYTE pbySrcEnd = src + src_size;
-	LPBYTE pbyDstEnd = dst + dst_size;
+	const u8* pbyDstBegin = dst;
+	const u8* pbySrcEnd = src + src_size;
+	const u8* pbyDstEnd = dst + dst_size;
 
 	while ((src < pbySrcEnd) && (dst < pbyDstEnd))
 	{
@@ -674,7 +674,7 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, u8* src, size_t src_size)
 	return true;
 }
 
-bool CKatakoi::DecodeCompose(CArcFile* archive, u8* diff, size_t diff_size, long diff_width, long diff_height, u16 diff_bpp)
+bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size, long diff_width, long diff_height, u16 diff_bpp)
 {
 	const SFileInfo* pstfiDiff = archive->GetOpenFileInfo();
 
@@ -923,7 +923,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, u8* diff, size_t diff_size, long
 //
 // 十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
 
-bool CKatakoi::Compose(u8* dst, size_t dst_size, u8* src, size_t src_size, long dst_width, long src_width, u16 bpp)
+bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size, long dst_width, long src_width, u16 bpp)
 {
 	WORD wColors = bpp >> 3;
 	DWORD dwLine = src_width * wColors;
