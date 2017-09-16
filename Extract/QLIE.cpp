@@ -22,8 +22,8 @@ bool CQLIE::Mount(CArcFile* archive)
 	}
 
 	// Get the file count
-	u32 ctFile;
-	archive->ReadU32(&ctFile);
+	u32 num_files;
+	archive->ReadU32(&num_files);
 
 	// Get the index position/offset
 	u64 index_ofs;
@@ -58,7 +58,7 @@ bool CQLIE::Mount(CArcFile* archive)
 		const u8* pIndex2 = pIndex;
 
 		// Figure out how much data is TOC entries..
-		for (int i = 0; i < (int)ctFile; i++)
+		for (int i = 0; i < (int)num_files; i++)
 		{
 			const u16 filename_len = *(const u16*)pIndex2;
 			pIndex2 += 2 + filename_len + 28;
@@ -80,36 +80,36 @@ bool CQLIE::Mount(CArcFile* archive)
 		return false;
 	}
 
-	for (u32 i = 0; i < ctFile; i++)
+	for (u32 i = 0; i < num_files; i++)
 	{
 		// Get the filename length
-		const u16 FileNameLen = *(const u16*)&pIndex[0];
+		const u16 file_name_len = *(const u16*)&pIndex[0];
 		
 		//archive->Read(&FileNameLen, 2);
-		u8 szFileName[_MAX_FNAME];
-		memcpy(szFileName, &pIndex[2], FileNameLen);
+		u8 file_name[_MAX_FNAME];
+		memcpy(file_name, &pIndex[2], file_name_len);
 		
 		//archive->Read(szFileName, FileNameLen);
-		szFileName[FileNameLen] = '\0';
+    file_name[file_name_len] = '\0';
 		
 		// Get the filename
-		DecryptFunc(szFileName, FileNameLen, seed);
+		DecryptFunc(file_name, file_name_len, seed);
 
-		pIndex += 2 + FileNameLen;
+		pIndex += 2 + file_name_len;
 
 		//u8 index[28];
 		//archive->Read(&index, 28);
 
 		// Add to the listview.
-		SFileInfo infFile;
-		infFile.name = (char*)szFileName;
-		infFile.start = *(const u64*)&pIndex[0];
-		infFile.sizeCmp = *(const u32*)&pIndex[8];
-		infFile.sizeOrg = *(const u32*)&pIndex[12];
-		infFile.end = infFile.start + infFile.sizeCmp;
-		infFile.key = (version == _T("FilePackVer1.0")) ? *(const u32*)&pIndex[20] : seed;
-		infFile.title = version;
-		archive->AddFileInfo(infFile);
+		SFileInfo info;
+		info.name = (char*)file_name;
+		info.start = *(const u64*)&pIndex[0];
+		info.sizeCmp = *(const u32*)&pIndex[8];
+		info.sizeOrg = *(const u32*)&pIndex[12];
+		info.end = info.start + info.sizeCmp;
+		info.key = (version == _T("FilePackVer1.0")) ? *(const u32*)&pIndex[20] : seed;
+		info.title = version;
+		archive->AddFileInfo(info);
 
 		pIndex += 28;
 	}
@@ -155,28 +155,26 @@ bool CQLIE::Decode(CArcFile* archive)
 	// Output
 	if (file_info->format == _T("BMP"))
 	{
-		const LPBITMAPFILEHEADER fHed = (LPBITMAPFILEHEADER)&pBuf[0];
-		const LPBITMAPINFOHEADER iHed = (LPBITMAPINFOHEADER)&pBuf[14];
+		const LPBITMAPFILEHEADER file = (LPBITMAPFILEHEADER)&pBuf[0];
+		const LPBITMAPINFOHEADER info = (LPBITMAPINFOHEADER)&pBuf[14];
 
 		// Output size
-		u32 dstSize = file_info->sizeOrg - 54;
+		u32 dst_size = file_info->sizeOrg - 54;
 
-		if (((iHed->biWidth * (iHed->biBitCount >> 3) + 3) & 0xFFFFFFFC) * iHed->biHeight != dstSize)
-			dstSize -= 2;
+		if (((info->biWidth * (info->biBitCount >> 3) + 3) & 0xFFFFFFFC) * info->biHeight != dst_size)
+			dst_size -= 2;
 
 		// Output
 		CImage image;
-		image.Init(archive, iHed->biWidth, iHed->biHeight, iHed->biBitCount, &pBuf[54], fHed->bfOffBits - 54);
-		image.Write(&pBuf[fHed->bfOffBits], dstSize);
+		image.Init(archive, info->biWidth, info->biHeight, info->biBitCount, &pBuf[54], file->bfOffBits - 54);
+		image.Write(&pBuf[file->bfOffBits], dst_size);
 	}
 	else if (file_info->format == _T("B"))
 	{
 		// *.b file
-
 		if (!DecodeB(archive, pBuf, file_info->sizeOrg))
 		{
 			// Unsupported
-
 			archive->OpenFile();
 			archive->WriteFile(pBuf, file_info->sizeOrg);
 		}
@@ -224,115 +222,107 @@ bool CQLIE::DecodeB(CArcFile* archive, u8* src, u32 src_size)
 ///
 bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
 {
-	u32 dwSrcIndex = 0;
+	u32 src_index = 0;
 
-	if ((dwSrcIndex + 16) > src_size)
+	if ((src_index + 16) > src_size)
 	{
 		// Exit
 		return false;
 	}
 
-	if (memcmp(&src[dwSrcIndex], "ABMP7", 5) != 0)
+	if (memcmp(&src[src_index], "ABMP7", 5) != 0)
 	{
 		// Unsupported
 		return false;
 	}
 
-	dwSrcIndex += 12;
+	src_index += 12;
 
 	// Get the amount of unnecessary data we can skip
-	const u32 dwUnKnownDataSize = *(u32*)&src[dwSrcIndex];
-	dwSrcIndex += 4;
+	const u32 unknown_data_size = *(u32*)&src[src_index];
+	src_index += 4;
 
 	// Skip the unnecessary data
-	dwSrcIndex += dwUnKnownDataSize;
+	src_index += unknown_data_size;
 
 	//-- First read ------------------------------------------------------------------------
 
 	// Get filesize
-	u32 dwFileSize = *(u32*)&src[dwSrcIndex];
-	dwSrcIndex += 4;
+	u32 file_size = *(u32*)&src[src_index];
+	src_index += 4;
 
 	// Get the file extension
-	YCString clsFileExt = GetExtension(&src[dwSrcIndex]);
+	YCString file_extension = GetExtension(&src[src_index]);
 
 	// Output
-	if (clsFileExt == _T(".bmp"))
+	if (file_extension == _T(".bmp"))
 	{
 		// BITMAP
-
-		CImage clImage;
-		clImage.Init(archive, &src[dwSrcIndex]);
-		clImage.Write(dwFileSize);
-		clImage.Close();
+		CImage image;
+		image.Init(archive, &src[src_index]);
+		image.Write(file_size);
+		image.Close();
 	}
 	else
 	{
 		// Other
-
-		archive->OpenFile(clsFileExt);
-		archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+		archive->OpenFile(file_extension);
+		archive->WriteFile(&src[src_index], file_size);
 		archive->CloseFile();
 	}
 
-	dwSrcIndex += dwFileSize;
+	src_index += file_size;
 
 	//-- Second read (and subsequent reads) -----------------------------------------------------------------
 
-	while (dwSrcIndex < src_size)
+	while (src_index < src_size)
 	{
 		// Get the length of the filename
+		const u32 file_name_length = src[src_index];
 
-		const u32 dwFileNameLength = src[dwSrcIndex];
-
-		dwSrcIndex += 1;
+		src_index += 1;
 
 		// Get the filename
-		char szFileName[_MAX_FNAME];
-		memcpy(szFileName, &src[dwSrcIndex], dwFileNameLength);
-		szFileName[dwFileNameLength] = '\0';
+		char file_name[_MAX_FNAME];
+		memcpy(file_name, &src[src_index], file_name_length);
+		file_name[file_name_length] = '\0';
 
-		dwSrcIndex += 31;
+		src_index += 31;
 
 		// Get the file size
-		dwFileSize = *(u32*)&src[dwSrcIndex];
-		dwSrcIndex += 4;
+		file_size = *(u32*)&src[src_index];
+		src_index += 4;
 
-		if (dwFileSize == 0)
+		if (file_size == 0)
 		{
 			continue;
 		}
 
 		// Get file extension
-
-		clsFileExt = GetExtension(&src[dwSrcIndex]);
+		file_extension = GetExtension(&src[src_index]);
 
 		// Write the .b filename extension
-
-		TCHAR szWork[_MAX_FNAME];
-		_stprintf(szWork, _T("_%s%s"), szFileName, clsFileExt.GetString());
+		TCHAR work[_MAX_FNAME];
+		_stprintf(work, _T("_%s%s"), file_name, file_extension.GetString());
 
 		// Output
-
-		if (clsFileExt == _T(".bmp"))
+		if (file_extension == _T(".bmp"))
 		{
 			// BITMAP
-
-			CImage clImage;
-			clImage.Init(archive, &src[dwSrcIndex], szWork);
-			clImage.Write(dwFileSize);
-			clImage.Close();
+			CImage image;
+			image.Init(archive, &src[src_index], work);
+			image.Write(file_size);
+			image.Close();
 		}
 		else
 		{
 			// Other
-
-			archive->OpenFile(szWork);
-			archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+			archive->OpenFile(work);
+			archive->WriteFile(&src[src_index], file_size);
 			archive->CloseFile();
 		}
 
-		dwSrcIndex += dwFileSize;
+		src_index += file_size;
 	}
 
 	return true;
@@ -348,60 +338,60 @@ bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index
 ///
 bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
 {
-	static u32 dwDstFiles;
-	static std::vector<FileNameInfo> vtFileNameList;
+	static u32 dst_files;
+	static std::vector<FileNameInfo> file_names;
 
 	if (src_index_ptr == nullptr)
 	{
 		// First call
-		dwDstFiles = 0;
-		vtFileNameList.clear();
+		dst_files = 0;
+		file_names.clear();
 	}
 
-	u32 dwSrcIndex = 0;
+	u32 src_index = 0;
 
-	if ((dwSrcIndex + 16) > src_size)
+	if ((src_index + 16) > src_size)
 	{
 		// Exit
 		return false;
 	}
 
-	if (memcmp(&src[dwSrcIndex], "abmp", 4) != 0)
+	if (memcmp(&src[src_index], "abmp", 4) != 0)
 	{
 		// Unsupported
 		return false;
 	}
 
-	dwSrcIndex += 16;
+	src_index += 16;
 
-	if (memcmp(&src[dwSrcIndex], "abdata", 6) != 0)
+	if (memcmp(&src[src_index], "abdata", 6) != 0)
 	{
 		// Unsupported
 		return false;
 	}
 
-	dwSrcIndex += 16;
+	src_index += 16;
 
 	// Get the amount of data we can skip
-	const u32 dwUnKnownDataSize = *(u32*)&src[dwSrcIndex];
-	dwSrcIndex += 4;
+	const u32 unknown_data_size = *(u32*)&src[src_index];
+	src_index += 4;
 
 	// Skip the unnecessary data
-	dwSrcIndex += dwUnKnownDataSize;
+	src_index += unknown_data_size;
 
-	while (dwSrcIndex < src_size)
+	while (src_index < src_size)
 	{
-		if ((dwSrcIndex + 16) > src_size)
+		if ((src_index + 16) > src_size)
 		{
 			// Exit
 			break;
 		}
 
-		if (memcmp(&src[dwSrcIndex], "abimage", 7) == 0)
+		if (memcmp(&src[src_index], "abimage", 7) == 0)
 		{
 			// abimage10
 		}
-		else if (memcmp(&src[dwSrcIndex], "absound", 7) == 0)
+		else if (memcmp(&src[src_index], "absound", 7) == 0)
 		{
 			// absound10
 		}
@@ -411,41 +401,41 @@ bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_inde
 			return false;
 		}
 
-		dwSrcIndex += 16;
+		src_index += 16;
 
 		// Get file count
-		const u32 dwFiles = src[dwSrcIndex];
-		dwSrcIndex += 1;
+		const u32 num_files = src[src_index];
+		src_index += 1;
 
-		for (u32 i = 0; i < dwFiles; i++)
+		for (u32 i = 0; i < num_files; i++)
 		{
-			if ((dwSrcIndex + 16) > src_size)
+			if ((src_index + 16) > src_size)
 			{
 				// Exit
 				break;
 			}
 
-			u32 dwDatVersion;
+			u32 dat_version;
 
-			if (memcmp(&src[dwSrcIndex], "abimgdat10", 10) == 0)
+			if (memcmp(&src[src_index], "abimgdat10", 10) == 0)
 			{
 				// abimgdat10
-				dwDatVersion = ABIMGDAT10;
+				dat_version = ABIMGDAT10;
 			}
-			else if (memcmp(&src[dwSrcIndex], "abimgdat11", 10) == 0)
+			else if (memcmp(&src[src_index], "abimgdat11", 10) == 0)
 			{
 				// abimgdat11
-				dwDatVersion = ABIMGDAT11;
+				dat_version = ABIMGDAT11;
 			}
-			else if (memcmp(&src[dwSrcIndex], "absnddat10", 10) == 0)
+			else if (memcmp(&src[src_index], "absnddat10", 10) == 0)
 			{
 				// absnddat10
-				dwDatVersion = ABSNDDAT10;
+				dat_version = ABSNDDAT10;
 			}
-			else if (memcmp(&src[dwSrcIndex], "absnddat11", 10) == 0)
+			else if (memcmp(&src[src_index], "absnddat11", 10) == 0)
 			{
 				// absnddat11
-				dwDatVersion = ABSNDDAT11;
+				dat_version = ABSNDDAT11;
 			}
 			else
 			{
@@ -453,153 +443,139 @@ bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_inde
 				return false;
 			}
 
-			dwSrcIndex += 16;
+			src_index += 16;
 
 			// Get the length of the filename
-			const u32 dwFileNameLength = *(u16*)&src[dwSrcIndex];
-			dwSrcIndex += 2;
+			const u32 file_name_length = *(u16*)&src[src_index];
+			src_index += 2;
 
 			// Get the filename
-			YCString clsFileName((char*)&src[dwSrcIndex], dwFileNameLength);
-			dwSrcIndex += dwFileNameLength;
+			YCString file_name((char*)&src[src_index], file_name_length);
+			src_index += file_name_length;
 
 			// Skip unknown data
-
-			if ((dwDatVersion == ABIMGDAT11) || (dwDatVersion == ABSNDDAT11))
+			if (dat_version == ABIMGDAT11 || dat_version == ABSNDDAT11)
 			{
-				const u16 wLength = *(u16*)&src[dwSrcIndex];
+				const u16 length = *(u16*)&src[src_index];
 
-				dwSrcIndex += 2 + wLength;
+				src_index += 2 + length;
 			}
 
-			dwSrcIndex += 1;
+			src_index += 1;
 
 			// Get file size
-			const u32 dwFileSize = *(u32*)&src[dwSrcIndex];
-			dwSrcIndex += 4;
+			const u32 file_size = *(u32*)&src[src_index];
+			src_index += 4;
 
-			if (dwFileSize == 0)
+			if (file_size == 0)
 			{
 				// File size is 0
-
 				continue;
 			}
 
 			// Get the file extension
-			const YCString clsFileExt = GetExtension(&src[dwSrcIndex]);
+			const YCString file_extension = GetExtension(&src[src_index]);
 
-			if (clsFileExt == _T(".b"))
+			if (file_extension == _T(".b"))
 			{
 				// abmp10
+				YCString abmp10_file_name;
 
-				YCString clsWork;
-
-				if (clsFileName == _T(""))
+				if (file_name == _T(""))
 				{
-					clsWork = b_file_name;
+					abmp10_file_name = b_file_name;
 				}
 				else
 				{
-					clsWork = b_file_name + _T("_") + clsFileName;
+					abmp10_file_name = b_file_name + _T("_") + file_name;
 				}
 
-				DecodeABMP10(archive, &src[dwSrcIndex], dwFileSize, &dwSrcIndex, clsWork);
+				DecodeABMP10(archive, &src[src_index], file_size, &src_index, abmp10_file_name);
 
 				continue;
 			}
 
 			// Replace '/' with '_' (Taking into account double-byte characters)
-			clsFileName.Replace(_T('/'), _T('_'));
+			file_name.Replace(_T('/'), _T('_'));
 
 			// Erase illegal chars
-			EraseNotUsePathWord(clsFileName);
+			EraseNotUsePathWord(file_name);
 
-			// Rename extension
-			clsFileName.RenameExtension(clsFileExt); // Renaming because there may be a psd file with the same extension
+			// We rename the extension as there may be a psd file with the same extension
+			file_name.RenameExtension(file_extension);
 
 			// Write the .b extension
-			TCHAR szWork[_MAX_FNAME];
+			TCHAR work[_MAX_FNAME];
 
-			if (dwFileNameLength == 0)
+			if (file_name_length == 0)
 			{
 				// No filename (only put extension)
-
-				_stprintf(szWork, _T("%s%s"), b_file_name.GetString(), clsFileName.GetString());
+				_stprintf(work, _T("%s%s"), b_file_name.GetString(), file_name.GetString());
 			}
 			else
 			{
-				_stprintf(szWork, _T("%s_%s"), b_file_name.GetString(), clsFileName.GetString());
+				_stprintf(work, _T("%s_%s"), b_file_name.GetString(), file_name.GetString());
 			}
 
 			// Check to see if the same filename doesn't exist
-
-			for (size_t uIndex = 0; uIndex < vtFileNameList.size(); uIndex++)
+			for (size_t index = 0; index < file_names.size(); index++)
 			{
-				if (vtFileNameList[uIndex].file_name == szWork)
+				if (file_names[index].file_name == work)
 				{
 					// Same filename
-
-					vtFileNameList[uIndex].count++;
+					file_names[index].count++;
 
 					// Overwrite will not occur
+					TCHAR renamed_extension[256];
+					_stprintf(renamed_extension, _T("_%d%s"), file_names[index].count, file_name.GetFileExt().GetString());
 
-					TCHAR szWork2[256];
-					_stprintf(szWork2, _T("_%d%s"), vtFileNameList[uIndex].count, clsFileName.GetFileExt().GetString());
-
-					PathRenameExtension(szWork, szWork2);
+					PathRenameExtension(work, renamed_extension);
 
 					// Reset the loop counter to ensure the same file does not exist now.
-
-					uIndex = (size_t)-1;
+					index = (size_t)-1;
 				}
 			}
 
 			// Register the filename
-
 			FileNameInfo file_name_info;
-			file_name_info.file_name = szWork;
+			file_name_info.file_name = work;
 			file_name_info.count = 1;
 
-			vtFileNameList.push_back(file_name_info);
+			file_names.push_back(file_name_info);
 
 			// Output
-
-			if (clsFileExt == _T(".bmp"))
+			if (file_extension == _T(".bmp"))
 			{
 				// BITMAP
-
-				CImage clImage;
-				clImage.Init(archive, &src[dwSrcIndex], szWork);
-				clImage.Write(dwFileSize);
-				clImage.Close();
+				CImage image;
+				image.Init(archive, &src[src_index], work);
+				image.Write(file_size);
+				image.Close();
 			}
 			else
 			{
 				// Other
-
-				archive->OpenFile(szWork);
-				archive->WriteFile(&src[dwSrcIndex], dwFileSize);
+				archive->OpenFile(work);
+				archive->WriteFile(&src[src_index], file_size);
 				archive->CloseFile();
 			}
 
-			dwDstFiles++;
+			dst_files++;
 
-			dwSrcIndex += dwFileSize;
+			src_index += file_size;
 		}
 	}
 
 	if (src_index_ptr != nullptr)
 	{
 		// Recursive call being performed
-
-		*src_index_ptr += dwSrcIndex;
+		*src_index_ptr += src_index;
 	}
 	else
 	{
-		if (dwDstFiles == 0)
+		if (dst_files == 0)
 		{
 			// No output files
-
 			return false;
 		}
 	}
@@ -651,16 +627,16 @@ YCString CQLIE::GetExtension(const u8* src)
 
 /// Erase path characters
 ///
-/// @param clsPath Path
+/// @param path Path
 ///
 void CQLIE::EraseNotUsePathWord(YCString& path)
 {
-	static const TCHAR aszNotUsePathWord[] =
+	static const TCHAR unusable_path_characters[] =
 	{
 		_T(':'), _T(','), _T(';'), _T('*'), _T('?'), _T('\"'), _T('<'), _T('>'), _T('|')
 	};
 
-	for (const TCHAR& c : aszNotUsePathWord)
+	for (const TCHAR& c : unusable_path_characters)
 	{
 		path.Remove(c);
 	}
