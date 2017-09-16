@@ -11,5 +11,5 @@ public:
 
 private:
 	static DWORD m_overwrite;
-	LPCTSTR m_file_path;
+	LPCTSTR m_file_path = nullptr;
 };
