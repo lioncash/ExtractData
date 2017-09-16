@@ -676,7 +676,7 @@ bool CKatakoi::DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD 
 
 bool CKatakoi::DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff)
 {
-	SFileInfo*       pstfiDiff = pclArc->GetOpenFileInfo();
+	const SFileInfo* pstfiDiff = pclArc->GetOpenFileInfo();
 
 	const SFileInfo* pstfiBase = nullptr;
 	BOOL             bExistsForBase = FALSE;
