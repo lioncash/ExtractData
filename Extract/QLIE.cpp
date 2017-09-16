@@ -778,7 +778,7 @@ u64 CQLIE::padw(u64 a, u64 b)
 	return ret;
 }
 
-uint32_t CQLIE::crc_or_something(const u8* buff, size_t len)
+u32 CQLIE::crc_or_something(const u8* buff, size_t len)
 {
 	u64 key = 0;
 	u64 result = 0;
