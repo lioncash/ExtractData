@@ -3,7 +3,7 @@
 
 void CMzx::Decompress(u8* dst, size_t length, const u8* src)
 {
-	u8 ring_buffer[128];
+	std::array<u8, 128> ring_buffer{};
 	u8 last1 = 0;
 	u8 last2 = 0;
 
