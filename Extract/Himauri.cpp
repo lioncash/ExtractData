@@ -6,6 +6,8 @@
 #include "Image/Tga.h"
 #include "Utils/BitUtils.h"
 
+#include <locale>
+
 /// Mount
 ///
 /// @param archive Archive
@@ -166,7 +168,7 @@ bool CHimauri::MountHim5(CArcFile* archive)
 					// Difference composition is enabled
 					const char* diff_mark = strrchr(file_name, _T('_'));
 
-					if (diff_mark != nullptr && strlen(diff_mark) >= 2 && isdigit(diff_mark[1]))
+					if (diff_mark != nullptr && strlen(diff_mark) >= 2 && std::isdigit(diff_mark[1], std::locale::classic()))
 					{
 						// Difference file
 						const int pos = file_info.name.ReverseFind(_T('_'));
