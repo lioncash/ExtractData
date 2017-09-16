@@ -256,7 +256,7 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 	const s32 lwidth = width * 4;
 	const s32 lww = ww * 4;
 	u8* pDst = &pbtDst[0];
-	u8* pDst2 = &dst2[0];
+	const u8* pDst2 = &dst2[0];
 
 	// Cut and copy extra data
 	for (s32 y = 0; y < height; y++)
