@@ -6,12 +6,15 @@
 
 #include <memory>
 
-#define EXTRACT_SELECT  0
-#define EXTRACT_ALL     1
-
 class CArcFile;
 class CMainListView;
 struct SOption;
+
+enum class ExtractMode
+{
+	Select,
+	All
+};
 
 class CExtractData : public CWindowBase, public CExtract
 {
@@ -30,7 +33,7 @@ public:
 	void SaveSel(LPTSTR pSaveDir, bool convert);
 	void SaveAll(LPTSTR pSaveDir, bool convert);
 	void SaveDrop();
-	void Decode(DWORD ExtractMode, LPCTSTR pSaveDir, bool convert);
+	void Decode(ExtractMode extract_mode, LPCTSTR pSaveDir, bool convert);
 	void DecodeTmp();
 
 	void OpenRelate();
@@ -52,7 +55,7 @@ private:
 	TCHAR              m_szPathToTmpFileList[MAX_PATH];
 
 	LPCTSTR            m_pclArcNames = nullptr;
-	DWORD              m_dwExtractMode = EXTRACT_SELECT;
+	ExtractMode        m_dwExtractMode = ExtractMode::Select;
 	LPCTSTR            m_pSaveDir = nullptr;
 	bool               m_bConvert = false;
 	SOption*           m_pOption = nullptr;
@@ -61,7 +64,7 @@ private:
 
 	std::set<YCString> m_ssTmpFile;
 
-	void Save(DWORD ExtractMode, LPTSTR pSaveDir, bool convert);
+	void Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert);
 	static UINT WINAPI MountThread(LPVOID lpParam);
 	static UINT WINAPI DecodeThread(LPVOID lpParam);
 };

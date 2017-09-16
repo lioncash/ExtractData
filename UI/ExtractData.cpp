@@ -219,7 +219,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 	return 0;
 }
 
-void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, bool convert)
+void CExtractData::Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert)
 {
 	SOption* pstOption = m_pOption;
 
@@ -231,31 +231,31 @@ void CExtractData::Save(DWORD ExtractMode, LPTSTR pSaveDir, bool convert)
 
 		if (clFolderInputDlg.DoModal(m_hParentWnd, pSaveDir ) == IDOK)
 		{
-			Decode(ExtractMode, pSaveDir, convert);
+			Decode(extract_mode, pSaveDir, convert);
 		}
 	}
 	else if (pstOption->bSaveSrc)
 	{
 		// Output to input destination
 
-		Decode(ExtractMode, nullptr, convert);
+		Decode(extract_mode, nullptr, convert);
 	}
 	else if (pstOption->bSaveDir)
 	{
 		// Output to a fixed destination
 
-		Decode(ExtractMode, pstOption->SaveDir, convert);
+		Decode(extract_mode, pstOption->SaveDir, convert);
 	}
 }
 
 void CExtractData::SaveSel(LPTSTR pSaveDir, bool convert)
 {
-	Save(EXTRACT_SELECT, pSaveDir, convert);
+	Save(ExtractMode::Select, pSaveDir, convert);
 }
 
 void CExtractData::SaveAll(LPTSTR pSaveDir, bool convert)
 {
-	Save(EXTRACT_ALL, pSaveDir, convert);
+	Save(ExtractMode::All, pSaveDir, convert);
 }
 
 void CExtractData::SaveDrop()
@@ -307,11 +307,11 @@ void CExtractData::SaveDrop()
 */
 }
 
-void CExtractData::Decode(DWORD ExtractMode, LPCTSTR pSaveDir, bool convert)
+void CExtractData::Decode(ExtractMode extract_mode, LPCTSTR pSaveDir, bool convert)
 {
 	CExistsDialog ExistsDlg;
 	ExistsDlg.GetOverWrite() = 0x01; // Perform Overwrite Confirmation
-	m_dwExtractMode = ExtractMode;
+	m_dwExtractMode = extract_mode;
 	m_pSaveDir = pSaveDir;
 	m_bConvert = convert;
 	m_bInput = false;
@@ -322,7 +322,7 @@ void CExtractData::DecodeTmp()
 {
 	CExistsDialog ExistsDlg;
 	ExistsDlg.GetOverWrite() = 0x00; // Overwrite confirmation is not perform
-	m_dwExtractMode = EXTRACT_SELECT;
+	m_dwExtractMode = ExtractMode::Select;
 	m_pSaveDir = m_pOption->TmpDir;
 	m_bConvert = true;
 	m_bInput = false;
@@ -344,7 +344,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 		std::vector<int> nSelects;
 		QWORD AllFileSize = 0;
 		auto& rArcList = pObj->m_ArcList;
-		if (pObj->m_dwExtractMode == EXTRACT_SELECT)
+		if (pObj->m_dwExtractMode == ExtractMode::Select)
 		{
 			int nItem = -1;
 			while ((nItem = pObj->m_pListView->GetNextItem(nItem)) != -1)
