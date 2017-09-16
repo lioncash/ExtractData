@@ -147,7 +147,7 @@ bool CKrkr::Mount(CArcFile* archive)
 		i += 12 + info_chunk.size;
 
 		// "segm" Chunk
-		SegmChunk segm_chunk;
+		SegmChunk segm_chunk = {};
 
 		memcpy(segm_chunk.name, &index[i], 4);
 
