@@ -10,26 +10,24 @@
 #include    <shlobj.h>
 #include    <tchar.h>
 #include    <mbstring.h>
-#include    <math.h>
 #include    <process.h>
+
 #include    <algorithm>
 #include    <array>
+#include    <cmath>
 #include    <cstddef>
+#include    <cstring>
 #include    <map>
 #include    <memory>
 #include    <set>
-//#include  <string>
-//#include  <valarray>
 #include    <vector>
 
 #include    <zlib.h>
 #include    <png.h>
-//#include  <jpeglib.h>
-//#include  <jerror.h>
 
 #ifdef	_DEBUG
 #define	_CRTDBG_MAP_ALLOC
-#include    <stdlib.h>
+#include    <cstdlib>
 #include    <crtdbg.h>
 //#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
