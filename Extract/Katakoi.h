@@ -5,22 +5,22 @@
 class CKatakoi final : public CExtractBase
 {
 public:
-	bool Mount(CArcFile* pclArc) override;
-	bool Decode(CArcFile* pclArc) override;
+	bool Mount(CArcFile* archive) override;
+	bool Decode(CArcFile* archive) override;
 
 private:
-	bool MountIar(CArcFile* pclArc);
-	bool MountWar(CArcFile* pclArc);
+	bool MountIar(CArcFile* archive);
+	bool MountWar(CArcFile* archive);
 
-	bool DecodeIar(CArcFile* pclArc);
-	bool DecodeWar(CArcFile* pclArc);
+	bool DecodeIar(CArcFile* archive);
+	bool DecodeWar(CArcFile* archive);
 
-	bool GetNameIndex(CArcFile* pclArc, std::vector<BYTE>& clmbtSec, DWORD& dwNameIndex);
-	bool GetPathToSec(LPTSTR pszPathToSec, const YCString& strPathToArc);
+	bool GetNameIndex(CArcFile* archive, std::vector<BYTE>& sec, DWORD& name_index);
+	bool GetPathToSec(LPTSTR sec_path, const YCString& archive_path);
 
-	void GetBit(LPBYTE& pbySrc, DWORD& dwFlags);
-	bool DecompImage(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize);
+	void GetBit(LPBYTE& src, DWORD& flags);
+	bool DecompImage(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_size);
 
-	bool Compose(LPBYTE pbyDst, DWORD dwDstSize, LPBYTE pbySrc, DWORD dwSrcSize, long lWidthForDst, long lWidthForSrc, WORD wBpp);
-	bool DecodeCompose(CArcFile* pclArc, LPBYTE pbyDiff, DWORD dwDiffSize, long lWidthForDiff, long lHeightForDiff, WORD wBppForDiff);
+	bool Compose(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_size, long dst_width, long src_width, WORD bpp);
+	bool DecodeCompose(CArcFile* archive, LPBYTE diff, DWORD diff_size, long diff_width, long diff_height, WORD diff_bpp);
 };
