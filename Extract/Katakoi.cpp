@@ -879,42 +879,25 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 			Compose(clmbtDst.data(), clmbtDst.size(), diff, diff_size, diff_width, diff_width, diff_bpp);
 
 			// Output
-			CImage cliWork;
-			long   lWidth = diff_width;
-			long   lHeight = diff_height;
-			WORD   wBpp = diff_bpp;
-
-			cliWork.Init(archive, lWidth, lHeight, wBpp);
-			cliWork.WriteReverse(clmbtDst.data(), clmbtDst.size());
+			CImage image;
+			image.Init(archive, diff_width, diff_height, diff_bpp);
+			image.WriteReverse(clmbtDst.data(), clmbtDst.size());
 
 			return true;
 		}
 	}
 
 	// Base file doesn't exist.
-	long lWidth = diff_width;
-	long lHeight = diff_height;
-	WORD wBpp = diff_bpp;
-
 	// Prepare black data
-	DWORD             dwDstSize = ((lWidth * (wBpp >> 3) + 3) & 0xFFFFFFFC) * lHeight;
-	std::vector<BYTE> clmbtDst(dwDstSize);
+	const DWORD dst_size = ((diff_width * (diff_bpp >> 3) + 3) & 0xFFFFFFFC) * diff_height;
+	std::vector<BYTE> dst(dst_size);
 
 	// Synthesize black data
-	Compose(clmbtDst.data(), clmbtDst.size(), diff, diff_size, lWidth, lWidth, wBpp);
+	Compose(dst.data(), dst.size(), diff, diff_size, diff_width, diff_width, diff_bpp);
 
-	CImage cliWork;
-	cliWork.Init(archive, lWidth, lHeight, wBpp);
-	cliWork.WriteReverse(clmbtDst.data(), clmbtDst.size());
-
-	// Error message output
-/*
-	if (archive->GetFlag()) {
-		TCHAR szError[1024];
-		_stprintf(szError, _T("%s\n\n元画像が見つからなかったため、差分合成を行わずに出力しました。"), pstfiDiff->name);
-		MessageBox(archive->GetProg()->GetHandle(), szError, _T("Info"), MB_OK);
-	}
-*/
+	CImage image;
+	image.Init(archive, diff_width, diff_height, diff_bpp);
+	image.WriteReverse(dst.data(), dst.size());
 	return false;
 }
 
