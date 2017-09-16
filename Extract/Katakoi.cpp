@@ -353,7 +353,7 @@ bool CKatakoi::DecodeIar(CArcFile* archive)
 	const long height = *(LPLONG)&src[36];
 	WORD bpp;
 
-	switch (*(LPBYTE)&src[0])
+	switch (src[0])
 	{
 		case 0x02:
 			bpp = 8;
@@ -368,7 +368,7 @@ bool CKatakoi::DecodeIar(CArcFile* archive)
 			return false;
 	}
 
-	const BOOL is_delta_file = (*(LPBYTE)&src[1] == 8);
+	const bool is_delta_file = src[1] == 8;
 
 	if (is_delta_file)
 	{
