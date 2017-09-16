@@ -527,7 +527,7 @@ bool CQLIE::DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_inde
 
 					// Overwrite will not occur
 					TCHAR renamed_extension[256];
-					_stprintf(renamed_extension, _T("_%d%s"), file_names[index].count, file_name.GetFileExt().GetString());
+					_stprintf(renamed_extension, _T("_%u%s"), file_names[index].count, file_name.GetFileExt().GetString());
 
 					PathRenameExtension(work, renamed_extension);
 
