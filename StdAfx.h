@@ -1,6 +1,7 @@
-#define	_WIN32_WINNT 0x0500
-#define	_CRT_SECURE_NO_WARNINGS
-#define	_CRT_NON_CONFORMING_SWPRINTFS
+#define WINVER 0x0603
+#define _WIN32_WINNT 0x0603
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NON_CONFORMING_SWPRINTFS
 
 #include    <windows.h>
 #include    <windowsx.h>
