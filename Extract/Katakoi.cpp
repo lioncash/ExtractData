@@ -58,7 +58,7 @@ bool CKatakoi::MountIar(CArcFile* archive)
 
 	// Get index filename
 	std::vector<BYTE> clmbtSec;
-	DWORD dwNameIndex;
+	u32 dwNameIndex;
 
 	const bool bSec = GetNameIndex(archive, clmbtSec, dwNameIndex);
 
@@ -142,7 +142,7 @@ bool CKatakoi::MountWar(CArcFile* archive)
 
 	// Get the filename index
 	std::vector<BYTE> clmbtSec;
-	DWORD dwNameIndex;
+	u32 dwNameIndex;
 
 	const bool bSec = GetNameIndex(archive, clmbtSec, dwNameIndex);
 
@@ -191,7 +191,7 @@ bool CKatakoi::MountWar(CArcFile* archive)
 	return true;
 }
 
-bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<BYTE>& sec, DWORD& name_index)
+bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<u8>& sec, u32& name_index)
 {
 	// Open the filename represented by the index
 	TCHAR szPathToSec[MAX_PATH];
@@ -449,7 +449,7 @@ bool CKatakoi::DecodeWar(CArcFile* archive)
 	return true;
 }
 
-void CKatakoi::GetBit(LPBYTE& src, DWORD& flags)
+void CKatakoi::GetBit(u8*& src, u32& flags)
 {
 	flags >>= 1;
 
@@ -462,9 +462,9 @@ void CKatakoi::GetBit(LPBYTE& src, DWORD& flags)
 	}
 }
 
-bool CKatakoi::DecompImage(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_size)
+bool CKatakoi::DecompImage(u8* dst, size_t dst_size, u8* src, size_t src_size)
 {
-	DWORD dwFlags = 0; // Flag can always be initialized
+	u32 dwFlags = 0; // Flag can always be initialized
 	DWORD dwBack;
 	DWORD dwLength;
 	DWORD dwWork;
@@ -674,7 +674,7 @@ bool CKatakoi::DecompImage(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_siz
 	return true;
 }
 
-bool CKatakoi::DecodeCompose(CArcFile* archive, LPBYTE pbyDiff, DWORD diff_size, long diff_width, long diff_height, WORD diff_bpp)
+bool CKatakoi::DecodeCompose(CArcFile* archive, u8* diff, size_t diff_size, long diff_width, long diff_height, u16 diff_bpp)
 {
 	const SFileInfo* pstfiDiff = archive->GetOpenFileInfo();
 
@@ -825,7 +825,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, LPBYTE pbyDiff, DWORD diff_size,
 			DecompImage(clmbtDstForBase.data(), dwDstSizeForBase, &clmbtSrcForBase[64], *(LPDWORD)&clmbtSrcForBase[16]);
 
 			// Synthesize base file and delta file
-			Compose(clmbtDstForBase.data(), dwDstSizeForBase, pbyDiff, diff_size, lWidthForBase, diff_width, diff_bpp);
+			Compose(clmbtDstForBase.data(), dwDstSizeForBase, diff, diff_size, lWidthForBase, diff_width, diff_bpp);
 
 			// Output
 			CImage cliWork;
@@ -876,7 +876,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, LPBYTE pbyDiff, DWORD diff_size,
 			}
 
 			// Synthesize the base file and the delta file
-			Compose(clmbtDst.data(), clmbtDst.size(), pbyDiff, diff_size, diff_width, diff_width, diff_bpp);
+			Compose(clmbtDst.data(), clmbtDst.size(), diff, diff_size, diff_width, diff_width, diff_bpp);
 
 			// Output
 			CImage cliWork;
@@ -901,7 +901,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, LPBYTE pbyDiff, DWORD diff_size,
 	std::vector<BYTE> clmbtDst(dwDstSize);
 
 	// Synthesize black data
-	Compose(clmbtDst.data(), clmbtDst.size(), pbyDiff, diff_size, lWidth, lWidth, wBpp);
+	Compose(clmbtDst.data(), clmbtDst.size(), diff, diff_size, lWidth, lWidth, wBpp);
 
 	CImage cliWork;
 	cliWork.Init(archive, lWidth, lHeight, wBpp);
@@ -923,7 +923,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, LPBYTE pbyDiff, DWORD diff_size,
 //
 // 十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
 
-bool CKatakoi::Compose(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_size, long dst_width, long src_width, WORD bpp)
+bool CKatakoi::Compose(u8* dst, size_t dst_size, u8* src, size_t src_size, long dst_width, long src_width, u16 bpp)
 {
 	WORD wColors = bpp >> 3;
 	DWORD dwLine = src_width * wColors;
@@ -936,46 +936,46 @@ bool CKatakoi::Compose(LPBYTE dst, DWORD dst_size, LPBYTE src, DWORD src_size, l
 		dwGapForX = (dst_width - src_width) * wColors;
 	}
 
-	DWORD dwSrc = 12;
-	DWORD dwDst = *(LPDWORD)&src[4] * (dwGapForX + dwLine);
+	size_t src_idx = 12;
+	size_t dst_idx = *(LPDWORD)&src[4] * (dwGapForX + dwLine);
 
-	while (dwHeight-- && dwSrc < src_size)
+	while (dwHeight-- && src_idx < src_size)
 	{
 		for (DWORD x = 0; x < dwGapForX; x++)
 		{
-			dst[dwDst++] = 0;
+			dst[dst_idx++] = 0;
 		}
 
-		DWORD dwCount = *(LPWORD)&src[dwSrc];
-		dwSrc += 2;
+		DWORD dwCount = *(LPWORD)&src[src_idx];
+		src_idx += 2;
 
-		DWORD dwOffset = 0;
+		size_t offset = 0;
 
 		while (dwCount--)
 		{
-			dwOffset += *(LPWORD)&src[dwSrc] * wColors;
-			dwSrc += 2;
+			offset += *(LPWORD)&src[src_idx] * wColors;
+			src_idx += 2;
 
-			DWORD dwLength = *(LPWORD)&src[dwSrc] * wColors;
-			dwSrc += 2;
+			DWORD dwLength = *(LPWORD)&src[src_idx] * wColors;
+			src_idx += 2;
 
 			while (dwLength--)
 			{
-				dst[dwDst + dwOffset++] = src[dwSrc++];
+				dst[dst_idx + offset++] = src[src_idx++];
 
-				if ((dwDst + dwOffset) >= dst_size)
+				if (dst_idx + offset >= dst_size)
 				{
 					return true;
 				}
 
-				if (dwSrc >= src_size)
+				if (src_idx >= src_size)
 				{
 					return true;
 				}
 			}
 		}
 
-		dwDst += dwLine;
+		dst_idx += dwLine;
 	}
 
 	return true;
