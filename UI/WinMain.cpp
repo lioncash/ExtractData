@@ -442,7 +442,7 @@ void CWinMain::SetQuickMenu(HMENU menu)
 
 	for (const auto& entry : quick_set)
 	{
-		const u32 check = MF_BYCOMMAND | (*entry.option == TRUE) ? MF_CHECKED : MF_UNCHECKED;
+		const u32 check = MF_BYCOMMAND | (*entry.option == TRUE ? MF_CHECKED : MF_UNCHECKED);
 		CheckMenuItem(menu, entry.id, check);
 	}
 }
