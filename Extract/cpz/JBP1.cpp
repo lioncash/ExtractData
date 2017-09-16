@@ -443,13 +443,12 @@ void CJBP1::DCT(u8* arg1, u8* arg2)
 
 s32 CJBP1::GetNBit(const u8*& lpin, u32 code, u32& bit_buffer, u32& bit_remain)
 {
-	s32 i = 0;
-
 	if (code == 0)
 	{
 		return 0;
 	}
 
+	s32 i = 0;
 	if (code > bit_remain)
 	{
 		for (; code > 0; code--)
@@ -484,8 +483,6 @@ s32 CJBP1::GetNBit(const u8*& lpin, u32 code, u32& bit_buffer, u32& bit_remain)
 
 s32 CJBP1::MakeTree(u8* lp1, s32 size, u32* lp2)
 {
-	s32 n, x, c, d;
-
 	u8* lp3 = lp1 + 0x900;
 
 	for (s32 i = 0x102; i > 0; i--)
@@ -497,15 +494,16 @@ s32 CJBP1::MakeTree(u8* lp1, s32 size, u32* lp2)
 		lp3 += 4;
 	}
 
-	c = ~size + 1;                //neg [esp+10]
+	s32 c = ~size + 1;            //neg [esp+10]
 	lp3 = lp1 + size * 4 + 0x900; //[esp+14]
 
 	// Get two minimum frequency values
 
 	for (;;)
 	{
-		d = n = -100; //-0x64;
-		x = 0x7D2B74FF;
+		s32 d = -100; //-0x64;
+		s32 n = -100;
+		s32 x = 0x7D2B74FF;
 
 		for (s32 i = 0; i < size; i++)
 		{
@@ -574,17 +572,16 @@ void CJBP1::YCC2RGB(u8* dc, u8* ac, const s16* Y, const s16* CbCr, s32 line)
 
 	for (s32 n = 4; n > 0; n--)
 	{
-		s32 r, g, b, c, d, w, x, y, z;
+		s32 c = CbCr[0]; //cr
+		s32 d = CbCr[-64]; //cb
+		s32 r = ((c * 0x166F0) >> 16); //[588]
+		s32 g = ((d * 0x5810) >> 16) + ((c * 0xB6C0) >> 16); //[58C]
+		s32 b = ((d * 0x1C590) >> 16);
+		s32 w = Y[1] + 0x180;
+		s32 x = Y[0] + 0x180;
+		s32 y = Y[8] + 0x180;
+		s32 z = Y[9] + 0x180;
 
-		c = CbCr[0]; //cr
-		d = CbCr[-64]; //cb
-		r = ((c * 0x166F0) >> 16); //[588]
-		g = ((d * 0x5810) >> 16) + ((c * 0xB6C0) >> 16); //[58C]
-		b = ((d * 0x1C590) >> 16);
-		w = Y[1] + 0x180;
-		x = Y[0] + 0x180;
-		y = Y[8] + 0x180;
-		z = Y[9] + 0x180;
 		dc[0]        = tbl[x + b];
 		ac[4 - line] = tbl[w + b];
 		ac[0]        = tbl[y + b];
