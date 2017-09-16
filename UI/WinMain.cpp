@@ -26,7 +26,7 @@
 #endif
 
 // Main Function
-int WINAPI _tWinMain(HINSTANCE inst, HINSTANCE prev_inst, LPTSTR cmd_line, int cmd_show)
+int WINAPI _tWinMain(_In_ HINSTANCE inst, _In_opt_ HINSTANCE prev_inst, _In_ LPTSTR cmd_line, _In_ int cmd_show)
 {
 #ifdef _DEBUG
 	::_CrtSetDbgFlag( _CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF );
