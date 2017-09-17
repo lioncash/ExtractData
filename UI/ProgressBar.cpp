@@ -13,7 +13,7 @@ CProgBar::~CProgBar()
 {
 }
 
-void CProgBar::Init(HWND dlg, QWORD all_file_size)
+void CProgBar::Init(HWND dlg, u64 all_file_size)
 {
 	m_dlg = dlg;
 	m_inst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(dlg, GWLP_HINSTANCE));
@@ -26,18 +26,18 @@ void CProgBar::Init(HWND dlg, QWORD all_file_size)
 	UpdatePercent(0);
 }
 
-void CProgBar::ReplaceFileSize(QWORD old_file_size, QWORD new_file_size)
+void CProgBar::ReplaceFileSize(u64 old_file_size, u64 new_file_size)
 {
 	m_all_file_size = m_all_file_size - old_file_size + new_file_size;
 }
 
-void CProgBar::ReplaceAllFileSize(QWORD new_file_size)
+void CProgBar::ReplaceAllFileSize(u64 new_file_size)
 {
 	m_all_file_size += new_file_size;
 }
 
 // Function to update the percentage
-void CProgBar::UpdatePercent(QWORD buffer_size)
+void CProgBar::UpdatePercent(u64 buffer_size)
 {
 	m_prog_size += buffer_size;
 	const int percent = static_cast<double>(m_prog_size) / m_all_file_size * 100;

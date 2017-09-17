@@ -20,9 +20,6 @@
 #define SBL_STR_INI_EXTRACTDATA     _T("ExtractData.ini")
 #define SBL_STR_INI_SUSIE           _T("Susie.ini")
 
-typedef unsigned __int64 QWORD;
-typedef QWORD* LPQWORD;
-
 //----------------------------------------------------------------------------------------
 //-- Structure Declaration ---------------------------------------------------------------
 //----------------------------------------------------------------------------------------
@@ -83,8 +80,8 @@ struct SFileInfo
 	YCString            sSizeCmp;                       // Compressed file size with a comma
 	YCString            format;                         // File Format
 	YCString            arcName;                        // Archive file to load
-	QWORD               start;                          // Start address
-	QWORD               end;                            // End address
+	u64                 start;                          // Start address
+	u64                 end;                            // End address
 	DWORD               arcID;                          // Distinguishes between multiple open files
 	DWORD               arcsID;                         // Archive file split IDs
 	std::vector<DWORD>  sizesOrg;                       // File size (Used when data is scattered)

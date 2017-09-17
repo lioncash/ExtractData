@@ -154,7 +154,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 		}
 
 		// Entire file size
-		QWORD AllArcSize = 0;
+		u64 AllArcSize = 0;
 		for (auto itr = sArcNameList.begin(); itr != sArcNameList.end(); )
 		{
 			// Open the archive file
@@ -342,7 +342,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 
 		// Determine entire filesize
 		std::vector<int> nSelects;
-		QWORD AllFileSize = 0;
+		u64 AllFileSize = 0;
 		auto& rArcList = pObj->m_ArcList;
 		if (pObj->m_dwExtractMode == ExtractMode::Select)
 		{
