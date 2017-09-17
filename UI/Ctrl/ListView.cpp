@@ -130,11 +130,11 @@ void CListView::SaveIni()
 
 void CListView::Close()
 {
-	if (m_image)
-	{
-		ImageList_Destroy(m_image);
-		m_image = nullptr;
-	}
+	if (!m_image)
+		return;
+
+	ImageList_Destroy(m_image);
+	m_image = nullptr;
 }
 
 void CListView::Update()
