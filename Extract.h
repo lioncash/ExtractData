@@ -16,7 +16,7 @@ public:
 	void Close();
 
 private:
-	static std::vector<CExtractBase*> m_Class;
-	static std::vector<CSearchBase*> m_SearchClass;
-	static std::set<CExtractBase*> m_DecodeClass;
+	static std::vector<CExtractBase*> m_class;
+	static std::vector<CSearchBase*> m_search_class;
+	static std::set<CExtractBase*> m_decode_class;
 };

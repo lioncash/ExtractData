@@ -97,9 +97,9 @@
 
 #include "Susie.h"
 
-std::vector<CExtractBase*> CExtract::m_Class;
-std::vector<CSearchBase*>  CExtract::m_SearchClass;
-std::set<CExtractBase*>	   CExtract::m_DecodeClass;
+std::vector<CExtractBase*> CExtract::m_class;
+std::vector<CSearchBase*>  CExtract::m_search_class;
+std::set<CExtractBase*>	   CExtract::m_decode_class;
 
 CExtract::CExtract()
 {
@@ -109,7 +109,7 @@ CExtract::CExtract()
 
 void CExtract::SetClass()
 {
-	std::vector<CExtractBase*>& Class = m_Class;
+	std::vector<CExtractBase*>& Class = m_class;
 	static CAhx ahx;                    Class.push_back(&ahx);
 	static CAxl axl;                    Class.push_back(&axl);
 	static CAlcot alcot;                Class.push_back(&alcot);
@@ -185,7 +185,7 @@ void CExtract::SetClass()
 
 void CExtract::SetSearchClass()
 {
-	std::vector<CSearchBase*>& Class = m_SearchClass;
+	std::vector<CSearchBase*>& Class = m_search_class;
 	static CAhxSearch ahx; Class.push_back(&ahx);
 	static CBmpSearch bmp; Class.push_back(&bmp);
 	static CJpgSearch jpg; Class.push_back(&jpg);
@@ -219,12 +219,12 @@ bool CExtract::Mount(CArcFile* archive)
 		}
 
 		// Mount the archive file
-		for (auto* decoder : m_Class)
+		for (auto* decoder : m_class)
 		{
 			// Set the class to use to decode the archive
 			if (decoder->Mount(archive))
 			{
-				m_DecodeClass.insert(decoder);
+				m_decode_class.insert(decoder);
 				return true;
 			}
 		}
@@ -232,12 +232,12 @@ bool CExtract::Mount(CArcFile* archive)
 	else
 	{
 		// Mount the archive file
-		for (auto* decoder : m_Class)
+		for (auto* decoder : m_class)
 		{
 			// Set the class to use to decode the archive
 			if (decoder->Mount(archive))
 			{
-				m_DecodeClass.insert(decoder);
+				m_decode_class.insert(decoder);
 				return true;
 			}
 		}
@@ -270,7 +270,7 @@ bool CExtract::Search(CArcFile* archive)
 {
 	SOption* option = archive->GetOpt();
 
-	std::vector<CSearchBase*>& SearchClass = m_SearchClass;
+	std::vector<CSearchBase*>& SearchClass = m_search_class;
 	std::vector<CSearchBase*> Class;
 	u32 max_header_size = 0;
 	for (size_t i = 0; i < option->bSearch.size(); i++)
@@ -392,7 +392,7 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 			if (convert)
 			{
 				// Conversion request
-				for (auto* decoder : m_DecodeClass)
+				for (auto* decoder : m_decode_class)
 				{
 					retval = decoder->Decode(archive);
 					if (retval)
@@ -407,7 +407,7 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 			else
 			{
 				// No conversion request
-				for (auto* decoders : m_DecodeClass)
+				for (auto* decoders : m_decode_class)
 				{
 					retval = decoders->Extract(archive);
 					if (retval)
@@ -434,5 +434,5 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 void CExtract::Close()
 {
 	// Reset the class used to decode
-	m_DecodeClass.clear();
+	m_decode_class.clear();
 }
