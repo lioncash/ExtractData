@@ -33,5 +33,5 @@ protected:
 
 private:
 	SMD5 m_md5_value;
-	u32  m_x[16];
+	std::array<u32, 16> m_x;
 };

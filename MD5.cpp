@@ -117,7 +117,6 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 		for (int j = 0; j < 16; j++)
 		{
 			// Copy
-
 			m_x[j] = pdwSrc[src_ptr + j];
 		}
 
