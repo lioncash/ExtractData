@@ -6,24 +6,24 @@
 #include "Image.h"
 
 using SPI_PROGRESS         = int (WINAPI*)(int, int, long);
-using GetPluginInfoProc    = int (WINAPI*)(int infono, LPSTR buf, int buflen);
-using IsSupportedProc      = int (WINAPI*)(LPSTR filename, DWORD dw);
-using GetArchiveInfoProc   = int (WINAPI*)(LPSTR buf, long len, unsigned int flag, HLOCAL* lphInf);
-using GetFileProc          = int (WINAPI*)(LPSTR src, long len, LPSTR dest, unsigned int flag, FARPROC prgressCallback, long lData);
-using GetPictureProc       = int (WINAPI*)(LPSTR buf, long len, unsigned int flag, HLOCAL* pHBInfo, HLOCAL* pHBm, SPI_PROGRESS lpPrgressCallback, long lData);
+using GetPluginInfoProc    = int (WINAPI*)(int infono, char* buf, int buflen);
+using IsSupportedProc      = int (WINAPI*)(char* filename, DWORD dw);
+using GetArchiveInfoProc   = int (WINAPI*)(char* buf, long len, unsigned int flag, HLOCAL* lphInf);
+using GetFileProc          = int (WINAPI*)(char* src, long len, char* dest, unsigned int flag, FARPROC prgressCallback, long lData);
+using GetPictureProc       = int (WINAPI*)(char* buf, long len, unsigned int flag, HLOCAL* pHBInfo, HLOCAL* pHBm, SPI_PROGRESS lpPrgressCallback, long lData);
 using ConfigurationDlgProc = int (WINAPI*)(HWND, int);
 
 #pragma pack(push, 1)
 struct fileInfo
 {
-	BYTE    method[8];      // Type of compression method
-	DWORD   position;       // Position on the file
-	DWORD   compsize;       // Compressed size
-	DWORD   filesize;       // Original file size
-	DWORD   timestamp;      // Modified date of the file
-	char    path[200];      // Relative Path
-	char    filename[200];  // Filename
-	DWORD   crc;            // CRC
+	u8   method[8];      // Type of compression method
+	u32  position;       // Position on the file
+	u32  compsize;       // Compressed size
+	u32  filesize;       // Original file size
+	u32  timestamp;      // Modified date of the file
+	char path[200];      // Relative Path
+	char filename[200];  // Filename
+	u32  crc;            // CRC
 };
 #pragma pack(pop, 1)
 
@@ -67,7 +67,7 @@ bool CSusie::Mount(CArcFile* pclArc)
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported function is not implemented
@@ -80,16 +80,16 @@ bool CSusie::Mount(CArcFile* pclArc)
 		strcpy(szPathToArc, clsPathToArc);
 
 		// Call IsSupported()
-		BYTE abtHeader[2048];
+		u8 abtHeader[2048];
 		memcpy(abtHeader, pbtHeader, sizeof(abtHeader));
-		if (IsSupported(szPathToArc, (DWORD) abtHeader) == 0)
+		if (IsSupported(szPathToArc, reinterpret_cast<DWORD>(abtHeader)) == 0)
 		{
 			// Archive file not supported
 			continue;
 		}
 
 		// Get GetArchiveInfo()
-		GetArchiveInfoProc GetArchiveInfo = reinterpret_cast<GetArchiveInfoProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetArchiveInfo")));
+		auto* GetArchiveInfo = reinterpret_cast<GetArchiveInfoProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetArchiveInfo")));
 		if (GetArchiveInfo == nullptr)
 		{
 			// We trust IsSupported() and attempt to mount
@@ -118,17 +118,16 @@ bool CSusie::Mount(CArcFile* pclArc)
 		}
 
 		// Get file information
-		fileInfo* pstFileInfo = (fileInfo*) cllmFileInfo.Lock();
+		const auto* pstFileInfo = static_cast<fileInfo*>(cllmFileInfo.Lock());
 
-		size_t    uSusieFileInfoSize = cllmFileInfo.GetSize();
-		size_t    uFileCount = uSusieFileInfoSize / sizeof(fileInfo);
+		const size_t uSusieFileInfoSize = cllmFileInfo.GetSize();
+		const size_t uFileCount = uSusieFileInfoSize / sizeof(fileInfo);
 
 		for (size_t uIndex = 0; uIndex < uFileCount; uIndex++)
 		{
 			if (pstFileInfo->method[0] == '\0')
 			{
 				// Exit
-
 				break;
 			}
 
@@ -137,7 +136,6 @@ bool CSusie::Mount(CArcFile* pclArc)
 			if (pstFileInfo->path[0] != '\0')
 			{
 				// Path exists
-
 				strcpy(szFileName, pstFileInfo->path);
 				PathAppendA(szFileName, pstFileInfo->filename);
 			}
@@ -194,7 +192,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
@@ -205,10 +203,10 @@ bool CSusie::Decode(CArcFile* pclArc)
 		char szPathToArc[MAX_PATH];
 		strcpy(szPathToArc, clsPathToArc);
 
-		BYTE abtHeader[2048];
+		u8 abtHeader[2048];
 		memcpy(abtHeader, pbtHeader, sizeof(abtHeader));
 
-		if (!IsSupported(szPathToArc, (DWORD) abtHeader))
+		if (!IsSupported(szPathToArc, reinterpret_cast<DWORD>(abtHeader)))
 		{
 			// Archive file is not supported
 			continue;
@@ -221,7 +219,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetPicture()
-		GetPictureProc GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
+		auto* GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
 		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
@@ -239,13 +237,13 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Get image information
-		LPBITMAPINFO pBMPInfo = (LPBITMAPINFO) cllmBitmapInfo.Lock();
-		LPBYTE       pHBm = (LPBYTE) cllmBitmapData.Lock();
-		size_t       HBmSize = cllmBitmapData.GetSize();
+		const auto*  pBMPInfo = static_cast<LPBITMAPINFO>(cllmBitmapInfo.Lock());
+		const u8*    pHBm = static_cast<u8*>(cllmBitmapData.Lock());
+		const size_t HBmSize = cllmBitmapData.GetSize();
 
 		// Image output
 		CImage image;
-		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (LPBYTE) pBMPInfo->bmiColors);
+		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (u8*) pBMPInfo->bmiColors);
 		image.Write(pHBm, HBmSize);
 		image.Close();
 
@@ -257,7 +255,6 @@ bool CSusie::Decode(CArcFile* pclArc)
 	}
 
 	// File input - GetFile()
-
 	YCLocalMemory cllmSrc;
 
 	for (auto& supportPlugin : vtSupportPlugin)
@@ -267,7 +264,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetFile()
-		GetFileProc GetFile = reinterpret_cast<GetFileProc>(supportPlugin->GetProcAddress(_T("GetFile")));
+		auto* GetFile = reinterpret_cast<GetFileProc>(supportPlugin->GetProcAddress(_T("GetFile")));
 		if (GetFile == nullptr)
 		{
 			// GetFile() function is not supported
@@ -275,10 +272,9 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Call GetFile()
-		if (GetFile(szPathToArc, pclArc->GetOpenFileInfo()->start, (LPSTR)&cllmSrc.GetHandle(), 0x0100, nullptr, 0) != 0)
+		if (GetFile(szPathToArc, pclArc->GetOpenFileInfo()->start, reinterpret_cast<char*>(&cllmSrc.GetHandle()), 0x0100, nullptr, 0) != 0)
 		{
 			// GetFile has failed
-
 			cllmSrc.Free();
 			continue;
 		}
@@ -288,16 +284,15 @@ bool CSusie::Decode(CArcFile* pclArc)
 	}
 
 	// Lock the memory for reading
-
 	bool   bGetFileSuccess = true;
-	LPBYTE pbtSrc = nullptr;
-	DWORD  dwSrcSize;
+	u8* pbtSrc = nullptr;
+	u32 dwSrcSize;
 
 	if (cllmSrc.GetHandle() != nullptr)
 	{
 		// Successful GetFile()
 
-		pbtSrc = (LPBYTE) cllmSrc.Lock();
+		pbtSrc = static_cast<u8*>(cllmSrc.Lock());
 		dwSrcSize = cllmSrc.GetSize();
 	}
 	else
@@ -309,11 +304,11 @@ bool CSusie::Decode(CArcFile* pclArc)
 		dwSrcSize = pclArc->GetOpenFileInfo()->sizeCmp;
 
 		cllmSrc.Alloc(LHND, dwSrcSize);
-		pbtSrc = (LPBYTE) cllmSrc.Lock();
+		pbtSrc = static_cast<u8*>(cllmSrc.Lock());
 
 		// Reading
 		pclArc->Read(pbtSrc, dwSrcSize);
-		pclArc->SeekCur(-(INT64)dwSrcSize);
+		pclArc->SeekCur(-(s64)dwSrcSize);
 	}
 
 	// Memory Input - GetPicture()
@@ -326,7 +321,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Get IsSupported()
-		IsSupportedProc IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
@@ -341,21 +336,21 @@ bool CSusie::Decode(CArcFile* pclArc)
 		PathAppendA(szPathToFile, clsFileName);
 
 		// Needs 2KB
-		BYTE  abtSrcHeader[2048];
-		DWORD dwCopySize = (dwSrcSize <= sizeof(abtSrcHeader)) ? dwSrcSize : sizeof(abtSrcHeader);
+		u8 abtSrcHeader[2048];
+		const size_t dwCopySize = (dwSrcSize <= sizeof(abtSrcHeader)) ? dwSrcSize : sizeof(abtSrcHeader);
 
 		ZeroMemory(abtSrcHeader, sizeof(abtSrcHeader));
 		memcpy(abtSrcHeader, pbtSrc, dwCopySize);
 
 		// Call IsSupported()
-		if (!IsSupported(szPathToFile, (DWORD) abtSrcHeader))
+		if (!IsSupported(szPathToFile, reinterpret_cast<DWORD>(abtSrcHeader)))
 		{
 			// File is not supported
 			continue;
 		}
 
 		// Get GetPicture()
-		GetPictureProc GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
+		auto* GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
 		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
@@ -366,20 +361,20 @@ bool CSusie::Decode(CArcFile* pclArc)
 		YCLocalMemory cllmBitmapData;
 
 		// Call GetPicture()
-		if (GetPicture((LPSTR)pbtSrc, dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), nullptr, 0) != 0)
+		if (GetPicture(reinterpret_cast<char*>(pbtSrc), dwSrcSize, 0x0001, &cllmBitmapInfo.GetHandle(), &cllmBitmapData.GetHandle(), nullptr, 0) != 0)
 		{
 			// GetPicture() has failed
 			continue;
 		}
 
 		// Get image info
-		LPBITMAPINFO pBMPInfo = (LPBITMAPINFO) cllmBitmapInfo.Lock();
-		LPBYTE       pHBm = (LPBYTE) cllmBitmapData.Lock();
-		size_t       HBmSize = cllmBitmapData.GetSize();
+		const auto*  pBMPInfo = static_cast<LPBITMAPINFO>(cllmBitmapInfo.Lock());
+		const u8*    pHBm = static_cast<u8*>(cllmBitmapData.Lock());
+		const size_t HBmSize = cllmBitmapData.GetSize();
 
 		// Image output
 		CImage image;
-		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (BYTE*) pBMPInfo->bmiColors);
+		image.Init(pclArc, pBMPInfo->bmiHeader.biWidth, pBMPInfo->bmiHeader.biHeight, pBMPInfo->bmiHeader.biBitCount, (u8*) pBMPInfo->bmiColors);
 		image.Write(pHBm, HBmSize);
 		image.Close();
 
@@ -462,7 +457,7 @@ void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 		// Get SPI Info
 		char szBuffer[1024];
 
-		GetPluginInfoProc GetPluginInfo = (GetPluginInfoProc) pstsiTarget->cllPlugin.GetProcAddress(_T("GetPluginInfo"));
+		auto* GetPluginInfo = reinterpret_cast<GetPluginInfoProc>(pstsiTarget->cllPlugin.GetProcAddress(_T("GetPluginInfo")));
 		if (GetPluginInfo != nullptr)
 		{
 			if (GetPluginInfo(0, szBuffer, sizeof(szBuffer)) != 0)
@@ -495,8 +490,8 @@ void CSusie::LoadSpi(const YCString& rfclsPathToSusieFolder)
 		}
 
 		// Check if the SPI has a configuration dialog
-		ConfigurationDlgProc ConfigurationDlg = (ConfigurationDlgProc) pstsiTarget->cllPlugin.GetProcAddress(_T("ConfigurationDlg"));
-		pstsiTarget->bConfig = (ConfigurationDlg != nullptr);
+		auto* ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(pstsiTarget->cllPlugin.GetProcAddress(_T("ConfigurationDlg")));
+		pstsiTarget->bConfig = ConfigurationDlg != nullptr;
 
 		// Prepare the next SPI
 		uIndex++;
