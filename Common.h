@@ -11,12 +11,6 @@
 #define ID_STATUS     10002
 #define ID_TIMER      10003
 
-#define ID_LISTVIEW2  10100
-#define ID_DB_BUTTON1 10101
-#define ID_DB_BUTTON2 10102
-#define ID_DB_BUTTON3 10103
-#define ID_DB_BUTTON4 10104
-
 #define SBL_STR_INI_EXTRACTDATA     _T("ExtractData.ini")
 #define SBL_STR_INI_SUSIE           _T("Susie.ini")
 
@@ -24,7 +18,7 @@
 //-- Structure Declaration ---------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-// Optional Items
+// Option Items
 
 struct SOption
 {
@@ -97,13 +91,4 @@ struct SFileInfo
 	{
 		key = 0;
 	}
-};
-
-// Database Info
-struct FILEINFODB
-{
-	DWORD    start;
-	YCString path;
-	DWORD    ctFile;
-	YCString sCtFile;
 };
