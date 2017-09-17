@@ -1,0 +1,97 @@
+LIBRARY
+; zlib data compression
+
+VERSION		1.2
+
+EXPORTS
+        adler32                                  @1
+        compress                                 @2
+        crc32                                    @3
+        deflate                                  @4
+        deflateCopy                              @5
+        deflateEnd                               @6
+        deflateInit2_                            @7
+        deflateInit_                             @8
+        deflateParams                            @9
+        deflateReset                             @10
+        deflateSetDictionary                     @11
+        gzclose                                  @12
+        gzdopen                                  @13
+        gzerror                                  @14
+        gzflush                                  @15
+        gzopen                                   @16
+        gzread                                   @17
+        gzwrite                                  @18
+        inflate                                  @19
+        inflateEnd                               @20
+        inflateInit2_                            @21
+        inflateInit_                             @22
+        inflateReset                             @23
+        inflateSetDictionary                     @24
+        inflateSync                              @25
+        uncompress                               @26
+        zlibVersion                              @27
+        gzprintf                                 @28
+        gzputc                                   @29
+        gzgetc                                   @30
+        gzseek                                   @31
+        gzrewind                                 @32
+        gztell                                   @33
+        gzeof                                    @34
+        gzsetparams                              @35
+        zError                                   @36
+        inflateSyncPoint                         @37
+        get_crc_table                            @38
+        compress2                                @39
+        gzputs                                   @40
+        gzgets                                   @41
+        inflateCopy                              @42
+        inflateBackInit_                         @43
+        inflateBack                              @44
+        inflateBackEnd                           @45
+        compressBound                            @46
+        deflateBound                             @47
+        gzclearerr                               @48
+        gzungetc                                 @49
+        zlibCompileFlags                         @50
+        deflatePrime                             @51
+        deflatePending                           @52
+
+; zlibwapi v1.2.4 added:
+; zlib1 v1.2.4 added:
+        adler32_combine                         @53
+        crc32_combine                           @54
+        deflateSetHeader                        @55
+        deflateTune                             @56
+        gzbuffer                                @57
+        gzclose_r                               @58
+        gzclose_w                               @59
+        gzdirect                                @60
+        gzoffset                                @61
+        inflateGetHeader                        @62
+        inflateMark                             @63
+        inflatePrime                            @64
+        inflateReset2                           @65
+        inflateUndermine                        @66
+
+; zlib1 v1.2.6 added:
+        gzgetc_                                 @67
+        inflateResetKeep                        @68
+        deflateResetKeep                        @69
+
+; zlib1 v1.2.7 added:
+        gzopen_w                                @70
+
+; zlib1 v1.2.8 added:
+        inflateGetDictionary                    @71
+        gzvprintf                               @72
+
+; zlib1 v1.2.9 added:
+        inflateCodesUsed                        @73
+        inflateValidate                         @74
+        uncompress2                             @75
+        gzfread                                 @76
+        gzfwrite                                @77
+        deflateGetDictionary                    @78
+        adler32_z                               @79
+        crc32_z                                 @80

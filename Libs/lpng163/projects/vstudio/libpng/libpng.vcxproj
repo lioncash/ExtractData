@@ -68,8 +68,8 @@
     <LinkIncremental>false</LinkIncremental>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
-    <TargetName>$(ProjectName)16</TargetName>
-    <IncludePath>$(SolutionDir)Libs\zlib-1.2.8;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)d</TargetName>
+    <IncludePath>$(SolutionDir)Libs\zlib-1.2.11;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Library|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -81,8 +81,8 @@
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
     <TargetName>$(ProjectName)16</TargetName>
-    <IncludePath>$(SolutionDir)Libs\lpng163;$(SolutionDir)Libs\zlib-1.2.8;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Libs\</OutDir>
+    <IncludePath>$(SolutionDir)Libs\lpng163;$(SolutionDir)Libs\zlib-1.2.11;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Library|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)Libs\zlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Libs\zlibd.lib</AdditionalDependencies>
       <Version>16</Version>
       <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
