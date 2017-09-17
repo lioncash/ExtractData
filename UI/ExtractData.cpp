@@ -618,7 +618,6 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 			// Information Acquisition Start
 			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MountThread, this, 0, &thId));
-			//hThread = CreateThread(NULL, 0, MountThread, this, 0, &thId);
 		}
 		return FALSE;
 
@@ -626,7 +625,6 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 			// Start extraction process
 			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thId));
-			//hThread = CreateThread(NULL, 0, DecodeThread, this, 0, &thId);
 		}
 		return FALSE;
 
