@@ -529,8 +529,8 @@ void CExtractData::DeleteTmpFile()
 
 void CExtractData::LoadTmpFileList()
 {
-	CFile clfTmpFileList;
-	if (clfTmpFileList.Open(m_szPathToTmpFileList, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	CFile tmp_file;
+	if (!tmp_file.OpenForRead(m_szPathToTmpFileList))
 	{
 		// Failed to open import file
 		return;
@@ -540,7 +540,7 @@ void CExtractData::LoadTmpFileList()
 	{
 		char buf[MAX_PATH];
 
-		if (clfTmpFileList.ReadLine(buf, sizeof(buf), true) == 0)
+		if (tmp_file.ReadLine(buf, sizeof(buf), true) == 0)
 			break;
 
 		m_ssTmpFile.insert(buf);
@@ -556,8 +556,8 @@ void CExtractData::SaveTmpFileList()
 		return;
 	}
 
-	CFile clfTmpFileList;
-	if (clfTmpFileList.Open(m_szPathToTmpFileList, CFile::FILE_WRITE) == INVALID_HANDLE_VALUE)
+	CFile tmp_file;
+	if (!tmp_file.OpenForWrite(m_szPathToTmpFileList))
 	{
 		// Failed to open file for writing
 		return;
@@ -565,8 +565,8 @@ void CExtractData::SaveTmpFileList()
 
 	for (const YCString& str : m_ssTmpFile)
 	{
-		clfTmpFileList.WriteLine(str);
-		clfTmpFileList.Write("\r\n", 2);
+		tmp_file.WriteLine(str);
+		tmp_file.Write("\r\n", 2);
 	}
 
 	m_ssTmpFile.clear();

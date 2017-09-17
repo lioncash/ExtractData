@@ -22,7 +22,7 @@ bool CClannad::Mount(CArcFile* archive)
 	lstrcpy(hed_file_path, archive->GetArcPath());
 	PathRenameExtension(hed_file_path, _T(".HED"));
 	CFile hed_file;
-	if (hed_file.Open(hed_file_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	if (!hed_file.OpenForRead(hed_file_path))
 		return false;
 
 	// Get index size

@@ -47,7 +47,7 @@ bool CCyc::MountGpk(CArcFile* archive)
 
 	// Open gtb file
 	CFile gtb_file;
-	if (gtb_file.Open(gtb_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	if (!gtb_file.OpenForRead(gtb_path))
 		return false;
 
 	// Number of files in the gtb file
@@ -105,7 +105,7 @@ bool CCyc::MountVpk(CArcFile* archive)
 	
 	// Open vtb file
 	CFile vtb_file;
-	if (vtb_file.Open(vtb_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	if (!vtb_file.OpenForRead(vtb_path))
 		return false;
 
 	// Read vtb file

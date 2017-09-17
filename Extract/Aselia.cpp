@@ -18,7 +18,7 @@ bool CAselia::Mount(CArcFile* archive)
 
 	// Open DLL File
 	CFile dll_file;
-	if (dll_file.Open(dll_path, CFile::FILE_READ) == INVALID_HANDLE_VALUE)
+	if (!dll_file.OpenForRead(dll_path))
 		return false;
 
 	// Get filecount

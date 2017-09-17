@@ -12,13 +12,13 @@ CFile::~CFile()
 	Close();
 }
 
-HANDLE CFile::Open(LPCTSTR filename, u32 mode)
+HANDLE CFile::Open(LPCTSTR filename, OpenMode mode)
 {
-	if (mode == FILE_READ)
+	if (mode == OpenMode::Read)
 	{
 		m_file = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
-	else if (mode == FILE_WRITE)
+	else if (mode == OpenMode::Write)
 	{
 		m_file = CreateFile(filename, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	}
@@ -28,12 +28,12 @@ HANDLE CFile::Open(LPCTSTR filename, u32 mode)
 
 bool CFile::OpenForRead(LPCTSTR filename)
 {
-	return Open(filename, FILE_READ) != INVALID_HANDLE_VALUE;
+	return Open(filename, OpenMode::Read) != INVALID_HANDLE_VALUE;
 }
 
 bool CFile::OpenForWrite(LPCTSTR filename)
 {
-	return Open(filename, FILE_WRITE) != INVALID_HANDLE_VALUE;
+	return Open(filename, OpenMode::Write) != INVALID_HANDLE_VALUE;
 }
 
 void CFile::Close()

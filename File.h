@@ -3,16 +3,16 @@
 class CFile
 {
 public:
-	enum : u32
+	enum class OpenMode
 	{
-		FILE_READ  = 0,
-		FILE_WRITE = 1
+		Read,
+		Write
 	};
 
 	CFile();
 	virtual ~CFile();
 
-	virtual HANDLE Open(LPCTSTR filename, u32 mode);
+	virtual HANDLE Open(LPCTSTR filename, OpenMode mode);
 	virtual bool OpenForRead(LPCTSTR filename);
 	virtual bool OpenForWrite(LPCTSTR filename);
 	virtual void Close();
