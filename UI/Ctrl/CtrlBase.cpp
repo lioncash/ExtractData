@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "UI/Ctrl/CtrlBase.h"
 
-CCtrlBase::CCtrlBase()
-{
-}
+CCtrlBase::CCtrlBase() = default;
+
+CCtrlBase::~CCtrlBase() = default;
 
 void CCtrlBase::Init(HWND window, UINT id)
 {

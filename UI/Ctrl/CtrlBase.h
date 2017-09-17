@@ -6,7 +6,7 @@ class CCtrlBase
 {
 public:
 	CCtrlBase();
-	virtual ~CCtrlBase() = default;
+	virtual ~CCtrlBase();
 
 	void Init(HWND window, UINT id);
 
