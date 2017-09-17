@@ -3,8 +3,8 @@
 #include "File.h"
 
 CFile::CFile()
+	: m_file{INVALID_HANDLE_VALUE}
 {
-	m_file = INVALID_HANDLE_VALUE;
 }
 
 CFile::~CFile()
