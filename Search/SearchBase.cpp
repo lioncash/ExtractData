@@ -50,7 +50,7 @@ bool CSearchBase::CmpMem(const u8* data, const u8* pattern, size_t size) const
 
 bool CSearchBase::Search(const u8* data, u32 search_size)
 {
-	for (int offset = 0; offset <= static_cast<int>(search_size); offset++)
+	for (u32 offset = 0; offset <= search_size; offset++)
 	{
 		if (CmpHeader(&data[offset]))
 		{
