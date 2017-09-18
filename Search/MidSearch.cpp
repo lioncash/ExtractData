@@ -30,7 +30,7 @@ void CMidSearch::Mount(CArcFile* archive)
 		archive->Read(marker.data(), marker.size());
 
 		// Invalid MIDI
-		if (memcmp(marker.data(), "MTrk", marker.size()) != 0)
+		if (std::memcmp(marker.data(), "MTrk", marker.size()) != 0)
 		{
 			return;
 		}

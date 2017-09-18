@@ -41,7 +41,7 @@ void CPngSearch::Mount(CArcFile* archive)
 		// }
 
 		archive->SeekCur(length + 4);
-	} while (memcmp(chunk_name.data(), "IEND", chunk_name.size()) != 0); // Keep looping until IEND is reached
+	} while (std::memcmp(chunk_name.data(), "IEND", chunk_name.size()) != 0); // Keep looping until IEND is reached
 
 	// Get exit address
 	file_info.end = archive->GetArcPointer();

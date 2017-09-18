@@ -52,14 +52,14 @@ void COggSearch::Mount(CArcFile* archive)
 		}
 
 		// If it is no longer OggS
-		if (memcmp(header.pattern, GetHeader(), 4) != 0)
+		if (std::memcmp(header.pattern, GetHeader(), 4) != 0)
 		{
 			ogg.SeekToPreviousHeader();
 			break;
 		}
 
 		// Exit after the beginning of the OGG until we hit the next header
-		if (read_count > 1 && memcmp(header.pattern, GetHeader(), 4) == 0 && header.type == 2)
+		if (read_count > 1 && std::memcmp(header.pattern, GetHeader(), 4) == 0 && header.type == 2)
 		{
 			ogg.SeekToPreviousHeader();
 			break;

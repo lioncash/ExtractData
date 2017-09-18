@@ -29,7 +29,7 @@ void CJpgSearch::Mount(CArcFile* archive)
 			return;
 
 		// Exit the loop when we reach the JPEG image data
-		if (memcmp(marker.data(), "\xFF\xDA", marker.size()) == 0)
+		if (std::memcmp(marker.data(), "\xFF\xDA", marker.size()) == 0)
 			break;
 
 		// Get the size of the data area
