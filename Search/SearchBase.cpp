@@ -26,7 +26,7 @@ void CSearchBase::Init(SOption* option)
 
 void CSearchBase::InitPattern(const void* pattern, u32 size, PatternType type)
 {
-	memcpy(m_pattern[type].pattern, pattern, size);
+	std::memcpy(m_pattern[type].pattern, pattern, size);
 	m_pattern[type].size = size;
 }
 
