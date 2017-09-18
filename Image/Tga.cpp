@@ -77,7 +77,7 @@ bool CTga::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 		break;
 
 	default: // No Compression
-		memcpy(dst, src, src_size);
+		std::memcpy(dst, src, src_size);
 		break;
 	}
 
@@ -108,7 +108,7 @@ bool CTga::DecompRLE(u8* dst, size_t dst_size, const u8* src, size_t src_size, u
 
 			for (u32 i = 0; i < length; i++)
 			{
-				memcpy(&dst[dst_ptr], &src[src_ptr], byte_count);
+				std::memcpy(&dst[dst_ptr], &src[src_ptr], byte_count);
 
 				dst_ptr += byte_count;
 			}
@@ -121,13 +121,13 @@ bool CTga::DecompRLE(u8* dst, size_t dst_size, const u8* src, size_t src_size, u
 
 			length *= byte_count;
 
-			memcpy(&dst[dst_ptr], &src[src_ptr], length);
+			std::memcpy(&dst[dst_ptr], &src[src_ptr], length);
 
 			src_ptr += length;
 			dst_ptr += length;
 		}
 
-		if (memcmp(&src[src_ptr + 8], "TRUEVISION-XFILE", 16) == 0)
+		if (std::memcmp(&src[src_ptr + 8], "TRUEVISION-XFILE", 16) == 0)
 		{
 			// End
 			break;
