@@ -6,9 +6,8 @@ When making derivative works, please follow the GPL.
 
 ## Compile Information
 
-- Visual Studio 2015
-- zlib.lib and libpng.lib are needed
-  - See the Libs directory for a readme on compiling these.
+- Visual Studio 2017
+- libpng and zlib (included in the VS solution file)
 
 ## Long-term TODOs
 
