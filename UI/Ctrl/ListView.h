@@ -2,11 +2,6 @@
 
 struct SOption;
 
-#ifndef ListView_SetCheckState
-	#define ListView_SetCheckState(hwndLV, i, fCheck) \
-	        ListView_SetItemState(hwndLV, i, INDEXTOSTATEIMAGEMASK((fCheck)+1), LVIS_STATEIMAGEMASK)
-#endif
-
 // When you sort the list of parameters
 struct SORTPARAM
 {
