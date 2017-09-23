@@ -14,6 +14,7 @@
 
 #include    <algorithm>
 #include    <array>
+#include    <cinttypes>
 #include    <cmath>
 #include    <cstddef>
 #include    <cstring>
