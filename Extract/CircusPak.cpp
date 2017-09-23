@@ -701,45 +701,41 @@ bool CCircusPak::DecompCCC0(u8* dst, size_t dst_size, const u8* src, size_t src_
 ///
 bool CCircusPak::DecompCCM0(u8* dst, size_t dst_size, const u8* src, size_t src_size)
 {
-	size_t src_bit_idx;
-	size_t dst_idx = 0;
-
-	// Decompression
 	if (dst_size < 0x80)
 	{
 		// Uncompressed
 		memcpy(dst, &src[8], dst_size);
+		return true;
 	}
-	else
+
+	// Compressed data
+	size_t dst_idx = 0;
+	for (size_t i = 0; i < 0x80; i++)
 	{
-		for (size_t i = 0; i < 0x80; i++)
+		dst[dst_idx++] = src[8 + i] + 0xF0;
+	}
+
+	size_t src_bit_idx = 0x88 * 8;
+	while (dst_idx < dst_size)
+	{
+		const u32 flag = GetBit(src, &src_bit_idx, 1);
+
+		// Compressed
+		if (flag & 1)
 		{
-			dst[dst_idx++] = src[8 + i] + 0xF0;
+			const u32 back = GetBit(src, &src_bit_idx, 7) + 1;
+			const u32 length = GetBit(src, &src_bit_idx, 4) + 2;
+
+			for (size_t i = 0; i < length; i++)
+			{
+				dst[dst_idx + i] = dst[dst_idx - back + i];
+			}
+
+			dst_idx += length;
 		}
-		
-		src_bit_idx = 0x88 * 8;
-
-		while (dst_idx < dst_size)
+		else // Uncompressed
 		{
-			const u32 flag = GetBit(src, &src_bit_idx, 1);
-
-			// Compressed
-			if (flag & 1)
-			{
-				const u32 back = GetBit(src, &src_bit_idx, 7) + 1;
-				const u32 length = GetBit(src, &src_bit_idx, 4) + 2;
-
-				for (size_t i = 0; i < length; i++)
-				{
-					dst[dst_idx + i] = dst[dst_idx - back + i];
-				}
-
-				dst_idx += length;
-			}
-			else // Uncompressed
-			{
-				dst[dst_idx++] = GetBit(src, &src_bit_idx, 8);
-			}
+			dst[dst_idx++] = GetBit(src, &src_bit_idx, 8);
 		}
 	}
 
