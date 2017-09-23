@@ -44,7 +44,7 @@ HWND CToolBar::Create(HWND window, LPCTBBUTTON tool_bar_button, UINT bitmap_id, 
 	InvalidateRect(tool_bar, nullptr, TRUE);
 	SendMessage(tool_bar, TB_SETEXTENDEDSTYLE, 0, static_cast<LPARAM>(TBSTYLE_EX_DRAWDDARROWS));
 
-	HWND tool_tip = CreateWindowEx(0, //Extended window style
+	HWND tool_tip = CreateWindowEx(0, // Extended window style
 		TOOLTIPS_CLASS, // Class name
 		nullptr,        // Window name
 		TTS_ALWAYSTIP,  // Window style
@@ -52,9 +52,9 @@ HWND CToolBar::Create(HWND window, LPCTBBUTTON tool_bar_button, UINT bitmap_id, 
 		CW_USEDEFAULT,  // Y Coordinare
 		CW_USEDEFAULT,  // Width
 		CW_USEDEFAULT,  // Height
-		m_window,         // Handle of parent window
+		m_window,       // Handle of parent window
 		nullptr,        // Menu handle
-		m_inst,        // Instance handle
+		m_inst,         // Instance handle
 		nullptr);       // WM_CREATE Data
 
 	TOOLINFO ti;
