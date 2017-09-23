@@ -58,16 +58,16 @@ bool CSusie::Mount(CArcFile* pclArc)
 	const u8* pbtHeader = pclArc->GetHeader();
 
 	// Mount
-	for (auto& pstsiTarget : m_stsiMain)
+	for (const auto& target : m_stsiMain)
 	{
-		if (pstsiTarget.bValidity == 0)
+		if (target.bValidity == 0)
 		{
 			// Invalid Susie plugin
 			continue;
 		}
 
 		// Get IsSupported()
-		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(target.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported function is not implemented
@@ -89,7 +89,7 @@ bool CSusie::Mount(CArcFile* pclArc)
 		}
 
 		// Get GetArchiveInfo()
-		auto* GetArchiveInfo = reinterpret_cast<GetArchiveInfoProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetArchiveInfo")));
+		auto* GetArchiveInfo = reinterpret_cast<GetArchiveInfoProc>(target.cllPlugin.GetProcAddress(_T("GetArchiveInfo")));
 		if (GetArchiveInfo == nullptr)
 		{
 			// We trust IsSupported() and attempt to mount
@@ -181,18 +181,18 @@ bool CSusie::Decode(CArcFile* pclArc)
 	const u8* pbtHeader = pclArc->GetHeader();
 
 	// GetPicture() file input
-	std::vector<YCLibrary*> vtSupportPlugin;
+	std::vector<const YCLibrary*> vtSupportPlugin;
 
-	for (auto& pstsiTarget : m_stsiMain)
+	for (const auto& target : m_stsiMain)
 	{
-		if (pstsiTarget.bValidity == 0)
+		if (target.bValidity == 0)
 		{
 			// Invalid Susie plugin
 			continue;
 		}
 
 		// Get IsSupported()
-		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(target.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
@@ -213,13 +213,13 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Archive file is supported
-		vtSupportPlugin.push_back(&pstsiTarget.cllPlugin);
+		vtSupportPlugin.push_back(&target.cllPlugin);
 
 		// Copy the archive file path
 		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetPicture()
-		auto* GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
+		auto* GetPicture = reinterpret_cast<GetPictureProc>(target.cllPlugin.GetProcAddress(_T("GetPicture")));
 		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
@@ -257,14 +257,14 @@ bool CSusie::Decode(CArcFile* pclArc)
 	// File input - GetFile()
 	YCLocalMemory cllmSrc;
 
-	for (auto& supportPlugin : vtSupportPlugin)
+	for (const auto& support_plugin : vtSupportPlugin)
 	{
 		// Copy archive file path
 		char szPathToArc[MAX_PATH];
 		strcpy(szPathToArc, clsPathToArc);
 
 		// Get GetFile()
-		auto* GetFile = reinterpret_cast<GetFileProc>(supportPlugin->GetProcAddress(_T("GetFile")));
+		auto* GetFile = reinterpret_cast<GetFileProc>(support_plugin->GetProcAddress(_T("GetFile")));
 		if (GetFile == nullptr)
 		{
 			// GetFile() function is not supported
@@ -312,16 +312,16 @@ bool CSusie::Decode(CArcFile* pclArc)
 	}
 
 	// Memory Input - GetPicture()
-	for (auto& pstsiTarget : m_stsiMain)
+	for (const auto& target : m_stsiMain)
 	{
-		if (pstsiTarget.bValidity == 0)
+		if (target.bValidity == 0)
 		{
 			// Invalid Susie plugin
 			continue;
 		}
 
 		// Get IsSupported()
-		auto* IsSupported = reinterpret_cast<IsSupportedProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("IsSupported")));
+		auto* IsSupported = reinterpret_cast<IsSupportedProc>(target.cllPlugin.GetProcAddress(_T("IsSupported")));
 		if (IsSupported == nullptr)
 		{
 			// IsSupported() function is not implemented 
@@ -350,7 +350,7 @@ bool CSusie::Decode(CArcFile* pclArc)
 		}
 
 		// Get GetPicture()
-		auto* GetPicture = reinterpret_cast<GetPictureProc>(pstsiTarget.cllPlugin.GetProcAddress(_T("GetPicture")));
+		auto* GetPicture = reinterpret_cast<GetPictureProc>(target.cllPlugin.GetProcAddress(_T("GetPicture")));
 		if (GetPicture == nullptr)
 		{
 			// GetPicture() function is not implemented
@@ -513,9 +513,9 @@ void CSusie::SaveSpi()
 	cliSusie.DeleteSection();
 
 	// Save Susie plugin info
-	for (const auto& pstsiTarget : m_stsiMain)
+	for (const auto& target : m_stsiMain)
 	{
-		cliSusie.SetKey(pstsiTarget.clsName);
-		cliSusie.WriteDec(pstsiTarget.bValidity);
+		cliSusie.SetKey(target.clsName);
+		cliSusie.WriteDec(target.bValidity);
 	}
 }
