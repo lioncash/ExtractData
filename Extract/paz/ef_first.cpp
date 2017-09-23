@@ -169,7 +169,7 @@ void Cef_first::Decrypt(u8* target, size_t size)
 ///
 /// @param archive Archive
 ///
-size_t Cef_first::GetMovieBufSize(CArcFile* archive)
+size_t Cef_first::GetMovieBufSize(const CArcFile* archive)
 {
 	return 65536;
 }

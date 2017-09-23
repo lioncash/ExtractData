@@ -52,7 +52,7 @@ protected:
 	virtual u8*  GetMovieTable();
 
 	virtual u8* GetKey();
-	virtual size_t GetMovieBufSize(CArcFile* archive);
+	virtual size_t GetMovieBufSize(const CArcFile* archive);
 
 private:
 	u32 m_table[1042];

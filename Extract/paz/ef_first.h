@@ -22,7 +22,7 @@ private:
 
 	void DecodeMovieData(u8* target, size_t size) override;
 
-	size_t GetMovieBufSize(CArcFile* archive) override;
+	size_t GetMovieBufSize(const CArcFile* archive) override;
 
 	u8  m_key = 0;
 	u8  m_movie_table[256][256];

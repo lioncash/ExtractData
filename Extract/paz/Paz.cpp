@@ -502,7 +502,7 @@ u8* CPaz::GetKey()
 ///
 /// @param archive Archive
 ///
-size_t CPaz::GetMovieBufSize(CArcFile* archive)
+size_t CPaz::GetMovieBufSize(const CArcFile* archive)
 {
 	return archive->GetBufSize();
 }

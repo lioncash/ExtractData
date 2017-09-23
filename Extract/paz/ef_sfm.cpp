@@ -117,7 +117,7 @@ void CEFsfm::DecodeMovieData(u8* target, size_t size)
 ///
 /// @param archive - Archive
 ///
-size_t CEFsfm::GetMovieBufSize(CArcFile* archive)
+size_t CEFsfm::GetMovieBufSize(const CArcFile* archive)
 {
 	return 65536;
 }
