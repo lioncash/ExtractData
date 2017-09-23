@@ -49,7 +49,6 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 	ini.SetSection(id);
 
 	// Add a column header
-
 	for (size_t i = 0 ; i < columns.size() ; i++)
 	{
 		TCHAR column_key[256];
@@ -59,7 +58,7 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 		ini.SetKey(column_key);
 		ini.ReadDec(&columns[i].cx);
 
-		columns[i].iSubItem = i;
+		columns[i].iSubItem = static_cast<int>(i);
 
 		ListView_InsertColumn(list, i, &columns[i]);
 	}
