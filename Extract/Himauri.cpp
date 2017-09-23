@@ -104,7 +104,7 @@ bool CHimauri::MountHim5(CArcFile* archive)
 
 	// Get index 2
 	std::vector<u8> index2(index2_size);
-	archive->Read(&index2[0], index2_size);
+	archive->Read(index2.data(), index2.size());
 	size_t index2_ptr = 0;
 
 	// Remove dummy
