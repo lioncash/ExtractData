@@ -15,7 +15,7 @@ void CToolBar::Init(HWND window)
 }
 
 // Function that creates the toolbar
-HWND CToolBar::Create(HWND window, LPTBBUTTON tool_bar_button, UINT bitmap_id, int icon_cx, int ctIcon)
+HWND CToolBar::Create(HWND window, LPCTBBUTTON tool_bar_button, UINT bitmap_id, int icon_cx, int ctIcon)
 {
 	Init(window);
 

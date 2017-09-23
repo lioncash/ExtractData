@@ -7,7 +7,7 @@ public:
 	virtual ~CToolBar() = default;
 
 	void Init(HWND window);
-	HWND Create(HWND window, LPTBBUTTON toolbar_button, UINT bitmap_id, int icon_cx, int ctIcon);
+	HWND Create(HWND window, LPCTBBUTTON toolbar_button, UINT bitmap_id, int icon_cx, int ctIcon);
 
 	virtual void LoadIni() {}
 	virtual void SaveIni() {}

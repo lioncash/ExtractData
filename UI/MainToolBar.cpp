@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////
 HWND CMainToolBar::Create(HWND hWnd)
 {
-	std::array<TBBUTTON, 3> buttons{{
+	const std::array<TBBUTTON, 3> buttons{{
 		{0, IDM_OPEN, TBSTATE_ENABLED, TBSTYLE_DROPDOWN, 0, 0},
 		{1, IDM_EXTRACT, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0},
 		{2, IDM_EXTRACTALL, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0}
