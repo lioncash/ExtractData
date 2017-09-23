@@ -19,7 +19,7 @@ public:
 	virtual ~CSearchBase();
 
 	void Init();
-	void Init(SOption* option);
+	void Init(const SOption* option);
 
 	const u8* GetHeader() const     { return m_pattern[PATTERN_HEADER].pattern; }
 	u32       GetHeaderSize() const { return m_pattern[PATTERN_HEADER].size; }
@@ -41,7 +41,7 @@ public:
 
 protected:
 	// Virtual function for when you want to do something during initialization
-	virtual void OnInit(SOption* option) {}
+	virtual void OnInit(const SOption* option) {}
 
 	void InitHeader(const void* pattern, u32 size);
 	void InitFooter(const void* pattern, u32 size);

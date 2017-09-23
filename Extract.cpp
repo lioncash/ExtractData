@@ -268,7 +268,7 @@ bool CExtract::Mount(CArcFile* archive)
 
 bool CExtract::Search(CArcFile* archive)
 {
-	SOption* option = archive->GetOpt();
+	const SOption* const option = archive->GetOpt();
 
 	std::vector<CSearchBase*>& SearchClass = m_search_class;
 	std::vector<CSearchBase*> Class;

@@ -4,12 +4,9 @@
 #include "ArcFile.h"
 #include "Sound/Ogg.h"
 
-COggSearch::COggSearch()
-{
-	//InitHed("\x4F\x67\x67\x53\x00\x02", 6);
-}
+COggSearch::COggSearch() = default;
 
-void COggSearch::OnInit(SOption* option)
+void COggSearch::OnInit(const SOption* option)
 {
 	if (option->bHighSearchOgg)
 		InitHeader("\x4F\x67\x67\x53\x00\x02", 6);

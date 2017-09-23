@@ -18,7 +18,7 @@ void CSearchBase::Init()
 	m_num_files = 1;
 }
 
-void CSearchBase::Init(SOption* option)
+void CSearchBase::Init(const SOption* option)
 {
 	Init();
 	OnInit(option);
