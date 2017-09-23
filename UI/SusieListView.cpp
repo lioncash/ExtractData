@@ -61,26 +61,26 @@ void CSusieListView::Show(NMLVDISPINFO* disp_info)
 		switch (disp_info->item.iSubItem)
 		{
 		case 0: // Show plug-in name
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsName);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].name);
 			break;
 
 		case 1: // Show plug-in info
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsInfo);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].info);
 			break;
 
 		case 2: // Show supported formats
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsSupportFormat);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].supported_formats);
 			break;
 
 		case 3: // Show version info
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].clsVersion);
+			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].version);
 			break;
 		}
 	}
 
 	if (disp_info->item.mask & LVIF_STATE)
 	{
-		disp_info->item.state = m_option->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[disp_info->item.iItem].bValidity + 1) : 0;
+		disp_info->item.state = m_option->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[disp_info->item.iItem].validity + 1) : 0;
 	}
 }
 
@@ -88,7 +88,7 @@ void CSusieListView::ShowTip(LPNMLVGETINFOTIP tip)
 {
 	CSusie susie;
 
-	static std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
+	static const std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
 	switch (tip->iSubItem)
 	{
@@ -98,20 +98,20 @@ void CSusieListView::ShowTip(LPNMLVGETINFOTIP tip)
 
 		if (tip->dwFlags == 0)
 		{
-			lstrcpy(tip->pszText, susie_infos[tip->iItem].clsName);
+			lstrcpy(tip->pszText, susie_infos[tip->iItem].name);
 		}
 		break;
 
 	case 1:
-		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsInfo);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].info);
 		break;
 
 	case 2:
-		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsSupportFormat);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].supported_formats);
 		break;
 
 	case 3:
-		lstrcpy(tip->pszText, susie_infos[tip->iItem].clsVersion);
+		lstrcpy(tip->pszText, susie_infos[tip->iItem].version);
 		break;
 	}
 }
@@ -120,7 +120,7 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW custom_draw)
 {
 	CSusie susie;
 
-	static std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
+	static const std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
 	switch (custom_draw->nmcd.dwDrawStage)
 	{
@@ -129,7 +129,7 @@ BOOL CSusieListView::CustomDraw(LPNMLVCUSTOMDRAW custom_draw)
 		return TRUE;
 
 	case CDDS_ITEMPREPAINT: // Item before it is drawn
-		if (susie_infos[custom_draw->nmcd.dwItemSpec].bConfig && m_option->bSusieUse)
+		if (susie_infos[custom_draw->nmcd.dwItemSpec].has_config_dialog && m_option->bSusieUse)
 		{
 			// ConfigurationDlg has been defined
 			custom_draw->clrText = RGB(0, 0, 255);
@@ -151,7 +151,7 @@ void CSusieListView::CreateMenu(LPARAM param)
 
 	CSusie susie;
 	m_susie_info = susie.GetSusieTmp()[item];
-	if (!m_susie_info.bConfig)
+	if (!m_susie_info.has_config_dialog)
 		return;
 
 	POINT pt;
@@ -188,7 +188,7 @@ bool CSusieListView::SetCheck()
 	if (info.pt.x >= rc.left && info.pt.x <= rc.right)
 	{
 		CSusie susie;
-		susie.GetSusieTmp()[info.iItem].bValidity ^= 1;
+		susie.GetSusieTmp()[info.iItem].validity ^= 1;
 		InvalidateRect(m_list, &rc, FALSE);
 		return true;
 	}
@@ -203,7 +203,7 @@ void CSusieListView::SetCheckAll(bool flag)
 
 	for (auto& info : susie_infos)
 	{
-		info.bValidity = flag;
+		info.validity = flag;
 	}
 
 	RECT rc;

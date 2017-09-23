@@ -801,10 +801,10 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Settings
 			if (LOWORD(wp) == IDM_SUSIE_SET)
 			{
-				SSusieInfo* pstSusieInfo = SusieListView.GetFocusSusieInfo();
+				const SSusieInfo* const susie_info = SusieListView.GetFocusSusieInfo();
 
 				// Get ConfigurationDlg()
-				ConfigurationDlgProc ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(pstSusieInfo->cllPlugin.GetProcAddress(_T("ConfigurationDlg")));
+				ConfigurationDlgProc ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(susie_info->plugin.GetProcAddress(_T("ConfigurationDlg")));
 
 				if (ConfigurationDlg == nullptr)
 					break;

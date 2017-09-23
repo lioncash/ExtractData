@@ -4,32 +4,32 @@ class CArcFile;
 
 struct SSusieInfo
 {
-	YCString  clsName;             // Filename
-	YCString  clsVersion;          // Version info
-	YCString  clsInfo;             // Plugin info
-	YCString  clsSupportFormat;    // Supported formats
-	BOOL      bConfig;             // Presence or absence of a configuration dialog
-	YCString  clsPath;             // File path
-	BOOL      bValidity;           // Validity
-	YCLibrary cllPlugin;           // Module
+	YCString  name;                // Filename
+	YCString  version;             // Version info
+	YCString  info;                // Plugin info
+	YCString  supported_formats;   // Supported formats
+	BOOL      has_config_dialog;   // Presence or absence of a configuration dialog
+	YCString  path;                // File path
+	BOOL      validity;            // Validity
+	YCLibrary plugin;              // Module
 };
 
 class CSusie
 {
 public:
-	bool Mount(CArcFile* pclArc);
-	bool Decode(CArcFile* pclArc);
+	bool Mount(CArcFile* archive);
+	bool Decode(CArcFile* archive);
 
 	void Init();
 	void Apply();
 
-	void LoadSpi(const YCString& rclsPathToSusieFolder);
+	void LoadSpi(const YCString& susie_folder_path);
 	void SaveSpi();
 
-	std::vector<SSusieInfo>& GetSusie() { return m_stsiMain; }
-	std::vector<SSusieInfo>& GetSusieTmp() { return m_stsiTemporary; }
+	std::vector<SSusieInfo>& GetSusie() { return m_main; }
+	std::vector<SSusieInfo>& GetSusieTmp() { return m_temporary; }
 
 private:
-	static std::vector<SSusieInfo> m_stsiMain;
-	static std::vector<SSusieInfo> m_stsiTemporary;
+	static std::vector<SSusieInfo> m_main;
+	static std::vector<SSusieInfo> m_temporary;
 };
