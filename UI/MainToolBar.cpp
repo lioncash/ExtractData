@@ -65,7 +65,7 @@ void CMainToolBar::CreateMenuHistory(int item)
 	{
 		mii.fMask = MIIM_TYPE | MIIM_ID;
 
-		for (int i = 0; i < static_cast<int>(m_open_history_list.size()); i++)
+		for (u32 i = 0; i < static_cast<u32>(m_open_history_list.size()); i++)
 		{
 			mii.wID = ID_TOOLBAR_OPEN_HISTORY + i;
 			mii.dwTypeData = m_open_history_list[i].GetBuffer(0);
