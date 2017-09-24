@@ -71,10 +71,10 @@ SMD5 CMD5::Calculate(LPCTSTR file_path)
 /// @param initialize Initialization
 /// @param alignment  Request alignment
 ///
-/// Remark: If bAlignment assumes that the input data is aligned on 64 bytes
+/// Remark: If alignment assumes that the input data is aligned on 64 bytes
 ///         then the efficiency is not good
 ///
-SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool alignment)
+SMD5 CMD5::Calculate(const void* src, size_t src_size, const u32* initialize, bool alignment)
 {
 	const auto* pdwSrc = static_cast<const u32*>(src);
 
@@ -84,7 +84,7 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 	if (alignment)
 	{
 		// Alignment request
-		const u32 padding = CalculatePadding(src_size);
+		const size_t padding = CalculatePadding(src_size);
 		clmbtSrc.resize(src_size + padding);
 		memcpy(&clmbtSrc[0], src, src_size);
 
@@ -112,9 +112,9 @@ SMD5 CMD5::Calculate(const void* src, u32 src_size, const u32* initialize, bool 
 		m_md5_value.adwABCD[3] = initialize[3];
 	}
 
-	for (u32 i = 0, src_ptr = 0; i < src_size; i += 64, src_ptr += 16)
+	for (size_t i = 0, src_ptr = 0; i < src_size; i += 64, src_ptr += 16)
 	{
-		for (int j = 0; j < 16; j++)
+		for (size_t j = 0; j < m_x.size(); j++)
 		{
 			// Copy
 			m_x[j] = pdwSrc[src_ptr + j];
@@ -258,11 +258,11 @@ void CMD5::CalculateSub8(u32& a, u32 b, u32 c, u32 d, u32 k, u32 s, u32 i)
 ///
 /// @param size Size
 ///
-u32 CMD5::CalculatePadding(u32 size)
+size_t CMD5::CalculatePadding(size_t size)
 {
 	// Get padding
-	const u32 work = size % 64;
-	u32 padding = 64 - work;
+	const size_t work = size % 64;
+	size_t padding = 64 - work;
 
 	// Increase padding if 8 bytes or less.
 	if (padding < 9)
@@ -279,7 +279,7 @@ u32 CMD5::CalculatePadding(u32 size)
 /// @param src_size Input Data Size
 /// @param padding  Padding
 ///
-void CMD5::AppendPadding(void* src, u32 src_size, u32 padding)
+void CMD5::AppendPadding(void* src, size_t src_size, u32 padding)
 {
 	u8* byte_src = static_cast<u8*>(src);
 

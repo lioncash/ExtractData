@@ -12,10 +12,10 @@ public:
 	CMD5();
 
 	SMD5    Calculate(LPCTSTR file_path);
-	SMD5    Calculate(const void* src, u32 src_size, const u32* initialize = nullptr, bool alignment = false);
+	SMD5    Calculate(const void* src, size_t src_size, const u32* initialize = nullptr, bool alignment = false);
 
-	u32     CalculatePadding(u32 size);
-	void    AppendPadding(void* src, u32 src_size, u32 padding);
+	size_t  CalculatePadding(size_t size);
+	void    AppendPadding(void* src, size_t src_size, u32 padding);
 
 protected:
 	u32     CalculateSub1(u32 x, u32 y, u32 z);
