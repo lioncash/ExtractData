@@ -5,41 +5,36 @@
 
 BOOL CFolderDialog::DoModal(HWND window, LPCTSTR title, LPTSTR directory)
 {
-	BROWSEINFO bi = {};
-	bi.hwndOwner = window;
-	bi.lpfn = BrowseCallBackProc;
-	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
-	bi.lParam = reinterpret_cast<LPARAM>(directory);
-	bi.lpszTitle = title;
-
-	LPITEMIDLIST item_id = SHBrowseForFolder(&bi);
-	if (item_id == nullptr)
+	Microsoft::WRL::ComPtr<IFileDialog> dialog;
+	auto hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(dialog.GetAddressOf()));
+	if (FAILED(hr))
 		return FALSE;
 
-	LPMALLOC lp_malloc = nullptr;
-	if (SHGetMalloc(&lp_malloc) == E_FAIL)
-	{
-		CError error;
-		error.Message(window, _T("SHGetMalloc Error"));
+	if (FAILED(dialog->SetTitle(YCStringW{title})))
 		return FALSE;
-	}
 
-	SHGetPathFromIDList(item_id, directory);
+	DWORD options;
+	if (FAILED(dialog->GetOptions(&options)))
+		return FALSE;
 
-	lp_malloc->Free(item_id);
-	lp_malloc->Release();
+	if (FAILED(dialog->SetOptions(options | FOS_PICKFOLDERS)))
+		return FALSE;
 
+	if (FAILED(dialog->Show(window)))
+		return FALSE;
+
+	Microsoft::WRL::ComPtr<IShellItem> result;
+	if (FAILED(dialog->GetResult(result.GetAddressOf())))
+		return FALSE;
+
+	wchar_t* folder_path;
+	if (FAILED(result->GetDisplayName(SIGDN_FILESYSPATH, &folder_path)))
+		return FALSE;
+
+	YCStringA folder_path_as_char{folder_path};
+	CoTaskMemFree(folder_path);
+
+	std::memcpy(directory, folder_path_as_char.GetString(), folder_path_as_char.GetLength());
+	directory[folder_path_as_char.GetLength()] = '\0';
 	return TRUE;
-}
-
-int CALLBACK CFolderDialog::BrowseCallBackProc(HWND window, UINT msg, LPARAM param, LPARAM data)
-{
-	switch (msg)
-	{
-		case BFFM_INITIALIZED:
-			SendMessage(window, BFFM_SETSELECTION, static_cast<WPARAM>(TRUE), data);
-			break;
-	}
-
-	return 0;
 }

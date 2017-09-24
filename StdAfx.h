@@ -5,6 +5,7 @@
 
 #include    <windows.h>
 #include    <windowsx.h>
+#include    <client.h>
 #include    <commctrl.h>
 #include    <shlwapi.h>
 #include    <shlobj.h>
