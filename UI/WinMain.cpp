@@ -138,7 +138,6 @@ LRESULT CWinMain::WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp)
 	static TCHAR readme_file_name[MAX_PATH];
 	static TCHAR history_file_name[MAX_PATH];
 	static TCHAR state_file_name[MAX_PATH];
-	INITCOMMONCONTROLSEX ic;
 
 	switch (msg)
 	{
@@ -150,7 +149,8 @@ LRESULT CWinMain::WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp)
 			option.Init(search_tool_bar, list_view);
 
 			// Initialization of the common installation configuration
-			ic.dwSize = sizeof(INITCOMMONCONTROLSEX);
+			INITCOMMONCONTROLSEX ic;
+			ic.dwSize = sizeof(ic);
 			ic.dwICC = ICC_WIN95_CLASSES;
 			InitCommonControlsEx(&ic);
 
