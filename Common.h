@@ -48,7 +48,7 @@ struct SOption
 	TCHAR               szBgRGB[7];                     // Background color
 
 	// Output destination related
-	YCString            TmpDir;	                        // Temporary folder
+	YCString            TmpDir;                         // Temporary folder
 	BOOL                bSaveSel;                       // Specified output directory (if chosen to explicitly choose it)
 	BOOL                bSaveSrc;                       // Output destination is the same as the input destination
 	BOOL                bSaveDir;                       // Fixed output directory
@@ -58,9 +58,6 @@ struct SOption
 	BOOL                bSusieUse;                      // Use/Not use Susie plugins
 	YCString            SusieDir;                       // Susie Plugin Folder
 	BOOL                bSusieFirst;                    // Give/Don't give priority to Susie plugins 
-
-	// Database Related
-	BOOL                bUseDB;                         // Use database functions
 };
 
 // File Info
