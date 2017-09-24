@@ -48,7 +48,7 @@ void COption::Init(CSearchToolBar& toolbar, CMainListView& listview)
 	LoadIni();
 
 	// Read Susie Plugin
-	if( m_option.bSusieUse )
+	if (m_option.bSusieUse)
 	{
 		CSusie susie;
 		susie.LoadSpi(m_option.SusieDir);
@@ -57,222 +57,216 @@ void COption::Init(CSearchToolBar& toolbar, CMainListView& listview)
 
 void COption::LoadIni()
 {
-	SOption* pOption = &m_option;
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-	CReg  clReg;
-
-	clIni.SetSection(_T("Option"));
+	ini.SetSection(_T("Option"));
 
 	// List background color
-	clIni.SetKey(_T("ListBkColor"));
-	clIni.ReadStr(pOption->szListBkColor, sizeof(pOption->szListBkColor), _T("FFFFFF"));
-	pOption->ListBkColor = _tcstol(pOption->szListBkColor, nullptr, 16);
+	ini.SetKey(_T("ListBkColor"));
+	ini.ReadStr(m_option.szListBkColor, sizeof(m_option.szListBkColor), _T("FFFFFF"));
+	m_option.ListBkColor = _tcstol(m_option.szListBkColor, nullptr, 16);
 
 	// List text color
-	clIni.SetKey(_T("ListTextColor"));
-	clIni.ReadStr(pOption->szListTextColor, sizeof(pOption->szListTextColor), _T("000000"));
-	pOption->ListTextColor = _tcstol(pOption->szListTextColor, nullptr, 16);
+	ini.SetKey(_T("ListTextColor"));
+	ini.ReadStr(m_option.szListTextColor, sizeof(m_option.szListTextColor), _T("000000"));
+	m_option.ListTextColor = _tcstol(m_option.szListTextColor, nullptr, 16);
 
 	// Set whether or not to increase the accuracy of searching for OGG files
-	clIni.SetKey(_T("HighSearchOgg"));
-	clIni.ReadDec(&pOption->bHighSearchOgg, TRUE);
+	ini.SetKey(_T("HighSearchOgg"));
+	ini.ReadDec(&m_option.bHighSearchOgg, TRUE);
 
 	// Set whether or not to extract each folder
-	clIni.SetKey(_T("ExtFolder"));
-	clIni.ReadDec(&pOption->bCreateFolder, TRUE);
+	ini.SetKey(_T("ExtFolder"));
+	ini.ReadDec(&m_option.bCreateFolder, TRUE);
 
 	// Set whether or not to fix the CRC of each OGG file on extraction
-	clIni.SetKey(_T("OggCRC"));
-	clIni.ReadDec(&pOption->bFixOgg, FALSE);
+	ini.SetKey(_T("OggCRC"));
+	ini.ReadDec(&m_option.bFixOgg, FALSE);
 
 	// Set whether or not to enable simple decoding
-	clIni.SetKey(_T("EasyDecrypt"));
-	clIni.ReadDec(&pOption->bEasyDecrypt, FALSE);
+	ini.SetKey(_T("EasyDecrypt"));
+	ini.ReadDec(&m_option.bEasyDecrypt, FALSE);
 
 	// Set whether or not to change the extension of the script
-	clIni.SetKey(_T("RenameScriptExt"));
-	clIni.ReadDec(&pOption->bRenameScriptExt, TRUE);
+	ini.SetKey(_T("RenameScriptExt"));
+	ini.ReadDec(&m_option.bRenameScriptExt, TRUE);
 
 	// Set the ouput image format
-	clIni.SetKey(_T("DstBMP"));
-	clIni.ReadDec(&pOption->bDstBMP, TRUE);
-	clIni.SetKey(_T("DstPNG"));
-	clIni.ReadDec(&pOption->bDstPNG, FALSE);
+	ini.SetKey(_T("DstBMP"));
+	ini.ReadDec(&m_option.bDstBMP, TRUE);
+	ini.SetKey(_T("DstPNG"));
+	ini.ReadDec(&m_option.bDstPNG, FALSE);
 
 	// Set the PNG compression level
-	clIni.SetKey(_T("CmplvPng"));
-	clIni.ReadDec(&pOption->CmplvPng, 1UL);
+	ini.SetKey(_T("CmplvPng"));
+	ini.ReadDec(&m_option.CmplvPng, 1UL);
 
 	// Set whether or not to do alpha blending
-	clIni.SetKey(_T("AlphaBlend"));
-	clIni.ReadDec(&pOption->bAlphaBlend, FALSE);
+	ini.SetKey(_T("AlphaBlend"));
+	ini.ReadDec(&m_option.bAlphaBlend, FALSE);
 
 	// Set the background color of the alpha blending
-	clIni.SetKey(_T("BG_RGB"));
-	clIni.ReadStr(pOption->szBgRGB, sizeof(pOption->szBgRGB), _T("FFFFFF"));
-	pOption->BgRGB = _tcstol(pOption->szBgRGB, nullptr, 16);
+	ini.SetKey(_T("BG_RGB"));
+	ini.ReadStr(m_option.szBgRGB, sizeof(m_option.szBgRGB), _T("FFFFFF"));
+	m_option.BgRGB = _tcstol(m_option.szBgRGB, nullptr, 16);
 
 	// Destination
-	clIni.SetKey(_T("SaveMethodSel"));
-	clIni.ReadDec(&pOption->bSaveSel, TRUE);
-	clIni.SetKey(_T("SaveMethodSrc"));
-	clIni.ReadDec(&pOption->bSaveSrc, FALSE);
-	clIni.SetKey(_T("SaveMethodDir"));
-	clIni.ReadDec(&pOption->bSaveDir, FALSE);
+	ini.SetKey(_T("SaveMethodSel"));
+	ini.ReadDec(&m_option.bSaveSel, TRUE);
+	ini.SetKey(_T("SaveMethodSrc"));
+	ini.ReadDec(&m_option.bSaveSrc, FALSE);
+	ini.SetKey(_T("SaveMethodDir"));
+	ini.ReadDec(&m_option.bSaveDir, FALSE);
 
 	// Fixed output folder
-	TCHAR szDesktopPath[_MAX_DIR];
+	TCHAR desktop_path[_MAX_DIR];
+	::SHGetSpecialFolderPath(nullptr, desktop_path, CSIDL_DESKTOPDIRECTORY, FALSE);
 
-	::SHGetSpecialFolderPath(nullptr, szDesktopPath, CSIDL_DESKTOPDIRECTORY, FALSE);
-
-	clIni.SetKey(_T("SaveDir"));
-	clIni.ReadStr(pOption->SaveDir, szDesktopPath);
+	ini.SetKey(_T("SaveDir"));
+	ini.ReadStr(m_option.SaveDir, desktop_path);
 
 	// Buffer size
-	clIni.SetKey(_T("BufSize"));
-	clIni.ReadDec(&pOption->BufSize, 64UL);
+	ini.SetKey(_T("BufSize"));
+	ini.ReadDec(&m_option.BufSize, 64UL);
 
 	// Temporary folder
-	TCHAR szTmpDir[_MAX_DIR];
-	TCHAR szTmpDirLong[_MAX_DIR];
+	TCHAR tmp_dir[_MAX_DIR];
+	TCHAR tmp_dir_long[_MAX_DIR];
 
-	::GetTempPath(ArrayUtils::ArraySize(szTmpDir), szTmpDir);
-	::GetLongPathName(szTmpDir, szTmpDirLong, ArrayUtils::ArraySize(szTmpDirLong));
-	PathAppend(szTmpDirLong, _T("ExtractData"));
+	::GetTempPath(ArrayUtils::ArraySize(tmp_dir), tmp_dir);
+	::GetLongPathName(tmp_dir, tmp_dir_long, ArrayUtils::ArraySize(tmp_dir_long));
+	PathAppend(tmp_dir_long, _T("ExtractData"));
 
-	clIni.SetKey(_T("TmpDir"));
-	clIni.ReadStr(pOption->TmpDir, szTmpDirLong);
+	ini.SetKey(_T("TmpDir"));
+	ini.ReadStr(m_option.TmpDir, tmp_dir_long);
 
 	// Susie Settings
-	clIni.SetSection(_T("Susie"));
+	ini.SetSection(_T("Susie"));
 
 	// Set whether or not to use Susie plugins
-	clIni.SetKey(_T("SusieUse"));
-	clIni.ReadDec(&pOption->bSusieUse, FALSE);
+	ini.SetKey(_T("SusieUse"));
+	ini.ReadDec(&m_option.bSusieUse, FALSE);
 
 	// Susie Folder
-	YCString clsPathToSusieFolder;
+	YCString susie_folder_path;
+	CReg reg;
+	reg.GetValue(susie_folder_path, _T("HKEY_CURRENT_USER\\Software\\Takechin\\Susie\\Plug-in"), _T("Path"));
 
-	clReg.GetValue(clsPathToSusieFolder, _T("HKEY_CURRENT_USER\\Software\\Takechin\\Susie\\Plug-in"), _T("Path"));
-
-	clIni.SetKey(_T("SusieDir"));
-	clIni.ReadStr(pOption->SusieDir, clsPathToSusieFolder);
+	ini.SetKey(_T("SusieDir"));
+	ini.ReadStr(m_option.SusieDir, susie_folder_path);
 
 	// Set whether or not to give Susie plugins priority on decoding
-	clIni.SetKey(_T("SusieFirst"));
-	clIni.ReadDec(&pOption->bSusieFirst, FALSE);
+	ini.SetKey(_T("SusieFirst"));
+	ini.ReadDec(&m_option.bSusieFirst, FALSE);
 
 	// Set of files to search through
-	clIni.SetSection(_T("Search"));
+	ini.SetSection(_T("Search"));
 
-	for (const auto& searchFile : search_files_labels)
+	for (const auto& search_file : search_files_labels)
 	{
-		BOOL bSearch;
+		BOOL search;
 
-		clIni.SetKey(searchFile);
-		clIni.ReadDec(&bSearch, TRUE);
+		ini.SetKey(search_file);
+		ini.ReadDec(&search, TRUE);
 
-		pOption->bSearch.push_back(bSearch);
+		m_option.bSearch.push_back(search);
 	}
 }
 
 void COption::SaveIni()
 {
-	SOption& pOption = m_option;
+	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 
-	YCIni clIni(SBL_STR_INI_EXTRACTDATA);
-
-	clIni.SetSection(_T("Option"));
+	ini.SetSection(_T("Option"));
 
 	// List background color
-	clIni.SetKey(_T("ListBkColor"));
-	clIni.WriteHex(pOption.ListBkColor, 6);
+	ini.SetKey(_T("ListBkColor"));
+	ini.WriteHex(m_option.ListBkColor, 6);
 
 	// List text color
-	clIni.SetKey(_T("ListTextColor"));
-	clIni.WriteHex(pOption.ListTextColor, 6);
+	ini.SetKey(_T("ListTextColor"));
+	ini.WriteHex(m_option.ListTextColor, 6);
 
 	// Increase the accuracy of an OGG search
-	clIni.SetKey(_T("HighSearchOgg"));
-	clIni.WriteDec(pOption.bHighSearchOgg);
+	ini.SetKey(_T("HighSearchOgg"));
+	ini.WriteDec(m_option.bHighSearchOgg);
 
 	// Each folder to extract
-	clIni.SetKey(_T("ExtFolder"));
-	clIni.WriteDec(pOption.bCreateFolder);
+	ini.SetKey(_T("ExtFolder"));
+	ini.WriteDec(m_option.bCreateFolder);
 
 	// Fix CRC of OGG files on extraction
-	clIni.SetKey(_T("OggCRC"));
-	clIni.WriteDec(pOption.bFixOgg);
+	ini.SetKey(_T("OggCRC"));
+	ini.WriteDec(m_option.bFixOgg);
 
 	// To enable simple decoding
-	clIni.SetKey(_T("EasyDecrypt"));
-	clIni.WriteDec(pOption.bEasyDecrypt);
+	ini.SetKey(_T("EasyDecrypt"));
+	ini.WriteDec(m_option.bEasyDecrypt);
 
 	// Set whether or not to change the extension of scripts
-	// clIni.SetKey(_T("RenameScriptExt"));
-	// clIni.WriteDec(pOption.bRenameScriptExt);
+	// ini.SetKey(_T("RenameScriptExt"));
+	// ini.WriteDec(m_option.bRenameScriptExt);
 
 	// Output image format
-	clIni.SetKey(_T("DstBMP"));
-	clIni.WriteDec(pOption.bDstBMP);
-	clIni.SetKey(_T("DstPNG"));
-	clIni.WriteDec(pOption.bDstPNG);
+	ini.SetKey(_T("DstBMP"));
+	ini.WriteDec(m_option.bDstBMP);
+	ini.SetKey(_T("DstPNG"));
+	ini.WriteDec(m_option.bDstPNG);
 
 	// PNG Compression level
-	clIni.SetKey(_T("CmplvPng"));
-	clIni.WriteDec(pOption.CmplvPng);
+	ini.SetKey(_T("CmplvPng"));
+	ini.WriteDec(m_option.CmplvPng);
 
 	// Alpha blending
-	clIni.SetKey(_T("AlphaBlend"));
-	clIni.WriteDec(pOption.bAlphaBlend);
+	ini.SetKey(_T("AlphaBlend"));
+	ini.WriteDec(m_option.bAlphaBlend);
 
 	// Background color alpha blending
-	clIni.SetKey(_T("BG_RGB"));
-	clIni.WriteHex(pOption.BgRGB, 6);
+	ini.SetKey(_T("BG_RGB"));
+	ini.WriteHex(m_option.BgRGB, 6);
 
 	// Destination
-	clIni.SetKey(_T("SaveMethodSel"));
-	clIni.WriteDec(pOption.bSaveSel);
-	clIni.SetKey(_T("SaveMethodSrc"));
-	clIni.WriteDec(pOption.bSaveSrc);
-	clIni.SetKey(_T("SaveMethodDir"));
-	clIni.WriteDec(pOption.bSaveDir);
+	ini.SetKey(_T("SaveMethodSel"));
+	ini.WriteDec(m_option.bSaveSel);
+	ini.SetKey(_T("SaveMethodSrc"));
+	ini.WriteDec(m_option.bSaveSrc);
+	ini.SetKey(_T("SaveMethodDir"));
+	ini.WriteDec(m_option.bSaveDir);
 
 	// Fixed output folder
-	clIni.SetKey(_T("SaveDir"));
-	clIni.WriteStr(pOption.SaveDir);
+	ini.SetKey(_T("SaveDir"));
+	ini.WriteStr(m_option.SaveDir);
 
 	// Buffer size
-	clIni.SetKey(_T("BufSize"));
-	clIni.WriteDec(pOption.BufSize);
+	ini.SetKey(_T("BufSize"));
+	ini.WriteDec(m_option.BufSize);
 
 	// Temporary folder
-	clIni.SetKey(_T("TmpDir"));
-	clIni.WriteStr(pOption.TmpDir);
+	ini.SetKey(_T("TmpDir"));
+	ini.WriteStr(m_option.TmpDir);
 
 	// Susie Settings
-	clIni.SetSection(_T("Susie"));
+	ini.SetSection(_T("Susie"));
 
 	// Use Susie plugins
-	clIni.SetKey(_T("SusieUse"));
-	clIni.WriteDec(pOption.bSusieUse);
+	ini.SetKey(_T("SusieUse"));
+	ini.WriteDec(m_option.bSusieUse);
 
 	// Susie Folder
-	clIni.SetKey(_T("SusieDir"));
-	clIni.WriteStr(pOption.SusieDir);
+	ini.SetKey(_T("SusieDir"));
+	ini.WriteStr(m_option.SusieDir);
 
 	// Give Susie plugins priority on decoding
-	clIni.SetKey(_T("SusieFirst"));
-	clIni.WriteDec(pOption.bSusieFirst);
+	ini.SetKey(_T("SusieFirst"));
+	ini.WriteDec(m_option.bSusieFirst);
 
 	// Set of files to search
-	clIni.SetSection(_T("Search"));
+	ini.SetSection(_T("Search"));
 
 	for (size_t i = 0; i < search_files_labels.size(); i++)
 	{
-		clIni.SetKey(search_files_labels[i]);
-		clIni.WriteDec(pOption.bSearch[i]);
+		ini.SetKey(search_files_labels[i]);
+		ini.WriteDec(m_option.bSearch[i]);
 	}
 
 	// Save Susie plugin settings ON/OFF
