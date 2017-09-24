@@ -4,7 +4,7 @@
 BOOL CFileDialog::DoModal(HWND window, LPTSTR file_names, LPTSTR dir)
 {
 	OPENFILENAME ofn = {};
-	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;
+	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = window;
 	ofn.lpstrFilter = _T("All files (*.*)\0*.*\0\0");
 	ofn.lpstrFile = file_names;
