@@ -20,7 +20,7 @@ namespace
 {
 using ConfigurationDlgProc = int (WINAPI*)(HWND, int);
 
-const std::vector<YCString> search_files_labels{
+constexpr std::array<LPCTSTR, 9> search_files_labels{{
 	_T("AHX"),
 	_T("BMP"),
 	_T("JPG"),
@@ -30,7 +30,7 @@ const std::vector<YCString> search_files_labels{
 	_T("PNG"),
 	_T("WAV"),
 	_T("WMV")
-};
+}};
 }
 
 SOption COption::m_option;
@@ -367,8 +367,8 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	static CLabel ListLabelBk, ListLabelText;
 	static CEditBox ListEditBk, ListEditText;
 	// Search settings
-	static std::vector<CCheckBox> SearchCheck(search_files_labels.size());
-	static int SearchCheckNum = static_cast<int>(search_files_labels.size());
+	static std::array<CCheckBox, search_files_labels.size()> SearchCheck;
+	static const size_t SearchCheckNum = search_files_labels.size();
 	static CButton SearchBtn[2];
 	static CGroupBox SearchGroup;
 	// Search accuracy
@@ -396,14 +396,14 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Search Settings
 			SearchGroup.Create(hWnd, _T("Files to be searched"), ID++, x, y += 40, 510, 100);
 			//y += 20;
-			for (int i = 0, xxx = 0; i < SearchCheckNum; i++, xxx += 55)
+			for (size_t i = 0, xxx = 0; i < SearchCheckNum; i++, xxx += 55)
 			{
 				if ((i % 8) == 0)
 				{
 					 xxx = 0, y += 20;
 				}
 
-				SearchCheck[i].Create(hWnd, search_files_labels[i], ID++, x + xx + xxx, y, 50, 20);
+				SearchCheck[i].Create(hWnd, search_files_labels[i], ID++, x + xx + static_cast<int>(xxx), y, 50, 20);
 				SearchCheck[i].SetCheck(pOption->bSearch[i]);
 			}
 
@@ -432,7 +432,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Select all
 			if (LOWORD(wp) == SearchBtn[0].GetID())
 			{
-				for (int i = 0; i < SearchCheckNum; i++)
+				for (size_t i = 0; i < SearchCheckNum; i++)
 				{
 					pOption->bSearch[i] = TRUE;
 					SearchCheck[i].SetCheck(pOption->bSearch[i]);
@@ -444,7 +444,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Deselect
 			if (LOWORD(wp) == SearchBtn[1].GetID())
 			{
-				for (int i = 0; i < SearchCheckNum; i++)
+				for (size_t i = 0; i < SearchCheckNum; i++)
 				{
 					pOption->bSearch[i] = FALSE;
 					SearchCheck[i].SetCheck(pOption->bSearch[i]);
