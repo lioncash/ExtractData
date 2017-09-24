@@ -314,7 +314,7 @@ HWND COption::CreateProp(HWND hWnd)
 	psh.nPages = 3;
 	psh.phpage = hpsp;
 	psh.pszCaption = _T("ExtractData");
-	psh.pfnCallback = static_cast<PFNPROPSHEETCALLBACK>(PropSheetProc);
+	psh.pfnCallback = PropSheetProc;
 
 	return reinterpret_cast<HWND>(PropertySheet(&psh));
 }
