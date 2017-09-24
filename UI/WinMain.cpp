@@ -86,7 +86,7 @@ ATOM CWinMain::InitApp()
 	WNDCLASSEX wc;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.style         = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc   = static_cast<WNDPROC>(CWindowBase::WndStaticProc); // Procedure name
+	wc.lpfnWndProc   = WndStaticProc; // Procedure name
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = m_inst;  // Instance
