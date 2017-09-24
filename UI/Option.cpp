@@ -119,11 +119,11 @@ void COption::LoadIni()
 	ini.ReadDec(&m_option.bSaveDir, FALSE);
 
 	// Fixed output folder
-	TCHAR desktop_path[_MAX_DIR];
-	::SHGetSpecialFolderPath(nullptr, desktop_path, CSIDL_DESKTOPDIRECTORY, FALSE);
-
+	wchar_t* desktop_path;
+	::SHGetKnownFolderPath(FOLDERID_Desktop, KF_FLAG_DEFAULT, nullptr, &desktop_path);
 	ini.SetKey(_T("SaveDir"));
 	ini.ReadStr(m_option.SaveDir, desktop_path);
+	CoTaskMemFree(desktop_path);
 
 	// Buffer size
 	ini.SetKey(_T("BufSize"));
