@@ -197,7 +197,7 @@ UINT WINAPI CExtractData::MountThread(LPVOID param)
 		// Progress towards 100%
 		prog.UpdatePercent();
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc&)
 	{
 		// Out of memory
 		CError error;
@@ -407,7 +407,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 			archive->CloseFile();
 		}
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc&)
 	{
 		// Out of memory error
 		CError error;
