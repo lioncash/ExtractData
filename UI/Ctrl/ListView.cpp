@@ -26,7 +26,7 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 	m_id = id;
 
 	// Create listview
-	HWND list = CreateWindowEx(WS_EX_CLIENTEDGE,
+	m_list = CreateWindowEx(WS_EX_CLIENTEDGE,
 		WC_LISTVIEW, _T(""),
 		WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA,
 		x, y, cx, cy,
@@ -34,16 +34,15 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 		reinterpret_cast<HMENU>(id),
 		m_inst,
 		nullptr);
-	m_list = list;
 
 	// Set style
-	DWORD style = ListView_GetExtendedListViewStyle(list);
+	DWORD style = ListView_GetExtendedListViewStyle(m_list);
 	style |= LVS_EX_FULLROWSELECT | LVS_EX_HEADERDRAGDROP | LVS_EX_INFOTIP;
-	ListView_SetExtendedListViewStyle(list, style);
+	ListView_SetExtendedListViewStyle(m_list, style);
 
 	// Make line spacing 16px
 	m_image = ImageList_Create(1, 16, ILC_COLOR, 0, 0);
-	ListView_SetImageList(list, m_image, LVSIL_STATE);
+	ListView_SetImageList(m_list, m_image, LVSIL_STATE);
 
 	YCIni ini(SBL_STR_INI_EXTRACTDATA);
 	ini.SetSection(id);
@@ -60,7 +59,7 @@ HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int
 
 		columns[i].iSubItem = static_cast<int>(i);
 
-		ListView_InsertColumn(list, i, &columns[i]);
+		ListView_InsertColumn(m_list, i, &columns[i]);
 	}
 
 	return m_list;
