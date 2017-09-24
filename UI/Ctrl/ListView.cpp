@@ -21,7 +21,7 @@ void CListView::Init(HWND window, SOption& option)
 	m_option = &option;
 }
 
-HWND CListView::Create(UINT id, std::vector<LVCOLUMN> columns, int x, int y, int cx, int cy)
+HWND CListView::Create(u32 id, std::vector<LVCOLUMN> columns, int x, int y, int cx, int cy)
 {
 	m_id = id;
 
@@ -88,12 +88,12 @@ void CListView::Sort(int column)
 	InvalidateRect(m_list, nullptr, FALSE);
 }
 
-void CListView::Enable(BOOL flag)
+void CListView::Enable(bool flag)
 {
 	EnableWindow(m_list, flag);
 }
 
-void CListView::SetItemSelAll(UINT flag)
+void CListView::SetItemSelAll(u32 flag)
 {
 	ListView_SetItemState(m_list, -1, flag, LVIS_SELECTED);
 }
@@ -142,12 +142,12 @@ void CListView::Update()
 	InvalidateRect(m_list, &rc, FALSE);
 }
 
-UINT CListView::GetCountSel() const
+u32 CListView::GetCountSel() const
 {
 	return ListView_GetSelectedCount(m_list);
 }
 
-INT CListView::GetCount() const
+int CListView::GetCount() const
 {
 	return ListView_GetItemCount(m_list);
 }

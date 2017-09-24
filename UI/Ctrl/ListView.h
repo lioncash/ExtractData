@@ -6,7 +6,7 @@ struct SOption;
 struct SORTPARAM
 {
 	int column;
-	BOOL direction; // 0 = ascending order, 1 = descending order
+	bool direction; // 0 = ascending order, 1 = descending order
 };
 
 class CListView
@@ -23,14 +23,14 @@ public:
 	void SetTextColor();
 
 	void Sort(int column);
-	void Enable(BOOL flag);
-	void SetItemSelAll(UINT flag);
+	void Enable(bool flag);
+	void SetItemSelAll(u32 flag);
 	void SetFocus();
 	void SetWindowPos(int x, int y, int cx, int cy);
 	void Update();
 
-	UINT GetCountSel() const;
-	INT  GetCount() const;
+	u32  GetCountSel() const;
+	int  GetCount() const;
 	HWND GetHandle() const;
 
 	int GetNextItem(int nItem) const;
@@ -44,7 +44,7 @@ protected:
 	SORTPARAM m_sort{};
 	static SORTPARAM* m_sort_ptr;
 
-	HWND Create(UINT id, std::vector<LVCOLUMN> columns, int x = 0, int y = 0, int cx = 0, int cy = 0);
+	HWND Create(u32 id, std::vector<LVCOLUMN> columns, int x = 0, int y = 0, int cx = 0, int cy = 0);
 
 	template <typename TYPE>
 	static bool retCompare(TYPE a, TYPE b)
@@ -56,5 +56,5 @@ protected:
 
 private:
 	HIMAGELIST m_image = nullptr;
-	UINT m_id = 0;
+	u32 m_id = 0;
 };
