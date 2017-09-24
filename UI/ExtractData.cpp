@@ -221,12 +221,9 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 
 void CExtractData::Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert)
 {
-	SOption* pstOption = m_pOption;
-
-	if (pstOption->bSaveSel)
+	if (m_pOption->bSaveSel)
 	{
 		// Specifies output destination
-
 		CFolderInputDialog clFolderInputDlg;
 
 		if (clFolderInputDlg.DoModal(m_hParentWnd, pSaveDir ) == IDOK)
@@ -234,17 +231,15 @@ void CExtractData::Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert)
 			Decode(extract_mode, pSaveDir, convert);
 		}
 	}
-	else if (pstOption->bSaveSrc)
+	else if (m_pOption->bSaveSrc)
 	{
 		// Output to input destination
-
 		Decode(extract_mode, nullptr, convert);
 	}
-	else if (pstOption->bSaveDir)
+	else if (m_pOption->bSaveDir)
 	{
 		// Output to a fixed destination
-
-		Decode(extract_mode, pstOption->SaveDir, convert);
+		Decode(extract_mode, m_pOption->SaveDir, convert);
 	}
 }
 
@@ -448,12 +443,11 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 
 void CExtractData::OpenRelate()
 {
-	CMainListView* pListView = m_pListView;
-	int            nItem = -1;
+	int nItem = -1;
 
-	while ((nItem = pListView->GetNextItem(nItem)) != -1)
+	while ((nItem = m_pListView->GetNextItem(nItem)) != -1)
 	{
-		std::set<YCString>&	sTmpFilePathList = pListView->GetFileInfo()[nItem].sTmpFilePath;
+		std::set<YCString>&	sTmpFilePathList = m_pListView->GetFileInfo()[nItem].sTmpFilePath;
 
 		if (!sTmpFilePathList.empty())
 		{
