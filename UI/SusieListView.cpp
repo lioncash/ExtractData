@@ -54,33 +54,33 @@ void CSusieListView::Show(NMLVDISPINFO* disp_info)
 {
 	CSusie susie;
 
-	static std::vector<SSusieInfo>& rvcSusieInfos = susie.GetSusieTmp();
+	static std::vector<SSusieInfo>& susie_infos = susie.GetSusieTmp();
 
 	if (disp_info->item.mask & LVIF_TEXT)
 	{
 		switch (disp_info->item.iSubItem)
 		{
 		case 0: // Show plug-in name
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].name);
+			lstrcpy(disp_info->item.pszText, susie_infos[disp_info->item.iItem].name);
 			break;
 
 		case 1: // Show plug-in info
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].info);
+			lstrcpy(disp_info->item.pszText, susie_infos[disp_info->item.iItem].info);
 			break;
 
 		case 2: // Show supported formats
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].supported_formats);
+			lstrcpy(disp_info->item.pszText, susie_infos[disp_info->item.iItem].supported_formats);
 			break;
 
 		case 3: // Show version info
-			lstrcpy(disp_info->item.pszText, rvcSusieInfos[disp_info->item.iItem].version);
+			lstrcpy(disp_info->item.pszText, susie_infos[disp_info->item.iItem].version);
 			break;
 		}
 	}
 
 	if (disp_info->item.mask & LVIF_STATE)
 	{
-		disp_info->item.state = m_option->bSusieUse ? INDEXTOSTATEIMAGEMASK(rvcSusieInfos[disp_info->item.iItem].validity + 1) : 0;
+		disp_info->item.state = m_option->bSusieUse ? INDEXTOSTATEIMAGEMASK(susie_infos[disp_info->item.iItem].validity + 1) : 0;
 	}
 }
 
