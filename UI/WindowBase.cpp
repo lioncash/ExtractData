@@ -169,9 +169,11 @@ LRESULT CWindowBase::WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp)
 	// If any subclasses of old window processing are left.
 	if (m_old_window_proc)
 		return CallWindowProc(m_old_window_proc, window, msg, wp, lp);
+
 	// If there is a dialog, return FALSE
 	if (m_is_dialog)
 		return FALSE;
+
 	// If it is not subclassed, call the default window procedure
 	return DefWindowProc(window, msg, wp, lp);
 }
@@ -215,13 +217,11 @@ POINT CWindowBase::GetCenterPt(const RECT& dlgrc)
 	if (parent_window == nullptr)
 		parent_window = GetDesktopWindow();
 	GetWindowRect(parent_window, &parent_rect);
-	//CError error;
-	//error.Message(m_window, _T("%d %d %d %d"), parent_rect.left, parent_rect.top, parent_rect.right, parent_rect.bottom);
 
 	POINT pt;
 	pt.x = parent_rect.left + ((parent_rect.right - parent_rect.left) - (dlgrc.right - dlgrc.left)) / 2;
 	pt.y = parent_rect.top + ((parent_rect.bottom - parent_rect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
-	//error.Message(m_window, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
+
 	return pt;
 }
 
@@ -232,12 +232,10 @@ POINT CWindowBase::GetCenterPt(HWND window, const RECT& dlgrc)
 	if (parent_window == nullptr)
 		parent_window = GetDesktopWindow();
 	GetWindowRect(parent_window, &parent_rect);
-	//CError error;
-	//error.Message(m_window, _T("%d %d %d %d"), parent_rect.left, parent_rect.top, parent_rect.right, parent_rect.bottom);
 
 	POINT pt;
 	pt.x = parent_rect.left + ((parent_rect.right - parent_rect.left) - (dlgrc.right - dlgrc.left)) / 2;
 	pt.y = parent_rect.top + ((parent_rect.bottom - parent_rect.top) - (dlgrc.bottom - dlgrc.top)) / 2;
-	//error.Message(m_window, _T("%d %d %d %d"), dlgrc.left, dlgrc.top, dlgrc.right, dlgrc.bottom);
+
 	return pt;
 }
