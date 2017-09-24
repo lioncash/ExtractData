@@ -7,7 +7,7 @@ BOOL CFolderDialog::DoModal(HWND window, LPCTSTR title, LPTSTR directory)
 {
 	BROWSEINFO bi = {};
 	bi.hwndOwner = window;
-	bi.lpfn = reinterpret_cast<BFFCALLBACK>(BrowseCallBackProc);
+	bi.lpfn = BrowseCallBackProc;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_USENEWUI;
 	bi.lParam = reinterpret_cast<LPARAM>(directory);
 	bi.lpszTitle = title;
@@ -32,7 +32,7 @@ BOOL CFolderDialog::DoModal(HWND window, LPCTSTR title, LPTSTR directory)
 	return TRUE;
 }
 
-LRESULT CALLBACK CFolderDialog::BrowseCallBackProc(HWND window, UINT msg, LPARAM param, LPARAM data)
+int CALLBACK CFolderDialog::BrowseCallBackProc(HWND window, UINT msg, LPARAM param, LPARAM data)
 {
 	switch (msg)
 	{
