@@ -343,7 +343,7 @@ int COption::PropSheetProc(HWND hWnd, UINT msg, LPARAM lParam)
 			m_option_tmp = m_option;
 			CSusie susie;
 			susie.Init();
-			const LONG style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+			const LONG_PTR style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
 			SetWindowLongPtr(hWnd, GWL_EXSTYLE, style & ~WS_EX_CONTEXTHELP);
 			break;
 		}
