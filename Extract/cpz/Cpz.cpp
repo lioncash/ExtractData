@@ -206,7 +206,7 @@ bool CCpz::MountCpz5(CArcFile* archive)
 	header->unknown2[1] ^= 0x37ACF831;
 
 	// Prepare MD5 data
-	u32 md5_data[16];
+	std::array<u32, 16> md5_data;
 	md5_data[0] = header->md5[0];
 	md5_data[1] = header->md5[1];
 	md5_data[2] = header->md5[2];
@@ -214,18 +214,18 @@ bool CCpz::MountCpz5(CArcFile* archive)
 
 	// Add padding
 	CMD5 md5;
-	md5.AppendPadding(md5_data, 16, 48);
+	md5.AppendPadding(md5_data.data(), md5_data.size(), 48);
 
 	// Set initial values
-	const u32 init_md5[4] = {
+	constexpr std::array<u32, 4> init_md5{{
 		0xC74A2B01,
 		0xE7C8AB8F,
 		0xD8BEDC4E,
 		0x7302A4C5
-	};
+	}};
 
 	// Calculate MD5
-	const SMD5 md5_result = md5.Calculate(md5_data, sizeof(md5_data), init_md5);
+	const SMD5 md5_result = md5.Calculate(md5_data.data(), sizeof(md5_data), init_md5.data());
 	header->md5[0] = md5_result.adwABCD[3];
 	header->md5[1] = md5_result.adwABCD[1];
 	header->md5[2] = md5_result.adwABCD[2];
@@ -242,11 +242,12 @@ bool CCpz::MountCpz5(CArcFile* archive)
 	DecryptWithTable5(index.data(), header->total_dir_index_size, decryption_table, 0x3A);
 
 	// Set key
-	u32 key[4];
-	key[0] = header->md5[0] ^ (header->index_key + 0x76A3BF29);
-	key[1] = header->md5[1] ^ header->index_key;
-	key[2] = header->md5[2] ^ (header->index_key + 0x10000000);
-	key[3] = header->md5[3] ^ header->index_key;
+	std::array<u32, 4> key{{
+		header->md5[0] ^ (header->index_key + 0x76A3BF29),
+		header->md5[1] ^ header->index_key,
+		header->md5[2] ^ (header->index_key + 0x10000000),
+		header->md5[3] ^ header->index_key
+	}};
 
 	// Decrypt the total directory index
 	size_t key_ptr = 0;
