@@ -23,17 +23,17 @@ public:
 	CExtractData();
 	~CExtractData();
 
-	void Init(HWND hWnd, SOption& option, CMainListView& listview);
+	void Init(HWND parent, SOption& option, CMainListView& listview);
 
-	void Open(LPTSTR pOpenDir);
+	void Open(LPTSTR open_dir);
 	void OpenDrop(WPARAM wp);
 	void OpenHistory(const YCString& file_path);
-	void Mount(LPCTSTR c_pclArcNames);
+	void Mount(LPCTSTR archive_names);
 
 	void SaveSel(LPTSTR pSaveDir, bool convert);
 	void SaveAll(LPTSTR pSaveDir, bool convert);
 	void SaveDrop();
-	void Decode(ExtractMode extract_mode, LPCTSTR pSaveDir, bool convert);
+	void Decode(ExtractMode extract_mode, LPCTSTR save_dir, bool convert);
 	void DecodeTmp();
 
 	void OpenRelate();
@@ -44,27 +44,27 @@ public:
 
 	void Close();
 
-	ArchiveVector& GetArcList() { return m_ArcList; }
+	ArchiveVector& GetArcList() { return m_archives; }
 
-	LRESULT WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) override;
+	LRESULT WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
-	HWND               m_hParentWnd = nullptr;
-	HINSTANCE          m_hParentInst = nullptr;
-	CMainListView*     m_pListView = nullptr;
-	TCHAR              m_szPathToTmpFileList[MAX_PATH];
+	HWND               m_parent_window = nullptr;
+	HINSTANCE          m_parent_inst = nullptr;
+	CMainListView*     m_list_view = nullptr;
+	TCHAR              m_tmp_file_list_path[MAX_PATH];
 
-	LPCTSTR            m_pclArcNames = nullptr;
-	ExtractMode        m_dwExtractMode = ExtractMode::Select;
-	LPCTSTR            m_pSaveDir = nullptr;
-	bool               m_bConvert = false;
-	SOption*           m_pOption = nullptr;
-  bool               m_bInput = false;
-	ArchiveVector      m_ArcList;
+	LPCTSTR            m_archive_names = nullptr;
+	ExtractMode        m_extract_mode = ExtractMode::Select;
+	LPCTSTR            m_save_dir = nullptr;
+	bool               m_convert = false;
+	SOption*           m_options = nullptr;
+  bool               m_input = false;
+	ArchiveVector      m_archives;
 
-	std::set<YCString> m_ssTmpFile;
+	std::set<YCString> m_tmp_file_paths;
 
-	void Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert);
-	static UINT WINAPI MountThread(LPVOID lpParam);
-	static UINT WINAPI DecodeThread(LPVOID lpParam);
+	void Save(ExtractMode extract_mode, LPTSTR save_dir, bool convert);
+	static UINT WINAPI MountThread(LPVOID param);
+	static UINT WINAPI DecodeThread(LPVOID param);
 };

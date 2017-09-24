@@ -20,82 +20,80 @@ bool g_bThreadEnd;
 
 CExtractData::CExtractData()
 {
-	GetModuleFileName(nullptr, m_szPathToTmpFileList, MAX_PATH);
-	PathRemoveFileSpec(m_szPathToTmpFileList);
-	PathAppend(m_szPathToTmpFileList, _T("TmpFileList.txt"));
+	GetModuleFileName(nullptr, m_tmp_file_list_path, MAX_PATH);
+	PathRemoveFileSpec(m_tmp_file_list_path);
+	PathAppend(m_tmp_file_list_path, _T("TmpFileList.txt"));
 }
 
 CExtractData::~CExtractData() = default;
 
-void CExtractData::Init(HWND hWnd, SOption& option, CMainListView& listview)
+void CExtractData::Init(HWND parent, SOption& option, CMainListView& listview)
 {
-	m_hParentWnd = hWnd;
-	m_hParentInst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(hWnd, GWLP_HINSTANCE));
-	m_pOption = &option;
-	m_pListView = &listview;
+	m_parent_window = parent;
+	m_parent_inst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(parent, GWLP_HINSTANCE));
+	m_options = &option;
+	m_list_view = &listview;
 }
 
-void CExtractData::Open(LPTSTR pOpenDir)
+void CExtractData::Open(LPTSTR open_dir)
 {
-	std::vector<TCHAR> szFileNames(MAX_PATH * 1000, 0);
+	std::vector<TCHAR> file_names(MAX_PATH * 1000);
+	CFileDialog file_dialog;
 
-	CFileDialog clFileDlg;
-
-	if (clFileDlg.DoModal(m_hParentWnd, &szFileNames[0], pOpenDir))
+	if (file_dialog.DoModal(m_parent_window, file_names.data(), open_dir))
 	{
-		Mount(&szFileNames[0]);
+		Mount(file_names.data());
 	}
 }
 
 void CExtractData::OpenHistory(const YCString& file_path)
 {
-	std::vector<TCHAR> szFileNames(32000, 0);
-	lstrcpy(&szFileNames[0], file_path);
-	Mount(&szFileNames[0]);
+	std::vector<TCHAR> file_names(32000);
+	lstrcpy(file_names.data(), file_path);
+	Mount(file_names.data());
 }
 
 void CExtractData::OpenDrop(WPARAM wp)
 {
-	HDROP hDrop = reinterpret_cast<HDROP>(wp);
-	UINT uFileNo = DragQueryFile(hDrop, -1, nullptr, 0);
+	HDROP drop_handle = reinterpret_cast<HDROP>(wp);
+	const UINT num_files = DragQueryFile(drop_handle, -1, nullptr, 0);
+	std::vector<TCHAR> file_names(MAX_PATH * num_files);
 
-	std::vector<TCHAR> szFileNames(MAX_PATH * uFileNo, 0);
+	DragQueryFile(drop_handle, 0, file_names.data(), MAX_PATH);
 
-	DragQueryFile(hDrop, 0, &szFileNames[0], MAX_PATH);
-
-	if (uFileNo >= 2)
+	if (num_files >= 2)
 	{
 		// Gets the first file name
 		TCHAR filename[MAX_PATH];
-		lstrcpy(filename, PathFindFileName(&szFileNames[0]));
+		lstrcpy(filename, PathFindFileName(file_names.data()));
 
 		// Get the directory name
-		PathRemoveFileSpec(&szFileNames[0]);
+		PathRemoveFileSpec(file_names.data());
 
 		// The following refers to the '\0'
-		TCHAR *pszFileName = &szFileNames[lstrlen(&szFileNames[0]) + 1];
+		TCHAR* filename_ptr = &file_names[lstrlen(file_names.data()) + 1];
 
 		// Attach filename following the '\0'
-		memcpy(pszFileName, filename, lstrlen(filename));
-		pszFileName += lstrlen(filename) + 1;
+		memcpy(filename_ptr, filename, lstrlen(filename));
+		filename_ptr += lstrlen(filename) + 1;
 
-		for (int i = 1; i < static_cast<int>(uFileNo); i++)
+		for (int i = 1; i < static_cast<int>(num_files); i++)
 		{
-			DragQueryFile(hDrop, i, filename, MAX_PATH);
-			memcpy(pszFileName, PathFindFileName(filename), lstrlen(PathFindFileName(filename)));
-			pszFileName += lstrlen(PathFindFileName(filename)) + 1;
+			DragQueryFile(drop_handle, i, filename, MAX_PATH);
+			memcpy(filename_ptr, PathFindFileName(filename), lstrlen(PathFindFileName(filename)));
+			filename_ptr += lstrlen(PathFindFileName(filename)) + 1;
 		}
 	}
 
-	DragFinish(hDrop);
+	DragFinish(drop_handle);
 
-	Mount(&szFileNames[0]);
+	Mount(file_names.data());
 }
 
 void CExtractData::Close()
 {
 	// Close all open archive files
-	m_ArcList.clear();
+	m_archives.clear();
 
 	// Close the decoding class
 	CExtract::Close();
@@ -104,58 +102,56 @@ void CExtractData::Close()
 	DeleteTmpFile();
 
 	// Clear the list view
-	m_pListView->Clear();
+	m_list_view->Clear();
 }
 
-void CExtractData::Mount(LPCTSTR c_pclArcNames)
+void CExtractData::Mount(LPCTSTR archive_names)
 {
 	Close(); // Close the last opened 
-	m_pclArcNames = c_pclArcNames;
-	m_bInput = true;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
-	m_pListView->Show();
+	m_archive_names = archive_names;
+	m_input = true;
+	DialogBoxParam(m_parent_inst, _T("PROGBAR"), m_parent_window, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
+	m_list_view->Show();
 }
 
-UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
+UINT WINAPI CExtractData::MountThread(LPVOID param)
 {
-	CExtractData* pObj = static_cast<CExtractData*>(lpParam);
+	auto* obj = static_cast<CExtractData*>(param);
 
 	try
 	{
-		SOption* pOption = pObj->m_pOption;
-		LPCTSTR pclArcNames = pObj->m_pclArcNames;
-		std::vector<SFileInfo>& rEnt = pObj->m_pListView->GetFileInfo();
+		SOption* options = obj->m_options;
+		LPCTSTR all_archive_names = obj->m_archive_names;
+		std::vector<SFileInfo>& file_info = obj->m_list_view->GetFileInfo();
 
-		std::vector<YCString> sArcNameList;
-
-		YCString sArcNames(pclArcNames);
-		sArcNameList.push_back(sArcNames);
-		pclArcNames += lstrlen(pclArcNames) + 1; // Because of ZeroMemory, we have to add one for the null terminator char.
+		std::vector<YCString> archive_names;
+		archive_names.emplace_back(all_archive_names);
+		all_archive_names += lstrlen(all_archive_names) + 1; // Because of ZeroMemory, we have to add one for the null terminator char.
 
 		// If you select more than one
-		if (lstrcmp(pclArcNames, _T("")) != 0)
+		if (lstrcmp(all_archive_names, _T("")) != 0)
 		{
 			// Get directory name
-			TCHAR tmpDir[_MAX_DIR];
-			lstrcpy(tmpDir, sArcNameList[0]);
-			PathAddBackslash(tmpDir);
-			YCString Dir(tmpDir);
-			sArcNameList.clear();
+			TCHAR tmp_dir[_MAX_DIR];
+			lstrcpy(tmp_dir, archive_names[0]);
+			PathAddBackslash(tmp_dir);
+			const YCString dir(tmp_dir);
+			archive_names.clear();
 
 			// Directory Name + Filename in the list.
-			while (lstrcmp(pclArcNames, _T("")) != 0)
+			while (lstrcmp(all_archive_names, _T("")) != 0)
 			{
-				YCString sArcName(pclArcNames);
-				sArcNameList.push_back(Dir + sArcName);
-				pclArcNames += lstrlen(pclArcNames) + 1;
+				const YCString archive_name(all_archive_names);
+				archive_names.push_back(dir + archive_name);
+				all_archive_names += lstrlen(all_archive_names) + 1;
 			}
 
-			sort(sArcNameList.begin(), sArcNameList.end());
+			std::sort(archive_names.begin(), archive_names.end());
 		}
 
 		// Entire file size
-		u64 AllArcSize = 0;
-		for (auto itr = sArcNameList.begin(); itr != sArcNameList.end(); )
+		u64 total_archive_size = 0;
+		for (auto itr = archive_names.begin(); itr != archive_names.end(); )
 		{
 			// Open the archive file
 			auto archive = std::make_unique<CArcFile>();
@@ -163,29 +159,29 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 			if (archive->Open(*itr))
 			{
 				// Add archive filesize
-				AllArcSize += archive->GetArcSize();
-				pObj->m_ArcList.push_back(std::move(archive));
+				total_archive_size += archive->GetArcSize();
+				obj->m_archives.push_back(std::move(archive));
 				++itr;
 			}
 			else
 			{
 				// Unable to open archive. Remove its name from the list.
-				itr = sArcNameList.erase(itr);
+				itr = archive_names.erase(itr);
 			}
 		}
 
 		// Initialize the progress bar
 		CProgBar prog;
-		prog.Init(pObj->m_window, AllArcSize);
+		prog.Init(obj->m_window, total_archive_size);
 
 		// Reading
-		DWORD dwArcID = 0;
-		for (auto& archive : pObj->m_ArcList)
+		u32 archive_id = 0;
+		for (auto& archive : obj->m_archives)
 		{
-			archive->SetArcID(dwArcID);
-			archive->SetEnt(rEnt);
+			archive->SetArcID(archive_id);
+			archive->SetEnt(file_info);
 			archive->SetProg(prog);
-			archive->SetOpt(pOption);
+			archive->SetOpt(options);
 
 			// View the archive filename
 			prog.SetArcName(archive->GetArcName());
@@ -193,11 +189,11 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 			// Corresponding file
 			if (CExtract::Mount(archive.get()))
 			{
-				dwArcID++;
+				archive_id++;
 				archive->SetState(true);
 			}
 		}
-		//MessageBox(pObj->m_hWnd, "", "", MB_OK);
+
 		// Progress towards 100%
 		prog.UpdatePercent();
 	}
@@ -205,52 +201,52 @@ UINT WINAPI CExtractData::MountThread(LPVOID lpParam)
 	{
 		// Out of memory
 		CError error;
-		error.bad_alloc(pObj->m_window);
+		error.bad_alloc(obj->m_window);
 	}
 	catch (...)
 	{
 		// or if canceled
 	}
 
-	PostMessage(pObj->m_window, WM_THREAD_END, 0, 0);
+	PostMessage(obj->m_window, WM_THREAD_END, 0, 0);
 
 	_endthreadex(0);
 
 	return 0;
 }
 
-void CExtractData::Save(ExtractMode extract_mode, LPTSTR pSaveDir, bool convert)
+void CExtractData::Save(ExtractMode extract_mode, LPTSTR save_dir, bool convert)
 {
-	if (m_pOption->bSaveSel)
+	if (m_options->bSaveSel)
 	{
 		// Specifies output destination
-		CFolderInputDialog clFolderInputDlg;
+		CFolderInputDialog folder_input_dialog;
 
-		if (clFolderInputDlg.DoModal(m_hParentWnd, pSaveDir ) == IDOK)
+		if (folder_input_dialog.DoModal(m_parent_window, save_dir) == IDOK)
 		{
-			Decode(extract_mode, pSaveDir, convert);
+			Decode(extract_mode, save_dir, convert);
 		}
 	}
-	else if (m_pOption->bSaveSrc)
+	else if (m_options->bSaveSrc)
 	{
 		// Output to input destination
 		Decode(extract_mode, nullptr, convert);
 	}
-	else if (m_pOption->bSaveDir)
+	else if (m_options->bSaveDir)
 	{
 		// Output to a fixed destination
-		Decode(extract_mode, m_pOption->SaveDir, convert);
+		Decode(extract_mode, m_options->SaveDir, convert);
 	}
 }
 
-void CExtractData::SaveSel(LPTSTR pSaveDir, bool convert)
+void CExtractData::SaveSel(LPTSTR save_dir, bool convert)
 {
-	Save(ExtractMode::Select, pSaveDir, convert);
+	Save(ExtractMode::Select, save_dir, convert);
 }
 
-void CExtractData::SaveAll(LPTSTR pSaveDir, bool convert)
+void CExtractData::SaveAll(LPTSTR save_dir, bool convert)
 {
-	Save(ExtractMode::All, pSaveDir, convert);
+	Save(ExtractMode::All, save_dir, convert);
 }
 
 void CExtractData::SaveDrop()
@@ -302,139 +298,137 @@ void CExtractData::SaveDrop()
 */
 }
 
-void CExtractData::Decode(ExtractMode extract_mode, LPCTSTR pSaveDir, bool convert)
+void CExtractData::Decode(ExtractMode extract_mode, LPCTSTR save_dir, bool convert)
 {
-	CExistsDialog ExistsDlg;
-	ExistsDlg.GetOverWrite() = 0x01; // Perform Overwrite Confirmation
-	m_dwExtractMode = extract_mode;
-	m_pSaveDir = pSaveDir;
-	m_bConvert = convert;
-	m_bInput = false;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
+	CExistsDialog exists_dialog;
+	exists_dialog.GetOverWrite() = 0x01; // Perform Overwrite Confirmation
+	m_extract_mode = extract_mode;
+	m_save_dir = save_dir;
+	m_convert = convert;
+	m_input = false;
+	DialogBoxParam(m_parent_inst, _T("PROGBAR"), m_parent_window, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
 void CExtractData::DecodeTmp()
 {
-	CExistsDialog ExistsDlg;
-	ExistsDlg.GetOverWrite() = 0x00; // Overwrite confirmation is not perform
-	m_dwExtractMode = ExtractMode::Select;
-	m_pSaveDir = m_pOption->TmpDir;
-	m_bConvert = true;
-	m_bInput = false;
-	DialogBoxParam(m_hParentInst, _T("PROGBAR"), m_hParentWnd, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
+	CExistsDialog exists_dialog;
+	exists_dialog.GetOverWrite() = 0x00; // Overwrite confirmation is not perform
+	m_extract_mode = ExtractMode::Select;
+	m_save_dir = m_options->TmpDir;
+	m_convert = true;
+	m_input = false;
+	DialogBoxParam(m_parent_inst, _T("PROGBAR"), m_parent_window, reinterpret_cast<DLGPROC>(WndStaticProc), reinterpret_cast<LPARAM>(this));
 }
 
-UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
+UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 {
-	CExtractData* pObj = static_cast<CExtractData*>(lpParam);
-	CArcFile* pclArc = nullptr;
+	auto* obj = static_cast<CExtractData*>(param);
+	CArcFile* archive = nullptr;
 
 	try
 	{
-		SOption* pOption  = pObj->m_pOption;
-		LPCTSTR  pSaveDir = pObj->m_pSaveDir;
-		bool     convert = pObj->m_bConvert;
+		const SOption* options  = obj->m_options;
+		const LPCTSTR obj_save_dir = obj->m_save_dir;
+		const bool convert = obj->m_convert;
 
 		// Determine entire filesize
-		std::vector<int> nSelects;
-		u64 AllFileSize = 0;
-		auto& rArcList = pObj->m_ArcList;
-		if (pObj->m_dwExtractMode == ExtractMode::Select)
+		std::vector<int> selects;
+		u64 total_file_size = 0;
+		const auto& archives = obj->m_archives;
+		if (obj->m_extract_mode == ExtractMode::Select)
 		{
-			int nItem = -1;
-			while ((nItem = pObj->m_pListView->GetNextItem(nItem)) != -1)
+			int item = -1;
+			while ((item = obj->m_list_view->GetNextItem(item)) != -1)
 			{
-				nSelects.push_back(nItem);
-				AllFileSize += rArcList[0]->GetFileInfo(nItem)->sizeOrg;
+				selects.push_back(item);
+				total_file_size += archives[0]->GetFileInfo(item)->sizeOrg;
 			}
 		}
 		else
 		{
-			size_t nItemCount = rArcList[0]->GetFileInfo().size();
-			for (int nItem = 0; nItem < static_cast<int>(nItemCount); nItem++)
+			const size_t num_items = archives[0]->GetFileInfo().size();
+			for (int item = 0; item < static_cast<int>(num_items); item++)
 			{
-				nSelects.push_back(nItem);
-				AllFileSize += rArcList[0]->GetFileInfo(nItem)->sizeOrg;
+				selects.push_back(item);
+				total_file_size += archives[0]->GetFileInfo(item)->sizeOrg;
 			}
 		}
 
 		// Initialize progressbar
 		CProgBar prog;
-		prog.Init(pObj->m_window, AllFileSize);
+		prog.Init(obj->m_window, total_file_size);
 
-		for (size_t i = 0; i < nSelects.size(); i++)
+		for (size_t i = 0; i < selects.size(); i++)
 		{
-			SFileInfo* pInfFile = rArcList[0]->GetFileInfo(nSelects[i]);
-			pclArc = rArcList[pInfFile->arcID].get();
-			pclArc->SetProg(prog);
+			const SFileInfo* info = archives[0]->GetFileInfo(selects[i]);
+			archive = archives[info->arcID].get();
+			archive->SetProg(prog);
 
 			// Create destination folder name from the destination filename input
-			if (pSaveDir == nullptr && pOption->bSaveSrc == TRUE)
+			if (obj_save_dir == nullptr && options->bSaveSrc == TRUE)
 			{
-				TCHAR SaveDir[MAX_PATH];
-
 				// Get input
-				lstrcpy(SaveDir, pclArc->GetArcPath());
+				TCHAR save_dir[MAX_PATH];
+				lstrcpy(save_dir, archive->GetArcPath());
 
 				// Delete the filename
-				PathRemoveFileSpec(SaveDir);
+				PathRemoveFileSpec(save_dir);
 
-				if (pclArc->GetCtEnt() == 1)
+				if (archive->GetCtEnt() == 1)
 				{
 					// Archive folder creation stores files one by one
-					TCHAR ArcDirName[_MAX_DIR];
-					lstrcpy(ArcDirName, PathFindFileName(SaveDir));
-					PathAppend(SaveDir, _T("_"));
-					lstrcat(SaveDir, ArcDirName);
+					TCHAR arc_dir_name[_MAX_DIR];
+					lstrcpy(arc_dir_name, PathFindFileName(save_dir));
+					PathAppend(save_dir, _T("_"));
+					lstrcat(save_dir, arc_dir_name);
 				}
 				else
 				{
 					// Create a folder with the name of the archive files if there are more than two files present
-					PathAppend(SaveDir, _T("_"));
-					lstrcat(SaveDir, pclArc->GetArcName());
+					PathAppend(save_dir, _T("_"));
+					lstrcat(save_dir, archive->GetArcName());
 				}
-				pclArc->SetSaveDir(SaveDir);
+				archive->SetSaveDir(save_dir);
 			}
 			else
 			{
-				pclArc->SetSaveDir(pSaveDir);
+				archive->SetSaveDir(obj_save_dir);
 			}
 
-			pclArc->SetFileInfo(nSelects[i]);
+			archive->SetFileInfo(selects[i]);
 
 			// View filename
-			prog.SetFileName(pInfFile->name);
+			prog.SetFileName(info->name);
 
 			// Extraction
-			CExtract::Decode(pclArc, convert);
+			CExtract::Decode(archive, convert);
 
 			// Close the file (For when I forget to close it)
-			pclArc->CloseFile();
+			archive->CloseFile();
 		}
-		//MessageBox(pObj->m_hWnd, "", "", MB_OK);
 	}
 	catch (std::bad_alloc)
 	{
 		// Out of memory error
 		CError error;
-		error.bad_alloc(pObj->m_window);
+		error.bad_alloc(obj->m_window);
 	}
 	catch (...)
 	{
 		// Or if we cancel the operation
 		//CError error;
-		//error.Message(pObj->m_hWnd, "");
+		//error.Message(obj->m_hWnd, "");
 		// Corresponds to the case where the file was still not closed, even with the exception thrown.
-		//if (pclArc != nullptr)
-		//	pclArc->CloseFile();
+		//if (archive != nullptr)
+		//	archive->CloseFile();
 	}
 
 	// Corresponds to the case where the file was still not closed, even with the exception thrown.
-	if (pclArc != nullptr)
-		pclArc->CloseFile();
+	if (archive != nullptr)
+		archive->CloseFile();
 
 	// Send message to terminate the thread
-	PostMessage(pObj->m_window, WM_THREAD_END, 0, 0);
+	PostMessage(obj->m_window, WM_THREAD_END, 0, 0);
 
 	_endthreadex(0);
 
@@ -443,39 +437,37 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID lpParam)
 
 void CExtractData::OpenRelate()
 {
-	int nItem = -1;
+	int item = -1;
 
-	while ((nItem = m_pListView->GetNextItem(nItem)) != -1)
+	while ((item = m_list_view->GetNextItem(item)) != -1)
 	{
-		std::set<YCString>&	sTmpFilePathList = m_pListView->GetFileInfo()[nItem].sTmpFilePath;
+		std::set<YCString>& tmp_file_paths = m_list_view->GetFileInfo()[item].sTmpFilePath;
 
-		if (!sTmpFilePathList.empty())
+		if (!tmp_file_paths.empty())
 		{
-			const YCString&	 clsTmpFilePath = *sTmpFilePathList.begin();
+			const YCString& tmp_file_path = *tmp_file_paths.begin();
 
 			// Open from file association
 
-			if (::ShellExecute(nullptr, nullptr, clsTmpFilePath, nullptr, nullptr, SW_SHOWNORMAL) == reinterpret_cast<HINSTANCE>(SE_ERR_NOASSOC))
+			if (::ShellExecute(nullptr, nullptr, tmp_file_path, nullptr, nullptr, SW_SHOWNORMAL) == reinterpret_cast<HINSTANCE>(SE_ERR_NOASSOC))
 			{
 				// If there is no association with the file, issue a 
 				// dialog to select an application which can open the file
+				const YCString params = _T("shell32.dll, OpenAs_RunDLL ") + tmp_file_path;
 
-				YCString clsParam = _T("shell32.dll, OpenAs_RunDLL ") + clsTmpFilePath;
-
-				::ShellExecute(nullptr, nullptr, _T("rundll32.exe"), clsParam, nullptr, TRUE);
+				::ShellExecute(nullptr, nullptr, _T("rundll32.exe"), params, nullptr, TRUE);
 			}
 
 			// Added to the temporary file list
-
-			for (const YCString& str : sTmpFilePathList)
+			for (const YCString& str : tmp_file_paths)
 			{
 				if (str != _T(""))
 				{
-					m_ssTmpFile.insert(str);
+					m_tmp_file_paths.insert(str);
 				}
 			}
 
-			sTmpFilePathList.clear();
+			tmp_file_paths.clear();
 		}
 	}
 }
@@ -485,17 +477,17 @@ void CExtractData::DeleteTmpFile()
 	// Add the last remaining temporary files
 	LoadTmpFileList();
 
-	for (auto iter = m_ssTmpFile.begin(); iter != m_ssTmpFile.end(); )
+	for (auto iter = m_tmp_file_paths.begin(); iter != m_tmp_file_paths.end(); )
 	{
-		TCHAR szTmp[MAX_PATH];
-		lstrcpy(szTmp, *iter);
+		TCHAR tmp[MAX_PATH];
+		lstrcpy(tmp, *iter);
 
 		// Delete temporary files
-		if (PathFileExists(szTmp))
+		if (PathFileExists(tmp))
 		{
 			// File exists
 
-			if (!DeleteFile(szTmp))
+			if (!DeleteFile(tmp))
 			{
 				// Fails to remove it
 				++iter;
@@ -503,18 +495,18 @@ void CExtractData::DeleteTmpFile()
 			}
 		}
 
-		while (lstrcmp(szTmp, m_pOption->TmpDir) != 0)
+		while (lstrcmp(tmp, m_options->TmpDir) != 0)
 		{
 			// Delete folder
-			if (!PathRemoveFileSpec(szTmp))
+			if (!PathRemoveFileSpec(tmp))
 			{
 				break;
 			}
 
-			RemoveDirectory(szTmp);
+			RemoveDirectory(tmp);
 		}
 
-		iter = m_ssTmpFile.erase(iter);
+		iter = m_tmp_file_paths.erase(iter);
 	}
 
 	// Save the list of remaining temp files
@@ -524,7 +516,7 @@ void CExtractData::DeleteTmpFile()
 void CExtractData::LoadTmpFileList()
 {
 	CFile tmp_file;
-	if (!tmp_file.OpenForRead(m_szPathToTmpFileList))
+	if (!tmp_file.OpenForRead(m_tmp_file_list_path))
 	{
 		// Failed to open import file
 		return;
@@ -537,39 +529,39 @@ void CExtractData::LoadTmpFileList()
 		if (tmp_file.ReadLine(buf, sizeof(buf), true) == 0)
 			break;
 
-		m_ssTmpFile.insert(buf);
+		m_tmp_file_paths.insert(buf);
 	}
 }
 
 void CExtractData::SaveTmpFileList()
 {
-	if (m_ssTmpFile.empty())
+	if (m_tmp_file_paths.empty())
 	{
 		// Was able to remove all
-		DeleteFile(m_szPathToTmpFileList);
+		DeleteFile(m_tmp_file_list_path);
 		return;
 	}
 
 	CFile tmp_file;
-	if (!tmp_file.OpenForWrite(m_szPathToTmpFileList))
+	if (!tmp_file.OpenForWrite(m_tmp_file_list_path))
 	{
 		// Failed to open file for writing
 		return;
 	}
 
-	for (const YCString& str : m_ssTmpFile)
+	for (const YCString& str : m_tmp_file_paths)
 	{
 		tmp_file.WriteLine(str);
 		tmp_file.Write("\r\n", 2);
 	}
 
-	m_ssTmpFile.clear();
+	m_tmp_file_paths.clear();
 }
 
-LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT CExtractData::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	static HANDLE hThread;
-	UINT thId;
+	static HANDLE thread;
+	UINT thread_id;
 
 	switch (msg)
 	{
@@ -579,18 +571,18 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			g_bThreadEnd = false;
 
-			SetFocus(GetDlgItem(hWnd, IDC_CANCEL));
-			if (m_bInput)
+			SetFocus(GetDlgItem(hwnd, IDC_CANCEL));
+			if (m_input)
 			{
 				// Reading
-				SetWindowText(hWnd, _T("Reading the file..."));
-				PostMessage(hWnd, WM_INPUT_FILE, 0, 0);
+				SetWindowText(hwnd, _T("Reading the file..."));
+				PostMessage(hwnd, WM_INPUT_FILE, 0, 0);
 			}
 			else
 			{
 				// Extraction
-				SetWindowText(hWnd, _T("Extracting..."));
-				PostMessage(hWnd, WM_OUTPUT_FILE, 0, 0);
+				SetWindowText(hwnd, _T("Extracting..."));
+				PostMessage(hwnd, WM_OUTPUT_FILE, 0, 0);
 			}
 		}
 		return FALSE;
@@ -611,23 +603,23 @@ LRESULT CExtractData::WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INPUT_FILE:
 		{
 			// Information Acquisition Start
-			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MountThread, this, 0, &thId));
+			thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, MountThread, this, 0, &thread_id));
 		}
 		return FALSE;
 
 		case WM_OUTPUT_FILE:
 		{
 			// Start extraction process
-			hThread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thId));
+			thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, DecodeThread, this, 0, &thread_id));
 		}
 		return FALSE;
 
 		case WM_THREAD_END:
 		{
 			// Finish the process
-			WaitForSingleObject(hThread, INFINITE);
-			CloseHandle(hThread);
-			EndDialog(hWnd, IDOK);
+			WaitForSingleObject(thread, INFINITE);
+			CloseHandle(thread);
+			EndDialog(hwnd, IDOK);
 		}
 		return TRUE;
 	}
