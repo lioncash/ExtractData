@@ -343,7 +343,7 @@ int COption::PropSheetProc(HWND hWnd, UINT msg, LPARAM lParam)
 			m_option_tmp = m_option;
 			CSusie susie;
 			susie.Init();
-			LONG style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+			const LONG style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
 			SetWindowLongPtr(hWnd, GWL_EXSTYLE, style & ~WS_EX_CONTEXTHELP);
 			break;
 		}
@@ -376,7 +376,9 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			CWindowBase::Init(::GetParent(hWnd));
 
 			UINT ID = 10000;
-			int x = 10, y = 0, xx = 15;
+			const int x = 10;
+			const int xx = 15;
+			int y = 0;
 
 			// Listview settings
 			ListGroup.Create(hWnd, _T("List Settings"), ID++, x, y += 20, 510, 75);
@@ -416,9 +418,9 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Check the file search box
 			if (LOWORD(wp) >= SearchCheck[0].GetID() && LOWORD(wp) <= SearchCheck[SearchCheckNum-1].GetID())
 			{
-				int nNumber = LOWORD(wp) - SearchCheck[0].GetID();
-				pOption->bSearch[nNumber] ^= 1;
-				SearchCheck[nNumber].SetCheck(pOption->bSearch[nNumber]);
+				const int number = LOWORD(wp) - SearchCheck[0].GetID();
+				pOption->bSearch[number] ^= 1;
+				SearchCheck[number].SetCheck(pOption->bSearch[number]);
 				PropSheet_Changed(::GetParent(hWnd), hWnd);
 				break;
 			}
@@ -463,8 +465,8 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
-			switch (pHdr->code)
+			const auto* const hdr = reinterpret_cast<LPNMHDR>(lp);
+			switch (hdr->code)
 			{
 				// Apply/OK, Tabbing
 				case PSN_APPLY:
@@ -476,7 +478,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 					pOption->bHighSearchOgg = HighSearchCheckOgg.GetCheck();
 					// OK/Apply
-					if (pHdr->code == PSN_APPLY)
+					if (hdr->code == PSN_APPLY)
 						Apply();
 					return TRUE;
 			}
@@ -518,7 +520,9 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INITDIALOG:
 		{
 			UINT ID = 10000;
-			int x = 10, y = 0, xx = 15;
+			const int x = 10;
+			const int xx = 15;
+			int y = 0;
 
 			// Extraction Settings
 
@@ -530,48 +534,48 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 			//
 
-			int y_Image = y;
-			ExtractGroupImage.Create(hWnd, _T("Output image format"), ID++, x, y_Image += 34, 240, 110);
+			int y_image = y;
+			ExtractGroupImage.Create(hWnd, _T("Output image format"), ID++, x, y_image += 34, 240, 110);
 			ExtractRadioImage.Close();
-			ExtractRadioImage.Create(hWnd, _T("BMP"), ID++, x + xx, y_Image += 18, 50, 20);
-			ExtractRadioImage.Create(hWnd, _T("PNG"), ID++, x + xx, y_Image += 20, 50, 20);
+			ExtractRadioImage.Create(hWnd, _T("BMP"), ID++, x + xx, y_image += 18, 50, 20);
+			ExtractRadioImage.Create(hWnd, _T("PNG"), ID++, x + xx, y_image += 20, 50, 20);
 			ExtractRadioImage.SetCheck(0, pOption->bDstBMP);
 			ExtractRadioImage.SetCheck(1, pOption->bDstPNG);
-			ExtractLabelPng.Create(hWnd, _T("Compression Level"), ID++, x + xx + 50, y_Image + 3, 100, 20);
-			ExtractEditPng.Create(hWnd, _T(""), ID++, x + xx + 150, y_Image, 40, 22);
+			ExtractLabelPng.Create(hWnd, _T("Compression Level"), ID++, x + xx + 50, y_image + 3, 100, 20);
+			ExtractEditPng.Create(hWnd, _T(""), ID++, x + xx + 150, y_image, 40, 22);
 			ExtractEditPng.SetLimit(1);
 			ExtractUpDownPng.Create(hWnd, ExtractEditPng.GetCtrlHandle(), pOption->CmplvPng, ID++, 9, 0);
 
 			//
 
-			ExtractCheckAlpha.Create(hWnd, _T("Enable alpha blending"), ID++, x + xx, y_Image += 22, 140, 20);
+			ExtractCheckAlpha.Create(hWnd, _T("Enable alpha blending"), ID++, x + xx, y_image += 22, 140, 20);
 			ExtractCheckAlpha.SetCheck(pOption->bAlphaBlend);
-			ExtractLabelAlpha.Create(hWnd, _T("Background color"), ID++, x + xx * 2 + 4, y_Image += 24, 100, 20);
-			ExtractEditAlpha.Create(hWnd, pOption->szBgRGB, ID++, x + xx * 2 + 100, y_Image - 4, 100, 22);
+			ExtractLabelAlpha.Create(hWnd, _T("Background color"), ID++, x + xx * 2 + 4, y_image += 24, 100, 20);
+			ExtractEditAlpha.Create(hWnd, pOption->szBgRGB, ID++, x + xx * 2 + 100, y_image - 4, 100, 22);
 			ExtractEditAlpha.SetLimit(6);
 			ExtractEditAlpha.Enable(pOption->bAlphaBlend);
 
 			//
 
-			int x_Save = x + 200;
-			int y_Save = y;
+			const int x_save = x + 200;
+			int y_save = y;
 
-			ExtractGroupSave.Create(hWnd, _T("Destination"), ID++, x_Save + 50, y_Save += 34, 290, 110);
+			ExtractGroupSave.Create(hWnd, _T("Destination"), ID++, x_save + 50, y_save += 34, 290, 110);
 			ExtractRadioSave.Close();
-			ExtractRadioSave.Create(hWnd, _T("Specify each time"), ID++, x_Save + xx + 50, y_Save += 18, 220, 20);
-			ExtractRadioSave.Create(hWnd, _T("Same folder as input source"), ID++, x_Save + xx + 50, y_Save += 20, 200, 20);
-			ExtractRadioSave.Create(hWnd, _T("The following folder"), ID++, x_Save + xx + 50, y_Save += 20, 200, 20);
+			ExtractRadioSave.Create(hWnd, _T("Specify each time"), ID++, x_save + xx + 50, y_save += 18, 220, 20);
+			ExtractRadioSave.Create(hWnd, _T("Same folder as input source"), ID++, x_save + xx + 50, y_save += 20, 200, 20);
+			ExtractRadioSave.Create(hWnd, _T("The following folder"), ID++, x_save + xx + 50, y_save += 20, 200, 20);
 			ExtractRadioSave.SetCheck(0, pOption->bSaveSel);
 			ExtractRadioSave.SetCheck(1, pOption->bSaveSrc);
 			ExtractRadioSave.SetCheck(2, pOption->bSaveDir);
-			ExtractEditSave.Create(hWnd, pOption->SaveDir, ID++, x_Save + xx * 2 + 40, y_Save += 20, 200, 22);
+			ExtractEditSave.Create(hWnd, pOption->SaveDir, ID++, x_save + xx * 2 + 40, y_save += 20, 200, 22);
 			ExtractEditSave.Enable(pOption->bSaveDir);
-			ExtractBtnSave.Create(hWnd, _T("Browse"), ID++, x_Save + xx * 2 + 250, y_Save + 1, 50, 20);
+			ExtractBtnSave.Create(hWnd, _T("Browse"), ID++, x_save + xx * 2 + 250, y_save + 1, 50, 20);
 			ExtractBtnSave.Enable(pOption->bSaveDir);
 
 			//
 
-			y = (y_Image > y_Save) ? y_Image : y_Save;
+			y = (y_image > y_save) ? y_image : y_save;
 			ExtractLabelBuf.Create(hWnd, _T("Buffer Size(KB)"), ID++, x, y += 44, 100, 20);
 			ExtractEditBuf.Create(hWnd, pOption->BufSize, ID++, x + 100, y - 4, 110, 22);
 
@@ -646,8 +650,8 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
-			switch (pHdr->code)
+			const auto* const hdr = reinterpret_cast<LPNMHDR>(lp);
+			switch (hdr->code)
 			{
 				// OK/Apply, Tabbing
 				case PSN_APPLY:
@@ -673,7 +677,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					//
 					ExtractEditTmp.GetText(pOption->TmpDir);
 					// OK/Apply
-					if (pHdr->code == PSN_APPLY)
+					if (hdr->code == PSN_APPLY)
 						Apply();
 					return TRUE;
 			}
@@ -701,7 +705,9 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case WM_INITDIALOG:
 		{
 			UINT ID = 10000;
-			int x = 10, y = 0, xx = 15;
+			const int x = 10;
+			const int xx = 15;
+			int y = 0;
 
 			SusieCheckUse.Create(hWnd, _T("Use Susie Plugins"), ID++, x + 15, y += 20, 200, 20);
 			SusieCheckUse.SetCheck(pOption->bSusieUse);
@@ -735,7 +741,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// Use Susie plugins
 			if (LOWORD(wp) == SusieCheckUse.GetID())
 			{
-				BOOL flag = SusieCheckUse.GetCheck();
+				const BOOL flag = SusieCheckUse.GetCheck();
 				SusieEditDir.Enable(flag);
 				SusieBtnDir.Enable(flag);
 				SusieCheckFirst.Enable(flag);
@@ -798,7 +804,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				const SSusieInfo* const susie_info = SusieListView.GetFocusSusieInfo();
 
 				// Get ConfigurationDlg()
-				ConfigurationDlgProc ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(susie_info->plugin.GetProcAddress(_T("ConfigurationDlg")));
+				const auto ConfigurationDlg = reinterpret_cast<ConfigurationDlgProc>(susie_info->plugin.GetProcAddress(_T("ConfigurationDlg")));
 
 				if (ConfigurationDlg == nullptr)
 					break;
@@ -819,9 +825,9 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_NOTIFY:
 		{
-			LPNMHDR pHdr = reinterpret_cast<LPNMHDR>(lp);
+			const auto* const hdr = reinterpret_cast<LPNMHDR>(lp);
 
-			switch (pHdr->code)
+			switch (hdr->code)
 			{
 				// OK/Apply, Tabbing
 				case PSN_APPLY:
@@ -831,12 +837,12 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					SusieEditDir.GetText(pOption->SusieDir);
 					SusieListView.SaveIni();
 					// OK/Apply
-					if (pHdr->code == PSN_APPLY)
+					if (hdr->code == PSN_APPLY)
 					{
-						BOOL bUpdate = (m_option.SusieDir == pOption->SusieDir) ? FALSE : TRUE;
+						const BOOL update = (m_option.SusieDir == pOption->SusieDir) ? FALSE : TRUE;
 						Apply();
 						// Re-acquire plugin folder only when Susie has been changed
-						if (pOption->bSusieUse == TRUE && bUpdate == TRUE)
+						if (pOption->bSusieUse == TRUE && update == TRUE)
 						{
 							susie.LoadSpi(pOption->SusieDir);
 							susie.Init();
@@ -848,7 +854,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				// Check processing
 				case NM_CLICK:
 				case NM_DBLCLK:
-					if (pHdr->idFrom == idsSusieList)
+					if (hdr->idFrom == idsSusieList)
 					{
 						if (SusieListView.SetCheck())
 							PropSheet_Changed(::GetParent(hWnd), hWnd);
@@ -859,7 +865,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			// List view
 			if (wp == idsSusieList)
 			{
-				LPNMLISTVIEW plv = reinterpret_cast<LPNMLISTVIEW>(lp);
+				const auto* const plv = reinterpret_cast<LPNMLISTVIEW>(lp);
 				switch (plv->hdr.code)
 				{
 					// Custom draw
