@@ -500,17 +500,17 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	// Extraction Settings
 
-	static const std::array<YCString, 3> ExtractCheckText = {{
+	static constexpr std::array<LPCTSTR, 3> ExtractCheckText{{
 		_T("Extract each folder"),
 		_T("Fix the CRC of OGG files upon extraction"),
 		_T("Enable simple decoding")
 	}};
 
-	static const std::array<BOOL*, 4> ExtractCheckFlag = {{
+	static const std::array<BOOL*, 4> ExtractCheckFlag{{
 		&pOption->bCreateFolder, &pOption->bFixOgg, &pOption->bEasyDecrypt, &pOption->bRenameScriptExt
 	}};
 
-	static std::vector<CCheckBox> ExtractCheck(ExtractCheckText.size());
+	static std::array<CCheckBox, ExtractCheckText.size()> ExtractCheck;
 	static CCheckBox ExtractCheckAlpha;
 	static CLabel ExtractLabelImage, ExtractLabelPng, ExtractLabelAlpha, ExtractLabelSave, ExtractLabelBuf, ExtractLabelTmp;
 	static CRadioBtn ExtractRadioImage, ExtractRadioSave;
