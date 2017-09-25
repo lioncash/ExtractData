@@ -4,7 +4,7 @@
 #include "res/ResExtractData.h"
 #include "UI/Option.h"
 
-int CSearchDialog::DoModal(HWND window, LPCTSTR archive_path)
+INT_PTR CSearchDialog::DoModal(HWND window, LPCTSTR archive_path)
 {
 	m_archive_path = archive_path;
 	HINSTANCE inst = reinterpret_cast<HINSTANCE>(GetWindowLongPtr(window, GWLP_HINSTANCE));

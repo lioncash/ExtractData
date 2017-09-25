@@ -257,7 +257,7 @@ bool CExtract::Mount(CArcFile* archive)
 
 	// File search
 	CSearchDialog search_dialog;
-	const int return_code = search_dialog.DoModal(archive->GetProg()->GetHandle(), archive->GetArcPath());
+	const INT_PTR return_code = search_dialog.DoModal(archive->GetProg()->GetHandle(), archive->GetArcPath());
 
 	if (return_code == IDYES)
 		return Search(archive);

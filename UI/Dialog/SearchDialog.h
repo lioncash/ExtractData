@@ -5,7 +5,7 @@
 class CSearchDialog : public CWindowBase
 {
 public:
-	int DoModal(HWND window, LPCTSTR archive_path);
+	INT_PTR DoModal(HWND window, LPCTSTR archive_path);
 	LRESULT WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp) override;
 
 private:
