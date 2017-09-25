@@ -65,7 +65,7 @@ LRESULT CFolderInputDialog::WndProc(HWND window, UINT msg, WPARAM wp, LPARAM lp)
 				TCHAR save_dir[_MAX_DIR];
 				lstrcpy(save_dir, m_save_dir);
 				CFolderDialog folder_dialog;
-				if (folder_dialog.DoModal(window, _T("Select a folder"), save_dir) == TRUE)
+				if (folder_dialog.DoModal(window, _T("Select a folder"), save_dir))
 					edit_dir.SetText(save_dir);
 				return FALSE;
 			}

@@ -3,5 +3,5 @@
 class CFolderDialog
 {
 public:
-	BOOL DoModal(HWND window, LPCTSTR title, LPTSTR directory);
+	bool DoModal(HWND window, LPCTSTR title, LPTSTR directory);
 };

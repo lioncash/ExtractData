@@ -625,7 +625,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			{
 				TCHAR szSaveDir[_MAX_DIR];
 				ExtractEditSave.GetText(szSaveDir, sizeof(szSaveDir));
-				if (FolderDlg.DoModal(hWnd, _T("Select the output folder"), szSaveDir) == TRUE)
+				if (FolderDlg.DoModal(hWnd, _T("Select the output folder"), szSaveDir))
 					ExtractEditSave.SetText(szSaveDir);
 				break;
 			}
@@ -635,7 +635,7 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			{
 				TCHAR szTmpDir[_MAX_DIR];
 				ExtractEditTmp.GetText(szTmpDir, sizeof(szTmpDir));
-				if (FolderDlg.DoModal(hWnd, _T("Select a temporary folder"), szTmpDir) == TRUE)
+				if (FolderDlg.DoModal(hWnd, _T("Select a temporary folder"), szTmpDir))
 					ExtractEditTmp.SetText(szTmpDir);
 				break;
 			}
@@ -761,7 +761,7 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			{
 				TCHAR szSusieDir[_MAX_DIR];
 				SusieEditDir.GetText(szSusieDir, sizeof(szSusieDir));
-				if (FolderDlg.DoModal(hWnd, _T("Select the Susie folder"), szSusieDir) == TRUE)
+				if (FolderDlg.DoModal(hWnd, _T("Select the Susie folder"), szSusieDir))
 					SusieEditDir.SetText(szSusieDir);
 			}
 
