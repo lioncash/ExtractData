@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "UI/Dialog/FileDialog.h"
 
-BOOL CFileDialog::DoModal(HWND window, LPTSTR file_names, LPTSTR dir)
+bool CFileDialog::DoModal(HWND window, LPTSTR file_names, LPTSTR dir)
 {
 	OPENFILENAME ofn = {};
 	ofn.lStructSize = sizeof(ofn);
@@ -15,9 +15,9 @@ BOOL CFileDialog::DoModal(HWND window, LPTSTR file_names, LPTSTR dir)
 	ofn.lpstrTitle = _T("Open File");
 
 	if (GetOpenFileName(&ofn) == 0)
-		return FALSE;
+		return false;
 
 	GetCurrentDirectory(_MAX_DIR, dir);
 
-	return TRUE;
+	return true;
 }
