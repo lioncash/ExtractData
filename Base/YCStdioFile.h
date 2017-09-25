@@ -25,5 +25,6 @@ public:
 	u64 Seek(s64 offset, SeekMode seek_mode) override;
 
 private:
-	FILE* m_stream = nullptr;
+	using FilePtr = std::unique_ptr<FILE, int(*)(FILE*)>;
+	FilePtr m_stream;
 };

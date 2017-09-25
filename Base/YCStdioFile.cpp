@@ -4,14 +4,12 @@
 
 /// Constructor
 YCStdioFile::YCStdioFile()
+	: m_stream{nullptr, std::fclose}
 {
 }
 
 /// Destructor
-YCStdioFile::~YCStdioFile()
-{
-	Close();
-}
+YCStdioFile::~YCStdioFile() = default;
 
 /// Mode to open the file in
 ///
@@ -123,7 +121,7 @@ bool YCStdioFile::Open(LPCTSTR file_path, u32 open_flags)
 
 	// Open File
 
-	m_stream = _tfopen(file_path, mode);
+	m_stream = FilePtr{_tfopen(file_path, mode), std::fclose};
 
 	m_file_path = file_path;
 	m_file_name = m_file_path.GetFileName();
@@ -135,11 +133,7 @@ bool YCStdioFile::Open(LPCTSTR file_path, u32 open_flags)
 /// Close File
 void YCStdioFile::Close()
 {
-	if (m_stream != nullptr)
-	{
-		fclose(m_stream);
-		m_stream = nullptr;
-	}
+	m_stream.reset();
 }
 
 /// Read File
@@ -149,7 +143,7 @@ void YCStdioFile::Close()
 ///
 DWORD YCStdioFile::Read(void* buffer, u32 read_size)
 {
-	return fread(buffer, 1, read_size, m_stream);
+	return fread(buffer, 1, read_size, m_stream.get());
 }
 
 /// Write File
@@ -159,7 +153,7 @@ DWORD YCStdioFile::Read(void* buffer, u32 read_size)
 ///
 DWORD YCStdioFile::Write(const void* buffer, u32 write_size)
 {
-	return fwrite(buffer, 1, write_size, m_stream);
+	return fwrite(buffer, 1, write_size, m_stream.get());
 }
 
 /// Read a file line
@@ -169,7 +163,7 @@ DWORD YCStdioFile::Write(const void* buffer, u32 write_size)
 ///
 LPTSTR YCStdioFile::ReadString(LPTSTR buffer, u32 buffer_size)
 {
-	return _fgetts(buffer, buffer_size, m_stream);
+	return _fgetts(buffer, buffer_size, m_stream.get());
 }
 
 /// Read a file line
@@ -212,7 +206,7 @@ bool YCStdioFile::ReadString(YCString& buffer)
 /// Writes a line into the file
 void YCStdioFile::WriteString(LPCTSTR buffer)
 {
-	_fputts(buffer, m_stream);
+	_fputts(buffer, m_stream.get());
 }
 
 /// Move the file pointer (Seek)
@@ -239,9 +233,9 @@ u64 YCStdioFile::Seek(s64 offset, SeekMode seek_mode)
 		}
 	}();
 
-	if (_fseeki64(m_stream, offset, internal_seek_mode))
+	if (_fseeki64(m_stream.get(), offset, internal_seek_mode))
 	{
-		return static_cast<u64>(_ftelli64(m_stream));
+		return static_cast<u64>(_ftelli64(m_stream.get()));
 	}
 
 	return 0;
