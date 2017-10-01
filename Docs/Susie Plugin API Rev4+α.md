@@ -4,7 +4,7 @@ This document aims to describe the interface for Susie plugins revision 4+α.
 
 ## Table of Contents
 
-1. [Preface/Credit](#preface-credit)
+1. [Preface/Credit](#prefacecredit)
 2. [Structures](#structures)
     * [PictureInfo](#pictureinfo)
     * [fileInfo](#fileinfo)
@@ -83,10 +83,10 @@ typedef struct fileInfo {
 int _export PASCAL GetPluginInfo(int infono, LPSTR buf, int buflen)
 ```
 
-##### Description
+#### Description
 Retrieves information about a plugin.
 
-##### Parameters
+#### Parameters
 
 `infono` - Index indicating what kind of information to retrieve.
 
@@ -101,11 +101,11 @@ Retrieves information about a plugin.
 
 `buflen` - Buffer size in bytes.
 
-##### Return value
+#### Return value
 
 If successful, the number of characters written into `buf` is returned. If an invalid `infono` is supplied, then `0` is returned.
 
-##### Explanation
+#### Explanation
 
 `infono` values `0` and `1` are common to all versions. `2` and onwards signify information that is used in Susie's Open dialog in pairs. For example, `2` retrieves the extension of a supported plugin format, while `3` retrieves the name of that format. If a plugin supports multiple image formats, then the count of file extension indices and file name indices should be the same.
 
@@ -119,7 +119,7 @@ To allow for further expansion of the API in the future, the plugin API version 
 |  T    | Type of plugin (`'I'`for an import filter, `'E'` for an export filter, or `'A'` for an archive extractor) |
 |  S    | Image support type (`'N'` for normal, or `'M'` for multi-image)                                           |
 
-##### Remarks
+#### Remarks
 
 - While Susie retrieves information about supported file format names from this function, they are only used within the Open dialog. Susie *does not* use this function to determine if a given file is valid or not. Determining whether or not a file is valid for a particular format is determined by the return value of the `IsSupported` function.
 
@@ -158,11 +158,11 @@ int _export PASCAL GetPluginInfo(int infono, LPSTR buf, int buflen)
 int _export PASCAL IsSupported(LPSTR filename, DWORD dw)
 ```
 
-##### Description
+#### Description
 
 Determines if the file represented by `filename`  is supported by this plugin.
 
-##### Parameters
+#### Parameters
 
 `filename` - Path to the file to check.
 
@@ -171,11 +171,11 @@ Determines if the file represented by `filename`  is supported by this plugin.
 * When the upper 16 bytes of `dw` are zero, then `dw` is a Windows `HANDLE` that may be used with `ReadFile`, etc.
 * When the upper 16 bytes of `dw` are not zero, then `dw` is a pointer to an `unsigned char` buffer in memory where the file header was read. This buffer is at minimum 2 KB in size. Even if the file itself is not 2 KB in size, the buffer will still be 2 KB, but with the excess space filled with `0`.
 
-##### Return value
+#### Return value
 
 If the file is a supported format, then a non-zero value is returned. If the file is not supported, then `0` is returned.
 
-##### Explanation
+#### Explanation
 
 In order to determine if a given file is truly conforming to a file format that can be handled by a plugin, the header of said file needs to be inspected and validated. In rare cases, it's also necessary to check the file extension as well, since it's possible that a whole file needs to be composed from several other files (like a split archive). `filename` currently isn't used in any default plugins distributed at this time<sup>[1](#issupported-footnote1)</sup>
 
@@ -183,7 +183,7 @@ The file handle passed to `dw` is pointer returned by either `_lopen` or `Create
 
 If using a Mac Binary, the above doesn't need to be taken into consideration, as processing needs to be done by the caller.
 
-##### Remarks
+#### Remarks
 
 Susie will call `IsSupported` regardless of the file extensions retrieved from `GetPluginInfo`. For example, if a file such as `Sample.pic` actually has JPEG file header data and is determined to be a JPEG file from a plugin that deals with JPEG files via `IsSupported`, then the file will be handed off to that plugin.
 
@@ -191,7 +191,7 @@ If any plugin out of all plugins available to Susie returns success (a non-zero 
 
 In Susie, almost 100% of the time, the type of memory signified by `dw` will be a memory buffer containing the file header. However the case where a file handle is passed in should still be handled. Especially since there may be other Susie-compatible programs that could rely on this.
 
-##### Footnotes
+#### Footnotes
 
 <a name="issupported-footnote1">1</a>. The original document for this text is SPI_API.TXT, which was included in SPI 32005.LZH, which also included plugins for JPEG/GIF/PI/PIC/PIC2.
 
@@ -201,11 +201,11 @@ In Susie, almost 100% of the time, the type of memory signified by `dw` will be 
 int _export PASCAL GetArchiveInfo(LPSTR buf, long len, unsigned int flag, HLOCAL* lphInf)
 ```
 
-##### Description
+#### Description
 
 Retrieves information on all files within an archive.
 
-##### Parameters
+#### Parameters
 
 `buf` - Source data buffer
 * If dealing with a file, this contains the path to the archive file.
@@ -224,11 +224,11 @@ Retrieves information on all files within an archive.
 
 `lphInf` - Output pointer that receives a handle containing file information. An array of [fileInfo](#fileinfo) structures is written into LOCAL memory allocated by the plugin, and its handle is placed into this pointer after the function exits. A [fileInfo](#fileInfo) entry with `method[0] == '\0'` is considered the terminating entry in the array.
 
-##### Return value
+#### Return value
 
 If successful, then `0` is returned, otherwise an error code is returned.
 
-##### Remarks
+#### Remarks
 
 It's only necessary to allocate `(number of files + 1) * sizeof(fileInfo)` as the array to pass to LOCAL memory to be returned to `lphInf`.
 
@@ -238,11 +238,11 @@ It's only necessary to allocate `(number of files + 1) * sizeof(fileInfo)` as th
 int _export PASCAL GetPictureInfo(LPSTR buf, long len, unsigned int flag, PictureInfo* lpInfo)
 ```
 
-##### Description
+#### Description
 
 Retrieves information from image files.
 
-##### Parameters
+#### Parameters
 
 `buf` - Source data buffer
 * If dealing with a file, this contains the path to the image file.
@@ -261,18 +261,18 @@ Retrieves information from image files.
 
 `lpInfo` - Output pointer that retrieved image information is stored into.
 
-##### Return value
+#### Return value
 
 If successful, then `0` is returned, otherwise an error code is returned.
 
-##### Explanation
+#### Explanation
 
 Retrieves information about the specified image data.
 
 If no information exists in the data specified by `buf`, set `lpInfo->hInfo` to `NULL`. Also **it is the caller's responsibility to free `lpInfo->hInfo` if it is not NULL**.
 
 
-##### Remarks
+#### Remarks
 
 In Susie, this function will only ever be called if `IsSupported` returns a success value for the supplied data. However, some applications that support Susie plugins may directly call this function without properly checking if the data is valid. Therefore, it may be necessary to ensure the data in `buf` is still valid if you plan to make a plugin for applications other than Susie.
 
@@ -282,11 +282,11 @@ In Susie, this function will only ever be called if `IsSupported` returns a succ
 int _export PASCAL GetPicture(LPSTR buf, long len, unsigned int flag, HANDLE* pHBInfo, HANDLE* pHBm, FARPROC lpPrgressCallback, long lData)
 ```
 
-##### Description
+#### Description
 
 Extracts an image
 
-##### Parameters
+#### Parameters
 
 `buf` - Source data buffer
 * If dealing with a file, this contains the path to the image file.
@@ -311,11 +311,11 @@ Extracts an image
 
 `lData` - Data that can be passed to the callback. This can be used to pass pointer values, etc into the callback function (**NOTE:** `long` is unsuitable for passing pointer on 64-bit Windows, as `long` is still a 32-bit type, which can truncate a 64-bit pointer address).
 
-##### Return value
+#### Return value
 
 If successful, `0` is returned; otherwise an error code is returned.
 
-##### Explanation
+#### Explanation
 
 Extracts the image specified by `buf`.
 
@@ -323,7 +323,7 @@ The plugin allocates the required amount of memory by calling `LocalAlloc`. It's
 
 **NOTE:** If you do not intend to support 16-bit Windows variants, then it is sufficient to also use the heap memory management functions in the Win32 API instead, such as `HeapFree`, `HeapLock` and `HeapUnlock`, as the local memory APIs are simply a wrapper for them on 32-bit and 64-bit Windows variants.
 
-##### Callback function
+#### Callback function
 
 Callback functions have the following prototype:
 
@@ -341,11 +341,11 @@ The contents of `lData` will be the same as what was passed into `GetPicture`'s 
 int _export PASCAL GetFileInfo(LPSTR buf, long len, LPSTR filename, unsigned int flag, fileInfo* lpInfo)
 ```
 
-##### Description
+#### Description
 
 Retrieves information about a specified file within an archive.
 
-##### Parameters
+#### Parameters
 
 `buf` - Source data buffer
 * If dealing with a file, this contains the path to the archive file.
@@ -375,7 +375,7 @@ While bit 7 determines filename case-sensitivity:
 
 `lpInfo` - Pointer to the `fileInfo` struct that will receive the file information.
 
-##### Return value
+#### Return value
 
 If successful, `0` is returned; otherwise an error code is returned.
 
@@ -385,11 +385,11 @@ If successful, `0` is returned; otherwise an error code is returned.
 int _export PASCAL GetPreview(LPSTR buf, long len, unsigned int flag, HANDLE* pHBInfo, HANDLE* pHBm, FARPROC lpPrgressCallback, long lData)
 ```
 
-##### Description
+#### Description
 
 Extracts an image and reduces its size to be suitable for use as a preview image.
 
-##### Parameters
+#### Parameters
 
 `buf` - Source data buffer
 * If dealing with a file, this contains the path to the image file.
@@ -414,11 +414,11 @@ Extracts an image and reduces its size to be suitable for use as a preview image
 
 `lData` - Data that can be passed to the callback. This can be used to pass pointer values, etc into the callback function (**NOTE:** `long` is unsuitable for passing pointer on 64-bit Windows, as `long` is still a 32-bit type, which can truncate a 64-bit pointer address).
 
-##### Return value
+#### Return value
 
 If successful, then `0` is returned; otherwise an error code is returned. As this function is optional, if it is not implemented then `-1` will be returned by the default implementation to signify this operation is unsupported.
 
-##### Explanation
+#### Explanation
 
 Creates a reduced image that can be used as a preview for a file. This function is essentially the same as `GetPicture`, except the image output is a reduced resolution instead. This function should only be implemented when files can be extracted and converted very quickly. For example, this would be suitable for a JPEG plugin.
 
@@ -430,7 +430,7 @@ The plugin allocates the required amount of memory by calling `LocalAlloc`. It's
 
 **NOTE:** If you do not intend to support 16-bit Windows variants, then it is sufficient to also use the heap memory management functions in the Win32 API instead, such as `HeapFree`, `HeapLock` and `HeapUnlock`, as the local memory APIs are simply a wrapper for them on 32-bit and 64-bit Windows variants.
 
-##### Callback function
+#### Callback function
 
 Callback functions have the following prototype:
 
@@ -448,11 +448,11 @@ The contents of `lData` will be the same as what was passed into `GetPreview`'s 
 int _export PASCAL GetFile(LPSTR src, long len, LPSTR dest, unsigned int flag, FARPROC prgressCallback, long lData)
 ```
 
-##### Description
+#### Description
 
 Retrieves a file from an archive
 
-##### Parameters
+#### Parameters
 
 `src` - Source data buffer
 * If dealing with a file, this contains the path to the file.
@@ -486,11 +486,11 @@ While bits 8–10 specify what type of output data is being dealt with:
 
 `lData` - Data that can be passed to the callback. This can be used to pass pointer values, etc into the callback function (**NOTE:** `long` is unsuitable for passing pointer on 64-bit Windows, as `long` is still a 32-bit type, which can truncate a 64-bit pointer address).
 
-##### Return value
+#### Return value
 
 If successful, `0` is returned; otherwise an error code is returned.
 
-##### Explanation
+#### Explanation
 
 This plugin allocates necessary memory via `LocalAlloc`. It's the caller's responsibility to call `LocalFree` on `dest` whenever it functions as an output parameter if the function succeeds. **NOTE:** If you do not intend to support 16-bit Windows variants, then it is sufficient to also use the heap memory management functions in the Win32 API instead, such as `HeapFree`, `HeapLock` and `HeapUnlock`, as the local memory APIs are simply a wrapper for them on 32-bit and 64-bit Windows variants.
 
@@ -507,7 +507,7 @@ Applications using Susie plugins should take note of the following points when t
 * When dealing with MacBin, consider skipping the first `n` bytes.
 
 
-##### Callback function
+#### Callback function
 
 Callback functions have the following prototype:
 
@@ -525,11 +525,11 @@ The contents of `lData` will be the same as what was passed into `GetFile`'s `lD
 int _export PASCAL ConfigurationDlg(HWND parent, int fnc)
 ```
 
-##### Description
+#### Description
 
 Display's the plugin's configuration dialog.
 
-##### Parameters
+#### Parameters
 
 `parent` - Parent window handle
 
@@ -541,11 +541,11 @@ Display's the plugin's configuration dialog.
 | 1             | Settings dialog                    |
 | 2 and greater | Reserved                           |
 
-##### Return value
+#### Return value
 
 If successful, `0` is returned; otherwise an error code is returned. As this function is optional, if not implemented, the default implementation will return `-1` to signify that it's unimplemented.
 
-##### Explanation
+#### Explanation
 
 Allows setting plugin-specific settings.
 
