@@ -313,7 +313,7 @@ Extracts an image
 
 #### Return value
 
-If successful, `0` is returned; otherwise an error code is returned.
+If successful, then `0` is returned, otherwise an error code is returned.
 
 #### Explanation
 
@@ -377,7 +377,7 @@ While bit 7 determines filename case-sensitivity:
 
 #### Return value
 
-If successful, `0` is returned; otherwise an error code is returned.
+If successful, then `0` is returned, otherwise an error code is returned.
 
 ### GetPreview()
 
@@ -416,7 +416,7 @@ Extracts an image and reduces its size to be suitable for use as a preview image
 
 #### Return value
 
-If successful, then `0` is returned; otherwise an error code is returned. As this function is optional, if it is not implemented then `-1` will be returned by the default implementation to signify this operation is unsupported.
+If successful, then `0` is returned, otherwise an error code is returned. As this function is optional, if it is not implemented then `-1` will be returned by the default implementation to signify this operation is unsupported.
 
 #### Explanation
 
@@ -488,7 +488,7 @@ While bits 8–10 specify what type of output data is being dealt with:
 
 #### Return value
 
-If successful, `0` is returned; otherwise an error code is returned.
+If successful, then `0` is returned, otherwise an error code is returned.
 
 #### Explanation
 
@@ -543,7 +543,7 @@ Display's the plugin's configuration dialog.
 
 #### Return value
 
-If successful, `0` is returned; otherwise an error code is returned. As this function is optional, if not implemented, the default implementation will return `-1` to signify that it's unimplemented.
+If successful, then `0` is returned, otherwise an error code is returned. As this function is optional, if not implemented, the default implementation will return `-1` to signify that it's unimplemented.
 
 #### Explanation
 
