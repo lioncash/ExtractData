@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 
-//#include "DataBase/DataBase.h"
 #include "ExtractBase.h"
-//#include "FileMap.h"
 #include "Extract.h"
 
 #include "Extract/Ahx.h"
