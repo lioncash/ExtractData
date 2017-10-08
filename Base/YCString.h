@@ -1361,12 +1361,12 @@ int YCStringT<TYPE>::Find(const TYPE* pszSub, int nStart) const
 	{
 		case 1: // char type
 		{
-			const BYTE* pbtFound = _mbsstr((const BYTE*)&m_ptString[nStart], (const BYTE*)pszSub);
+			const u8* found = _mbsstr((const u8*)&m_ptString[nStart], (const u8*)pszSub);
 
-			if (pbtFound != nullptr)
+			if (found != nullptr)
 			{
 				// Target string is present
-				npResult = (pbtFound - (BYTE*) m_ptString);
+				npResult = (found - (u8*) m_ptString);
 			}
 		}
 		break;
@@ -1409,12 +1409,12 @@ template<class TYPE> int YCStringT<TYPE>::Find(const TYPE& rfcSub, int nStart) c
 	{
 		case 1: // char type
 		{
-			const BYTE* pbtFound = _mbschr((const BYTE*)&m_ptString[nStart], rfcSub);
+			const u8* found = _mbschr((const u8*)&m_ptString[nStart], rfcSub);
 
-			if (pbtFound != nullptr)
+			if (found != nullptr)
 			{
 				// Target string is present
-				npResult = (pbtFound - (BYTE*) m_ptString);
+				npResult = (found - (u8*) m_ptString);
 			}
 		}
 		break;
@@ -1522,12 +1522,12 @@ int YCStringT<TYPE>::ReverseFind(const TYPE& rfcSub) const
 	{
 		case 1: // char type
 		{
-			const BYTE* pbtFound = _mbsrchr((const BYTE*)m_ptString, rfcSub);
+			const u8* found = _mbsrchr((const u8*)m_ptString, rfcSub);
 
-			if (pbtFound != nullptr)
+			if (found != nullptr)
 			{
 				// Target string is present
-				npResult = (pbtFound - (BYTE*) m_ptString);
+				npResult = (found - (u8*) m_ptString);
 			}
 		}
 		break;

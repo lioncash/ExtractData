@@ -189,7 +189,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 
 		for (size_t i = 0; i < 256; i++)
 		{
-			key_table[i] = static_cast<BYTE>(i);
+			key_table[i] = static_cast<u8>(i);
 		}
 
 		// Construct table
