@@ -34,6 +34,12 @@ public:
 	YCFile();
 	virtual ~YCFile();
 
+	YCFile(const YCFile&) = delete;
+	YCFile& operator=(const YCFile&) = delete;
+
+	YCFile(YCFile&&) = default;
+	YCFile& operator=(YCFile&&) = default;
+
 	virtual bool Open(LPCTSTR file_path, u32 open_flags);
 
 	virtual void Close();

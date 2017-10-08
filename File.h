@@ -12,6 +12,12 @@ public:
 	CFile();
 	virtual ~CFile();
 
+	CFile(const CFile&) = delete;
+	CFile& operator=(const CFile&) = delete;
+
+	CFile(CFile&&) = default;
+	CFile& operator=(CFile&&) = default;
+
 	virtual HANDLE Open(LPCTSTR filename, OpenMode mode);
 	virtual bool OpenForRead(LPCTSTR filename);
 	virtual bool OpenForWrite(LPCTSTR filename);

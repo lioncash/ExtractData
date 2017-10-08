@@ -12,6 +12,12 @@ public:
 	YCStdioFile();
 	virtual ~YCStdioFile();
 
+	YCStdioFile(const YCStdioFile&) = delete;
+	YCStdioFile& operator=(const YCStdioFile&) = delete;
+
+	YCStdioFile(YCStdioFile&&) = default;
+	YCStdioFile& operator=(YCStdioFile&&) = default;
+
 	bool Open(LPCTSTR file_path, u32 open_flags) override;
 	void Close() override;
 
