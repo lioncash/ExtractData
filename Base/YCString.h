@@ -7,14 +7,13 @@
 class YCBaseString
 {
 public:
+	int GetBaseTypeLength(const char* src) const;
+	int GetBaseTypeLength(const char* src, int length) const;
+	int GetBaseTypeLength(const wchar_t* src) const;
+	int GetBaseTypeLength(const wchar_t* src, int length) const;
 
-	int GetBaseTypeLength(const char* pszSrc) const;
-	int GetBaseTypeLength(const char* pszSrc, int nLength) const;
-	int GetBaseTypeLength(const wchar_t* pwszSrc) const;
-	int GetBaseTypeLength(const wchar_t* pwszSrc, int nLength) const;
-
-	int ConvertToBaseType(wchar_t* pwszDst, int nDstLength, const char* pszSrc, int nSrcLength = -1) const;
-	int ConvertToBaseType(char* pszDst, int nDstLength, const wchar_t* pwszSrc, int nSrcLength = -1) const;
+	int ConvertToBaseType(wchar_t* dst, int dst_length, const char* src, int src_length = -1) const;
+	int ConvertToBaseType(char* dst, int dst_length, const wchar_t* src, int src_length = -1) const;
 };
 
 //----------------------------------------------------------------------------------------
