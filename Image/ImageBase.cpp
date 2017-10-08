@@ -25,8 +25,8 @@ CImageBase::~CImageBase()
 ///
 bool CImageBase::Init(
 	CArcFile*       archive,
-	long            width,
-	long            height,
+	s32             width,
+	s32             height,
 	u16             bpp,
 	const void*     pallet,
 	size_t          pallet_size,
@@ -134,8 +134,8 @@ bool CImageBase::Compress(
 	const void* pallet,
 	size_t      pallet_size,
 	u16         pallet_bpp,
-	long        width,
-	long        height,
+	s32         width,
+	s32         height,
 	u16         bpp
 	)
 {
@@ -152,10 +152,10 @@ bool CImageBase::Compress(
 	if (IsRequireAlphaBlend())
 	{
 		// Alpha blending is enabled
-		long dst_size_after_alpha_blend = GetPitch() + 2; // Ensure high-speed processing for alpha
+		s32 dst_size_after_alpha_blend = GetPitch() + 2; // Ensure high-speed processing for alpha
 		std::vector<u8> dst_after_alpha_blend(dst_size_after_alpha_blend);
 
-		for (long y = 0; y < GetHeight(); y++)
+		for (s32 y = 0; y < GetHeight(); y++)
 		{
 			AlphaBlend(dst_after_alpha_blend.data(), pbtDIB, m_unpBackColorWhenAlphaBlend, width);
 
@@ -167,7 +167,7 @@ bool CImageBase::Compress(
 	else
 	{
 		// Request without alpha blending
-		long line = m_lLine;
+		s32 line = m_lLine;
 
 		if (buffer_size >= m_lPitch * m_lHeight)
 		{
@@ -176,7 +176,7 @@ bool CImageBase::Compress(
 			line = m_lPitch;
 		}
 
-		for (long y = 0; y < m_lHeight; y++)
+		for (s32 y = 0; y < m_lHeight; y++)
 		{
 			OnWriteLine(pbtBuffer);
 			pbtBuffer += line;
@@ -221,8 +221,8 @@ bool CImageBase::Compress(
 	const void* pallet,
 	size_t      pallet_size,
 	u16         pallet_bpp,
-	long        width,
-	long        height,
+	s32         width,
+	s32         height,
 	u16         bpp
 	)
 {
@@ -240,10 +240,10 @@ bool CImageBase::Compress(
 	if (IsRequireAlphaBlend())
 	{
 		// Request alpha-blending
-		long dst_size_after_alpha_blend = GetPitch() + 2; // Ensure high-speed alpha blending
+		s32 dst_size_after_alpha_blend = GetPitch() + 2; // Ensure high-speed alpha blending
 		std::vector<u8> dst_after_alpha_blend(dst_size_after_alpha_blend);
 
-		for (long y = 0 ; y < GetHeight() ; y++)
+		for (s32 y = 0 ; y < GetHeight() ; y++)
 		{
 			AlphaBlend(dst_after_alpha_blend.data(), pbtDIB);
 
@@ -256,7 +256,7 @@ bool CImageBase::Compress(
 	else
 	{
 		// No Alpha blending
-		long line = m_lLine;
+		s32 line = m_lLine;
 
 		if (buffer_size >= m_pitch * m_height)
 		{
@@ -266,7 +266,7 @@ bool CImageBase::Compress(
 			line = m_pitch;
 		}
 
-		for (long y = 0; y < m_height; y++)
+		for (s32 y = 0; y < m_height; y++)
 		{
 			OnWriteLine(pbtBuffer);
 			pbtBuffer += line;
@@ -297,7 +297,7 @@ bool CImageBase::IsRequireAlphaBlend() const
 ///
 void CImageBase::AlphaBlend(u8* buffer24, const u8* buffer32)
 {
-	for (long x = 0; x < m_width; x++)
+	for (s32 x = 0; x < m_width; x++)
 	{
 		switch (buffer32[3])
 		{
@@ -351,7 +351,7 @@ void CImageBase::Write(const void* buffer, size_t buffer_size, bool progress)
 		// Alpha-blending enabled
 		std::vector<u8> buffer24(m_pitch + 2);
 
-		for (long y = 0; y < m_height; y++)
+		for (s32 y = 0; y < m_height; y++)
 		{
 			WriteLineWithAlphaBlend(buffer24.data(), pbtBuffer);
 			pbtBuffer += m_pitch_with_alpha;
@@ -359,7 +359,7 @@ void CImageBase::Write(const void* buffer, size_t buffer_size, bool progress)
 	}
 	else
 	{
-		long line = m_line;
+		s32 line = m_line;
 
 		if (buffer_size >= m_pitch * m_height)
 		{
@@ -368,7 +368,7 @@ void CImageBase::Write(const void* buffer, size_t buffer_size, bool progress)
 			line = m_pitch;
 		}
 
-		for (long y = 0; y < m_height; y++)
+		for (s32 y = 0; y < m_height; y++)
 		{
 			WriteLine(pbtBuffer);
 			pbtBuffer += line;
@@ -401,7 +401,7 @@ void CImageBase::WriteReverse(const void* buffer, size_t buffer_size, bool progr
 		std::vector<u8> buffer24(m_pitch + 2);
 		pbtBuffer += m_pitch_with_alpha * m_height;
 
-		for (long y = 0; y < m_height; y++)
+		for (s32 y = 0; y < m_height; y++)
 		{
 			pbtBuffer -= m_pitch_with_alpha;
 			WriteLineWithAlphaBlend(buffer24.data(), pbtBuffer);
@@ -409,7 +409,7 @@ void CImageBase::WriteReverse(const void* buffer, size_t buffer_size, bool progr
 	}
 	else
 	{
-		long line = m_line;
+		s32 line = m_line;
 
 		if (buffer_size >= m_pitch * m_height)
 		{
@@ -421,7 +421,7 @@ void CImageBase::WriteReverse(const void* buffer, size_t buffer_size, bool progr
 
 		pbtBuffer += line * m_height;
 
-		for (long y = 0; y < m_height; y++)
+		for (s32 y = 0; y < m_height; y++)
 		{
 			pbtBuffer -= line;
 			WriteLine(pbtBuffer);
@@ -618,7 +618,7 @@ void CImageBase::WriteFinish()
 /// @param width Width
 /// @param bpp   Number of bits
 ///
-long CImageBase::CalculatePitch(long width, u16 bpp)
+s32 CImageBase::CalculatePitch(s32 width, u16 bpp)
 {
 	return (width * (bpp >> 3) + 3) & 0xFFFFFFFC;
 }

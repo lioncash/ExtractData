@@ -80,7 +80,7 @@ bool CImage::Init(CArcFile* archive, void* bmp, const YCString& file_name)
 /// @param pallet_size Palette size
 /// @param file_name   File name
 ///
-bool CImage::Init(CArcFile* archive, long width, long height, u16 bpp, const void* pallet, size_t pallet_size, const YCString& file_name)
+bool CImage::Init(CArcFile* archive, s32 width, s32 height, u16 bpp, const void* pallet, size_t pallet_size, const YCString& file_name)
 {
 	m_archive = archive;
 	m_option = archive->GetOpt();

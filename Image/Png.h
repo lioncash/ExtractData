@@ -16,9 +16,9 @@ public:
 	void Close();
 
 	bool Compress(LPCTSTR dst_path, const void* bmp, size_t bmp_size);
-	bool Compress(LPCTSTR dst_path, const void* dib, size_t dib_size, const void* pallet, size_t palle_size, u16 pallet_bpp, long width, long height, u16 bpp);
+	bool Compress(LPCTSTR dst_path, const void* dib, size_t dib_size, const void* pallet, size_t palle_size, u16 pallet_bpp, s32 width, s32 height, u16 bpp);
 	bool Compress(void* dst, size_t dst_size, const void* bmp, size_t bmp_size);
-	bool Compress(void* dst, size_t dst_size, const void* dib, size_t dib_size, const void* pallet, size_t pallet_size, u16 pallet_bpp, long width, long height, u16 bpp);
+	bool Compress(void* dst, size_t dst_size, const void* dib, size_t dib_size, const void* pallet, size_t pallet_size, u16 pallet_bpp, s32 width, s32 height, u16 bpp);
 
 	bool Decompress();
 

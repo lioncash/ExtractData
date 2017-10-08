@@ -136,8 +136,8 @@ bool CPng::Compress(
 	const void* pallet,
 	size_t      pallet_size,
 	u16         pallet_bpp,
-	long        width,
-	long        height,
+	s32         width,
+	s32         height,
 	u16         bpp
 	)
 {
@@ -176,8 +176,8 @@ bool CPng::Compress(
 	const void* pallet,
 	size_t      pallet_size,
 	u16         pallet_bpp,
-	long        width,
-	long        height,
+	s32         width,
+	s32         height,
 	u16         bpp
 	)
 {
@@ -243,10 +243,10 @@ bool CPng::Compress(
 	if (IsRequireAlphaBlend())
 	{
 		// Alpha-blend on request
-		const long pitch = CalculatePitch(width, bpp);
+		const s32 pitch = CalculatePitch(width, bpp);
 		std::vector<u8> alpha_blend_buffer(pitch);
 
-		for (long y = 0; y < height; y++)
+		for (s32 y = 0; y < height; y++)
 		{
 			AlphaBlend(alpha_blend_buffer.data(), &pbtDIB[y * pitch]);
 
@@ -255,9 +255,9 @@ bool CPng::Compress(
 	}
 	else // No alpha-blending
 	{
-		const long pitch = CalculatePitch(width, bpp);
+		const s32 pitch = CalculatePitch(width, bpp);
 
-		for (long y = 0; y < height; y++)
+		for (s32 y = 0; y < height; y++)
 		{
 			png_write_row(m_png, &pbtDIB[y * pitch]);
 		}

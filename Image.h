@@ -15,7 +15,7 @@ public:
     bool Decode(CArcFile* archive) override;
 
     bool Init(CArcFile* archive, void* bmp, const YCString& file_name = _T(""));
-    bool Init(CArcFile* archive, long width, long height, u16 bpp, const void* pallet = nullptr, size_t pallet_size = 1024, const YCString& file_name = _T(""));
+    bool Init(CArcFile* archive, s32 width, s32 height, u16 bpp, const void* pallet = nullptr, size_t pallet_size = 1024, const YCString& file_name = _T(""));
 
     void Close();
 

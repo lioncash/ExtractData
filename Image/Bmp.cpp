@@ -151,7 +151,7 @@ void CBmp::WriteLine(const u8* buffer)
 	}
 	else
 	{
-		for (long i = m_line; i < m_pitch; i++)
+		for (s32 i = m_line; i < m_pitch; i++)
 		{
 			m_archive->WriteFile("\0", 1, 0);
 		}
