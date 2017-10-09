@@ -75,7 +75,7 @@ public:
 	int Insert(int index, const TYPE& insert);
 
 	// Deleting
-	void Empty();
+	void Clear();
 
 	int Delete(int index, int count = 1);
 
@@ -286,7 +286,7 @@ YCStringT<TYPE>::YCStringT()
 {
 	m_ptString = nullptr;
 
-	Empty();
+	Clear();
 }
 
 /// Constructor
@@ -834,7 +834,7 @@ int YCStringT<TYPE>::Insert(int index, const TYPE& insert)
 
 /// Clears the string
 template<class TYPE>
-void YCStringT<TYPE>::Empty()
+void YCStringT<TYPE>::Clear()
 {
 	switch (sizeof(TYPE))
 	{
