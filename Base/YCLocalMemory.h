@@ -1,27 +1,24 @@
 #pragma once
 
-//----------------------------------------------------------------------------------------
-//-- Local Memory Class ------------------------------------------------------------------
-//----------------------------------------------------------------------------------------
-
+/// Local Memory Class
 class YCLocalMemory
 {
 public:
 	YCLocalMemory();
 	virtual ~YCLocalMemory();
 
-	bool Alloc(UINT uFlags, UINT uBytes);
+	bool Alloc(u32 flags, u32 bytes);
 	bool Free();
 
 	void* Lock();
 	bool Unlock();
 
-	UINT GetSize() const;
+	u32 GetSize() const;
 
 	HLOCAL& GetHandle();
 	void* GetPtr() const;
 
 protected:
-	HLOCAL m_hMemory = nullptr;
-	void* m_pvMemory = nullptr;
+	HLOCAL m_memory_handle = nullptr;
+	void* m_memory_ptr = nullptr;
 };
