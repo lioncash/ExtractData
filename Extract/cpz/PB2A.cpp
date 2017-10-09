@@ -19,10 +19,10 @@ bool CPB2A::Decode(CArcFile* archive, u8* src, size_t src_size)
 	Decrypt(src, src_size);
 
 	// Get image information
-	const u16 type    = *reinterpret_cast<u16*>(&src[16]);
-	const long width  = *reinterpret_cast<u16*>(&src[18]);
-	const long height = *reinterpret_cast<u16*>(&src[20]);
-	const u16 bpp     = *reinterpret_cast<u16*>(&src[22]);
+	const u16 type   = *reinterpret_cast<u16*>(&src[16]);
+	const s32 width  = *reinterpret_cast<u16*>(&src[18]);
+	const s32 height = *reinterpret_cast<u16*>(&src[20]);
+	const u16 bpp    = *reinterpret_cast<u16*>(&src[22]);
 
 	// Decompression
 	switch (type)
@@ -84,7 +84,7 @@ void CPB2A::Decrypt(u8* target, size_t size)
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decode1(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decode1(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -110,7 +110,7 @@ bool CPB2A::Decode1(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decode2(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decode2(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -136,7 +136,7 @@ bool CPB2A::Decode2(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decode4(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decode4(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -162,7 +162,7 @@ bool CPB2A::Decode4(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decode5(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decode5(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure base image buffer
 	const u32 base_size = static_cast<u32>(width * height * 4);
@@ -215,7 +215,7 @@ bool CPB2A::Decode5(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decode6(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decode6(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure base image buffer
 	const u32 base_size = static_cast<u32>(width * height * 4);
@@ -269,14 +269,14 @@ bool CPB2A::Decode6(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
-	const u32  flags_offset = *reinterpret_cast<const u32*>(&src[24]);
-	const u32  compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
-	const long block_width = 8;
-	const long block_height = 8;
-	const u16  byte_count = bpp >> 3;
-	const long line = width * byte_count;
+	const u32 flags_offset = *reinterpret_cast<const u32*>(&src[24]);
+	const u32 compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
+	const s32 block_width = 8;
+	const s32 block_height = 8;
+	const u16 byte_count = bpp >> 3;
+	const s32 line = width * byte_count;
 
 	// Ensure LZSS decompression buffer
 	const u32 temp_size = width * height * byte_count;
@@ -292,28 +292,28 @@ bool CPB2A::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 	DecompLZSS(temp.data(), temp.size(), flags, flags_size, compressed_data, compressed_data_size);
 
 	// Change color componentss
-	const long block_count_width = ((width + (block_width - 1)) / block_width);
-	const long block_count_height = ((height + (block_height - 1)) / block_height);
+	const s32 block_count_width = ((width + (block_width - 1)) / block_width);
+	const s32 block_count_height = ((height + (block_height - 1)) / block_height);
 
 	for (u16 color = 0; color < byte_count; color++)
 	{
 		u8* dst_ptr = &dst[color];
 
-		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+		for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			u8* next_block_ptr = dst_ptr;
-			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
+			const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
 			// Process the block in one column
-			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+			for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
 				u8* block_ptr = next_block_ptr;
-				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
+				const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				// Process 1 block
-				for (long i = 0; i < max_block_height; i++)
+				for (s32 i = 0; i < max_block_height; i++)
 				{
-					for (long j = 0; j < max_block_width; j++)
+					for (s32 j = 0; j < max_block_width; j++)
 					{
 						block_ptr[j * byte_count] = temp[temp_idx++];
 					}
@@ -343,14 +343,14 @@ bool CPB2A::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
-	const u32  flags_offset = *reinterpret_cast<const u32*>(&src[24]);
-	const u32  compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
-	const long block_width = 8;
-	const long block_height = 8;
-	const u16  byte_count = bpp >> 3;
-	const long line = width * byte_count;
+	const u32 flags_offset = *reinterpret_cast<const u32*>(&src[24]);
+	const u32 compressed_data_offset = *reinterpret_cast<const u32*>(&src[28]);
+	const s32 block_width = 8;
+	const s32 block_height = 8;
+	const u16 byte_count = bpp >> 3;
+	const s32 line = width * byte_count;
 
 	// Ensure LZSS decompression buffer
 	const u32 temp_size = width * height;
@@ -398,8 +398,8 @@ bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 		DecompLZSS(temp.data(), lzss_decode_size , flags, flags_size, compressed_data, compressed_data_size);
 
 		// Decompress compressed blocks
-		const long block_count_width = ((width + (block_width - 1)) / block_width);
-		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		const s32 block_count_width = ((width + (block_width - 1)) / block_width);
+		const s32 block_count_height = ((height + (block_height - 1)) / block_height);
 		u8 code = 0x80;
 		size_t temp_idx = 0;
 		size_t flags_idx = 0;
@@ -410,12 +410,12 @@ bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 		u8* dst_ptr = &dst[color];
 
-		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+		for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			u8* next_block_ptr = dst_ptr;
-			const long  max_block_height = ((y + block_height) > height) ? height - y : block_height;
+			const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+			for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
 				if (code == 0)
 				{
@@ -426,14 +426,14 @@ bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 				// Process 1 block
 				u8* block_ptr = next_block_ptr;
-				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
+				const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				// Compressed
 				if (flags[flags_idx] & code)
 				{
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							block_ptr[j * byte_count] = compressed_data[compressed_data_idx];
 						}
@@ -445,9 +445,9 @@ bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 				}
 				else // Not compressed
 				{
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							block_ptr[j * byte_count] = temp[temp_idx++];
 						}
@@ -478,7 +478,7 @@ bool CPB2A::Decomp2(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB2A::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB2A::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Get alpha value
 	const u8* alpha = src + *reinterpret_cast<const u32*>(&src[24]);
@@ -510,8 +510,8 @@ bool CPB2A::Decomp5(
 	size_t    dst_size,
 	const u8* src,
 	size_t    src_size,
-	long      width,
-	long      height,
+	s32      width,
+	s32      height,
 	u16       bpp,
 	const u8* base,
 	u32       frame_number
@@ -590,11 +590,11 @@ bool CPB2A::Decomp5(
 		}
 
 		// Decompression
-		const long line = width * 4;
-		const long block_width = 8;
-		const long block_height = 8;
-		const long block_count_width = ((width + (block_width - 1)) / block_width);
-		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		const s32 line = width * 4;
+		const s32 block_width = 8;
+		const s32 block_height = 8;
+		const s32 block_count_width = ((width + (block_width - 1)) / block_width);
+		const s32 block_count_height = ((height + (block_height - 1)) / block_height);
 		size_t flags_idx = 0;
 		size_t compressed_data_idx = 0;
 		u8 code = 0x80;
@@ -604,13 +604,13 @@ bool CPB2A::Decomp5(
 
 		u8* dst_ptr = dst;
 
-		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+		for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			// Process the block of one column
 			u8* next_block_ptr = dst_ptr;
-			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
+			const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+			for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
 				if (code == 0)
 				{
@@ -621,15 +621,15 @@ bool CPB2A::Decomp5(
 
 				// Process 1 block
 				u8* block_ptr = next_block_ptr;
-				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
+				const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				if ((flags[flags_idx] & code) == 0)
 				{
 					// Difference
 
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							memcpy(&block_ptr[j * 4], &compressed_data[compressed_data_idx + j * 3], 3);
 
@@ -672,8 +672,8 @@ bool CPB2A::Decomp6(
 	size_t    dst_size,
 	const u8* src,
 	size_t    src_size,
-	long      width,
-	long      height,
+	s32      width,
+	s32      height,
 	u16       bpp,
 	const u8* base,
 	u32       frame_number
@@ -759,12 +759,12 @@ bool CPB2A::Decomp6(
 		}
 
 		// Decompression
-		const u16  byte_count = bpp >> 3;
-		const long line = width * 4;
-		const long block_width = 8;
-		const long block_height = 8;
-		const long block_count_width = ((width + (block_width - 1)) / block_width);
-		const long block_count_height = ((height + (block_height - 1)) / block_height);
+		const u16 byte_count = bpp >> 3;
+		const s32 line = width * 4;
+		const s32 block_width = 8;
+		const s32 block_height = 8;
+		const s32 block_count_width = ((width + (block_width - 1)) / block_width);
+		const s32 block_count_height = ((height + (block_height - 1)) / block_height);
 		size_t flags_idx = 0;
 		size_t compressed_data_idx = 0;
 		u8 code = 0x80;
@@ -774,13 +774,13 @@ bool CPB2A::Decomp6(
 
 		u8* dst_ptr = dst;
 
-		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+		for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			u8* next_block_ptr = dst_ptr;
-			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
+			const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
 			// Process 1 column
-			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+			for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
 				if (code == 0)
 				{
@@ -791,14 +791,14 @@ bool CPB2A::Decomp6(
 
 				// Process 1 block
 				u8* block_ptr = next_block_ptr;
-				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
+				const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				if ((flags[flags_idx] & code) == 0)
 				{
 					// Difference
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							memcpy(&block_ptr[j * 4], &compressed_data[compressed_data_idx + j * 4], 4);
 						}
