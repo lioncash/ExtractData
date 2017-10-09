@@ -20,10 +20,10 @@ bool CPB3B::Decode(CArcFile* archive, u8* src, size_t src_size, PB3B_DECRYPT dec
 	Decrypt(src, src_size);
 
 	// Get image information
-	const u16  type   = *reinterpret_cast<const u16*>(&src[28]);
-	const long width  = *reinterpret_cast<const u16*>(&src[30]);
-	const long height = *reinterpret_cast<const u16*>(&src[32]);
-	const u16  bpp    = *reinterpret_cast<const u16*>(&src[34]);
+	const u16 type   = *reinterpret_cast<const u16*>(&src[28]);
+	const s32 width  = *reinterpret_cast<const u16*>(&src[30]);
+	const s32 height = *reinterpret_cast<const u16*>(&src[32]);
+	const u16 bpp    = *reinterpret_cast<const u16*>(&src[34]);
 
 	switch (type)
 	{
@@ -84,7 +84,7 @@ void CPB3B::Decrypt(u8* target, size_t size)
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decode1(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decode1(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -110,7 +110,7 @@ bool CPB3B::Decode1(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decode3(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decode3(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -136,7 +136,7 @@ bool CPB3B::Decode3(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decode4(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decode4(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	archive->OpenFile();
 	archive->WriteFile(src, src_size);
@@ -153,7 +153,7 @@ bool CPB3B::Decode4(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decode5(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decode5(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure base image buffer
 	const u32 base_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -181,7 +181,7 @@ bool CPB3B::Decode5(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param bpp              Number of bits
 /// @param decrypt_function Decryption function
 ///
-bool CPB3B::Decode6(CArcFile* archive, const u8* src, size_t src_size, long width, long height, u16 bpp, PB3B_DECRYPT decrypt_function)
+bool CPB3B::Decode6(CArcFile* archive, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp, PB3B_DECRYPT decrypt_function)
 {
 	// Ensure output buffer
 	const u32 dst_size = static_cast<u32>(width * height * (bpp >> 3));
@@ -255,14 +255,14 @@ bool CPB3B::Decode6(CArcFile* archive, const u8* src, size_t src_size, long widt
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
-	const u32  flags_offset = *reinterpret_cast<const u32*>(&src[44]);
-	const u32  compressed_data_offset = *reinterpret_cast<const u32*>(&src[48]);
-	const long block_width = *reinterpret_cast<const u32*>(&src[24]);
-	const long block_height = *reinterpret_cast<const u32*>(&src[24]);
-	const u16  byte_count = bpp >> 3;
-	const long line = width * byte_count;
+	const u32 flags_offset = *reinterpret_cast<const u32*>(&src[44]);
+	const u32 compressed_data_offset = *reinterpret_cast<const u32*>(&src[48]);
+	const s32 block_width = *reinterpret_cast<const u32*>(&src[24]);
+	const s32 block_height = *reinterpret_cast<const u32*>(&src[24]);
+	const u16 byte_count = bpp >> 3;
+	const s32 line = width * byte_count;
 
 	// Ensure LZSS decompression buffer
 	const u32 temp_size = width * height;
@@ -308,8 +308,8 @@ bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 		// Decompress compressed blocks
 		u8* dst_ptr = &dst[color];
-		const long block_count_width = (width + (block_width - 1)) / block_width;
-		const long block_count_height = (height + (block_height - 1)) / block_height;
+		const s32 block_count_width = (width + (block_width - 1)) / block_width;
+		const s32 block_count_height = (height + (block_height - 1)) / block_height;
 		u8 code = 0x80;
 		size_t temp_ptr = 0;
 		size_t flags_ptr = 0;
@@ -318,12 +318,12 @@ bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 		flags = src_ptr + 12;
 		compressed_data = src_ptr + *reinterpret_cast<const u32*>(&src_ptr[0]) + 12;
 
-		for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+		for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 		{
 			u8* next_block_ptr = dst_ptr;
-			const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
+			const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-			for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+			for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 			{
 				if (code == 0)
 				{
@@ -334,14 +334,14 @@ bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 				// Processing 1 block
 				u8* block_ptr = next_block_ptr;
-				const long max_block_width = ((x + block_width) > width) ? width - x : block_width;
+				const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 				// Compressed
 				if (flags[flags_ptr] & code)
 				{
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							block_ptr[j * byte_count] = compressed_data[compressed_data_ptr];
 						}
@@ -353,9 +353,9 @@ bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 				}
 				else // Not compressed
 				{
-					for (long i = 0; i < max_block_height; i++)
+					for (s32 i = 0; i < max_block_height; i++)
 					{
-						for (long j = 0; j < max_block_width; j++)
+						for (s32 j = 0; j < max_block_width; j++)
 						{
 							block_ptr[j * byte_count] = temp[temp_ptr++];
 						}
@@ -386,7 +386,7 @@ bool CPB3B::Decomp1(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height    Height
 /// @param bpp       Number of bits
 ///
-bool CPB3B::Decomp3(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decomp3(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Get alpha value
 	const u8* alpha = src + *reinterpret_cast<const u32*>(&src[44]);
@@ -409,7 +409,7 @@ bool CPB3B::Decomp3(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height    Height
 /// @param bpp       Number of bits
 ///
-bool CPB3B::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	return true;
 }
@@ -424,7 +424,7 @@ bool CPB3B::Decomp4(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height    Height
 /// @param bpp       Number of bits
 ///
-bool CPB3B::Decomp5(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decomp5(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// LZSS decompression buffer
 	const size_t temp_size = static_cast<size_t>(width * height);
@@ -477,7 +477,7 @@ bool CPB3B::Decomp5(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 /// @param height   Height
 /// @param bpp      Number of bits
 ///
-bool CPB3B::Decomp6(u8* dst, size_t dst_size, const u8* src, size_t src_size, long width, long height, u16 bpp)
+bool CPB3B::Decomp6(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 width, s32 height, u16 bpp)
 {
 	// Ensure LZSS decompression buffer
 	const u32 lzss_decode_size = *reinterpret_cast<const u32*>(&src[24]);
@@ -491,12 +491,12 @@ bool CPB3B::Decomp6(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 	DecompLZSS(temp.data(), lzss_decode_size, flags, flags_size, compressed_data, compressed_data_size);
 
 	// Decompression
-	const u16  byte_count = bpp >> 3;
-	const long line = width * 4;
-	const long block_width = 8;
-	const long block_height = 8;
-	const long block_count_width = (width + (block_width - 1)) / block_width;
-	const long block_count_height = (height + (block_height - 1)) / block_height;
+	const u16 byte_count = bpp >> 3;
+	const s32 line = width * 4;
+	const s32 block_width = 8;
+	const s32 block_height = 8;
+	const s32 block_count_width = (width + (block_width - 1)) / block_width;
+	const s32 block_count_height = (height + (block_height - 1)) / block_height;
 	size_t flags_ptr = 0;
 	size_t compressed_data_ptr = 0;
 	u8 code = 0x80;
@@ -506,12 +506,12 @@ bool CPB3B::Decomp6(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 	u8* dst_ptr = dst;
 
-	for (long y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
+	for (s32 y = 0, block_y = 0; block_y < block_count_height; y += block_height, block_y++)
 	{
 		u8* next_block_ptr = dst_ptr;
-		const long max_block_height = ((y + block_height) > height) ? height - y : block_height;
+		const s32 max_block_height = ((y + block_height) > height) ? height - y : block_height;
 
-		for (long x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
+		for (s32 x = 0, block_x = 0; block_x < block_count_width; x += block_width, block_x++)
 		{
 			if (code == 0)
 			{
@@ -522,14 +522,14 @@ bool CPB3B::Decomp6(u8* dst, size_t dst_size, const u8* src, size_t src_size, lo
 
 			// Process 1 block
 			u8* block_ptr = next_block_ptr;
-			const long  max_block_width = ((x + block_width) > width) ? width - x : block_width;
+			const s32 max_block_width = ((x + block_width) > width) ? width - x : block_width;
 
 			if ((flags[flags_ptr] & code) == 0)
 			{
 				// Difference
-				for (long i = 0; i < max_block_height; i++)
+				for (s32 i = 0; i < max_block_height; i++)
 				{
-					for (long j = 0; j < max_block_width; j++)
+					for (s32 j = 0; j < max_block_width; j++)
 					{
 						memcpy(&block_ptr[j * 4], &compressed_data[compressed_data_ptr + j * 4], 4);
 					}
