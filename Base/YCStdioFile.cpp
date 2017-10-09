@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "YCStdioFile.h"
-#include "Utils/ArrayUtils.h"
 
 /// Constructor
 YCStdioFile::YCStdioFile()
@@ -174,28 +173,26 @@ LPTSTR YCStdioFile::ReadString(LPTSTR buffer, u32 buffer_size)
 ///
 bool YCStdioFile::ReadString(YCString& buffer)
 {
-	bool  result = false;
-	TCHAR szBuffer[1024];
+	bool result = false;
+	std::array<TCHAR, 1024> szBuffer;
 
 	buffer = _T("");
 
 	while (true)
 	{
-		if (ReadString(szBuffer, ArrayUtils::ArraySize(szBuffer)) == nullptr)
+		if (ReadString(szBuffer.data(), szBuffer.size()) == nullptr)
 		{
 			// Read until the end
-
 			break;
 		}
 
-		buffer += szBuffer;
+		buffer += szBuffer.data();
 
 		result = true;
 
-		if (szBuffer[lstrlen(szBuffer) - 1] == _T('\n'))
+		if (szBuffer[lstrlen(szBuffer.data()) - 1] == _T('\n'))
 		{
 			// Read until a newline character
-
 			break;
 		}
 	}

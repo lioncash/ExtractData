@@ -14,7 +14,6 @@
 #include "UI/Ctrl/RadioBtn.h"
 #include "UI/Ctrl/UpDown.h"
 #include "UI/SusieListView.h"
-#include "Utils/ArrayUtils.h"
 
 namespace
 {
@@ -130,15 +129,15 @@ void COption::LoadIni()
 	ini.ReadDec(&m_option.BufSize, 64UL);
 
 	// Temporary folder
-	TCHAR tmp_dir[_MAX_DIR];
-	TCHAR tmp_dir_long[_MAX_DIR];
+	std::array<TCHAR, _MAX_DIR> tmp_dir;
+	std::array<TCHAR, _MAX_DIR> tmp_dir_long;
 
-	::GetTempPath(ArrayUtils::ArraySize(tmp_dir), tmp_dir);
-	::GetLongPathName(tmp_dir, tmp_dir_long, ArrayUtils::ArraySize(tmp_dir_long));
-	PathAppend(tmp_dir_long, _T("ExtractData"));
+	::GetTempPath(static_cast<u32>(tmp_dir.size()), tmp_dir.data());
+	::GetLongPathName(tmp_dir.data(), tmp_dir_long.data(), static_cast<u32>(tmp_dir_long.size()));
+	PathAppend(tmp_dir_long.data(), _T("ExtractData"));
 
 	ini.SetKey(_T("TmpDir"));
-	ini.ReadStr(m_option.TmpDir, tmp_dir_long);
+	ini.ReadStr(m_option.TmpDir, tmp_dir_long.data());
 
 	// Susie Settings
 	ini.SetSection(_T("Susie"));

@@ -319,7 +319,6 @@
     <ClInclude Include="UI\WindowBase.h" />
     <ClInclude Include="UI\WinMain.h" />
     <ClInclude Include="Utils\BitUtils.h" />
-    <ClInclude Include="Utils\ArrayUtils.h" />
     <ClInclude Include="Extract\Ahx.h" />
     <ClInclude Include="Extract\Alcot.h" />
     <ClInclude Include="Extract\AOS.h" />

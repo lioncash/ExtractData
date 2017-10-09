@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "UI/Ctrl/EditBox.h"
 
-#include "Utils/ArrayUtils.h"
-
 HWND CEditBox::Create(HWND window, LPCTSTR caption, UINT id, int x, int y, int cx, int cy)
 {
 	Init(window, id);
@@ -23,16 +21,16 @@ void CEditBox::GetText(LPTSTR text, int length) const
 
 void CEditBox::GetText(YCString& text) const
 {
-	TCHAR window_text[256];
-	GetWindowText(GetCtrlHandle(), window_text, ArrayUtils::ArraySize(window_text));
-	text = window_text;
+	std::array<TCHAR, 256> window_text;
+	GetWindowText(GetCtrlHandle(), window_text.data(), static_cast<int>(window_text.size()));
+	text = window_text.data();
 }
 
 void CEditBox::GetText(LPDWORD text, BOOL hex) const
 {
-	TCHAR window_text[256];
-	GetWindowText(GetCtrlHandle(), window_text, ArrayUtils::ArraySize(window_text));
-	*text = (lstrcmp(window_text, _T("")) == 0) ? 0 : (hex == FALSE) ? _tstoi(window_text) : _tcstol(window_text, nullptr, 16);
+	std::array<TCHAR, 256> window_text;
+	GetWindowText(GetCtrlHandle(), window_text.data(), static_cast<int>(window_text.size()));
+	*text = (lstrcmp(window_text.data(), _T("")) == 0) ? 0 : (hex == FALSE) ? _tstoi(window_text.data()) : _tcstol(window_text.data(), nullptr, 16);
 }
 
 void CEditBox::SetText(LPCTSTR text)

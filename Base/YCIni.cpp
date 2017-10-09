@@ -1,17 +1,16 @@
 #include "StdAfx.h"
 #include "YCIni.h"
-#include "Utils/ArrayUtils.h"
 
 /// Constructor
 YCIni::YCIni(LPCTSTR ini_path)
 {
 	// Gets the execution path of the file
-	TCHAR exe_folder_path[MAX_PATH];
-	::GetModuleFileName(nullptr, exe_folder_path, ArrayUtils::ArraySize(exe_folder_path));
-	::PathRemoveFileSpec(exe_folder_path);
+	std::array<TCHAR, MAX_PATH> exe_folder_path;
+	::GetModuleFileName(nullptr, exe_folder_path.data(), static_cast<u32>(exe_folder_path.size()));
+	::PathRemoveFileSpec(exe_folder_path.data());
 
 	// Get INI file path
-	m_ini_path.Format(_T("%s\\%s"), exe_folder_path, ini_path);
+	m_ini_path.Format(_T("%s\\%s"), exe_folder_path.data(), ini_path);
 
 // m_ini_path = ini_path;
 }
@@ -28,11 +27,11 @@ void YCIni::SetSection(LPCTSTR section)
 ///
 void YCIni::SetSection(u32 id)
 {
-	TCHAR buffer[256];
+	std::array<TCHAR, 256> buffer;
 
-	::LoadString(::GetModuleHandle(nullptr), id, buffer, ArrayUtils::ArraySize(buffer));
+	::LoadString(::GetModuleHandle(nullptr), id, buffer.data(), static_cast<u32>(buffer.size()));
 
-	SetSection(buffer);
+	SetSection(buffer.data());
 }
 
 /// Set key name
@@ -59,11 +58,11 @@ void YCIni::ReadStr(LPTSTR dst, DWORD dst_size, LPCTSTR default_string)
 ///
 void YCIni::ReadStr(YCString& dst, const YCString& default_string)
 {
-	TCHAR buffer[1024];
+	std::array<TCHAR, 1024> buffer;
 
-	ReadStr(buffer, ArrayUtils::ArraySize(buffer), default_string);
+	ReadStr(buffer.data(), static_cast<u32>(buffer.size()), default_string);
 
-	dst = buffer;
+	dst = buffer.data();
 }
 
 /// Sets the string

@@ -786,9 +786,6 @@
     <ClInclude Include="Utils\BitUtils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\ArrayUtils.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="UI\MainListView.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
