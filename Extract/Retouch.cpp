@@ -121,15 +121,15 @@ bool CRetouch::DecodeGYU(CArcFile* archive)
 		DecompGYU(dst2.data(), dst2.size(), src2.data(), src2.size());
 
 		// Ensure output buffer exists
-		const u32 dst_32bit_size = gyu_header.width * gyu_header.height * 4;
-		std::vector<u8> dst_32bit(dst_32bit_size);
+		const s32 dst_32bit_size = gyu_header.width * gyu_header.height * 4;
+		std::vector<u8> dst_32bit(static_cast<std::size_t>(dst_32bit_size));
 
 		// Into 32-bit by adding the alpha value
-		for (long i = 0, y = 0; i < dst_32bit_size && y < gyu_header.height; y++)
+		for (s32 i = 0, y = 0; i < dst_32bit_size && y < gyu_header.height; y++)
 		{
-			const long present_height = ((gyu_header.width + 3) & 0xFFFFFFFC) * y;
+			const s32 present_height = ((gyu_header.width + 3) & 0xFFFFFFFC) * y;
 
-			for (long x = 0; x < gyu_header.width; x++)
+			for (s32 x = 0; x < gyu_header.width; x++)
 			{
 				dst_32bit[i++] = palette[dst[present_height + x] * 4 + 0];
 				dst_32bit[i++] = palette[dst[present_height + x] * 4 + 1];
