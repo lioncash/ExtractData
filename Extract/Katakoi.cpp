@@ -349,8 +349,8 @@ bool CKatakoi::DecodeIar(CArcFile* archive)
 	// Decompression
 	DecompImage(dst.data(), dst_size, &src[64], *(u32*)&src[16]);
 
-	const long width = *(s32*)&src[32];
-	const long height = *(s32*)&src[36];
+	const s32 width = *(s32*)&src[32];
+	const s32 height = *(s32*)&src[36];
 	u16 bpp;
 
 	switch (src[0])
@@ -638,7 +638,7 @@ bool CKatakoi::DecompImage(u8* dst, size_t dst_size, const u8* src, size_t src_s
 	return true;
 }
 
-bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size, long diff_width, long diff_height, u16 diff_bpp)
+bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size, s32 diff_width, s32 diff_height, u16 diff_bpp)
 {
 	const SFileInfo* diff_file_info = archive->GetOpenFileInfo();
 
@@ -652,14 +652,14 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 	LPTSTR diff_file_number_str2 = &base_file_name[lstrlen(base_file_name) - 2];
 
 	// Convert numerical value to a serial number
-	const long diff_file_number1 = _tcstol(diff_file_number_str1, nullptr, 10);
-	const long diff_file_number2 = _tcstol(diff_file_number_str2, nullptr, 10);
+	const s32 diff_file_number1 = _tcstol(diff_file_number_str1, nullptr, 10);
+	const s32 diff_file_number2 = _tcstol(diff_file_number_str2, nullptr, 10);
 
 	if (archive->GetFlag())
 	{
 		// Base file search (search from delta file)
-		long base_file_number = diff_file_number1;
-		long count = diff_file_number1;
+		s32 base_file_number = diff_file_number1;
+		s32 count = diff_file_number1;
 
 		while (!base_file_exists)
 		{
@@ -761,8 +761,8 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 		archive->SeekHed(base_file_info->start);
 		archive->Read(base_src.data(), base_src.size());
 
-		const long base_width = *(s32*)&base_src[32];
-		const long base_height = *(s32*)&base_src[36];
+		const s32 base_width = *(s32*)&base_src[32];
+		const s32 base_height = *(s32*)&base_src[36];
 
 		if (base_width >= diff_width && base_height >= diff_height)
 		{
@@ -777,8 +777,8 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 			Compose(base_dst.data(), base_dst.size(), diff, diff_size, base_width, diff_width, diff_bpp);
 
 			// Output
-			const long width = *(s32*)&base_src[32];
-			const long height = *(s32*)&base_src[36];
+			const s32 width = *(s32*)&base_src[32];
+			const s32 height = *(s32*)&base_src[36];
 
 			CImage image;
 			image.Init(archive, width, height, diff_bpp);
@@ -800,19 +800,19 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 			std::vector<u8> dst(dst_size);
 
 			// Align base file in the lower-right
-			const long start_x = diff_width - base_width;
-			const long start_y = diff_height - base_height;
+			const s32 start_x = diff_width - base_width;
+			const s32 start_y = diff_height - base_height;
 			const u8* base_dst_ptr = base_dst.data();
 			u8* dst_ptr = dst.data();
 
-			const long x_gap = start_x * (diff_bpp >> 3);
-			const long base_line = base_width * (diff_bpp >> 3);
-			const long diff_line = diff_width * (diff_bpp >> 3);
+			const s32 x_gap = start_x * (diff_bpp >> 3);
+			const s32 base_line = base_width * (diff_bpp >> 3);
+			const s32 diff_line = diff_width * (diff_bpp >> 3);
 
 			// Fit under the vertical position
 			dst_ptr += start_y * diff_line;
 
-			for (long y = start_y; y < diff_height; y++)
+			for (s32 y = start_y; y < diff_height; y++)
 			{
 				// According to the horizontal position to the right.
 				dst_ptr += x_gap;
@@ -849,11 +849,10 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 	return false;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Synthesizes the base image and the difference image.
-//
-// 十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
-bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size, long dst_width, long src_width, u16 bpp)
+/// Synthesizes the base image and the difference image.
+///
+/// 十一寒月氏が作成・公開しているiarのソースコードを参考にして作成しました。
+bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 dst_width, s32 src_width, u16 bpp)
 {
 	const u16 colors = bpp >> 3;
 	const u32 line = src_width * colors;
