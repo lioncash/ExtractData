@@ -49,8 +49,6 @@ public:
 	~YCStringT(); // No longer a virtual function.
 
 	// Assignment
-	BOOL LoadString(UINT id);
-
 	void Copy(const char* src);
 	void Copy(const char* src, int length);
 	void Copy(const char& src);
@@ -379,16 +377,6 @@ template<class TYPE>
 YCStringT<TYPE>::~YCStringT()
 {
 	Free();
-}
-
-/// Reads a string resource
-///
-/// @param id Resource ID
-///
-template<class TYPE>
-BOOL YCStringT<TYPE>::LoadString(UINT id)
-{
-	return ::LoadString(::GetModuleHandle(nullptr), id, GetBuffer(1024), 1024);
 }
 
 /// Assignment of a string
