@@ -21,7 +21,7 @@ public:
 	template<typename TYPE> TYPE ReadHex(LPCTSTR default_string);
 	template<typename TYPE> void ReadHex(TYPE* dst, LPCTSTR default_string);
 
-	void ReadStr(LPTSTR dst, DWORD dwDstSize, LPCTSTR default_string);
+	void ReadStr(LPTSTR dst, DWORD dst_size, LPCTSTR default_string);
 	void ReadStr(YCString& dst, const YCString& default_string);
 
 	template<typename TYPE> void WriteDec(const TYPE& dec);
