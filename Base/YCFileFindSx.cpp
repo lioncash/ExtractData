@@ -3,77 +3,77 @@
 
 /// File Search
 ///
-/// @param rfvcPathToDstFile     Storage location
-/// @param pszPathToTargetFolder Directory to search for
-/// @param pszTargetFileName     Target filename (can be a wildcard)
-/// @param bSearchSubDirectory   Search for subdirectories (TRUE: Search it, FALSE: Don't search it)
+/// @param dst_file_paths        Storage location
+/// @param target_folder_path    Directory to search for
+/// @param target_file_name      Target filename (can be a wildcard)
+/// @param search_subdirectories Search for subdirectories (true: Search, false: Don't search)
 ///
-bool YCFileFindSx::FindFile(std::vector<YCString>& rfvcPathToDstFile, LPCTSTR pszPathToTargetFolder, LPCTSTR pszTargetFileName, bool bSearchSubDirectory)
+bool YCFileFindSx::FindFile(std::vector<YCString>& dst_file_paths, LPCTSTR target_folder_path, LPCTSTR target_file_name, bool search_subdirectories)
 {
-	bool bReturn = false;
+	bool result = false;
 
 	// Searching for file
-	YCFileFind clffTarget;
+	YCFileFind target;
 
-	if (clffTarget.FindFirstFile(pszPathToTargetFolder, pszTargetFileName))
+	if (target.FindFirstFile(target_folder_path, target_file_name))
 	{
 		do
 		{
 			// Marker
-			if (clffTarget.IsDots())
+			if (target.IsDots())
 			{
 				continue;
 			}
 
 			// Directory
-			if (clffTarget.IsDirectory())
+			if (target.IsDirectory())
 			{
 				continue;
 			}
 
 			// Add to the list of files found
-			rfvcPathToDstFile.push_back(clffTarget.GetFilePath());
+			dst_file_paths.push_back(target.GetFilePath());
 
 		}
-		while (clffTarget.FindNextFile());
+		while (target.FindNextFile());
 
-		bReturn = true;
+		result = true;
 	}
 
-	clffTarget.Close();
+	target.Close();
 
 	// Do not search the subdirectories
-	if (!bSearchSubDirectory)
+	if (!search_subdirectories)
 	{
-		return bReturn;
+		return result;
 	}
 
 	// Search directory
-	if (clffTarget.FindFirstFile(pszPathToTargetFolder, _T("*.*")))
+	if (target.FindFirstFile(target_folder_path, _T("*.*")))
 	{
 		do
 		{
 			// Marker
-			if (clffTarget.IsDots())
+			if (target.IsDots())
 			{
 				continue;
 			}
 
 			// Not a directory
-			if (!clffTarget.IsDirectory())
+			if (!target.IsDirectory())
 			{
 				continue;
 			}
 
 			// Recursive call
-			FindFile(rfvcPathToDstFile, clffTarget.GetFilePath(), pszTargetFileName, bSearchSubDirectory);
+			FindFile(dst_file_paths, target.GetFilePath(), target_file_name, search_subdirectories);
 		}
-		while (clffTarget.FindNextFile());
+		while (target.FindNextFile());
 
-		bReturn = true;
+		result = true;
 	}
 
-	clffTarget.Close();
+	target.Close();
 
-	return bReturn;
+	return result;
 }
