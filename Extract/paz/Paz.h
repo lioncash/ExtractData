@@ -43,7 +43,7 @@ protected:
 	// Decrypt movie data
 	virtual void DecodeMovieData(u8* target, size_t size);
 
-	// Decode DWORD value
+	// Decode u32 value
 	virtual u32 DecodeValueByTable(u32 value, const u32* table);
 	virtual void DecodeValue(u32* value1, u32* value2, const u32* table);
 
