@@ -12,35 +12,36 @@ YCLibrary::~YCLibrary()
 
 /// Load the specified module
 ///
-/// @param pszPathToFile Load module name
+/// @param file_path Load module name
 ///
-bool YCLibrary::Load(LPCTSTR pszPathToFile)
+bool YCLibrary::Load(LPCTSTR file_path)
 {
-	m_hModule = ::LoadLibrary(pszPathToFile);
+	m_module = ::LoadLibrary(file_path);
 
-	return (m_hModule != nullptr);
+	return m_module != nullptr;
 }
 
 /// Release the loaded module
 void YCLibrary::Free()
 {
-	if (m_hModule != nullptr)
-	{
-		::FreeLibrary(m_hModule);
-		m_hModule = nullptr;
-	}
+	if (m_module == nullptr)
+		return;
+
+	::FreeLibrary(m_module);
+	m_module = nullptr;
 }
 
 /// Gets the function address
 ///
-/// @param pszProcName Name of the function
+/// @param proc_name Name of the function
 ///
-FARPROC YCLibrary::GetProcAddress(LPCTSTR pszProcName) const
+FARPROC YCLibrary::GetProcAddress(LPCTSTR proc_name) const
 {
-	if (m_hModule == nullptr)
+	if (m_module == nullptr)
 		return nullptr;
 
-	YCStringA clsProcName = pszProcName; // Done as a last resort because there is no GetProcAddressW
+	// Done as a last resort because there is no GetProcAddressW
+	const YCStringA string_proc_name = proc_name;
 
-	return ::GetProcAddress(m_hModule, clsProcName);
+	return ::GetProcAddress(m_module, string_proc_name);
 }

@@ -1,20 +1,17 @@
 #pragma once
 
-//----------------------------------------------------------------------------------------
-//-- LoadLibrary API Wrapper Class -------------------------------------------------------
-//----------------------------------------------------------------------------------------
-
+/// LoadLibrary API Wrapper Class
 class YCLibrary
 {
 public:
 	YCLibrary();
 	virtual ~YCLibrary();
 
-	bool Load(LPCTSTR pszPathToFile);
+	bool Load(LPCTSTR file_path);
 	void Free();
 
-	FARPROC GetProcAddress(LPCTSTR pszProcName) const;
+	FARPROC GetProcAddress(LPCTSTR proc_name) const;
 
 protected:
-	HMODULE m_hModule = nullptr;
+	HMODULE m_module = nullptr;
 };
