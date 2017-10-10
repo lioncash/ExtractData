@@ -12,44 +12,45 @@ void CMainListView::Create(HWND hWnd, SOption& option)
 	LVCOLUMN column;
 
 	column.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 45;
-	column.pszText = _T("No.");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("No."));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 215;
-	column.pszText = _T("File Name");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("File Name"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_RIGHT;
 	column.cx = 90;
-	column.pszText = _T("File Size");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("File Size"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_RIGHT;
 	column.cx = 105;
-	column.pszText = _T("Compressed Size");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Compressed Size"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_RIGHT;
 	column.cx = 75;
-	column.pszText = _T("File Format");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("File Format"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 85;
-	column.pszText = _T("Archive File");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Archive File"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_RIGHT;
 	column.cx = 100;
-	column.pszText = _T("Start Address");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Start Address"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_RIGHT;
 	column.cx = 100;
-	column.pszText = _T("End Address");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("End Address"));
 	columns.push_back(column);
 
 	HWND hList = CListView::Create(idsMainList, std::move(columns));

@@ -49,14 +49,14 @@ void CMainToolBar::CreateMenuHistory(int item)
 	mii.fMask = MIIM_TYPE | MIIM_SUBMENU;
 	mii.fType = MFT_STRING;
 	mii.hSubMenu = open_sub_menu;
-	mii.dwTypeData = _T("dummy");
+	mii.dwTypeData = nullptr;
 	InsertMenuItem(open_menu, 0, TRUE, &mii);
 
 	// When there is no history
 	if (m_open_history_list.empty())
 	{
 		mii.fMask = MIIM_TYPE | MIIM_STATE;
-		mii.dwTypeData = _T("No History");
+		mii.dwTypeData = const_cast<decltype(mii.dwTypeData)>(_T("No History"));
 		mii.fState = MFS_DISABLED;
 		InsertMenuItem(open_sub_menu, 0, TRUE, &mii);
 	}

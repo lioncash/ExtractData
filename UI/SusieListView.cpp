@@ -15,22 +15,22 @@ void CSusieListView::Create(HWND hWnd, SOption& option, int x, int y, int cx, in
 	column.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 102;
-	column.pszText = _T("Plugin Name");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Plugin Name"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 207;
-	column.pszText = _T("Info");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Info"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 62;
-	column.pszText = _T("Support");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Support"));
 	columns.push_back(column);
 
 	column.fmt = LVCFMT_LEFT;
 	column.cx = 54;
-	column.pszText = _T("Version");
+	column.pszText = const_cast<decltype(column.pszText)>(_T("Version"));
 	columns.push_back(column);
 
 	// Create listview
