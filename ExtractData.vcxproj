@@ -71,6 +71,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
@@ -102,6 +105,9 @@
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
       <EnablePREfast>false</EnablePREfast>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/Zc:throwingNew %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalOptions>winmm.lib %(AdditionalOptions)</AdditionalOptions>
