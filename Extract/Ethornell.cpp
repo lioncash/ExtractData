@@ -3,6 +3,7 @@
 
 #include "ArcFile.h"
 #include "Image.h"
+#include "Utils/BitUtils.h"
 
 /// Mount
 ///
@@ -70,6 +71,10 @@ bool CEthornell::Decode(CArcFile* archive)
 	archive->Read(header, sizeof(header));
 	archive->SeekCur(-(int)sizeof(header));
 
+	// BSE
+	if (memcmp(header, "BSE 1.0\0", 8) == 0 || memcmp(header, "BSE 1.1\0", 8) == 0)
+		return DecodeBSE(archive);
+
 	// DSC
 	if (memcmp(header, "DSC FORMAT 1.00\0", 16) == 0)
 		return DecodeDSC(archive);
@@ -80,6 +85,60 @@ bool CEthornell::Decode(CArcFile* archive)
 
 	// Other
 	return DecodeStd(archive);
+}
+
+/// Decode BSE
+///
+/// @param archive Archive
+///
+bool CEthornell::DecodeBSE(CArcFile* archive)
+{
+	const SFileInfo* file_info = archive->GetOpenFileInfo();
+
+	std::vector<u8> src(file_info->sizeCmp);
+	archive->Read(src.data(), src.size());
+
+	switch (*reinterpret_cast<short*>(src.data() + 0x08))
+	{
+	case 256:
+		if (!DecodeBSE10(src.data()))
+			return false;
+		break;
+
+	case 257:
+		if (!DecodeBSE11(src.data()))
+			return false;
+		break;
+
+	default:
+		return false;
+	}
+
+	if (memcmp(src.data() + 0x10, "CompressedBG___\0", 16) == 0)
+	{
+		// Width, Height, Get number of colors
+		const s32 width = *reinterpret_cast<const u16*>(&src[16 + 0x10]);
+		const s32 height = *reinterpret_cast<const u16*>(&src[18 + 0x10]);
+		const u16 bpp = *reinterpret_cast<const u16*>(&src[20 + 0x10]);
+
+		// Ensure output buffer
+		const u32 dst_size = width * height * (bpp >> 3);
+		std::vector<u8> dst(dst_size);
+
+		// CompressedBG Decompression
+		DecompCBG(dst.data(), src.data() + 0x10);
+
+		// Output Image
+		CImage image;
+		image.Init(archive, width, height, bpp);
+		image.WriteReverse(dst.data(), dst.size());
+
+		return true;
+	}
+
+	archive->OpenFile();
+	archive->WriteFile(src.data() + 0x10, src.size() - 0x10, src.size());
+	return true;
 }
 
 /// Decode DSC
@@ -232,9 +291,136 @@ bool CEthornell::DecodeStd(CArcFile* archive)
 	return true;
 }
 
+///
+/// Decodes BSE 1.0 data
+///
+/// @param[in, out] data Data to decode
+///
+/// @return true if decoding was successful, false otherwise.
+///
+bool CEthornell::DecodeBSE10(u8* data)
+{
+	if (strncmp(reinterpret_cast<char*>(data), "BSE 1.0", 7) != 0)
+		return false;
+
+	if (*reinterpret_cast<s16*>(data + 8) != 256)
+		return false;
+
+	u8* body = data + 0x10;
+	std::array<u32, 64> buffer{};
+
+	s32 key = *reinterpret_cast<s32*>(data + 0x0C);
+
+	for (std::size_t i = 0; i < buffer.size(); i++)
+	{
+		s32 current_key = GetKeyBSE10(&key);
+		u32 decode_index = static_cast<u32>(current_key & 0x3F);
+
+		while (buffer[decode_index] != 0)
+		{
+			decode_index = (decode_index + 1) & 0x3F;
+		}
+
+		current_key = GetKeyBSE10(&key);
+		const s32 shift_width = current_key & 7;
+
+		current_key = GetKeyBSE10(&key);
+
+		if ((current_key & 1) == 0)
+		{
+			current_key = GetKeyBSE10(&key);
+			current_key = ((body[decode_index] & 0xFF) - current_key) & 0xFF;
+			body[decode_index] = static_cast<u8>(current_key >> shift_width) | (current_key << (CHAR_BIT - shift_width));
+		}
+		else
+		{
+			current_key = GetKeyBSE10(&key);
+			current_key = ((body[decode_index] & 0xFF) - current_key) & 0xFF;
+			body[decode_index] = static_cast<u8>(current_key << shift_width) | (current_key >> (CHAR_BIT - shift_width));
+		}
+
+		buffer[decode_index] = 1;
+	}
+
+	u32 chk_sum = 0;
+	u32 chk_xor = 0;
+	for (std::size_t i = 0; i < buffer.size(); i++)
+	{
+		chk_sum = chk_sum + (body[i] & 0xFF);
+		chk_xor = chk_xor ^ (body[i] & 0xFF);
+	}
+
+	return (data[10] & 0xFF) == (chk_sum & 0xFF) &&
+	       (data[11] & 0xFF) == (chk_xor & 0xFF);
+}
+
+///
+/// Decodes BSE 1.1 data
+///
+/// @param[in, out] data Data to decode
+///
+/// @return true if decoding was successful, false otherwise.
+///
+bool CEthornell::DecodeBSE11(u8* data)
+{
+	if (strncmp(reinterpret_cast<char*>(data), "BSE 1.1", 7) != 0)
+		return false;
+
+	if (*reinterpret_cast<s16*>(data + 8) != 257)
+		return false;
+
+	u8* body = data + 0x10;
+	std::array<u32, 64> buffer{};
+
+	s32 key = *reinterpret_cast<s32*>(data + 0x0C);
+
+	for (std::size_t i = 0; i < buffer.size(); i++)
+	{
+		s32 current_key = GetKeyBSE11(&key);
+		u32 decode_index = static_cast<u32>(current_key & 0x3F);
+
+		while (buffer[decode_index] != 0)
+		{
+			decode_index = (decode_index + 1) & 0x3F;
+		}
+
+		current_key = GetKeyBSE11(&key);
+		const s32 shift_width = current_key & 7;
+
+		current_key = GetKeyBSE11(&key);
+
+		if ((current_key & 1) == 0)
+		{
+			current_key = GetKeyBSE11(&key);
+			current_key = ((body[decode_index] & 0xFF) - current_key) & 0xFF;
+			body[decode_index] = static_cast<u8>((current_key >> shift_width) | (current_key << (CHAR_BIT - shift_width)));
+		}
+		else
+		{
+			current_key = GetKeyBSE11(&key);
+			current_key = ((body[decode_index] & 0xFF) - current_key) & 0xFF;
+			body[decode_index] = static_cast<u8>(current_key << shift_width) | (current_key >> (CHAR_BIT - shift_width));
+		}
+
+		buffer[decode_index] = 1;
+	}
+
+	u32 chk_sum = 0;
+	u32 chk_xor = 0;
+	for (std::size_t i = 0; i < buffer.size(); i++)
+	{
+		chk_sum = chk_sum + (body[i] & 0xFF);
+		chk_xor = chk_xor ^ (body[i] & 0xFF);
+	}
+
+	// 4 byte width
+	return (data[10] & 0xFF) == (chk_sum & 0xFF) &&
+	       (data[11] & 0xFF) == (chk_xor & 0xFF);
+}
+
 /// Get Key
 ///
-/// @param key Input data and output
+/// @param[in, out] key Input data and output
 ///
 u32 CEthornell::GetKey(u32* key)
 {
@@ -245,6 +431,35 @@ u32 CEthornell::GetKey(u32* key)
 	*key = (work << 16) + (work1 & 0xFFFF) + 1;
 
 	return work & 0x7FFF;
+}
+
+///
+/// Get BSE 1.0 key
+///
+/// @param[in, out] key Input data and output
+///
+s32 CEthornell::GetKeyBSE10(s32* key)
+{
+	const s32 work = (((*key) * 257 >> 8) + (*key) * 97 + 23) ^ 0xA6CD9B75;
+	*key = ((work >> 16) & 0xFFFF) | (work << 16);
+	return *key & 0x7FFF;
+}
+
+///
+/// Get BSE 1.1 key
+///
+/// @param[in, out] key Input data and output
+///
+s32 CEthornell::GetKeyBSE11(s32* key)
+{
+	const s32 work1 = (((*key) * 127) >> 7) + (*key) * 83 + 53;
+	const s32 work2 = ((work1 ^ 0xB97A7E5C) >> 16) & 0xFFFF;
+
+	const s32 work3 = (((*key) * 127) >> 7) + 48;
+	const s32 work4 = ((work3 + ((*key) * 83) + 5) ^ 0xB97A7E5C) << 16;
+
+	*key = work2 | work4;
+	return *key;
 }
 
 /// Get variable-length data

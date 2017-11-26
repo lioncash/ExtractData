@@ -17,11 +17,18 @@ private:
 		u32  right;    // Right Node
 	};
 
+	bool DecodeBSE(CArcFile* archive);
 	bool DecodeDSC(CArcFile* archive);
 	bool DecodeCBG(CArcFile* archive);
 	bool DecodeStd(CArcFile* archive);
 
+	bool DecodeBSE10(u8* data);
+	bool DecodeBSE11(u8* data);
+
 	u32 GetKey(u32* key);
+	s32 GetKeyBSE10(s32* key);
+	s32 GetKeyBSE11(s32* key);
+
 	u32 GetVariableData(const u8* src, size_t* read_length);
 
 	void DecompDSC(u8* dst, size_t dst_size, const u8* src, size_t src_size);
