@@ -114,6 +114,15 @@ bool CEthornell::DecodeBSE(CArcFile* archive)
 		return false;
 	}
 
+	if (src.size() >= 0x20 && memcmp(src.data() + 0x10, "DSC FORMAT 1.00\0", 0x10) == 0)
+	{
+		std::vector<u8> dst(*reinterpret_cast<u32*>(&src[0x24]));
+		DecompDSC(dst.data(), dst.size(), src.data() + 0x10, src.size() - 0x10);
+		archive->OpenFile();
+		archive->WriteFile(dst.data(), dst.size(), src.size());
+		return true;
+	}
+
 	if (memcmp(src.data() + 0x10, "CompressedBG___\0", 16) == 0)
 	{
 		// Width, Height, Get number of colors
