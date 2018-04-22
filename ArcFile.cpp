@@ -201,7 +201,8 @@ bool CArcFile::OpenFile(LPCTSTR rename_file_ext)
 	{
 		// Failed to open file.
 		CError error;
-		error.Message(m_progress_bar->GetHandle(), _T("Failed to write to %s"), m_file_path);
+		error.Message(m_progress_bar->GetHandle(), _T("Failed to write to %s"),
+		              m_file_path.GetString());
 
 		throw -1;
 	}
@@ -369,13 +370,15 @@ DWORD CArcFile::WriteFile(const void* buffer, DWORD write_size, DWORD original_s
 			if (total_number_of_free_bytes.QuadPart < write_size)
 			{
 
-				error.Message(m_progress_bar->GetHandle(), _T("Failed to write %s \n Not enough disk space"), m_file_path);
+				error.Message(m_progress_bar->GetHandle(), _T("Failed to write %s \n Not enough disk space"),
+				              m_file_path.GetString());
 				return write_size;
 			}
 		}
 
 		// Other causes
-		error.Message(m_progress_bar->GetHandle(), _T("Failed to write %s"), m_file_path);
+		error.Message(m_progress_bar->GetHandle(), _T("Failed to write %s"),
+		              m_file_path.GetString());
 	}
 
 	// Progress update
