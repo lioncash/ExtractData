@@ -616,7 +616,7 @@ bool CArcFile::CheckExe(LPCTSTR exe_name) const
 	PathRemoveFileSpec(exe_path);
 	PathAppend(exe_path, exe_name);
 
-	return PathFileExists(exe_path) == TRUE;
+	return PathFileExists(exe_path) != FALSE;
 }
 
 bool CArcFile::CheckDir(LPCTSTR dir_name) const
@@ -626,10 +626,7 @@ bool CArcFile::CheckDir(LPCTSTR dir_name) const
 	lstrcpy(dir_path, GetArcPath());
 	PathRemoveFileSpec(dir_path);
 
-	if (lstrcmp(PathFindFileName(dir_path), dir_name) == 0)
-		return true;
-
-	return false;
+	return lstrcmp(PathFindFileName(dir_path), dir_name) == 0;
 }
 
 /// Return information to the appropriate file from the file name
