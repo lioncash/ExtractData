@@ -296,9 +296,6 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, size_t src_size)
 	std::vector<u8> pallet;
 	u8* pallet_ptr = nullptr;
 
-	unsigned long dst_size = width * height * 4;
-	std::vector<u8> dst(dst_size);
-
 	unsigned long dst2_size = width * height * (bpp >> 3);
 	std::vector<u8> dst2(dst2_size);
 
@@ -333,6 +330,9 @@ bool CCircus::DecodeCRX2(CArcFile* archive, const u8* src, size_t src_size)
 	{
 		// zlib decompression
 		CZlib zlib;
+
+		unsigned long dst_size = width * height * 4;
+		std::vector<u8> dst(dst_size);
 
 		while (true)
 		{
