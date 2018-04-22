@@ -70,7 +70,7 @@ void CHaruotoFD::InitDecodeKey(CArcFile* archive)
 /// Decode Table 2
 void CHaruotoFD::DecodeTable2()
 {
-	u32* table = GetTable();
+	Table& table = GetTable();
 
 	// Decrypt 72 byte table
 	u32 value1 = 0;
@@ -130,7 +130,7 @@ void CHaruotoFD::DecodeTable2()
 ///
 void CHaruotoFD::DecodeData(u8* target, size_t size)
 {
-	const u32* table = GetTable();
+	const Table& table = GetTable();
 
 	for (size_t i = 0; i < size; i += 8)
 	{

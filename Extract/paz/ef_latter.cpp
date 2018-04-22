@@ -96,13 +96,14 @@ void CEFLatter::InitDecodeKey(CArcFile* archive)
 ///
 /// @return table size
 ///
-u32 CEFLatter::InitMovieTable(const u8* table)
+size_t CEFLatter::InitMovieTable(const u8* table)
 {
-	u8* movie_table = GetMovieTable();
+	constexpr size_t copy_amount = 256;
+	MovieTable& movie_table = GetMovieTable();
 
-	memcpy(movie_table, table, 256);
+	std::copy(table, table + copy_amount, movie_table.begin());
 
-	return 256;
+	return copy_amount;
 }
 
 /// Set decryption key
@@ -173,7 +174,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 
 		// Construct RC4 Table
 
-		const u8* const movie_table = GetMovieTable();
+		const MovieTable& movie_table = GetMovieTable();
 		std::array<u8, 256> rc4_table;
 
 		const char* const key = m_key_string;

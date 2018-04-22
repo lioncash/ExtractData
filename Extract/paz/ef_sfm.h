@@ -18,7 +18,7 @@ private:
 	void InitMountKey(CArcFile* archive) override;
 	void InitDecodeKey(CArcFile* archive) override;
 
-	u32 InitMovieTable(const u8* table) override;
+	size_t InitMovieTable(const u8* table) override;
 
 	void DecodeMovieData(u8* target, size_t size) override;
 

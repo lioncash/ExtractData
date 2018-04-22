@@ -97,7 +97,7 @@ void Cef_first::InitDecodeKey(CArcFile* archive)
 ///
 /// @return table size
 ///
-u32 Cef_first::InitMovieTable(const u8* table)
+size_t Cef_first::InitMovieTable(const u8* table)
 {
 	for (size_t i = 0; i < 256; i++)
 	{
@@ -113,9 +113,9 @@ u32 Cef_first::InitMovieTable(const u8* table)
 /// Decode table 1
 void Cef_first::DecodeTable1()
 {
-	u32*      table = GetTable();
-	const u8* key = GetKey();
-	size_t    key_ptr = 0;
+	Table&     table = GetTable();
+	const Key& key = GetKey();
+	size_t     key_ptr = 0;
 
 	static constexpr std::array<u8, 6> key_table{{
 		0x6D, 0x69, 0x6E, 0x6F, 0x72, 0x69

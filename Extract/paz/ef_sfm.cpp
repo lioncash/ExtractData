@@ -85,7 +85,7 @@ void CEFsfm::InitDecodeKey(CArcFile* archive)
 ///
 /// @param table Table
 ///
-u32 CEFsfm::InitMovieTable(const u8* table)
+size_t CEFsfm::InitMovieTable(const u8* table)
 {
 	for (size_t i = 0; i < 256; i++)
 	{

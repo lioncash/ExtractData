@@ -15,11 +15,15 @@ protected:
 		u8       key[64];
 	};
 
+	using Key = std::array<u8, 32>;
+	using MovieTable = std::array<u8, 256>;
+	using Table = std::array<u32, 1042>;
+
 	// Initialization of the table of 72 + 4096 bytes
 	virtual void InitTable();
 
 	// Initialization of the movie table
-	virtual u32 InitMovieTable(const u8* table);
+	virtual size_t InitMovieTable(const u8* table);
 
 	// Get the base archive filename
 	void GetBaseArcName(LPTSTR dst, LPCTSTR archive_name);
@@ -44,18 +48,18 @@ protected:
 	virtual void DecodeMovieData(u8* target, size_t size);
 
 	// Decode u32 value
-	virtual u32 DecodeValueByTable(u32 value, const u32* table);
-	virtual void DecodeValue(u32* value1, u32* value2, const u32* table);
+	virtual u32 DecodeValueByTable(u32 value, const Table& table);
+	virtual void DecodeValue(u32* value1, u32* value2, const Table& table);
 
 	// Get 
-	virtual u32* GetTable();
-	virtual u8*  GetMovieTable();
+	Table& GetTable();
+	MovieTable& GetMovieTable();
 
-	virtual u8* GetKey();
+	Key& GetKey();
 	virtual size_t GetMovieBufSize(const CArcFile* archive);
 
 private:
-	u32 m_table[1042];
-	u8  m_movie_table[256];
-	u8  m_key[32];
+	std::array<u32, 1042> m_table;
+	std::array<u8, 256> m_movie_table;
+	std::array<u8, 32> m_key;
 };

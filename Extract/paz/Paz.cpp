@@ -203,8 +203,9 @@ bool CPaz::Decode(CArcFile* archive)
 /// Initialize Table
 void CPaz::InitTable()
 {
-	static const u32 table[1042] =
-	{
+	// 4168 bytes
+	static constexpr std::array<u32, 1042> table
+	{{
 		0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344, 0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89, 0x452821E6, 0x38D01377, 0xBE5466CF, 0x34E90C6C, 0xC0AC29B7, 0xC97C50DD, 0x3F84D5B5, 0xB5470917,
 		0x9216D5D9, 0x8979FB1B, 0xD1310BA6, 0x98DFB5AC, 0x2FFD72DB, 0xD01ADFB7, 0xB8E1AFED, 0x6A267E96, 0xBA7C9045, 0xF12C7F99, 0x24A19947, 0xB3916CF7, 0x0801F2E2, 0x858EFC16, 0x636920D8, 0x71574E69,
 		0xA458FEA3, 0xF4933D7E, 0x0D95748F, 0x728EB658, 0x718BCD58, 0x82154AEE, 0x7B54A41D, 0xC25A59B5, 0x9C30D539, 0x2AF26013, 0xC5D1B023, 0x286085F0, 0xCA417918, 0xB8DB38EF, 0x8E79DCB0, 0x603A180E,
@@ -271,11 +272,9 @@ void CPaz::InitTable()
 		0x45E1D006, 0xC3F27B9A, 0xC9AA53FD, 0x62A80F00, 0xBB25BFE2, 0x35BDD2F6, 0x71126905, 0xB2040222, 0xB6CBCF7C, 0xCD769C2B, 0x53113EC0, 0x1640E3D3, 0x38ABBD60, 0x2547ADF0, 0xBA38209C, 0xF746CE76,
 		0x77AFA1C5, 0x20756060, 0x85CBFE4E, 0x8AE88DD8, 0x7AAAF9B0, 0x4CF9AA7E, 0x1948C25C, 0x02FB8A8C, 0x01C36AE4, 0xD6EBE1F9, 0x90D4F869, 0xA65CDEA0, 0x3F09252D, 0xC208E69F, 0xB74E6132, 0xCE77E25B,
 		0x578FDFE3, 0x3AC372E6
-	};
+	}};
 
-	memcpy(m_table, table, sizeof(table));
-	//4168
-
+	m_table = table;
 }
 
 /// Initialize Movie Table
@@ -284,16 +283,14 @@ void CPaz::InitTable()
 ///
 /// @return table size
 ///
-u32 CPaz::InitMovieTable(const u8* table)
+size_t CPaz::InitMovieTable(const u8* table)
 {
-	u8* movie_table = GetMovieTable();
-
-	for (size_t i = 0; i < 256; i++)
+	for (size_t i = 0; i < m_movie_table.size(); i++)
 	{
-		movie_table[table[i]] = static_cast<u8>(i);
+		m_movie_table[table[i]] = static_cast<u8>(i);
 	}
 
-	return 256;
+	return m_movie_table.size();
 }
 
 /// Get base archive file name
@@ -337,8 +334,7 @@ size_t CPaz::SetKey(CArcFile* archive, const std::array<KeyInfo, 8>& key_info)
 	{
 		if (key_info[i].type.CompareNoCase(base_archive_name) == 0)
 		{
-			memcpy(m_key, key_info[i].key, 32);
-
+			std::copy_n(key_info[i].key, m_key.size(), m_key.begin());
 			return i;
 		}
 	}
@@ -350,7 +346,7 @@ size_t CPaz::SetKey(CArcFile* archive, const std::array<KeyInfo, 8>& key_info)
 void CPaz::DecodeTable1()
 {
 	// Decrypt 72 byte table
-	u32* table = GetTable();
+	Table& table = GetTable();
 	u32 key_ptr = 0;
 
 	for (size_t i = 0; i < 18; i++)
@@ -372,7 +368,7 @@ void CPaz::DecodeTable1()
 /// Decrypt table 2
 void CPaz::DecodeTable2()
 {
-	u32* table = GetTable();
+	Table& table = GetTable();
 	u32 value1 = 0;
 	u32 value2 = 0;
 	u32 table_ptr = 0;
@@ -406,7 +402,7 @@ void CPaz::DecodeTable2()
 ///
 void CPaz::DecodeData(u8* target, size_t size)
 {
-	const u32* table = GetTable();
+	const Table& table = GetTable();
 
 	for (size_t i = 0; i < size; i += 8)
 	{
@@ -432,7 +428,7 @@ void CPaz::DecodeData(u8* target, size_t size)
 ///
 void CPaz::DecodeMovieData(u8* target, size_t size)
 {
-	const u8* movie_table = GetMovieTable();
+	const MovieTable& movie_table = GetMovieTable();
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -445,7 +441,7 @@ void CPaz::DecodeMovieData(u8* target, size_t size)
 /// @param value Input data
 /// @param table Table
 ///
-u32 CPaz::DecodeValueByTable(u32 value, const u32* table)
+u32 CPaz::DecodeValueByTable(u32 value, const Table& table)
 {
 	u32 result;
 
@@ -463,7 +459,7 @@ u32 CPaz::DecodeValueByTable(u32 value, const u32* table)
 /// @param value2 Target data 2
 /// @param table  Table
 ///
-void CPaz::DecodeValue(u32* value1, u32* value2, const u32* table)
+void CPaz::DecodeValue(u32* value1, u32* value2, const Table& table)
 {
 	u32 work1 = *value1;
 	u32 work2 = *value2;
@@ -481,19 +477,19 @@ void CPaz::DecodeValue(u32* value1, u32* value2, const u32* table)
 }
 
 /// Get Table
-u32* CPaz::GetTable()
+CPaz::Table& CPaz::GetTable()
 {
 	return m_table;
 }
 
 /// Get Movie Table
-u8* CPaz::GetMovieTable()
+CPaz::MovieTable& CPaz::GetMovieTable()
 {
 	return m_movie_table;
 }
 
 /// Get Key
-u8* CPaz::GetKey()
+CPaz::Key& CPaz::GetKey()
 {
 	return m_key;
 }
