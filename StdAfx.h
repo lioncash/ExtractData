@@ -3,11 +3,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NON_CONFORMING_SWPRINTFS
 
-#include    <windows.h>
+#include    <Windows.h>
 #include    <windowsx.h>
-#include    <commctrl.h>
-#include    <shlwapi.h>
-#include    <shlobj.h>
+#include    <CommCtrl.h>
+#include    <Shlwapi.h>
+#include    <ShlObj.h>
 #include    <tchar.h>
 #include    <mbstring.h>
 #include    <process.h>
