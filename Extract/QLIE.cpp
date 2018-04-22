@@ -714,7 +714,7 @@ void CQLIE::Decomp(u8* dst, u32 dst_size, const u8* src, u32 src_size)
 			}
 		}
 
-		int c;
+		int c = 0;
 		if (x & 1)
 		{
 			std::memcpy(&c, psrc, sizeof(u16));
