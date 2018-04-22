@@ -56,9 +56,9 @@ bool CArcFile::Open(LPCTSTR archive_path)
 	{
 		m_split_archive_id++;
 		m_archive_handles.push_back(archive_handle);
-		m_archive_paths.push_back(archive_path);
-		m_archive_names.push_back(PathFindFileName(archive_path));
-		m_archive_extensions.push_back(PathFindExtension(archive_path));
+		m_archive_paths.emplace_back(archive_path);
+		m_archive_names.emplace_back(PathFindFileName(archive_path));
+		m_archive_extensions.emplace_back(PathFindExtension(archive_path));
 	}
 
 	return archive_handle != INVALID_HANDLE_VALUE;
