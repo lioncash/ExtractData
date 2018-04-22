@@ -267,7 +267,8 @@ bool CCpz::MountCpz5(CArcFile* archive)
 
 	for (size_t i = 0; i < (header->total_dir_index_size & 3); i++)
 	{
-		*work_ptr++ = ((key[key_ptr++] >> 6) ^ *work_ptr) + 0x37;
+		const u8 tmp = ((key[key_ptr++] >> 6) ^ *work_ptr) + 0x37;
+		*work_ptr++ = tmp;
 
 		key_ptr &= 3;
 	}
@@ -323,7 +324,8 @@ bool CCpz::MountCpz5(CArcFile* archive)
 
 		for (u32 j = 0; j < (current_file_index_size & 3); j++)
 		{
-			*work_ptr++ = (*work_ptr ^ static_cast<u8>(key[key_ptr++] >> 4)) + 5;
+			const u8 tmp = (*work_ptr ^ static_cast<u8>(key[key_ptr++] >> 4)) + 5;
+			*work_ptr++ = tmp;
 
 			key_ptr &= 3;
 		}
@@ -594,7 +596,8 @@ void CCpz::Decrypt2(u8* target, size_t size, u32 key)
 
 	for (size_t i = 0, j = 0; i < (size & 3); i++, j += 4)
 	{
-		*target++ = static_cast<u8>((((crypt[table_ptr++] + key) >> j) ^ *target) + 0x37);
+		const u8 tmp = static_cast<u8>((((crypt[table_ptr++] + key) >> j) ^ *target) + 0x37);
+		*target++ = tmp;
 
 		table_ptr &= 0x0F;
 	}
@@ -642,7 +645,8 @@ void CCpz::Decrypt3(u8* target, size_t size, u32 key)
 
 	for (size_t i = size & 3; i > 0; i--)
 	{
-		*target++ = static_cast<u8>(((table[table_ptr++] >> (i * 4)) ^ *target) + 0x52);
+		const u8 tmp = static_cast<u8>(((table[table_ptr++] >> (i * 4)) ^ *target) + 0x52);
+		*target++ = tmp;
 
 		table_ptr &= 0x0F;
 	}
@@ -688,7 +692,8 @@ void CCpz::Decrypt5(u8* target, size_t size, u32 key)
 
 	for (size_t i = size & 3; i > 0; i--)
 	{
-		*target++ = static_cast<u8>(((table[table_ptr++] >> (i * 4)) ^ *target) - 0x79);
+		const u8 tmp = static_cast<u8>(((table[table_ptr++] >> (i * 4)) ^ *target) - 0x79);
+		*target++ = tmp;
 
 		table_ptr %= 24;
 	}
