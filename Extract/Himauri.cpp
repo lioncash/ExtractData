@@ -248,7 +248,6 @@ bool CHimauri::Decode(CArcFile* archive)
 	archive->ReadU32(&dst_size);
 
 	// Ensure buffer
-	std::vector<u8> src(src_size);
 	std::vector<u8> dst(dst_size);
 
 	if (src_size == 0)
@@ -259,6 +258,7 @@ bool CHimauri::Decode(CArcFile* archive)
 	else
 	{
 		// Compressed file
+		std::vector<u8> src(src_size);
 		archive->Read(src.data(), src.size());
 		Decomp(dst.data(), dst.size(), src.data(), src.size());
 	}
@@ -327,7 +327,6 @@ bool CHimauri::Decode(CArcFile* archive)
 				archive->ReadU32(&dst_diff_size);
 
 				// Ensure image difference buffer
-				std::vector<u8> src_diff(src_diff_size);
 				std::vector<u8> dst_diff(dst_diff_size);
 
 				// Get image difference
@@ -339,6 +338,7 @@ bool CHimauri::Decode(CArcFile* archive)
 				else
 				{
 					// Compressed file
+					std::vector<u8> src_diff(src_diff_size);
 					archive->Read(src_diff.data(), src_diff.size());
 					Decomp(dst_diff.data(), dst_diff.size(), src_diff.data(), src_diff.size());
 				}
