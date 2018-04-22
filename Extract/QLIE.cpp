@@ -629,12 +629,12 @@ YCString CQLIE::GetExtension(const u8* src)
 ///
 void CQLIE::EraseNotUsePathWord(YCString& path)
 {
-	static const TCHAR unusable_path_characters[] =
-	{
+	static constexpr std::array<TCHAR, 9> unusable_path_characters
+	{{
 		_T(':'), _T(','), _T(';'), _T('*'), _T('?'), _T('\"'), _T('<'), _T('>'), _T('|')
-	};
+	}};
 
-	for (const TCHAR& c : unusable_path_characters)
+	for (const TCHAR c : unusable_path_characters)
 	{
 		path.Remove(c);
 	}
