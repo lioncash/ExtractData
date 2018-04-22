@@ -581,7 +581,7 @@ YCString CArcFile::CreateFileName(LPCTSTR rename_file_ext)
 
 	// Get the file path
 	YCString file_path;
-	file_path.Format(_T("%s\\%s"), m_save_dir, file_name);
+	file_path.Format(_T("%s\\%s"), m_save_dir, file_name.GetString());
 
 	// Changing the extension
 	if (rename_file_ext != nullptr)

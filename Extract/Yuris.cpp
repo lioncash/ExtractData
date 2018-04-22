@@ -200,7 +200,7 @@ bool CYuris::MountYMV(CArcFile* archive)
 	for (u32 i = 0; i < num_files; i++)
 	{
 		SFileInfo file_info;
-		file_info.name.Format(_T("%s_%06u.jpg"), archive->GetArcName().GetFileTitle(), i);
+		file_info.name.Format(_T("%s_%06u.jpg"), archive->GetArcName().GetFileTitle().GetString(), i);
 		file_info.start = offset_indices[i];
 		file_info.sizeCmp = size_indices[i];
 		file_info.sizeOrg = file_info.sizeCmp;
