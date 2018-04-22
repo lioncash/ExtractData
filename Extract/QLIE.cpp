@@ -155,8 +155,8 @@ bool CQLIE::Decode(CArcFile* archive)
 	// Output
 	if (file_info->format == _T("BMP"))
 	{
-		const LPBITMAPFILEHEADER file = (LPBITMAPFILEHEADER)&pBuf[0];
-		const LPBITMAPINFOHEADER info = (LPBITMAPINFOHEADER)&pBuf[14];
+		const auto* const file = reinterpret_cast<LPBITMAPFILEHEADER>(&pBuf[0]);
+		const auto* const info = reinterpret_cast<LPBITMAPINFOHEADER>(&pBuf[14]);
 
 		// Output size
 		u32 dst_size = file_info->sizeOrg - 54;
