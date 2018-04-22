@@ -274,7 +274,7 @@ bool CExtract::Search(CArcFile* archive)
 	for (size_t i = 0; i < option->bSearch.size(); i++)
 	{
 		// Add class to use only
-		if (option->bSearch[i] == TRUE)
+		if (option->bSearch[i])
 		{
 			SearchClass[i]->Init(option);
 			Class.push_back(SearchClass[i]);

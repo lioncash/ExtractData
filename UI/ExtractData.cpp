@@ -365,7 +365,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 			archive->SetProg(prog);
 
 			// Create destination folder name from the destination filename input
-			if (obj_save_dir == nullptr && options->bSaveSrc == TRUE)
+			if (obj_save_dir == nullptr && options->bSaveSrc)
 			{
 				// Get input
 				TCHAR save_dir[MAX_PATH];
