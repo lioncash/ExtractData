@@ -174,23 +174,19 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 		// Construct RC4 Table
 
 		const u8* const movie_table = GetMovieTable();
-		u8 rc4_table[256];
+		std::array<u8, 256> rc4_table;
 
 		const char* const key = m_key_string;
 		const size_t key_length = strlen(m_key_string);
 
-		for (size_t i = 0; i < 256; i++)
+		for (size_t i = 0; i < rc4_table.size(); i++)
 		{
 			rc4_table[i] = movie_table[i] ^ key[i % key_length];
 		}
 
 		// Initialize Table
-		u8 key_table[256];
-
-		for (size_t i = 0; i < 256; i++)
-		{
-			key_table[i] = static_cast<u8>(i);
-		}
+		std::array<u8, 256> key_table;
+		std::iota(key_table.begin(), key_table.end(), 0);
 
 		// Construct table
 		for (size_t index1 = 0, index2 = 0; index1 < 256; index1++)
@@ -220,10 +216,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 	else
 	{
 		// Initialize Table
-		for (size_t i = 0; i < 256; i++)
-		{
-			m_key_table[i] = static_cast<u8>(i);
-		}
+		std::iota(m_key_table.begin(), m_key_table.end(), 0);
 
 		// Construct Table
 		const char* const key = m_key_string;
