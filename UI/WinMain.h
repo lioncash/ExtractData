@@ -6,7 +6,7 @@ class CWinMain : public CWindowBase
 {
 public:
 	CWinMain();
-	~CWinMain();
+	~CWinMain() override;
 
 	int WinMain(HINSTANCE inst, HINSTANCE prev_inst, LPTSTR cmd_line, int cmd_show);
 	ATOM InitApp();

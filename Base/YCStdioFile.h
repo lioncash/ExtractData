@@ -10,7 +10,7 @@ class YCStdioFile : public YCFile
 {
 public:
 	YCStdioFile();
-	virtual ~YCStdioFile();
+	~YCStdioFile() override;
 
 	YCStdioFile(const YCStdioFile&) = delete;
 	YCStdioFile& operator=(const YCStdioFile&) = delete;

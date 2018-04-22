@@ -21,7 +21,7 @@ class CExtractData : public CWindowBase, public CExtract
 	using ArchiveVector = std::vector<std::unique_ptr<CArcFile>>;
 public:
 	CExtractData();
-	~CExtractData();
+	~CExtractData() override;
 
 	void Init(HWND parent, SOption& option, CMainListView& listview);
 
