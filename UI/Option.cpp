@@ -838,10 +838,10 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 					// OK/Apply
 					if (hdr->code == PSN_APPLY)
 					{
-						const BOOL update = (m_option.SusieDir == pOption->SusieDir) ? FALSE : TRUE;
+						const bool update = m_option.SusieDir == pOption->SusieDir;
 						Apply();
 						// Re-acquire plugin folder only when Susie has been changed
-						if (pOption->bSusieUse == TRUE && update == TRUE)
+						if (pOption->bSusieUse && update)
 						{
 							susie.LoadSpi(pOption->SusieDir);
 							susie.Init();
