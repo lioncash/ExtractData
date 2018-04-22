@@ -17,7 +17,7 @@ struct VH
 	u8  page_segments;
 	u8  segment_table[256];
 };
-#pragma pack(pop, 1)
+#pragma pack(pop)
 
 class COgg final : public CExtractBase
 {
