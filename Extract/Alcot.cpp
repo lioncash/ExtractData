@@ -163,7 +163,7 @@ bool CAlcot::DecodeCPB(CArcFile* archive)
 	s32 width;
 	s32 height;
 
-	std::array<u32, 4> z_color_size;
+	std::array<u32, 4> z_color_size{};
 	size_t buf_len;
 	std::vector<u8> buf;
 
