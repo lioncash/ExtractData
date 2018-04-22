@@ -419,7 +419,7 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 			}
 		}
 	}
-	catch (CExistsDialog)
+	catch (const CExistsDialog&)
 	{
 		// If selected 'No' in the overwrite confirmation
 		archive->GetProg()->UpdatePercent(file_info->sizeOrg);
