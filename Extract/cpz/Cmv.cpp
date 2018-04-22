@@ -86,11 +86,11 @@ bool CCmv::Decode(CArcFile* archive)
 	const u16 bpp    = *reinterpret_cast<const u16*>(&src[0x14]);
 	const u16 colors = bpp >> 3;
 
-	const u32 dst_size = width * height * colors;
-	std::vector<u8> dst(dst_size);
-
 	if (memcmp(src.data(), "JBP1", 4) == 0)
 	{
+		const u32 dst_size = width * height * colors;
+		std::vector<u8> dst(dst_size);
+
 		CJBP1 jbp1;
 		jbp1.Decomp(dst.data(), src.data());
 
