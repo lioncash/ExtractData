@@ -124,8 +124,8 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 		}
 
 		u32 x = (code > 0) ? GetNBit(lpin, code, bit_buffer, bit_remain) : 0;
-		if (x < (1 << (code - 1)))
-			x = x - (1 << code) + 1;
+		if (x < (1U << (code - 1)))
+			x = x - (1U << code) + 1;
 
 		*(u32*)&tmp[i * 4] = x;
 		if (i != 0)
@@ -203,8 +203,8 @@ void CJBP1::Decomp(u8* pbtDst, const u8* pbtSrc, u16 wBpp, const u8* pbtAlpha, u
 					else
 					{
 						u32 bit = GetNBit(lpin2, code, bit_buffer, bit_remain);
-						if (bit < (1 << (code - 1)))
-							bit = bit - (1 << code) + 1;
+						if (bit < (1U << (code - 1)))
+							bit = bit - (1U << code) + 1;
 						f[original_order[i]] = bit;
 						i++;
 					}
