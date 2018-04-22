@@ -552,10 +552,10 @@ void CTlg::TVPTLG6DecodeGolombValues(u8* pixelbuf, u32 pixel_count, const u8* bi
 				POST_INCREMENT \
 			} while (--w);
 #define TVP_TLG6_DO_CHROMA_DECODE(N, R, G, B) \
-	case (N << 1): \
+	case ((N) << 1): \
 		TVP_TLG6_DO_CHROMA_DECODE_PROTO(R, G, B, IA, {in += step;}) \
 		break; \
-	case (N << 1) + 1: \
+	case ((N) << 1) + 1: \
 		TVP_TLG6_DO_CHROMA_DECODE_PROTO2(R, G, B, IA, {in += step;}) \
 		break;
 
