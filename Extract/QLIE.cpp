@@ -214,13 +214,11 @@ bool CQLIE::DecodeB(CArcFile* archive, u8* src, u32 src_size)
 
 /// ABMP7 Decompressing
 ///
-/// @param archive       Archive
-/// @param src           .b file
-/// @param src_size      .b file size
-/// @param src_index_ptr Entire .b file index (You'll need to add the minutes after the recursive call)
-/// @param b_file_name   Current .b file name (Will change with each recursive call)
+/// @param archive  Archive
+/// @param src      .b file
+/// @param src_size .b file size
 ///
-bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr, const YCString& b_file_name)
+bool CQLIE::DecodeABMP7(CArcFile* archive, u8* src, u32 src_size)
 {
 	u32 src_index = 0;
 

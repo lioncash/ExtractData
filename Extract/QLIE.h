@@ -24,7 +24,7 @@ private:
 	};
 
 	bool DecodeB(CArcFile* archive, u8* src, u32 src_size);
-	bool DecodeABMP7(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr = nullptr, const YCString& b_file_name = _T(""));
+	bool DecodeABMP7(CArcFile* archive, u8* src, u32 src_size);
 	bool DecodeABMP10(CArcFile* archive, u8* src, u32 src_size, u32* src_index_ptr = nullptr, const YCString& b_file_name = _T(""));
 
 	void Decomp(u8* dst, u32 dst_size, const u8* src, u32 src_size);
