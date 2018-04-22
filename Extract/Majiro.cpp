@@ -308,7 +308,8 @@ bool CMajiro::MountMJO(CArcFile* archive)
 ///
 bool CMajiro::MountRC(CArcFile* archive)
 {
-	if (memcmp(archive->GetHeader(), "˜Z’š", 4) != 0)
+	// SJIS "˜Z’š"
+	if (memcmp(archive->GetHeader(), "\x98\x5A\x92\x9A", 4) != 0)
 		return false;
 
 	return archive->Mount();

@@ -69,7 +69,8 @@ bool CSpitan::MountGraphic1(CArcFile* archive)
 		u8 header[32];
 		archive->Read(header, sizeof(header));
 
-		if (memcmp(header, "‰PNG", 4) == 0)
+		// ‰PNG
+		if (memcmp(header, "\x89\x50NG", 4) == 0)
 			break;
 
 		// Get filename
