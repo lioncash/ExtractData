@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "UI/Ctrl/Statusbar.h"
+#include "UI/Ctrl/StatusBar.h"
 
 #include "Common.h"
 #include "UI/MainListView.h"

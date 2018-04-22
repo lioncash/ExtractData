@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "UI/Ctrl/Toolbar.h"
+#include "UI/Ctrl/ToolBar.h"
 
 #include "Common.h"
 
