@@ -195,14 +195,14 @@ bool CAlcot::DecodeCPB(CArcFile* archive)
 
 		CZlib zlib;
 		z_pbuf += 0x20;
-		for (size_t i = 0; i < z_color_size.size(); i++)
+		for (const u32 size : z_color_size)
 		{
-			if (z_color_size[i] == 0)
+			if (size == 0)
 				continue;
 
 			pbuf -= color_size;
-			zlib.Decompress(pbuf, color_size, &z_pbuf[4], z_color_size[i]);
-			z_pbuf += z_color_size[i];
+			zlib.Decompress(pbuf, color_size, &z_pbuf[4], size);
+			z_pbuf += size;
 		}
 	}
 	else
