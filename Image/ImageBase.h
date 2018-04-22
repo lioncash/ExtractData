@@ -19,7 +19,7 @@ public:
 	union UPixel
 	{
 		u8  color_rgba[4];
-		u32 color;
+		u32 color = 0;
 	};
 
 	CImageBase();

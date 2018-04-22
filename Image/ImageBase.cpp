@@ -4,14 +4,10 @@
 #include "ArcFile.h"
 
 /// Constructor
-CImageBase::CImageBase()
-{
-}
+CImageBase::CImageBase() = default;
 
 /// Destructor
-CImageBase::~CImageBase()
-{
-}
+CImageBase::~CImageBase() = default;
 
 /// Initialization
 ///
