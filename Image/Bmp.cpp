@@ -23,7 +23,7 @@ bool CBmp::OnInit(const YCString& file_name)
 {
 	// Set file header
 	m_bmp_file_header = {};
-	m_bmp_file_header.bfType = 'MB';
+	m_bmp_file_header.bfType = 0x4D42; // BM
 	m_bmp_file_header.bfSize = 54 + m_pitch * m_height;
 	m_bmp_file_header.bfReserved1 = 0;
 	m_bmp_file_header.bfReserved2 = 0;
