@@ -304,8 +304,7 @@ HWND COption::CreateProp(HWND hWnd)
 	psp.pfnDlgProc = reinterpret_cast<DLGPROC>(SusieProc);
 	hpsp[2] = CreatePropertySheetPage(&psp);
 
-	PROPSHEETHEADER psh;
-	memset(&psh, 0, sizeof(PROPSHEETHEADER));
+	PROPSHEETHEADER psh{};
 	psh.dwSize = sizeof(PROPSHEETHEADER);
 	psh.dwFlags = PSH_USECALLBACK;
 	psh.hInstance = hInst;
