@@ -506,11 +506,11 @@ LRESULT COption::ExtractProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	static std::array<CCheckBox, ExtractCheckText.size()> ExtractCheck;
 	static CCheckBox ExtractCheckAlpha;
-	static CLabel ExtractLabelImage, ExtractLabelPng, ExtractLabelAlpha, ExtractLabelSave, ExtractLabelBuf, ExtractLabelTmp;
+	static CLabel ExtractLabelPng, ExtractLabelAlpha, ExtractLabelBuf, ExtractLabelTmp;
 	static CRadioBtn ExtractRadioImage, ExtractRadioSave;
 	static CUpDown ExtractUpDownPng;
-	static CEditBox ExtractEditSusie, ExtractEditPng, ExtractEditAlpha, ExtractEditSave, ExtractEditBuf, ExtractEditTmp;
-	static CButton ExtractBtnSusie, ExtractBtnSave, ExtractBtnTmp;
+	static CEditBox ExtractEditPng, ExtractEditAlpha, ExtractEditSave, ExtractEditBuf, ExtractEditTmp;
+	static CButton ExtractBtnSave, ExtractBtnTmp;
 	static CGroupBox ExtractGroupImage, ExtractGroupSave;
 
 	switch (msg)
