@@ -1,11 +1,11 @@
 #pragma once
 
 /// Local Memory Class
-class YCLocalMemory
+class YCLocalMemory final
 {
 public:
 	YCLocalMemory();
-	virtual ~YCLocalMemory();
+	~YCLocalMemory();
 
 	bool Alloc(u32 flags, u32 bytes);
 	bool Free();
