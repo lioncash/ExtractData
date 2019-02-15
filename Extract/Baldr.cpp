@@ -85,9 +85,6 @@ bool CBaldr::Mount(CArcFile* archive)
 		file_info.end = file_info.start + file_info.sizeCmp;
 		file_info.format = format;
 
-//		if (file_info.sizeOrg != infFile.sizeCmp && lstrcmp(PathFindExtension(infFile.name), _T(".wav")) != 0)
-//			infFile.format = _T("LZ");
-
 		archive->AddFileInfo(file_info);
 	}
 
