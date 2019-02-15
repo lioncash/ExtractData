@@ -66,7 +66,7 @@ void CCtrlBase::SetWindowPos(int x, int y, int cx, int cy)
 	MoveWindow(GetCtrlHandle(), x, y, cx, cy, TRUE);
 };
 
-void CCtrlBase::Enable(BOOL flag)
+void CCtrlBase::Enable(bool flag)
 {
-	EnableWindow(m_ctrl, flag);
+	EnableWindow(m_ctrl, flag != 0);
 }

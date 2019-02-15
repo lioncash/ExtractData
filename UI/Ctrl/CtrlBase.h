@@ -22,7 +22,7 @@ public:
 	void      SetFocus();
 	void      SetWindowPos(int x, int y, int cx, int cy);
 
-	void Enable(BOOL flag);
+	void Enable(bool flag);
 
 protected:
 	HWND CreateCtrl(LPCTSTR class_name, DWORD style, LPCTSTR caption, int x, int y, int cx, int cy, DWORD ex_style = 0);
