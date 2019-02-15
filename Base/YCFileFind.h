@@ -4,23 +4,23 @@
 //-- File Search Class -------------------------------------------------------------------
 //----------------------------------------------------------------------------------------
 
-class YCFileFind
+class YCFileFind final
 {
 public:
 	YCFileFind();
-	virtual ~YCFileFind();
+	~YCFileFind();
 
-	virtual bool FindFirstFile(LPCTSTR file_path);
-	virtual bool FindFirstFile(LPCTSTR directory_path, LPCTSTR file_name);
-	virtual bool FindNextFile();
-	virtual void Close();
+	bool FindFirstFile(LPCTSTR file_path);
+	bool FindFirstFile(LPCTSTR directory_path, LPCTSTR file_name);
+	bool FindNextFile();
+	void Close();
 
-	virtual YCString GetFileName() const;
-	virtual YCString GetFilePath() const;
-	virtual YCString GetFileTitle() const;
+	YCString GetFileName() const;
+	YCString GetFilePath() const;
+	YCString GetFileTitle() const;
 
-	virtual bool IsDirectory() const;
-	virtual bool IsDots() const;
+	bool IsDirectory() const;
+	bool IsDots() const;
 
 private:
 	HANDLE          m_find_handle;
