@@ -361,7 +361,7 @@ LRESULT COption::StdProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	// Search settings
 	static std::array<CCheckBox, search_files_labels.size()> SearchCheck;
 	static const size_t SearchCheckNum = search_files_labels.size();
-	static CButton SearchBtn[2];
+	static std::array<CButton, 2> SearchBtn;
 	static CGroupBox SearchGroup;
 	// Search accuracy
 	static CGroupBox HighSearchGroup;
@@ -694,7 +694,8 @@ LRESULT COption::SusieProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	static CCheckBox SusieCheckUse, SusieCheckFirst;
 	static CLabel SusieLabelDir;
 	static CEditBox SusieEditDir;
-	static CButton SusieBtnDir, SusieBtnUpdate, SusieBtn[2];
+  static CButton SusieBtnDir, SusieBtnUpdate;
+  static std::array<CButton, 2> SusieBtn;
 	static CSusieListView SusieListView;
 	static CSusie susie;
 
