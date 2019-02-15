@@ -1,11 +1,11 @@
 #pragma once
 
 /// LoadLibrary API Wrapper Class
-class YCLibrary
+class YCLibrary final
 {
 public:
 	YCLibrary();
-	virtual ~YCLibrary();
+	~YCLibrary();
 
 	bool Load(LPCTSTR file_path);
 	void Free();
