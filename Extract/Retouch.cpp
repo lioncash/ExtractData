@@ -5,6 +5,21 @@
 #include "Arc/LZSS.h"
 #include "Image.h"
 
+namespace
+{
+struct GYUHeader
+{
+  u8  identifier[4];
+  u32 unknown;
+  u32 key;
+  u32 bpp;
+  s32 width;
+  s32 height;
+  u32 compressed_sizes[2];
+  u32 pallets;
+};
+} // Anonymous namespace
+
 /// Mounting
 ///
 /// @param archive Archive
@@ -16,7 +31,6 @@ bool CRetouch::Mount(CArcFile* archive)
 
 	return false;
 }
-
 
 /// GYU Mounting
 ///

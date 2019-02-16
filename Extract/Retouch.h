@@ -9,18 +9,6 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 private:
-	struct GYUHeader
-	{
-		u8  identifier[4];
-		u32 unknown;
-		u32 key;
-		u32 bpp;
-		s32 width;
-		s32 height;
-		u32 compressed_sizes[2];
-		u32 pallets;
-	};
-
 	bool MountGYU(CArcFile* archive);
 
 	bool DecodeGYU(CArcFile* archive);
