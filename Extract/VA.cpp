@@ -2,6 +2,7 @@
 #include "Extract/VA.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Sound/Wav.h"
 
 namespace

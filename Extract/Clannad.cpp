@@ -2,6 +2,7 @@
 #include "Extract/Clannad.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Extract/Ahx.h"
 #include "File.h"
 #include "Mzx.h"

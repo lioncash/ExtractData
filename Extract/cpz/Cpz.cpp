@@ -2,6 +2,7 @@
 #include "Extract/cpz/Cpz.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Extract/cpz/PB2A.h"
 #include "Extract/cpz/PB3B.h"
 #include "Image.h"

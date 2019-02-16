@@ -2,6 +2,7 @@
 #include "Extract/Spitan.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 namespace
 {

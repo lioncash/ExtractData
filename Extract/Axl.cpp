@@ -2,6 +2,7 @@
 #include "Extract/Axl.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Arc/LZSS.h"
 

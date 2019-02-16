@@ -2,6 +2,7 @@
 #include "Extract/TCD/TCD3.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 namespace
 {

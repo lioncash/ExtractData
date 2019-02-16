@@ -2,6 +2,7 @@
 #include "Search/SearchBase.h"
 
 #include "ArcFile.h"
+#include "UI/ProgressBar.h"
 
 CSearchBase::CSearchBase()
 {

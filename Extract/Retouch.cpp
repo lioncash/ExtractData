@@ -3,6 +3,7 @@
 
 #include "ArcFile.h"
 #include "Arc/LZSS.h"
+#include "Common.h"
 #include "Image.h"
 
 namespace

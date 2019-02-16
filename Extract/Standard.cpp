@@ -4,6 +4,7 @@
 #include "ArcFile.h"
 #include "Arc/LZSS.h"
 #include "Arc/Zlib.h"
+#include "Common.h"
 #include "Extract/Ahx.h"
 #include "Image.h"
 #include "Sound/Ogg.h"

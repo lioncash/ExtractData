@@ -3,6 +3,7 @@
 
 #include "../bzip2/bzlib.h"
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Utils/BitUtils.h"
 

@@ -2,6 +2,7 @@
 #include "Extract/Pajamas.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 
 /// Mounting

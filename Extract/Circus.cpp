@@ -2,6 +2,7 @@
 #include "Extract/Circus.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Arc/Zlib.h"
 #include "Sound/Wav.h"

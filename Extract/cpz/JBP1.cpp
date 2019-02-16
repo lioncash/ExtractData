@@ -1,5 +1,4 @@
 #include "StdAfx.h"
-#include "../../ExtractBase.h"
 #include "JBP1.h"
 
 /// Decompression

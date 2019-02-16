@@ -2,6 +2,8 @@
 #include "Search/WmvSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 
 CWmvSearch::CWmvSearch()
 {

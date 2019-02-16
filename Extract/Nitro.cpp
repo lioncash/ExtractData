@@ -3,6 +3,7 @@
 
 #include "ArcFile.h"
 #include "Arc/Zlib.h"
+#include "Common.h"
 #include "Image.h"
 
 bool CNitro::Mount(CArcFile* archive)

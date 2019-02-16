@@ -2,6 +2,7 @@
 #include "Extract/Oyatu.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "File.h"
 
 /// Determine if file is supported

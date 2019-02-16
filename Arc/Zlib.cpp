@@ -1,7 +1,9 @@
 #include "StdAfx.h"
-#include "../ArcFile.h"
-#include "../Image.h"
-#include "Zlib.h"
+#include "Arc/Zlib.h"
+
+#include "ArcFile.h"
+#include "Common.h"
+#include "Image.h"
 
 bool CZlib::Decode(CArcFile* archive)
 {

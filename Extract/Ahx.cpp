@@ -25,6 +25,7 @@
 #include "Extract/Ahx.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Sound/Wav.h"
 #include "Utils/BitUtils.h"
 

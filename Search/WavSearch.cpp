@@ -2,6 +2,8 @@
 #include "Search/WavSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 
 CWavSearch::CWavSearch()
 {

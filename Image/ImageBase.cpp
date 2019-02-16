@@ -2,6 +2,8 @@
 #include "Image/ImageBase.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 
 namespace
 {

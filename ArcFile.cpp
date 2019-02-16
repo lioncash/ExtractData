@@ -3,9 +3,10 @@
 
 #include "Common.h"
 #include "Error.h"
-#include "UI/Dialog/ExistsDialog.h"
 #include "Extract/Standard.h"
 #include "MD5.h"
+#include "UI/Dialog/ExistsDialog.h"
+#include "UI/ProgressBar.h"
 
 CArcFile::CArcFile()
 {
@@ -521,6 +522,24 @@ YCString CArcFile::SetCommaFormat(u32 size)
 		size_string.Insert(comma_pos + 3 * i + i, _T(','));
 
 	return size_string;
+}
+
+void CArcFile::SetFileInfo(size_t num)
+{
+	m_file_info = &(*m_entries)[num];
+	m_split_archive_id = m_file_info->arcs_id;
+	m_file_info_num = num;
+}
+
+void CArcFile::SetEnt(std::vector<SFileInfo>& ent)
+{
+	m_entries = &ent;
+	m_start_entry_index = ent.size();
+}
+
+SFileInfo* CArcFile::GetFileInfo(size_t num) const
+{
+	return &(*m_entries)[num];
 }
 
 /// Function to create the directories leading up to the lowest level you want to create

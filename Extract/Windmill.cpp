@@ -3,6 +3,7 @@
 
 #include "ArcFile.h"
 #include "Arc/Zlib.h"
+#include "Common.h"
 
 bool CWindmill::Mount(CArcFile* archive)
 {

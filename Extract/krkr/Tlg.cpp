@@ -2,6 +2,7 @@
 #include "Extract/krkr/Tlg.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 
 namespace

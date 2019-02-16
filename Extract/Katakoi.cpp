@@ -2,6 +2,7 @@
 #include "Extract/Katakoi.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "File.h"
 #include "Image.h"
 #include "Sound/Ogg.h"

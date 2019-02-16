@@ -2,8 +2,10 @@
 #include "Extract/Alcot.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Arc/Zlib.h"
+#include "UI/ProgressBar.h"
 
 bool CAlcot::Mount(CArcFile* archive)
 {

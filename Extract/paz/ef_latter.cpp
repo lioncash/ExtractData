@@ -2,6 +2,7 @@
 #include "Extract/paz/ef_latter.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 /// Check if files are supported
 ///

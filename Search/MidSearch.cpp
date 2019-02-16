@@ -2,6 +2,8 @@
 #include "Search/MidSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 #include "Utils/BitUtils.h"
 
 CMidSearch::CMidSearch()

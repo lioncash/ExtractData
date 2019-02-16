@@ -2,6 +2,7 @@
 #include "Extract/Ykc.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 bool CYkc::Mount(CArcFile* archive)
 {

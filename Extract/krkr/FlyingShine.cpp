@@ -2,6 +2,7 @@
 #include "Extract/krkr/FlyingShine.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 /// Determine if decryption is possible
 ///

@@ -2,6 +2,7 @@
 #include "Extract/paz/Paz.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Arc/Zlib.h"
 
 /// Mount

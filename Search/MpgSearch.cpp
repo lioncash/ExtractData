@@ -2,6 +2,8 @@
 #include "Search/MpgSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 
 CMpgSearch::CMpgSearch()
 {

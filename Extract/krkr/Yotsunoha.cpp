@@ -2,6 +2,7 @@
 #include "Extract/krkr/Yotsunoha.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 /// Determine if decryption is possible
 ///

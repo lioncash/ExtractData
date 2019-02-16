@@ -2,6 +2,7 @@
 #include "Extract/MeltyBlood.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 // Function that gets file information from MELTY BLOOD *.data files
 bool CMeltyBlood::Mount(CArcFile* archive)

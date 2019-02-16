@@ -2,6 +2,7 @@
 #include "Extract/TCD/TCDBase.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Sound/Ogg.h"
 #include "Utils/BitUtils.h"

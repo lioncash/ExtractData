@@ -2,6 +2,7 @@
 #include "Extract/Aselia.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "File.h"
 
 bool CAselia::Mount(CArcFile* archive)

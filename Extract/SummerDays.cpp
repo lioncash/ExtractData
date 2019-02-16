@@ -2,6 +2,7 @@
 #include "Extract/SummerDays.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 enum : s32
 {

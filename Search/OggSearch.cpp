@@ -2,7 +2,9 @@
 #include "Search/OggSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Sound/Ogg.h"
+#include "UI/ProgressBar.h"
 
 COggSearch::COggSearch() = default;
 

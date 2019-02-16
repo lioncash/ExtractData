@@ -2,6 +2,7 @@
 #include "Extract/Himauri.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 #include "Image/Tga.h"
 #include "Utils/BitUtils.h"

@@ -1,12 +1,13 @@
 #pragma once
 
-
-#include "MD5.h"
-#include "UI/ProgressBar.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+
+class CProgBar;
+struct SFileInfo;
+struct SMD5;
+struct SOption;
 
 class CArcFile
 {
@@ -75,23 +76,15 @@ public:
 	YCString SetCommaFormat(u32 size);
 
 	// Initialization processes performed prior to decoding/mounting
-  void SetFileInfo(size_t num)
-  {
-    m_file_info = &(*m_entries)[num];
-    m_split_archive_id = m_file_info->arcs_id;
-    m_file_info_num = num;
-  }
+
+  void SetFileInfo(size_t num);
 
   void SetArcID(u32 archive_id)
   {
     m_archive_id = archive_id;
   }
 
-	void SetEnt(std::vector<SFileInfo>& ent)
-  {
-    m_entries = &ent;
-    m_start_entry_index = ent.size();
-  }
+  void SetEnt(std::vector<SFileInfo>& ent);
 
   void SetProg(CProgBar& prog)      { m_progress_bar = &prog; }
   void SetOpt(SOption* option)      { m_option = option; }
@@ -115,7 +108,7 @@ public:
 	u8*       GetHeader()       { return m_header.data(); }
 	const u8* GetHeader() const { return m_header.data(); }
 
-	SFileInfo*              GetFileInfo(size_t num) const { return &(*m_entries)[num]; }
+  SFileInfo*              GetFileInfo(size_t num) const;
 	SFileInfo*              GetFileInfo(LPCTSTR filepath, bool compare_filename_only = false) const;
 	const SFileInfo*        GetFileInfoForBinarySearch(LPCTSTR file_name);
 	std::vector<SFileInfo>& GetFileInfo() const        { return *m_entries; }
@@ -151,7 +144,7 @@ public:
 	void      SetMD5OfFlag(bool set_md5) { m_set_md5 = set_md5; }
 
 	// Get MD5 value
-	std::vector<SMD5> GetMD5() const { return m_file_md5s; }
+	const std::vector<SMD5>& GetMD5() const { return m_file_md5s; }
 
 	// Check if MD5 value is set
 	bool CheckMD5OfSet() const { return m_set_md5; }

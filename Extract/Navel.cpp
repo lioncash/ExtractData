@@ -2,6 +2,7 @@
 #include "Extract/Navel.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Sound/Wav.h"
 
 namespace

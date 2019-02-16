@@ -2,6 +2,7 @@
 #include "Extract/Izumo.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 // Function to get file information from IZUMO *.dat files
 bool CIzumo::Mount(CArcFile* archive)

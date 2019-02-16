@@ -2,6 +2,7 @@
 #include "QLIE.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 
 bool CQLIE::Mount(CArcFile* archive)

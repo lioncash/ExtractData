@@ -2,6 +2,8 @@
 #include "Search/BmpSearch.h"
 
 #include "ArcFile.h"
+#include "Common.h"
+#include "UI/ProgressBar.h"
 
 CBmpSearch::CBmpSearch()
 {

@@ -2,6 +2,7 @@
 #include "Extract/Yuris.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 
 bool CYuris::Mount(CArcFile* archive)
 {

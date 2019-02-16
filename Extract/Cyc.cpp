@@ -2,6 +2,7 @@
 #include "Extract/Cyc.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "File.h"
 #include "Image.h"
 

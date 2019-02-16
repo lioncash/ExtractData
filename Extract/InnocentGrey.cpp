@@ -2,6 +2,7 @@
 #include "Extract/InnocentGrey.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
 
 bool CInnocentGrey::Mount(CArcFile* archive)

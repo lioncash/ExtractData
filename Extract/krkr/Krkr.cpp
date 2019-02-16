@@ -3,10 +3,13 @@
 
 #include "ArcFile.h"
 #include "Arc/Zlib.h"
+#include "Common.h"
 #include "Extract/krkr/Tlg.h"
 #include "FindFile.h"
 #include "Image.h"
+#include "MD5.h"
 #include "Sound/Ogg.h"
+#include "UI/ProgressBar.h"
 
 namespace
 {

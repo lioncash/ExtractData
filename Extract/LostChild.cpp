@@ -2,7 +2,9 @@
 #include "Extract/LostChild.h"
 
 #include "ArcFile.h"
+#include "Common.h"
 #include "Image.h"
+#include "UI/ProgressBar.h"
 
 /// Mounting
 ///

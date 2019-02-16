@@ -1,9 +1,9 @@
 #include "StdAfx.h"
-#include "../ArcFile.h"
-#include "../Image.h"
-#include "LZSS.h"
+#include "Arc/LZSS.h"
 
-#include <vector>
+#include "ArcFile.h"
+#include "Common.h"
+#include "Image.h"
 
 /// Decode
 ///
