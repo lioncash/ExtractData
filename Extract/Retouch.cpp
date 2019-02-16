@@ -26,10 +26,7 @@ struct GYUHeader
 ///
 bool CRetouch::Mount(CArcFile* archive)
 {
-	if (MountGYU(archive))
-		return true;
-
-	return false;
+  return MountGYU(archive);
 }
 
 /// GYU Mounting
@@ -53,10 +50,7 @@ bool CRetouch::MountGYU(CArcFile* archive)
 ///
 bool CRetouch::Decode(CArcFile* archive)
 {
-	if (DecodeGYU(archive))
-		return true;
-
-	return false;
+  return DecodeGYU(archive);
 }
 
 /// GYU Decoding
