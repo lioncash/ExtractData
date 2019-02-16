@@ -73,8 +73,8 @@ struct SFileInfo
 	YCString            arc_name;                       // Archive file to load
 	u64                 start;                          // Start address
 	u64                 end;                            // End address
-	DWORD               arc_id;                         // Distinguishes between multiple open files
-	DWORD               arcs_id;                        // Archive file split IDs
+	u32                 arc_id;                         // Distinguishes between multiple open files
+	u32                 arcs_id;                        // Archive file split IDs
 	std::vector<DWORD>  sizes_org;                      // File size (Used when data is scattered)
 	std::vector<DWORD>  sizes_cmp;                      // Compressed File size (Used when data is scattered)
 	std::vector<DWORD>  starts;                         // Start Address(Used when data is scattered)
