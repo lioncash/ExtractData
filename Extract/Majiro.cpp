@@ -26,6 +26,17 @@
 #include "ArcFile.h"
 #include "Image.h"
 
+namespace
+{
+struct SRCHeader
+{
+	char identifier[8];
+	s32  width;
+	s32  height;
+	u32  data_size;
+};
+} // Anonymous namespace
+
 /// Mounting
 ///
 /// @param archive Archive

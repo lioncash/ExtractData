@@ -9,14 +9,6 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 private:
-	struct SRCHeader
-	{
-		char identifier[8];
-		s32  width;
-		s32  height;
-		u32  data_size;
-	};
-
 	bool MountArc1(CArcFile* archive);
 	bool MountArc2(CArcFile* archive);
 	bool MountMJO(CArcFile* archive);
