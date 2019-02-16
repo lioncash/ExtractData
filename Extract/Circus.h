@@ -9,18 +9,7 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 private:
-	struct SPCMHeader
-	{
-		char identifier[4]; // Identifier
-		u32  data_size;     // Data Size
-		u32  flags;         // Flags
-		u16  format_id;     // Format ID
-		u16  channels;      // Number of channels
-		u32  freq;          // Sampling rate
-		u32  bps;           // Data Rate
-		u16  block_size;    // Block size
-		u16  bits;          // Number of bits
-	};
+  struct SPCMHeader;
 
 	bool MountPCK(CArcFile* archive);
 	bool MountVoiceDat(CArcFile* archive);
