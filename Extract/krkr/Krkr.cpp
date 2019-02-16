@@ -515,17 +515,11 @@ bool CKrkr::OnCheckDecrypt(CArcFile* archive)
 ///
 bool CKrkr::CheckTpm(const char* md5) const
 {
-	// Comparison
-	for (size_t i = 0; i < m_archive->GetMD5().size(); i++)
-	{
-		if (memcmp(md5, m_archive->GetMD5()[i].szABCD, 32) == 0)
-		{
-			// Matches
-			return true;
-		}
-	}
+	const auto& md5_hashes = m_archive->GetMD5();
 
-	return false;
+	return std::any_of(md5_hashes.begin(), md5_hashes.end(), [md5](const auto& md5_hash) {
+		return std::memcmp(md5, md5_hash.szABCD, 32) == 0;
+	});
 }
 
 /// Initialization of the decryption process
