@@ -9,14 +9,6 @@ public:
 	bool Decode(CArcFile* archive) override;
 
 private:
-	struct NodeInfo
-	{
-		bool is_valid; // Validity
-		u32  freq;     // Frequency
-		u32  left;     // Left Node
-		u32  right;    // Right Node
-	};
-
 	bool DecodeBSE(CArcFile* archive);
 	bool DecodeDSC(CArcFile* archive);
 	bool DecodeCBG(CArcFile* archive);

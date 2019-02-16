@@ -3,7 +3,17 @@
 
 #include "ArcFile.h"
 #include "Image.h"
-#include "Utils/BitUtils.h"
+
+namespace
+{
+struct NodeInfo
+{
+  bool is_valid; // Validity
+  u32  freq;     // Frequency
+  u32  left;     // Left Node
+  u32  right;    // Right Node
+};
+} // Anonymous namespace
 
 /// Mount
 ///
