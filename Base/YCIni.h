@@ -8,6 +8,7 @@ class YCIni
 {
 public:
 	explicit YCIni(LPCTSTR ini_path);
+  ~YCIni();
 
 	void SetSection(u32 id);
 	void SetSection(LPCTSTR section);

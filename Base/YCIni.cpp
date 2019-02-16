@@ -13,6 +13,8 @@ YCIni::YCIni(LPCTSTR ini_path)
 	m_ini_path.Format(_T("%s\\%s"), exe_folder_path.data(), ini_path);
 }
 
+YCIni::~YCIni() = default;
+
 /// Set a section name
 void YCIni::SetSection(LPCTSTR section)
 {
