@@ -64,28 +64,23 @@ struct SOption
 struct SFileInfo
 {
 	YCString           name;                           // Filename
-	u32                size_org;                       // File Size
-	u32                size_org2;                      // File Size 2
+	u32                size_org = 0;                   // File Size
+	u32                size_org2 = 0;                  // File Size 2
 	YCString           size_org_comma;                 // File size with a comma
-	u32                size_cmp;                       // Compressed file size
+	u32                size_cmp = 0;                   // Compressed file size
 	YCString           size_cmp_comma;                 // Compressed file size with a comma
 	YCString           format;                         // File Format
 	YCString           arc_name;                       // Archive file to load
-	u64                start;                          // Start address
-	u64                end;                            // End address
-	u32                arc_id;                         // Distinguishes between multiple open files
-	u32                arcs_id;                        // Archive file split IDs
+	u64                start = 0;                      // Start address
+	u64                end = 0;                        // End address
+	u32                arc_id = 0;                     // Distinguishes between multiple open files
+	u32                arcs_id = 0;                    // Archive file split IDs
 	std::vector<u32>   sizes_org;                      // File size (Used when data is scattered)
 	std::vector<u32>   sizes_cmp;                      // Compressed File size (Used when data is scattered)
 	std::vector<u32>   starts;                         // Start Address(Used when data is scattered)
 	std::vector<u32>   compress_checks;                // Check if it is compressed or not (Used when data is scattered)
 	YCString           title;                          // Game title
-	u32                key;                            // File Key (File value)
-	u32                type;                           // File type
+	u32                key = 0;                        // File Key (File value)
+	u32                type = 0;                       // File type
 	std::set<YCString> tmp_file_paths;                 // Path to extracted files
-
-	SFileInfo()
-	{
-		key = 0;
-	}
 };
