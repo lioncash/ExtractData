@@ -6,6 +6,17 @@
 #include "Image.h"
 #include "Image/Tga.h"
 
+namespace
+{
+struct FileEntry
+{
+	char file_name[256];
+	u32  offset;
+	u32  original_size;
+	u32  compressed_size;
+};
+} // Anonymous namespace
+
 /// Mounting
 bool CTaskForce::Mount(CArcFile* archive)
 {
