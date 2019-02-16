@@ -5,6 +5,9 @@
 class CSummerDays final : public CExtractBase
 {
 public:
+  CSummerDays();
+  ~CSummerDays() override;
+
 	bool Mount(CArcFile* archive) override;
 
 private:

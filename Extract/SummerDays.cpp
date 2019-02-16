@@ -16,6 +16,9 @@ struct CSummerDays::Context
 	u16 code;
 };
 
+CSummerDays::CSummerDays() = default;
+CSummerDays::~CSummerDays() = default;
+
 bool CSummerDays::Mount(CArcFile* archive)
 {
 	if (memcmp(archive->GetHeader(), "\xCD\x32\x6E\x59", 4) != 0)
