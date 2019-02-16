@@ -3,6 +3,29 @@
 
 #include "ArcFile.h"
 
+namespace
+{
+struct STCD2IndexInfo
+{
+	u32 file_size;             // File size
+	u32 file_count;            // Number of files
+	u32 dir_count;             // Number of folders
+	u32 index_offset;          // Absolute offset value to the index
+	u32 dir_name_length;       // Folder name length
+	u32 file_name_length;      // File name length
+	u32 file_count_ex;         // File count(Extended version)
+	u32 file_name_length_ex;   // File name length(Extended version)
+};
+
+struct STCD2DirInfo
+{
+	u32 file_count;            // Number of files
+	u32 file_name_offset;      // File name offset value
+	u32 file_offset;           // File offset value
+	u32 reserved;              // Reserved
+};
+} // Anonymous namespace
+
 /// Mount
 ///
 /// @param archive Archive
