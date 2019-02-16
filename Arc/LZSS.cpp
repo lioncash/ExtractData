@@ -129,53 +129,6 @@ bool CLZSS::Decomp(u8* dst, size_t dst_size, const u8* src, size_t src_size, siz
 
 		flags >>= 1;
 		bit_count--;
-
-
-/*
-		for (size_t i = 0; i < 8 && src_ptr < src_size && dst_ptr < dst_size; i++)
-		{
-			if (flags & 1)
-			{
-				// Non-compressed data
-
-				dst[dst_ptr] = dictionary[dic_ptr] = src[src_ptr];
-
-				dst_ptr++;
-				src_ptr++;
-				dic_ptr++;
-
-				dic_ptr &= dic_size - 1;
-			}
-			else
-			{
-				// Compressed data
-				const u8 low = src[src_ptr++];
-				const u8 high = src[src_ptr++];
-
-				u32 back = ((high & 0xF0) << 4) | low;
-				u32 length = (high & 0x0F) + offset;
-
-				if (dst_ptr + length > dst_size)
-				{
-					// Exceeds the output buffer
-					length = dst_size - dst_ptr;
-				}
-
-				for (size_t j = 0; j < length; j++)
-				{
-					dst[dst_ptr] = dictionary[dic_ptr] = dictionary[back];
-
-					dst_ptr++;
-					dic_ptr++;
-					back++;
-
-					dic_ptr &= dic_size - 1;
-					back &= dic_size - 1;
-				}
-			}
-
-			flags >>= 1;
-		}*/
 	}
 
 	return true;
