@@ -80,8 +80,8 @@ struct SFileInfo
 	std::vector<DWORD>  starts;                         // Start Address(Used when data is scattered)
 	std::vector<DWORD>  compress_checks;                // Check if it is compressed or not (Used when data is scattered)
 	YCString            title;                          // Game title
-	DWORD               key;                            // File Key (File value)
-	DWORD               type;                           // File type
+	u32                 key;                            // File Key (File value)
+	u32                 type;                           // File type
 	std::set<YCString>  tmp_file_paths;                 // Path to extracted files
 
 	SFileInfo()
