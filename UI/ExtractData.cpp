@@ -2,6 +2,7 @@
 #include "ExtractData.h"
 
 #include "ArcFile.h"
+#include "Error.h"
 #include "File.h"
 #include "Common.h"
 #include "res/ResExtractData.h"
