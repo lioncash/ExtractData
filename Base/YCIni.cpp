@@ -11,8 +11,6 @@ YCIni::YCIni(LPCTSTR ini_path)
 
 	// Get INI file path
 	m_ini_path.Format(_T("%s\\%s"), exe_folder_path.data(), ini_path);
-
-// m_ini_path = ini_path;
 }
 
 /// Set a section name
