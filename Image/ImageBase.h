@@ -45,8 +45,6 @@ protected:
     u32 color = 0;
   };
 
-	static s32 CalculatePitch(s32 width, u16 bpp);
-
 	bool IsRequireAlphaBlend() const;
 
 	void AlphaBlend(u8* buffer24, const u8* buffer32);

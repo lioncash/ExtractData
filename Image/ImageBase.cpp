@@ -3,6 +3,19 @@
 
 #include "ArcFile.h"
 
+namespace
+{
+/// Calculate Pitch
+///
+/// @param width Width
+/// @param bpp   Number of bits
+///
+s32 CalculatePitch(s32 width, u16 bpp)
+{
+  return (width * (bpp >> 3) + 3) & 0xFFFFFFFC;
+}
+} // Anonymous namespace
+
 /// Constructor
 CImageBase::CImageBase() = default;
 
@@ -607,14 +620,4 @@ void CImageBase::WriteFinish()
 {
 	m_archive->GetProg()->UpdatePercent(m_row_size_remainder);
 	OnWriteFinish();
-}
-
-/// Calculate Pitch
-///
-/// @param width Width
-/// @param bpp   Number of bits
-///
-s32 CImageBase::CalculatePitch(s32 width, u16 bpp)
-{
-	return (width * (bpp >> 3) + 3) & 0xFFFFFFFC;
 }
