@@ -66,7 +66,7 @@ bool CBaldr::Mount(CArcFile* archive)
 	for (const auto& entry : file_indices)
 	{
 		// Get filename
-		char filename[65];
+    char filename[65];
 		memcpy(filename, entry.filename, 64);
 		filename[64] = '\0';
 

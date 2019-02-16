@@ -13,6 +13,6 @@ private:
 	bool CreateKey(u8* key, size_t* key_length, const u8* index, size_t index_size);
 	bool DecryptIndex(u8* index, size_t index_size, u64 archive_size);
 
-	u8 m_decryption_key[32] = {};
+	std::array<u8, 32> m_decryption_key{};
 	size_t m_length = 0;
 };

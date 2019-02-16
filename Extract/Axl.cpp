@@ -154,7 +154,7 @@ bool CAxl::Decode(CArcFile* archive)
 void CAxl::InitMountKey(const void* decryption_key)
 {
 	m_length = strlen(static_cast<const char*>(decryption_key));
-	memcpy(m_decryption_key, decryption_key, m_length);
+	memcpy(m_decryption_key.data(), decryption_key, m_length);
 }
 
 bool CAxl::CreateKey(u8* key, size_t* key_length, const u8* index, size_t index_size)
