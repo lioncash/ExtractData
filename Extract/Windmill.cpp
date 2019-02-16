@@ -72,9 +72,9 @@ bool CWindmill::Decode(CArcFile* archive)
 
 	// Get buffer size
 	auto dwSrcSize1 = *reinterpret_cast<const u32*>(&header[0x20]);
-	auto dwDstSize1 = static_cast<unsigned long>(*reinterpret_cast<const u32*>(&header[0x24]));
+	auto dwDstSize1 = *reinterpret_cast<const u32*>(&header[0x24]);
 	auto dwSrcSize2 = *reinterpret_cast<const u32*>(&header[0x28]);
-	auto dwDstSize2 = static_cast<unsigned long>(*reinterpret_cast<const u32*>(&header[0x2C]));
+	auto dwDstSize2 = *reinterpret_cast<const u32*>(&header[0x2C]);
 	u32 dwDstSize = width * height * 4 * 2 + 256;
 
 	// Ensure buffers exist

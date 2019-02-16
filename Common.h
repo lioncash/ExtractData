@@ -63,26 +63,26 @@ struct SOption
 // File Info
 struct SFileInfo
 {
-	YCString            name;                           // Filename
-	DWORD               size_org;                       // File Size
-	DWORD               size_org2;                      // File Size 2
-	YCString            size_org_comma;                 // File size with a comma
-	DWORD               size_cmp;                       // Compressed file size
-	YCString            size_cmp_comma;                 // Compressed file size with a comma
-	YCString            format;                         // File Format
-	YCString            arc_name;                       // Archive file to load
-	u64                 start;                          // Start address
-	u64                 end;                            // End address
-	u32                 arc_id;                         // Distinguishes between multiple open files
-	u32                 arcs_id;                        // Archive file split IDs
-	std::vector<DWORD>  sizes_org;                      // File size (Used when data is scattered)
-	std::vector<DWORD>  sizes_cmp;                      // Compressed File size (Used when data is scattered)
-	std::vector<DWORD>  starts;                         // Start Address(Used when data is scattered)
-	std::vector<DWORD>  compress_checks;                // Check if it is compressed or not (Used when data is scattered)
-	YCString            title;                          // Game title
-	u32                 key;                            // File Key (File value)
-	u32                 type;                           // File type
-	std::set<YCString>  tmp_file_paths;                 // Path to extracted files
+	YCString           name;                           // Filename
+	u32                size_org;                       // File Size
+	u32                size_org2;                      // File Size 2
+	YCString           size_org_comma;                 // File size with a comma
+	u32                size_cmp;                       // Compressed file size
+	YCString           size_cmp_comma;                 // Compressed file size with a comma
+	YCString           format;                         // File Format
+	YCString           arc_name;                       // Archive file to load
+	u64                start;                          // Start address
+	u64                end;                            // End address
+	u32                arc_id;                         // Distinguishes between multiple open files
+	u32                arcs_id;                        // Archive file split IDs
+	std::vector<u32>   sizes_org;                      // File size (Used when data is scattered)
+	std::vector<u32>   sizes_cmp;                      // Compressed File size (Used when data is scattered)
+	std::vector<u32>   starts;                         // Start Address(Used when data is scattered)
+	std::vector<u32>   compress_checks;                // Check if it is compressed or not (Used when data is scattered)
+	YCString           title;                          // Game title
+	u32                key;                            // File Key (File value)
+	u32                type;                           // File type
+	std::set<YCString> tmp_file_paths;                 // Path to extracted files
 
 	SFileInfo()
 	{
