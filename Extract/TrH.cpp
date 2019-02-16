@@ -4,6 +4,27 @@
 #include "ArcFile.h"
 #include "Sound/Wav.h"
 
+namespace
+{
+// PX Format
+struct PXHeader
+{
+	u8  px_id[4];       // "fPX "
+	u32 file_size;      // File Size
+	u8  ctrk_id[4];     // "cTRK"
+	u32 data_size;      // Number of bytes of waveform data
+	u32 dummy1;         // Unknown
+	u32 dummy2;         // Unknown
+	u32 dummy3;         // Unknown
+	u32 freq;           // Sampling Rate
+	u16 dummy4;         // Unknown
+	u16 channels;       // Number of channels
+	u32 chunk_byte;     // Number of bytes per chunk
+	u16 bits;           // Number of bits per sample(bit/sample)
+	u16 format_id;      // Format ID
+};
+} // Anonymous namespace
+
 bool CTrH::Mount(CArcFile* archive)
 {
 	if (archive->GetArcExten() != _T(".px") || memcmp(archive->GetHeader(), "fPX ", 4) != 0)
@@ -21,8 +42,8 @@ bool CTrH::Decode(CArcFile* archive)
 		return false;
 
 	// Read px header
-	PXHed header;
-	archive->Read(&header, sizeof(PXHed));
+	PXHeader header;
+	archive->Read(&header, sizeof(PXHeader));
 
 	// Output
 	CWav wav;
