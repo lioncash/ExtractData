@@ -64,25 +64,25 @@ struct SOption
 struct SFileInfo
 {
 	YCString            name;                           // Filename
-	DWORD               sizeOrg;                        // File Size
-	DWORD               dwSizeOrg2;                     // File Size 2
-	YCString            sSizeOrg;                       // File size with a comma
-	DWORD               sizeCmp;                        // Compressed file size
-	YCString            sSizeCmp;                       // Compressed file size with a comma
+	DWORD               size_org;                       // File Size
+	DWORD               size_org2;                      // File Size 2
+	YCString            size_org_comma;                 // File size with a comma
+	DWORD               size_cmp;                       // Compressed file size
+	YCString            size_cmp_comma;                 // Compressed file size with a comma
 	YCString            format;                         // File Format
-	YCString            arcName;                        // Archive file to load
+	YCString            arc_name;                       // Archive file to load
 	u64                 start;                          // Start address
 	u64                 end;                            // End address
-	DWORD               arcID;                          // Distinguishes between multiple open files
-	DWORD               arcsID;                         // Archive file split IDs
-	std::vector<DWORD>  sizesOrg;                       // File size (Used when data is scattered)
-	std::vector<DWORD>  sizesCmp;                       // Compressed File size (Used when data is scattered)
+	DWORD               arc_id;                         // Distinguishes between multiple open files
+	DWORD               arcs_id;                        // Archive file split IDs
+	std::vector<DWORD>  sizes_org;                      // File size (Used when data is scattered)
+	std::vector<DWORD>  sizes_cmp;                      // Compressed File size (Used when data is scattered)
 	std::vector<DWORD>  starts;                         // Start Address(Used when data is scattered)
-	std::vector<DWORD>  bCmps;                          // Check if it is compressed or not (Used when data is scattered)
+	std::vector<DWORD>  compress_checks;                // Check if it is compressed or not (Used when data is scattered)
 	YCString            title;                          // Game title
 	DWORD               key;                            // File Key (File value)
 	DWORD               type;                           // File type
-	std::set<YCString>  sTmpFilePath;                   // Path to extracted files
+	std::set<YCString>  tmp_file_paths;                 // Path to extracted files
 
 	SFileInfo()
 	{

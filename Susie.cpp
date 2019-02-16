@@ -141,10 +141,10 @@ bool CSusie::Mount(CArcFile* archive)
 			// Set the file information
 			SFileInfo stFileInfo;
 			stFileInfo.name = szFileName;
-			stFileInfo.sizeCmp = (pstFileInfo->compsize == 0) ? pstFileInfo->filesize : pstFileInfo->compsize;
-			stFileInfo.sizeOrg = pstFileInfo->filesize;
+			stFileInfo.size_cmp = (pstFileInfo->compsize == 0) ? pstFileInfo->filesize : pstFileInfo->compsize;
+			stFileInfo.size_org = pstFileInfo->filesize;
 			stFileInfo.start = pstFileInfo->position;
-			stFileInfo.end = stFileInfo.start + stFileInfo.sizeCmp;
+			stFileInfo.end = stFileInfo.start + stFileInfo.size_cmp;
 			stFileInfo.format.Append((LPTSTR)pstFileInfo->method, 8);
 
 			archive->AddFileInfo(stFileInfo);
@@ -293,7 +293,7 @@ bool CSusie::Decode(CArcFile* archive)
 		bGetFileSuccess = false;
 
 		// Memory allocation
-		dwSrcSize = archive->GetOpenFileInfo()->sizeCmp;
+		dwSrcSize = archive->GetOpenFileInfo()->size_cmp;
 
 		cllmSrc.Alloc(LHND, dwSrcSize);
 		pbtSrc = static_cast<u8*>(cllmSrc.Lock());
@@ -388,7 +388,7 @@ bool CSusie::Decode(CArcFile* archive)
 
 	// Output file obtained from GetFile()
 	archive->OpenFile();
-	archive->WriteFile(pbtSrc, dwSrcSize, archive->GetOpenFileInfo()->sizeCmp);
+	archive->WriteFile(pbtSrc, dwSrcSize, archive->GetOpenFileInfo()->size_cmp);
 	archive->CloseFile();
 
 	// Exit (Free resources)

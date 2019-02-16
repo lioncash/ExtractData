@@ -66,10 +66,10 @@ bool CNavel::MountPac(CArcFile* archive)
 		// Add to list view
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
-		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.size_cmp = file_info.size_org;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
-		file_info.end = file_info.start + file_info.sizeOrg;
+		file_info.end = file_info.start + file_info.size_org;
 		archive->AddFileInfo(file_info);
 
 		index_ptr += 40;
@@ -100,7 +100,7 @@ bool CNavel::Decode(CArcFile* archive)
 
 	// Output
 	CWav wav;
-	wav.Init(archive, file_info->sizeOrg - 44, wpd.freq, wpd.channels, wpd.bits);
+	wav.Init(archive, file_info->size_org - 44, wpd.freq, wpd.channels, wpd.bits);
 	wav.Write();
 
 	return true;

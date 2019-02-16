@@ -72,10 +72,10 @@ bool CCircus::MountPCK(CArcFile* archive)
 		// Store file information in memory
 		SFileInfo file_info;
 		file_info.name    = file_name;
-		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[i * 64 + 60]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<u32*>(&index[i * 64 + 60]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start   = *reinterpret_cast<u32*>(&index[i * 64 + 56]);
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.end     = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -129,8 +129,8 @@ bool CCircus::MountVoiceDat(CArcFile* archive)
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<u32*>(&index[i * 52 + 48]);
 		file_info.end     = (i < (files - 1)) ? *reinterpret_cast<u32*>(&index[(i + 1) * 52 + 48]) : archive->GetArcSize();
-		file_info.sizeCmp = file_info.end - file_info.start;
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = file_info.end - file_info.start;
+		file_info.size_org = file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -194,7 +194,7 @@ bool CCircus::DecodeCRX(CArcFile* archive)
 		return false;
 
 	// Ensure input buffer exists
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 
 	// Read
 	archive->Read(src.data(), src.size());
@@ -460,7 +460,7 @@ bool CCircus::DecodePCM1(CArcFile* archive, const SPCMHeader& pcm_header)
 ///
 bool CCircus::DecodePCM2(CArcFile* archive, const SPCMHeader& pcm_header)
 {
-	std::vector<u8> src(archive->GetOpenFileInfo()->sizeCmp - sizeof(SPCMHeader));
+	std::vector<u8> src(archive->GetOpenFileInfo()->size_cmp - sizeof(SPCMHeader));
 	std::vector<u8> dst(pcm_header.data_size);
 
 	// Read

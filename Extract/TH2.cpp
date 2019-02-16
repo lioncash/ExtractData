@@ -66,9 +66,9 @@ bool CTH2::MountKCAP(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&index[index_ptr + 28]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 32]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 32]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		file_info.title = _T("TH2");
 
 		if (type == 1)
@@ -120,10 +120,10 @@ bool CTH2::MountLAC(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 32]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 32]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<const u32*>(&index[index_ptr + 36]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 
@@ -166,10 +166,10 @@ bool CTH2::MountDpl(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 24]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 24]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<const u32*>(&index[index_ptr + 28]) + offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 
@@ -218,7 +218,7 @@ bool CTH2::DecodeWMV(CArcFile* archive)
 	archive->OpenFile();
 	archive->SeekCur(8);
 	archive->WriteFile("\x30\x26\xB2\x75\x8E\x66\xCF\x11", 8);
-	archive->ReadWrite(file_info->sizeCmp - 8);
+	archive->ReadWrite(file_info->size_cmp - 8);
 	archive->CloseFile();
 
 	return true;
@@ -241,7 +241,7 @@ bool CTH2::DecodeEtc(CArcFile* archive)
 	if (file_info->format == _T("LZ"))
 	{
 		// Get input size
-		const u32 src_size = file_info->sizeCmp - 8;
+		const u32 src_size = file_info->size_cmp - 8;
 
 		// Get output size
 		archive->SeekCur(4);
@@ -261,7 +261,7 @@ bool CTH2::DecodeEtc(CArcFile* archive)
 	else
 	{
 		// Uncompressed
-		dst_size = file_info->sizeOrg;
+		dst_size = file_info->size_org;
 		dst.resize(dst_size);
 		archive->Read(dst.data(), dst_size);
 	}

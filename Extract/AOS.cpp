@@ -45,9 +45,9 @@ bool CAOS::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), 32);
 		file_info.start = *reinterpret_cast<const u32*>(&index[i + 32]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + 36]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[i + 36]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -90,7 +90,7 @@ bool CAOS::DecodeABM(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read data
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Get bitmap header
@@ -181,7 +181,7 @@ bool CAOS::DecodeMask(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read Data
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Output
@@ -202,7 +202,7 @@ bool CAOS::DecodeScript(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read compressed data
-	const u32 src_size = file_info->sizeCmp;
+	const u32 src_size = file_info->size_cmp;
 	std::vector<u8> src(src_size);
 	archive->Read(src.data(), src.size());
 

@@ -57,10 +57,10 @@ bool CVA::MountNwa(CArcFile* archive)
 	// Add to listview
 	SFileInfo file_info;
 	file_info.name = archive->GetArcName();
-	file_info.sizeOrg = nwa_header.data_size + 44;
-	file_info.sizeCmp = (nwa_header.compressed_file_size == 0) ? file_info.sizeOrg : nwa_header.compressed_file_size;
+	file_info.size_org = nwa_header.data_size + 44;
+	file_info.size_cmp = (nwa_header.compressed_file_size == 0) ? file_info.size_org : nwa_header.compressed_file_size;
 	file_info.start = 0x00;
-	file_info.end = file_info.start + file_info.sizeCmp;
+	file_info.end = file_info.start + file_info.size_cmp;
 	archive->AddFileInfo(file_info);
 
 	return true;
@@ -97,15 +97,15 @@ bool CVA::MountNwk(CArcFile* archive)
 
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[0]);
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[0]);
 		//file_info.sizeOrg = file_info.sizeCmp;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[4]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		// Get filesize
 		archive->Seek(file_info.start + 20, FILE_BEGIN);
-		archive->Read(&file_info.sizeOrg, 4);
-		file_info.sizeOrg += 44;
+		archive->Read(&file_info.size_org, 4);
+		file_info.size_org += 44;
 
 		archive->AddFileInfo(file_info);
 
@@ -147,10 +147,10 @@ bool CVA::MountOvk(CArcFile* archive)
 		// Get file information
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[i]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<const u32*>(&index[i + 4]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}

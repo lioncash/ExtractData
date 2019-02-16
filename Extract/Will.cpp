@@ -80,10 +80,10 @@ bool CWill::Mount(CArcFile* archive)
 			// Add information to the list
 			SFileInfo file_info;
 			file_info.name = file_name;
-			file_info.sizeCmp = *(u32*)&index[index_ptr + 9];
-			file_info.sizeOrg = file_info.sizeCmp;
+			file_info.size_cmp = *(u32*)&index[index_ptr + 9];
+			file_info.size_org = file_info.size_cmp;
 			file_info.start = *(u32*)&index[index_ptr + 13];
-			file_info.end = file_info.start + file_info.sizeCmp;
+			file_info.end = file_info.start + file_info.size_cmp;
 
 			if (lstrcmp(file_extension, _T("msk")) == 0)
 			{
@@ -118,11 +118,11 @@ bool CWill::Mount(CArcFile* archive)
 		{
 			// Definitely the mask image
 			target_file_info->starts.push_back(mask_file_info.start);
-			target_file_info->sizesCmp.push_back(mask_file_info.sizeCmp);
-			target_file_info->sizesOrg.push_back(mask_file_info.sizeOrg);
+			target_file_info->sizes_cmp.push_back(mask_file_info.size_cmp);
+			target_file_info->sizes_org.push_back(mask_file_info.size_org);
 
 			// Progress update
-			archive->GetProg()->UpdatePercent(mask_file_info.sizeCmp);
+			archive->GetProg()->UpdatePercent(mask_file_info.size_cmp);
 		}
 		else
 		{
@@ -153,7 +153,7 @@ bool CWill::Decode(CArcFile* archive)
 		return false;
 
 	// Read data
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 	size_t src_ptr = 0;
 
@@ -190,7 +190,7 @@ bool CWill::Decode(CArcFile* archive)
 	{
 		// Image mask exists
 		mask_src_ptr = 0;
-		mask_src.resize(file_info->sizesCmp[0]);
+		mask_src.resize(file_info->sizes_cmp[0]);
 
 		// Read image mask
 		archive->SeekHed(file_info->starts[0]);

@@ -47,11 +47,11 @@ void CPngSearch::Mount(CArcFile* archive)
 	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	file_info.sizeOrg = file_info.end - file_info.start;
-	file_info.sizeCmp = file_info.sizeOrg;
+	file_info.size_org = file_info.end - file_info.start;
+	file_info.size_cmp = file_info.size_org;
 
 	// Update progress bar
-	archive->GetProg()->UpdatePercent(file_info.sizeOrg);
+	archive->GetProg()->UpdatePercent(file_info.size_org);
 
 	archive->AddFileInfo(file_info, GetNumFiles(), _T(".png"));
 }

@@ -56,10 +56,10 @@ bool CSpitan::MountSound(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&header[0]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&header[0]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<const u32*>(&header[4]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 	}
 
@@ -91,9 +91,9 @@ bool CSpitan::MountGraphic1(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&header[4]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&header[8]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&header[8]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 	}
 
@@ -193,13 +193,13 @@ bool CSpitan::MountGraphic2(CArcFile* archive)
 			// Add to listview
 			SFileInfo file_info;
 			file_info.name = file_name;
-			file_info.sizeCmp = file.size;
-			file_info.sizeOrg = file_info.sizeCmp;
+			file_info.size_cmp = file.size;
+			file_info.size_org = file_info.size_cmp;
 			file_info.start = file_info_list[i].start + file.start;
-			file_info.end = file_info.start + file_info.sizeCmp;
+			file_info.end = file_info.start + file_info.size_cmp;
 			archive->AddFileInfo(file_info);
 
-			archive->Seek(file_info.sizeCmp, FILE_CURRENT);
+			archive->Seek(file_info.size_cmp, FILE_CURRENT);
 		}
 	}
 
@@ -287,13 +287,13 @@ bool CSpitan::MountGraphic3(CArcFile* archive)
 				// Add file to listview
 				SFileInfo file_info;
 				file_info.name = file_name;
-				file_info.sizeCmp = file_size;
-				file_info.sizeOrg = file_info.sizeCmp;
+				file_info.size_cmp = file_size;
+				file_info.size_org = file_info.size_cmp;
 				file_info.start = archive->GetArcPointer();
-				file_info.end = file_info.start + file_info.sizeCmp;
+				file_info.end = file_info.start + file_info.size_cmp;
 				archive->AddFileInfo(file_info);
 
-				archive->Seek(file_info.sizeCmp, FILE_CURRENT);
+				archive->Seek(file_info.size_cmp, FILE_CURRENT);
 			}
 		}
 	}

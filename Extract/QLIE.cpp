@@ -104,9 +104,9 @@ bool CQLIE::Mount(CArcFile* archive)
 		SFileInfo info;
 		info.name = (char*)file_name;
 		info.start = *(const u64*)&pIndex[0];
-		info.sizeCmp = *(const u32*)&pIndex[8];
-		info.sizeOrg = *(const u32*)&pIndex[12];
-		info.end = info.start + info.sizeCmp;
+		info.size_cmp = *(const u32*)&pIndex[8];
+		info.size_org = *(const u32*)&pIndex[12];
+		info.end = info.start + info.size_cmp;
 		info.key = (version == _T("FilePackVer1.0")) ? *(const u32*)&pIndex[20] : seed;
 		info.title = version;
 		archive->AddFileInfo(info);
@@ -125,7 +125,7 @@ bool CQLIE::Decode(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffers exist
-	std::vector<u8> z_buf(file_info->sizeCmp);
+	std::vector<u8> z_buf(file_info->size_cmp);
 	std::vector<u8> buf; // Only assigned when the file is uncompressed and when resize is called.(Memory saving)
 
 	// Read the file
@@ -145,9 +145,9 @@ bool CQLIE::Decode(CArcFile* archive)
 	u8* pBuf = z_buf.data();
 
 	// Extract the file if it's compressed
-	if (file_info->sizeCmp != file_info->sizeOrg)
+	if (file_info->size_cmp != file_info->size_org)
 	{
-		buf.resize(file_info->sizeOrg);
+		buf.resize(file_info->size_org);
 		Decomp(buf.data(), buf.size(), z_buf.data(), z_buf.size());
 		pBuf = buf.data();
 	}
@@ -159,7 +159,7 @@ bool CQLIE::Decode(CArcFile* archive)
 		const auto* const info = reinterpret_cast<LPBITMAPINFOHEADER>(&pBuf[14]);
 
 		// Output size
-		u32 dst_size = file_info->sizeOrg - 54;
+		u32 dst_size = file_info->size_org - 54;
 
 		if (((info->biWidth * (info->biBitCount >> 3) + 3) & 0xFFFFFFFC) * info->biHeight != dst_size)
 			dst_size -= 2;
@@ -172,17 +172,17 @@ bool CQLIE::Decode(CArcFile* archive)
 	else if (file_info->format == _T("B"))
 	{
 		// *.b file
-		if (!DecodeB(archive, pBuf, file_info->sizeOrg))
+		if (!DecodeB(archive, pBuf, file_info->size_org))
 		{
 			// Unsupported
 			archive->OpenFile();
-			archive->WriteFile(pBuf, file_info->sizeOrg);
+			archive->WriteFile(pBuf, file_info->size_org);
 		}
 	}
 	else
 	{
 		archive->OpenFile();
-		archive->WriteFile(pBuf, file_info->sizeOrg);
+		archive->WriteFile(pBuf, file_info->size_org);
 	}
 
 	return true;

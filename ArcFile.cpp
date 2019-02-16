@@ -192,7 +192,7 @@ bool CArcFile::OpenFile(LPCTSTR rename_file_ext)
 		// Opened file successfully
 		if (m_file_path.Find(m_option->TmpDir) >= 0)
 		{
-			m_file_info->sTmpFilePath.insert(m_file_path);
+			m_file_info->tmp_file_paths.insert(m_file_path);
 		}
 
 		ret = true;
@@ -397,7 +397,7 @@ DWORD CArcFile::WriteFile(const void* buffer, DWORD write_size, DWORD original_s
 
 void CArcFile::ReadWrite()
 {
-	ReadWrite(m_file_info->sizeCmp);
+	ReadWrite(m_file_info->size_cmp);
 }
 
 void CArcFile::ReadWrite(size_t file_size)
@@ -424,7 +424,7 @@ size_t CArcFile::GetBufSize() const
 
 void CArcFile::SetBufSize(size_t* buffer_size, size_t write_size)
 {
-	SetBufSize(buffer_size, write_size, GetOpenFileInfo()->sizeOrg);
+	SetBufSize(buffer_size, write_size, GetOpenFileInfo()->size_org);
 }
 
 void CArcFile::SetBufSize(size_t* buffer_size, size_t write_size, size_t file_size)
@@ -444,16 +444,16 @@ void CArcFile::AddFileInfo(SFileInfo& file_info)
 		file_info.format = SetFileFormat(file_info.name);
 	}
 
-	file_info.arcName = m_archive_names[m_split_archive_id];
-	file_info.arcID = m_archive_id;
-	file_info.arcsID = m_split_archive_id;
-	file_info.sSizeOrg = SetCommaFormat(file_info.sizeOrg);
-	file_info.sSizeCmp = SetCommaFormat(file_info.sizeCmp);
+	file_info.arc_name = m_archive_names[m_split_archive_id];
+	file_info.arc_id = m_archive_id;
+	file_info.arcs_id = m_split_archive_id;
+	file_info.size_org_comma = SetCommaFormat(file_info.size_org);
+	file_info.size_cmp_comma = SetCommaFormat(file_info.size_cmp);
 
 	m_entries->push_back(file_info);
 
 	// Progress Update
-	m_progress_bar->UpdatePercent(file_info.sizeCmp);
+	m_progress_bar->UpdatePercent(file_info.size_cmp);
 
 	m_entry_count++;
 }
@@ -476,11 +476,11 @@ void CArcFile::AddFileInfo(SFileInfo& file_info, u32& file_number, LPCTSTR file_
 		file_info.format = SetFileFormat(file_info.name);
 	}
 
-	file_info.arcName = m_archive_names[m_split_archive_id];
-	file_info.arcID = m_archive_id;
-	file_info.arcsID = m_split_archive_id;
-	file_info.sSizeOrg = SetCommaFormat(file_info.sizeOrg);
-	file_info.sSizeCmp = SetCommaFormat(file_info.sizeCmp);
+	file_info.arc_name = m_archive_names[m_split_archive_id];
+	file_info.arc_id = m_archive_id;
+	file_info.arcs_id = m_split_archive_id;
+	file_info.size_org_comma = SetCommaFormat(file_info.size_org);
+	file_info.size_cmp_comma = SetCommaFormat(file_info.size_cmp);
 
 	m_entries->push_back(file_info);
 

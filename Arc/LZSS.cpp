@@ -31,11 +31,11 @@ bool CLZSS::Decomp(CArcFile* archive, size_t dic_size, size_t dic_ptr, size_t le
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Buffer allocation for extraction
-	std::vector<u8> dst(file_info->sizeOrg);
+	std::vector<u8> dst(file_info->size_org);
 
 	// Decompression
 	Decomp(dst.data(), dst.size(), src.data(), src.size(), dic_size, dic_ptr, length_offset);

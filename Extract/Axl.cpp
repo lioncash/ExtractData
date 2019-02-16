@@ -50,10 +50,10 @@ bool CAxl::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(const u32*)&index_ptr[32];
-		file_info.sizeCmp = *(const u32*)&index_ptr[36];
+		file_info.size_org = *(const u32*)&index_ptr[32];
+		file_info.size_cmp = *(const u32*)&index_ptr[36];
 		file_info.start = *(const u32*)&index_ptr[40];
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (type == 1)
 			file_info.format = _T("LZ");
 		file_info.title = _T("AXL");
@@ -73,13 +73,13 @@ bool CAxl::Decode(CArcFile* archive)
 		return false;
 
 	// Ensure buffer
-	std::vector<u8> buf(file_info->sizeOrg);
+	std::vector<u8> buf(file_info->size_org);
 
 	// LZ Compressed File
 	if (file_info->format == _T("LZ"))
 	{
 		// Reading
-		std::vector<u8> z_buf(file_info->sizeCmp);
+		std::vector<u8> z_buf(file_info->size_cmp);
 		archive->Read(z_buf.data(), z_buf.size());
 
 		// LZSS Decompression
@@ -88,7 +88,7 @@ bool CAxl::Decode(CArcFile* archive)
 	}
 	else // Uncompressed File
 	{
-		archive->Read(buf.data(), file_info->sizeCmp);
+		archive->Read(buf.data(), file_info->size_cmp);
 	}
 
 	// BMP File
@@ -97,12 +97,12 @@ bool CAxl::Decode(CArcFile* archive)
 		const auto* const file_header = (const BITMAPFILEHEADER*)&buf[0];
 		const auto* const info_header = (const BITMAPINFOHEADER*)&buf[14];
 
-		if (file_header->bfSize != file_info->sizeOrg)
+		if (file_header->bfSize != file_info->size_org)
 		{
 			// 32bit BMP
 
 			// Make buffer for 32bit BMP
-			std::vector<u8> buf2(file_info->sizeOrg - 54);
+			std::vector<u8> buf2(file_info->size_org - 54);
 
 			// Refers to the alpha value
 			const u8* pbufA = &buf[file_header->bfSize];
@@ -127,7 +127,7 @@ bool CAxl::Decode(CArcFile* archive)
 
 			CImage image;
 			image.Init(archive, info_header->biWidth, info_header->biHeight, 32);
-			image.Write(&buf2[0], file_info->sizeOrg - 54);
+			image.Write(&buf2[0], file_info->size_org - 54);
 		}
 		else // Below 24bit BMP
 		{
@@ -145,7 +145,7 @@ bool CAxl::Decode(CArcFile* archive)
 	else // Other file
 	{
 		archive->OpenFile();
-		archive->WriteFile(buf.data(), file_info->sizeCmp);
+		archive->WriteFile(buf.data(), file_info->size_cmp);
 	}
 
 	return true;

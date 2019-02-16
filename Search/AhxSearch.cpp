@@ -19,8 +19,8 @@ void CAhxSearch::Mount(CArcFile* archive)
 
 	// Get file ssize
 	archive->Seek(GetHeaderSize() + 2, FILE_CURRENT);
-	archive->Read(&file_info.sizeOrg, 4);
-	file_info.sizeOrg = BitUtils::Swap32(file_info.sizeOrg) << 1;
+	archive->Read(&file_info.size_org, 4);
+	file_info.size_org = BitUtils::Swap32(file_info.size_org) << 1;
 	archive->GetProg()->UpdatePercent(4);
 
 	// Search footer
@@ -31,7 +31,7 @@ void CAhxSearch::Mount(CArcFile* archive)
 	file_info.end = archive->GetArcPointer();
 
 	// Get compressedfile size
-	file_info.sizeCmp = file_info.end - file_info.start;
+	file_info.size_cmp = file_info.end - file_info.start;
 
 	archive->AddFileInfo(file_info, GetNumFiles(), _T(".ahx"));
 }

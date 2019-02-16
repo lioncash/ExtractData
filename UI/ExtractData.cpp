@@ -341,7 +341,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 			while ((item = obj->m_list_view->GetNextItem(item)) != -1)
 			{
 				selects.push_back(item);
-				total_file_size += archives[0]->GetFileInfo(item)->sizeOrg;
+				total_file_size += archives[0]->GetFileInfo(item)->size_org;
 			}
 		}
 		else
@@ -350,7 +350,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 			for (int item = 0; item < static_cast<int>(num_items); item++)
 			{
 				selects.push_back(item);
-				total_file_size += archives[0]->GetFileInfo(item)->sizeOrg;
+				total_file_size += archives[0]->GetFileInfo(item)->size_org;
 			}
 		}
 
@@ -361,7 +361,7 @@ UINT WINAPI CExtractData::DecodeThread(LPVOID param)
 		for (size_t i = 0; i < selects.size(); i++)
 		{
 			const SFileInfo* info = archives[0]->GetFileInfo(selects[i]);
-			archive = archives[info->arcID].get();
+			archive = archives[info->arc_id].get();
 			archive->SetProg(prog);
 
 			// Create destination folder name from the destination filename input
@@ -441,7 +441,7 @@ void CExtractData::OpenRelate()
 
 	while ((item = m_list_view->GetNextItem(item)) != -1)
 	{
-		std::set<YCString>& tmp_file_paths = m_list_view->GetFileInfo()[item].sTmpFilePath;
+		std::set<YCString>& tmp_file_paths = m_list_view->GetFileInfo()[item].tmp_file_paths;
 
 		if (!tmp_file_paths.empty())
 		{

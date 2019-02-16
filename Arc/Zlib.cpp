@@ -20,24 +20,24 @@ void CZlib::DecompressFile(CArcFile* archive)
 	SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffer
-	std::vector<u8> z_buf(file_info->sizeCmp);
-	std::vector<u8> buf(file_info->sizeOrg);
+	std::vector<u8> z_buf(file_info->size_cmp);
+	std::vector<u8> buf(file_info->size_org);
 
 	// zlib Decompression
 	archive->Read(z_buf.data(), z_buf.size());
-	Decompress(buf.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
+	Decompress(buf.data(), &file_info->size_org, z_buf.data(), z_buf.size());
 
 	if (lstrcmp(PathFindExtension(file_info->name), _T(".bmp")) == 0)
 	{
 		CImage image;
 		image.Init(archive, buf.data());
-		image.Write(file_info->sizeOrg);
+		image.Write(file_info->size_org);
 	}
 	else
 	{
 		// Output
 		archive->OpenFile();
-		archive->WriteFile(buf.data(), file_info->sizeOrg);
+		archive->WriteFile(buf.data(), file_info->size_org);
 	}
 }
 

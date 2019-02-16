@@ -47,7 +47,7 @@ bool CTrH::Decode(CArcFile* archive)
 
 	// Output
 	CWav wav;
-	wav.Init(archive, file_info->sizeOrg - 44, header.freq, header.channels, header.bits);
+	wav.Init(archive, file_info->size_org - 44, header.freq, header.channels, header.bits);
 	wav.Write();
 
 	return true;

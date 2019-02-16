@@ -45,10 +45,10 @@ bool CAlcot::Mount(CArcFile* archive)
 		// Add to the listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(const u32*)&index_ptr[4];
-		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_org = *(const u32*)&index_ptr[4];
+		file_info.size_cmp = file_info.size_org;
 		file_info.start = *(const u32*)&index_ptr[0] + offset;
-		file_info.end = file_info.start + file_info.sizeOrg;
+		file_info.end = file_info.start + file_info.size_org;
 		archive->AddFileInfo(file_info);
 
 		index_ptr += size;
@@ -76,7 +76,7 @@ bool CAlcot::DecodeASB(CArcFile* archive)
 		return false;
 
 	// Reading
-	std::vector<u8> z_buf(file_info->sizeCmp);
+	std::vector<u8> z_buf(file_info->size_cmp);
 	archive->Read(z_buf.data(), z_buf.size());
 
 	// Get size
@@ -152,7 +152,7 @@ bool CAlcot::DecodeCPB(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> z_buf(file_info->sizeCmp);
+	std::vector<u8> z_buf(file_info->size_cmp);
 	archive->Read(z_buf.data(), z_buf.size());
 	u8* z_pbuf = z_buf.data();
 

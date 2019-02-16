@@ -29,8 +29,8 @@ void CMpgSearch::Mount(CArcFile* archive)
 	file_info.end = archive->GetArcPointer();
 
 	// Get file size
-	file_info.sizeOrg = file_info.end - file_info.start;
-	file_info.sizeCmp = file_info.sizeOrg;
+	file_info.size_org = file_info.end - file_info.start;
+	file_info.size_cmp = file_info.size_org;
 
 	archive->AddFileInfo(file_info, GetNumFiles(), file_extension);
 }

@@ -74,16 +74,16 @@ bool CNitro::MountPak1(CArcFile* archive)
 		index_ptr += 4 + file_name_length;
 
 		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]) + offset; // Correction because it starts with a starting address relative to 0
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[4]);
 		const u32 cmp     = *reinterpret_cast<const u32*>(&index_ptr[12]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]);
-		if (file_info.sizeCmp == 0)
-			file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[16]);
+		if (file_info.size_cmp == 0)
+			file_info.size_cmp = file_info.size_org;
 		index_ptr += 20;
 
 		// Add file to listview
 		file_info.name = file_name;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (cmp)
 			file_info.format = _T("zlib");
 		file_info.title = _T("Pak1");
@@ -152,15 +152,15 @@ bool CNitro::MountPak2(CArcFile* archive)
 		// Add to listview
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<const u32*>(&index[index_ptr + 0]) + offset;
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 16]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 16]);
 
-		if (file_info.sizeCmp == 0)
+		if (file_info.size_cmp == 0)
 		{
-			file_info.sizeCmp = file_info.sizeOrg;
+			file_info.size_cmp = file_info.size_org;
 		}
 
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		if (flags != 0)
 		{
@@ -242,19 +242,19 @@ bool CNitro::MountPak3(CArcFile* archive)
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
 		file_info.key = file_info.start ^ file_end_prev;//(i == 0) ? file_info.start : file_info.start ^ FileEnd_prev;//(archive->GetFileInfo(i-1)->end - offset);
 		file_info.start ^= file_info.key;
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
 		const u32 cmp = *reinterpret_cast<const u32*>(&index_ptr[12]) ^ file_info.key;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
 		
-		if (file_info.sizeCmp == 0)
-			file_info.sizeCmp = file_info.sizeOrg;
+		if (file_info.size_cmp == 0)
+			file_info.size_cmp = file_info.size_org;
 		
 		index_ptr += 20;
 
 		// Add to listview
 		file_info.name = file_name;
 		file_info.start += offset; // Correction because it starts with a starting address relative to 0
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (cmp)
 			file_info.format = _T("zlib");
 		file_info.title = _T("Pak3");
@@ -332,17 +332,17 @@ bool CNitro::MountPak4(CArcFile* archive)
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
 		file_info.key = file_info.start ^ file_end_prev;//(i == 0) ? file_info.start : file_info.start ^ FileEnd_prev;//(archive->GetFileInfo(i-1)->end - offset);
 		file_info.start ^= file_info.key;
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[4]) ^ file_info.key;
 		const u32 cmp = *reinterpret_cast<const u32*>(&index_ptr[12]) ^ file_info.key;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
-		if (file_info.sizeCmp == 0)
-			file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[16]) ^ file_info.key;
+		if (file_info.size_cmp == 0)
+			file_info.size_cmp = file_info.size_org;
 		index_ptr += 20;
 
 		// Add to listview
 		file_info.name = file_name;
 		file_info.start += offset; // Correction because it starts with a starting address relative to 0
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (cmp)
 			file_info.format = _T("zlib");
 		file_info.title = _T("Pak4");
@@ -413,9 +413,9 @@ bool CNitro::MountPK2(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<const u32*>(&offset_index_ptr[4]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&offset_index_ptr[8]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&offset_index_ptr[8]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end     = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		offset_index_ptr += 12;
@@ -462,9 +462,9 @@ bool CNitro::MountN3Pk(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[8]);
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[8]);
+		file_info.end     = file_info.start + file_info.size_cmp;
 		file_info.type    = *reinterpret_cast<const u16*>(&index_ptr[18]);
 		file_info.key     = index_ptr[21];
 		archive->AddFileInfo(file_info);
@@ -525,9 +525,9 @@ bool CNitro::MountPck(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<const u32*>(&offset_index_ptr[0]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&offset_index_ptr[4]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&offset_index_ptr[4]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end     = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		offset_index_ptr += 12;
@@ -572,9 +572,9 @@ bool CNitro::MountNpp(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name    = file_path;
 		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[0]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[8]);
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[8]);
+		file_info.end     = file_info.start + file_info.size_cmp;
 		if (index_ptr[12] != 0)
 			file_info.format = _T("LZ");
 		archive->AddFileInfo(file_info);
@@ -643,10 +643,10 @@ bool CNitro::MountNpa(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name    = file_name;
 		file_info.start   = *reinterpret_cast<const u32*>(&index_ptr[5]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[9]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[13]);
-		file_info.end     = file_info.start + file_info.sizeCmp;
-		if (file_info.sizeCmp < file_info.sizeOrg)
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[9]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[13]);
+		file_info.end     = file_info.start + file_info.size_cmp;
+		if (file_info.size_cmp < file_info.size_org)
 			file_info.format = _T("zlib");
 		file_info.key = key;
 		archive->AddFileInfo(file_info);
@@ -691,15 +691,15 @@ bool CNitro::DecodePak1(CArcFile* archive)
 	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffer exists
-		std::vector<u8> z_buf(file_info->sizeCmp);
-		std::vector<u8> dst(file_info->sizeOrg);
+		std::vector<u8> z_buf(file_info->size_cmp);
+		std::vector<u8> dst(file_info->size_org);
 
 		// Reading
 		archive->Read(z_buf.data(), z_buf.size());
 
 		// Decompression
 		CZlib zlib;
-		zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
+		zlib.Decompress(dst.data(), &file_info->size_org, z_buf.data(), z_buf.size());
 
 		// Output
 		archive->WriteFile(dst.data(), dst.size());
@@ -723,7 +723,7 @@ bool CNitro::DecodePak3(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		std::vector<u8> buffer(file_info->sizeCmp);
+		std::vector<u8> buffer(file_info->size_cmp);
 		archive->Read(buffer.data(), buffer.size());
 		DecryptPak3(buffer.data(), buffer.size(), 0, file_info);
 
@@ -743,15 +743,15 @@ bool CNitro::DecodePak3(CArcFile* archive)
 		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffers exist
-			std::vector<u8> z_buf(file_info->sizeCmp);
-			std::vector<u8> dst(file_info->sizeOrg);
+			std::vector<u8> z_buf(file_info->size_cmp);
+			std::vector<u8> dst(file_info->size_org);
 
 			// Reading
 			archive->Read(z_buf.data(), z_buf.size());
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
+			zlib.Decompress(dst.data(), &file_info->size_org, z_buf.data(), z_buf.size());
 
 			// Output
 			DecryptPak3(dst.data(), dst.size(), 0, file_info);
@@ -763,7 +763,7 @@ bool CNitro::DecodePak3(CArcFile* archive)
 			size_t buffer_size = archive->GetBufSize();
 			std::vector<u8> buffer(buffer_size);
 
-			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+			for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 			{
 				// Adjust buffer size
 				archive->SetBufSize(&buffer_size, write_size);
@@ -789,7 +789,7 @@ bool CNitro::DecodePak4(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// Reading
-		std::vector<u8> buffer(file_info->sizeCmp);
+		std::vector<u8> buffer(file_info->size_cmp);
 		archive->Read(buffer.data(), buffer.size());
 		DecryptPak4(buffer.data(), buffer.size(), 0, file_info);
 
@@ -809,15 +809,15 @@ bool CNitro::DecodePak4(CArcFile* archive)
 		if (file_info->format == _T("zlib"))
 		{
 			// Ensure buffer exists
-			std::vector<u8> z_buf(file_info->sizeCmp);
-			std::vector<u8> dst(file_info->sizeOrg);
+			std::vector<u8> z_buf(file_info->size_cmp);
+			std::vector<u8> dst(file_info->size_org);
 
 			// Read
 			archive->Read(z_buf.data(), z_buf.size());
 
 			// Decompression
 			CZlib zlib;
-			zlib.Decompress(dst.data(), &file_info->sizeOrg, z_buf.data(), z_buf.size());
+			zlib.Decompress(dst.data(), &file_info->size_org, z_buf.data(), z_buf.size());
 
 			// Output
 			DecryptPak4(dst.data(), dst.size(), 0, file_info);
@@ -829,7 +829,7 @@ bool CNitro::DecodePak4(CArcFile* archive)
 			size_t buffer_size = archive->GetBufSize();
 			std::vector<u8> buffer(buffer_size);
 
-			for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+			for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 			{
 				// Adjust buffer size
 				archive->SetBufSize(&buffer_size, write_size);
@@ -867,7 +867,7 @@ bool CNitro::DecodePK2(CArcFile* archive)
 	decompressed_size &= 0x00FFFFFF;
 
 	// Ensure buffer exists
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	std::vector<u8> dst(decompressed_size);
 
 	// Reading
@@ -911,7 +911,7 @@ bool CNitro::DecodeN3Pk(CArcFile* archive)
 	else
 		archive->OpenFile();
 
-	for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+	for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 	{
 		// Ensure buffer exists
 		archive->SetBufSize(&buffer_size, write_size);
@@ -941,8 +941,8 @@ bool CNitro::DecodeNpa(CArcFile* archive)
 	if (file_info->format == _T("zlib"))
 	{
 		// Ensure buffers exist
-		std::vector<u8> src(file_info->sizeCmp);
-		std::vector<u8> dst(file_info->sizeOrg);
+		std::vector<u8> src(file_info->size_cmp);
+		std::vector<u8> dst(file_info->size_org);
 
 		// Reading
 		archive->Read(src.data(), src.size());
@@ -963,7 +963,7 @@ bool CNitro::DecodeNpa(CArcFile* archive)
 		size_t buffer_size = archive->GetBufSize();
 		std::vector<u8> buffer(buffer_size);
 
-		for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+		for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 		{
 			// Adjust buffer size
 			archive->SetBufSize(&buffer_size, write_size);

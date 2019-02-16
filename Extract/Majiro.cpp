@@ -111,8 +111,8 @@ bool CMajiro::MountArc1(CArcFile* archive)
 		file_info.end = *reinterpret_cast<u32*>(&index[i * 8 + 12]);
 
 		// Get file sizes
-		file_info.sizeOrg = file_info.end - file_info.start;
-		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_org = file_info.end - file_info.start;
+		file_info.size_cmp = file_info.size_org;
 
 		// Add file information to list
 		if (lstrcmpi(PathFindExtension(file_info.name), _T(".rc8")) == 0)
@@ -152,11 +152,11 @@ bool CMajiro::MountArc1(CArcFile* archive)
 		{
 			// Image is masked
 			target_file_info->starts.push_back(mask_file_info.start);
-			target_file_info->sizesCmp.push_back(mask_file_info.sizeCmp);
-			target_file_info->sizesOrg.push_back(mask_file_info.sizeOrg);
+			target_file_info->sizes_cmp.push_back(mask_file_info.size_cmp);
+			target_file_info->sizes_org.push_back(mask_file_info.size_org);
 
 			// Update progress
-			archive->GetProg()->UpdatePercent(mask_file_info.sizeCmp);
+			archive->GetProg()->UpdatePercent(mask_file_info.size_cmp);
 		}
 		else
 		{
@@ -229,11 +229,11 @@ bool CMajiro::MountArc2(CArcFile* archive)
 
 		// Get the starting address from the index and filesize
 		file_info.start = *reinterpret_cast<u32*>(&index[i * 12 + 4]);
-		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[i * 12 + 8]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<u32*>(&index[i * 12 + 8]);
+		file_info.size_org = file_info.size_cmp;
 
 		// Get the ending address
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		// Add file information to list
 		if (lstrcmpi(PathFindExtension(file_info.name), _T(".rc8")) == 0)
@@ -274,11 +274,11 @@ bool CMajiro::MountArc2(CArcFile* archive)
 		{
 			// Image is masked
 			target_file_info->starts.push_back(mask_file_info.start);
-			target_file_info->sizesCmp.push_back(mask_file_info.sizeCmp);
-			target_file_info->sizesOrg.push_back(mask_file_info.sizeOrg);
+			target_file_info->sizes_cmp.push_back(mask_file_info.size_cmp);
+			target_file_info->sizes_org.push_back(mask_file_info.size_org);
 
 			// Update progress
-			archive->GetProg()->UpdatePercent(mask_file_info.sizeCmp);
+			archive->GetProg()->UpdatePercent(mask_file_info.size_cmp);
 		}
 		else
 		{
@@ -430,7 +430,7 @@ bool CMajiro::DecodeRC(CArcFile* archive)
 	}
 
 	// rc8/rct reading
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	u16  bpp = (memcmp(&src[4], "8_00", 4) == 0) ? 8 : 24;
@@ -485,7 +485,7 @@ bool CMajiro::DecodeRC(CArcFile* archive)
 		if (base_image_file_info != nullptr)
 		{
 			// Base image file exists
-			std::vector<u8> base_image(base_image_file_info->sizeCmp);
+			std::vector<u8> base_image(base_image_file_info->size_cmp);
 			archive->SeekHed(base_image_file_info->start);
 			archive->Read(base_image.data(), base_image.size());
 			read_bits_24(dst.data(), dst.size(), &base_image[20], *reinterpret_cast<u32*>(&base_image[16]), width);
@@ -745,7 +745,7 @@ bool CMajiro::AppendMask(CArcFile* archive, u8* dst, size_t dst_size, const u8* 
 	}
 
 	// Read image mask
-	std::vector<u8> mask_src(file_info->sizesCmp[0]);
+	std::vector<u8> mask_src(file_info->sizes_cmp[0]);
 	archive->SeekHed(file_info->starts[0]);
 	archive->Read(mask_src.data(), mask_src.size());
 

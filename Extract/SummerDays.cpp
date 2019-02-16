@@ -147,10 +147,10 @@ bool CSummerDays::Sub(CArcFile* archive, LPTSTR path)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = full_path;
-		file_info.sizeCmp = size;
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = size;
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = position;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 	}
 

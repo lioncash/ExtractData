@@ -57,7 +57,7 @@ bool COgg::Decode(CArcFile* archive)
 		return false;
 
 	// All loaded into memory (anti-overwrite)
-	std::vector<u8> buf(file_info->sizeOrg);
+	std::vector<u8> buf(file_info->size_org);
 	archive->Read(buf.data(), buf.size());
 
 	// Generated output file
@@ -98,7 +98,7 @@ void COgg::Decode(CArcFile* archive, u8* buf)
 
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	for (u32 write_size = 0; write_size < file_info->sizeOrg; )
+	for (u32 write_size = 0; write_size < file_info->size_org; )
 	{
     OggPageHeader vheader;
 
@@ -107,8 +107,8 @@ void COgg::Decode(CArcFile* archive, u8* buf)
 
 		// Get page size
 		u32 page_size = GetPageSize(vheader);
-		if (write_size + page_size > file_info->sizeOrg)
-			page_size = file_info->sizeOrg - write_size;
+		if (write_size + page_size > file_info->size_org)
+			page_size = file_info->size_org - write_size;
 
 		// Simple decoding
 		if (memcmp(buf, "OggS", 4) != 0)

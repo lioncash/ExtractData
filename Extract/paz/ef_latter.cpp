@@ -165,7 +165,7 @@ void CEFLatter::SetDecryptKey2(CArcFile* archive)
 	CharLower(file_name);
 
 	// Create Key
-	sprintf(m_key_string, "%s %08X %s", file_name, file_info->sizeOrg, base_key.GetString());
+	sprintf(m_key_string, "%s %08X %s", file_name, file_info->size_org, base_key.GetString());
 
 	// Create Table
 	if (base_key == "8fO1Xj6g" && lstrcmpi(file_ext, _T(".avi")) == 0)

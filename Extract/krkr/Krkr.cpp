@@ -171,10 +171,10 @@ bool CKrkr::Mount(CArcFile* archive)
 			segm_chunk.orgSize = *reinterpret_cast<const u64*>(&index[i + 12]);
 			segm_chunk.arcSize = *reinterpret_cast<const u64*>(&index[i + 20]);
 
-			file_info.bCmps.push_back(segm_chunk.comp);
+			file_info.compress_checks.push_back(segm_chunk.comp);
 			file_info.starts.push_back(segm_chunk.start);
-			file_info.sizesOrg.push_back(segm_chunk.orgSize);
-			file_info.sizesCmp.push_back(segm_chunk.arcSize);
+			file_info.sizes_org.push_back(segm_chunk.orgSize);
+			file_info.sizes_cmp.push_back(segm_chunk.arcSize);
 
 			i += 28;
 		}
@@ -202,10 +202,10 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		// Store and show the stucture in a listview
 		file_info.name.Copy(info_chunk.filename, info_chunk.nameLen);
-		file_info.sizeOrg = info_chunk.orgSize;
-		file_info.sizeCmp = info_chunk.arcSize;
+		file_info.size_org = info_chunk.orgSize;
+		file_info.size_cmp = info_chunk.arcSize;
 		file_info.start = file_info.starts[0];
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		if (segm_chunk.comp)
 		{
@@ -246,7 +246,7 @@ bool CKrkr::Decode(CArcFile* archive)
 	    ((file_ext == _T(".ogg")) && archive->GetOpt()->bFixOgg) ||
 	    (file_ext == _T(".bmp")))
 	{
-		buffer.resize(file_info->sizeOrg + 3);
+		buffer.resize(file_info->size_org + 3);
 		compose_memory = true;
 	}
 	// TJS, KS, ASD, TXT
@@ -257,7 +257,7 @@ bool CKrkr::Decode(CArcFile* archive)
 	   (file_ext == _T(".asd")) ||
 	   (file_ext == _T(".txt"))))
 	{
-		buffer.resize(file_info->sizeOrg + 3);
+		buffer.resize(file_info->size_org + 3);
 		compose_memory = true;
 	}
 	else // Other
@@ -282,15 +282,15 @@ bool CKrkr::Decode(CArcFile* archive)
 		archive->SeekHed(file_info->starts[i]);
 
 		// Compressed data
-		if (file_info->bCmps[i])
+		if (file_info->compress_checks[i])
 		{
 			CZlib zlib;
 
 			// Ensure buffer
-			const size_t src_size = file_info->sizesCmp[i];
+			const size_t src_size = file_info->sizes_cmp[i];
 			std::vector<u8> src(src_size);
 
-			const size_t dst_size = file_info->sizesOrg[i];
+			const size_t dst_size = file_info->sizes_org[i];
 			std::vector<u8> dst(dst_size + 3);
 
 			// zlib Decompression
@@ -318,7 +318,7 @@ bool CKrkr::Decode(CArcFile* archive)
 			{
 				// Bound to the buffer
 
-				const size_t dst_size = file_info->sizesOrg[i];
+				const size_t dst_size = file_info->sizes_org[i];
 				archive->Read(&buffer[buffer_ptr], dst_size);
 
 				const size_t data_size = Decrypt(&buffer[buffer_ptr], dst_size, total_wrote_size);
@@ -328,7 +328,7 @@ bool CKrkr::Decode(CArcFile* archive)
 			}
 			else
 			{
-				const size_t dst_size = file_info->sizesOrg[i];
+				const size_t dst_size = file_info->sizes_org[i];
 
 				for (size_t wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 				{
@@ -362,7 +362,7 @@ bool CKrkr::Decode(CArcFile* archive)
 	{
 		CImage image;
 		image.Init(archive, buffer.data());
-		image.Write(file_info->sizeOrg);
+		image.Write(file_info->size_org);
 	}
 	// Text file
 	else if (m_decrypt_key == 0 &&
@@ -372,7 +372,7 @@ bool CKrkr::Decode(CArcFile* archive)
 	    (file_ext == _T(".asd")) ||
 	    (file_ext == _T(".txt"))))
 	{
-		const size_t dst_size = file_info->sizeOrg;
+		const size_t dst_size = file_info->size_org;
 
 		SetDecryptRequirement(true);
 
@@ -408,7 +408,7 @@ bool CKrkr::Extract(CArcFile* archive)
 
 		archive->SeekHed(file_info->starts[i]);
 
-		const size_t dst_size = file_info->sizesOrg[i];
+		const size_t dst_size = file_info->sizes_org[i];
 
 		for (size_t wrote_size = 0; wrote_size != dst_size; wrote_size += buffer_size)
 		{

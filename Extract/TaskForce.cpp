@@ -55,12 +55,12 @@ bool CTaskForce::MountDat(CArcFile* archive)
 	{
 		SFileInfo file_info;
 		file_info.name = index[i].file_name;
-		file_info.sizeCmp = index[i].compressed_size;
-		file_info.sizeOrg = index[i].original_size;
+		file_info.size_cmp = index[i].compressed_size;
+		file_info.size_org = index[i].original_size;
 		file_info.start = index[i].offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
-		if (file_info.sizeCmp != file_info.sizeOrg)
+		if (file_info.size_cmp != file_info.size_org)
 		{
 			file_info.format = _T("LZ");
 		}
@@ -199,13 +199,13 @@ bool CTaskForce::DecodeTGA(CArcFile* archive)
 		return false;
 
 	// Read data
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	if (file_info->format == _T("LZ"))
 	{
 		// Is compressed
-		std::vector<u8> dst(file_info->sizeOrg);
+		std::vector<u8> dst(file_info->size_org);
 
 		// LZSS Decompression
 		CLZSS lzss;

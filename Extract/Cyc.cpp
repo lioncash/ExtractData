@@ -81,8 +81,8 @@ bool CCyc::MountGpk(CArcFile* archive)
 		file_info.name += _T(".dwq"); // dwq is archived within the gtb
 		file_info.start = offset_table[i];
 		file_info.end = (i + 1 == num_files) ? archive->GetArcSize() : offset_table[i + 1]; // End-of-file position is the very end of the gpk file
-		file_info.sizeCmp = file_info.end - file_info.start;
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = file_info.end - file_info.start;
+		file_info.size_org = file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		file_name_table_ptr += file_info.name.GetLength() - 3;
@@ -126,8 +126,8 @@ bool CCyc::MountVpk(CArcFile* archive)
 		file_info.name += _T(".vaw");
 		file_info.start = *reinterpret_cast<const u32*>(&vtb_ptr[8]);
 		file_info.end = *reinterpret_cast<const u32*>(&vtb_ptr[20]);
-		file_info.sizeCmp = file_info.end - file_info.start;
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = file_info.end - file_info.start;
+		file_info.size_org = file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		vtb_ptr += 12;
@@ -210,7 +210,7 @@ bool CCyc::DecodeDwq(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> buffer(file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->size_cmp);
 	archive->Read(buffer.data(), buffer.size());
 
 	// JPEG + MASK(PACKBMP)
@@ -339,12 +339,12 @@ bool CCyc::DecodeWgq(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> buffer(file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->size_cmp);
 	archive->Read(buffer.data(), buffer.size());
 
 	// Output
 	archive->OpenFile(_T(".ogg"));
-	archive->WriteFile(&buffer[64], file_info->sizeCmp);
+	archive->WriteFile(&buffer[64], file_info->size_cmp);
 
 	return true;
 }
@@ -359,20 +359,20 @@ bool CCyc::DecodeVaw(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> buffer(file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->size_cmp);
 	archive->Read(buffer.data(), buffer.size());
 
 	// ogg
 	if (memcmp(&buffer[108], "OggS", 4) == 0)
 	{
 		archive->OpenFile(_T(".ogg"));
-		archive->WriteFile(&buffer[108], file_info->sizeCmp - 108);
+		archive->WriteFile(&buffer[108], file_info->size_cmp - 108);
 	}
 	// wav
 	else
 	{
 		archive->OpenFile(_T(".wav"));
-		archive->WriteFile(&buffer[64], file_info->sizeCmp - 64);
+		archive->WriteFile(&buffer[64], file_info->size_cmp - 64);
 	}
 
 	return true;
@@ -386,7 +386,7 @@ bool CCyc::DecodeXtx(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> buffer(file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->size_cmp);
 	archive->Read(buffer.data(), buffer.size());
 
 	// Output
@@ -404,7 +404,7 @@ bool CCyc::DecodeFxf(CArcFile* archive)
 		return false;
 
 	// Read
-	std::vector<u8> buffer(file_info->sizeCmp);
+	std::vector<u8> buffer(file_info->size_cmp);
 	archive->Read(buffer.data(), buffer.size());
 
 	// Decryption

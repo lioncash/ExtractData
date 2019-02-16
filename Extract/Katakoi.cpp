@@ -95,8 +95,8 @@ bool CKatakoi::MountIar(CArcFile* archive)
 		info.name = file_name;
 		info.start = *(u32*)&index[i * file_entry_size];
 		info.end = ((i + 1) < num_files) ? *(u32*)&index[(i+1) * file_entry_size] : archive->GetArcSize();
-		info.sizeCmp = info.end - info.start;
-		info.sizeOrg = info.sizeCmp;
+		info.size_cmp = info.end - info.start;
+		info.size_org = info.size_cmp;
 
 		archive->AddFileInfo(info);
 	}
@@ -180,9 +180,9 @@ bool CKatakoi::MountWar(CArcFile* archive)
 		SFileInfo info;
 		info.name = file_name;
 		info.start = *(u32*)&index[i * file_entry_size];
-		info.sizeCmp = *(u32*)&index[i * file_entry_size + 4];
-		info.sizeOrg = info.sizeCmp;
-		info.end = info.start + info.sizeCmp;
+		info.size_cmp = *(u32*)&index[i * file_entry_size + 4];
+		info.size_org = info.size_cmp;
+		info.end = info.start + info.size_cmp;
 		archive->AddFileInfo(info);
 	}
 
@@ -255,12 +255,12 @@ bool CKatakoi::GetNameIndex(CArcFile* archive, std::vector<u8>& sec, u32& name_i
 						// Found a match with the name of the archive
 						if (lstrcmp(PathFindFileName(sec_path), _T("toa.sec5")) == 0)
 						{
-							// ˆÇ“Ş‚¿‚á‚ñ‚É‚¨Šè‚¢
+							// ï¿½Ç“Ş‚ï¿½ï¿½ï¿½ï¿½É‚ï¿½ï¿½è‚¢
 							archive->SetFlag(true);
 						}
 						else if (lstrcmp(PathFindFileName(sec_path), _T("katakoi.sec5")) == 0)
 						{
-							// •Ğ—ö‚¢‚ÌŒ
+							// ï¿½Ğ—ï¿½ï¿½ï¿½ï¿½ÌŒï¿½
 							archive->SetFlag(true);
 						}
 
@@ -339,7 +339,7 @@ bool CKatakoi::DecodeIar(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Reading
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Output buffer
@@ -396,7 +396,7 @@ bool CKatakoi::DecodeWar(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Reading
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	if (memcmp(src.data(), "OggS", 4) == 0)
@@ -721,7 +721,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 			base_file_exists = work == 0;
 		}
 
-		// Base file search (2Œ…–Ú‚ğ1‚Â–ß‚µ‚ÄŒŸõ)
+		// Base file search (2ï¿½ï¿½ï¿½Ú‚ï¿½1ï¿½Â–ß‚ï¿½ï¿½ÄŒï¿½ï¿½ï¿½)
 		base_file_number = (diff_file_number2 / 10) * 10;
 		count = 10;
 
@@ -757,7 +757,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 	if (base_file_exists)
 	{
 		// Base file exists
-		std::vector<u8> base_src(base_file_info->sizeCmp);
+		std::vector<u8> base_src(base_file_info->size_cmp);
 		archive->SeekHed(base_file_info->start);
 		archive->Read(base_src.data(), base_src.size());
 
@@ -851,7 +851,7 @@ bool CKatakoi::DecodeCompose(CArcFile* archive, const u8* diff, size_t diff_size
 
 /// Synthesizes the base image and the difference image.
 ///
-/// \ˆêŠ¦Œ‚ªì¬EŒöŠJ‚µ‚Ä‚¢‚éiar‚Ìƒ\[ƒXƒR[ƒh‚ğQl‚É‚µ‚Äì¬‚µ‚Ü‚µ‚½B
+/// ï¿½\ï¿½êŠ¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì¬ï¿½Eï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½iarï¿½Ìƒ\ï¿½[ï¿½Xï¿½Rï¿½[ï¿½hï¿½ï¿½Qï¿½lï¿½É‚ï¿½ï¿½Äì¬ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½B
 bool CKatakoi::Compose(u8* dst, size_t dst_size, const u8* src, size_t src_size, s32 dst_width, s32 src_width, u16 bpp)
 {
 	const u16 colors = bpp >> 3;

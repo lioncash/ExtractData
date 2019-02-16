@@ -31,7 +31,7 @@ void COggSearch::Mount(CArcFile* archive)
 
 	archive->Seek(file_info.start, FILE_BEGIN);
 	u32 read_count = 0;
-	file_info.sizeOrg = 0;
+	file_info.size_org = 0;
 
 	while (true)
 	{
@@ -67,7 +67,7 @@ void COggSearch::Mount(CArcFile* archive)
 			break;
 
 		// Add to the file size
-		file_info.sizeOrg += page_size;
+		file_info.size_org += page_size;
 
 		// Advance to the next OggS
 		ogg.NextPage();
@@ -75,13 +75,13 @@ void COggSearch::Mount(CArcFile* archive)
 		archive->GetProg()->UpdatePercent(page_size);
 	}
 
-	if (file_info.sizeOrg == 0)
+	if (file_info.size_org == 0)
 		return;
 
-	file_info.sizeCmp = file_info.sizeOrg;
+	file_info.size_cmp = file_info.size_org;
 
 	// Get exit address
-	file_info.end = file_info.start + file_info.sizeOrg;
+	file_info.end = file_info.start + file_info.size_org;
 
 	archive->AddFileInfo(file_info, GetNumFiles(), _T(".ogg"));
 }

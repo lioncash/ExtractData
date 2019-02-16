@@ -26,15 +26,15 @@ void CWmvSearch::Mount(CArcFile* archive)
 
 	// Get file size
 	archive->Seek(23, FILE_CURRENT);
-	archive->Read(&file_info.sizeOrg, 4);
-	file_info.sizeCmp = file_info.sizeOrg;
+	archive->Read(&file_info.size_org, 4);
+	file_info.size_cmp = file_info.size_org;
 
 	// Get exit address
-	file_info.end = file_info.start + file_info.sizeOrg;
+	file_info.end = file_info.start + file_info.size_org;
 
 	// Go to the end of the WMV file
 	archive->Seek(file_info.end, FILE_BEGIN);
-	archive->GetProg()->UpdatePercent(file_info.sizeOrg - search_offset);
+	archive->GetProg()->UpdatePercent(file_info.size_org - search_offset);
 
 	archive->AddFileInfo(file_info, GetNumFiles(), _T(".wmv"));
 }

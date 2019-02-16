@@ -44,10 +44,10 @@ bool CMeltyBlood::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name.data();
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[64]) ^ decryption_key;
-		file_info.sizeCmp = file_info.sizeOrg;
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[64]) ^ decryption_key;
+		file_info.size_cmp = file_info.size_org;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[60]);
-		file_info.end = file_info.start + file_info.sizeOrg;
+		file_info.end = file_info.start + file_info.size_org;
 		file_info.title = _T("MeltyBlood");
 		archive->AddFileInfo(file_info);
 
@@ -72,8 +72,8 @@ bool CMeltyBlood::Decode(CArcFile* archive)
 	Decrypt(archive);
 
 	// Output earlier than 0x2173
-	if (file_info->sizeOrg > 0x2173)
-		archive->ReadWrite(file_info->sizeOrg - 0x2173);
+	if (file_info->size_org > 0x2173)
+		archive->ReadWrite(file_info->size_org - 0x2173);
 
 	return true;
 }
@@ -84,7 +84,7 @@ void CMeltyBlood::Decrypt(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure buffer
-	const size_t buffer_size = (file_info->sizeOrg < 0x2173) ? file_info->sizeOrg : 0x2173;
+	const size_t buffer_size = (file_info->size_org < 0x2173) ? file_info->size_org : 0x2173;
 	std::vector<u8> buffer(buffer_size);
 
 	archive->Read(buffer.data(), buffer_size);

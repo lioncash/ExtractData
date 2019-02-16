@@ -63,7 +63,7 @@ bool CTlg::Decode(CArcFile* archive)
 	if (file_info->format != _T("TLG"))
 		return false;
 
-	std::vector<u8> buffer(file_info->sizeOrg);
+	std::vector<u8> buffer(file_info->size_org);
 	archive->Read(buffer.data(), buffer.size());
 
 	return Decode(archive, buffer.data());
@@ -74,7 +74,7 @@ bool CTlg::Decode(CArcFile* archive, u8* src)
 	if (memcmp(src, "TLG", 3) != 0)
 	{
 		archive->InitDecrypt(src);
-		archive->Decrypt(src, archive->GetOpenFileInfo()->sizeOrg);
+		archive->Decrypt(src, archive->GetOpenFileInfo()->size_org);
 	}
 
 	// Check for TLG0.0 sds
@@ -88,7 +88,7 @@ bool CTlg::Decode(CArcFile* archive, u8* src)
 		return DecompTLG6(archive, &src[11]);
 
 	archive->OpenFile();
-	archive->WriteFile(src, archive->GetOpenFileInfo()->sizeCmp);
+	archive->WriteFile(src, archive->GetOpenFileInfo()->size_cmp);
 	return true;
 }
 

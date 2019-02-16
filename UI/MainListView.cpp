@@ -77,32 +77,26 @@ void CMainListView::Show(NMLVDISPINFO* disp_info)
 			break;
 
 		case 1: // Show file name
-			//_tcscpy_s(disp_info->item.pszText, disp_info->item.cchTextMax-100, pEnt[disp_info->item.iItem].name);
 			lstrcpy(disp_info->item.pszText, file_info.name.Left(text_max));
-			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].name.GetBuffer(0);
 			break;
 
 		case 2: // Show file size
-			lstrcpy(disp_info->item.pszText, file_info.sSizeOrg.Left(text_max));
-			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].sSizeOrg.GetBuffer(0);
+			lstrcpy(disp_info->item.pszText, file_info.size_org_comma.Left(text_max));
 			break;
 
 		case 3: // Show compressed file size
-			if (file_info.sizeCmp != file_info.sizeOrg)
+			if (file_info.size_cmp != file_info.size_org)
 			{
-				//disp_info->item.pszText = rfEnt[disp_info->item.iItem].sSizeCmp.GetBuffer(0);
-				lstrcpy(disp_info->item.pszText, file_info.sSizeCmp.Left(text_max));
+				lstrcpy(disp_info->item.pszText, file_info.size_cmp_comma.Left(text_max));
 			}
 			break;
 
 		case 4: // Show file format
 			lstrcpy(disp_info->item.pszText, file_info.format.Left(text_max));
-			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].format.GetBuffer(0);
 			break;
 
 		case 5: // Display the archive filename
-			lstrcpy(disp_info->item.pszText, file_info.arcName.Left(text_max));
-			//disp_info->item.pszText = rfEnt[disp_info->item.iItem].arcName.GetBuffer(0);
+			lstrcpy(disp_info->item.pszText, file_info.arc_name.Left(text_max));
 			break;
 
 		case 6: // Display the start address
@@ -130,17 +124,17 @@ void CMainListView::ShowTip(LPNMLVGETINFOTIP tip)
 		lstrcpy(tip->pszText, m_ent[tip->iItem].name);
 		break;
 	case 2:
-		lstrcpy(tip->pszText, m_ent[tip->iItem].sSizeOrg);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].size_org_comma);
 		break;
 	case 3:
-		if (m_ent[tip->iItem].sizeCmp != m_ent[tip->iItem].sizeOrg)
-			lstrcpy(tip->pszText, m_ent[tip->iItem].sSizeCmp);
+		if (m_ent[tip->iItem].size_cmp != m_ent[tip->iItem].size_org)
+			lstrcpy(tip->pszText, m_ent[tip->iItem].size_cmp_comma);
 		break;
 	case 4:
 		lstrcpy(tip->pszText, m_ent[tip->iItem].format);
 		break;
 	case 5:
-		lstrcpy(tip->pszText, m_ent[tip->iItem].arcName);
+		lstrcpy(tip->pszText, m_ent[tip->iItem].arc_name);
 		break;
 	case 6:
 		_stprintf(tip->pszText, _T("0x%llx"), m_ent[tip->iItem].start);
@@ -159,13 +153,13 @@ bool CMainListView::CompareFunc(const SFileInfo& a, const SFileInfo& b)
 	case 1:
 		return retCompare(a.name, b.name);
 	case 2:
-		return retCompare(a.sizeOrg, b.sizeOrg);
+		return retCompare(a.size_org, b.size_org);
 	case 3:
-		return retCompare(a.sizeCmp, b.sizeCmp);
+		return retCompare(a.size_cmp, b.size_cmp);
 	case 4:
 		return retCompare(a.format, b.format);
 	case 5:
-		return retCompare(a.arcName, b.arcName);
+		return retCompare(a.arc_name, b.arc_name);
 	case 6:
 		return retCompare(a.start, b.start);
 	case 7:
@@ -193,14 +187,14 @@ void CMainListView::Clear()
 	// Delete files
 	for (auto& file_info : m_ent)
 	{
-		if (!file_info.sizesOrg.empty())
+		if (!file_info.sizes_org.empty())
 		{
-			file_info.sizesOrg.clear();
-			file_info.sizesCmp.clear();
+			file_info.sizes_org.clear();
+			file_info.sizes_cmp.clear();
 			file_info.starts.clear();
-			file_info.bCmps.clear();
+			file_info.compress_checks.clear();
 		}
-		file_info.sTmpFilePath.clear();
+		file_info.tmp_file_paths.clear();
 	}
 	m_ent.clear();
 

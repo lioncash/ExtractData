@@ -369,7 +369,7 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 	try
 	{
 		// For processing split files
-		archive->SetArcsID(file_info->arcsID);
+		archive->SetArcsID(file_info->arcs_id);
 
 		// Set to the position of the file to extract
 		archive->SeekHed(file_info->start);
@@ -422,7 +422,7 @@ bool CExtract::Decode(CArcFile* archive, bool convert)
 	catch (const CExistsDialog&)
 	{
 		// If selected 'No' in the overwrite confirmation
-		archive->GetProg()->UpdatePercent(file_info->sizeOrg);
+		archive->GetProg()->UpdatePercent(file_info->size_org);
 		retval = true;
 	}
 

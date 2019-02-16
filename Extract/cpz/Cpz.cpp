@@ -78,10 +78,10 @@ bool CCpz::MountCpz1(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<u32*>(&index[index_ptr + 8]) + offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		index_ptr += *reinterpret_cast<u32*>(&index[index_ptr]);
@@ -124,10 +124,10 @@ bool CCpz::MountCpz2(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<u32*>(&index[index_ptr + 8]) + offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		file_info.key = *reinterpret_cast<u32*>(&index[index_ptr + 20]) ^ 0x796C3AFD;
 		archive->AddFileInfo(file_info);
 
@@ -168,8 +168,8 @@ bool CCpz::MountCpz3(CArcFile* archive)
 		TCHAR file_name[_MAX_FNAME];
 		lstrcpy(file_name, reinterpret_cast<LPCTSTR>(&index[index_ptr + 24]));
 
-		// ƒtƒ@ƒCƒ‹”‚ª‘½‚¢‚Ì‚ÅAƒtƒHƒ‹ƒ_–¼‚ğ•t‚¯‚ÄƒtƒHƒ‹ƒ_•ªŠ„‚Å‚«‚é‚æ‚¤‚É•ÏX
-		// ƒvƒŠƒ~ƒeƒBƒuƒŠƒ“ƒN—p‚Ìˆ—‚È‚Ì‚ÅA‘¼ƒ^ƒCƒgƒ‹‚Å•s‹ï‡o‚é‚©‚à
+		// ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ÅAï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½Äƒtï¿½Hï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½æ‚¤ï¿½É•ÏX
+		// ï¿½vï¿½ï¿½ï¿½~ï¿½eï¿½Bï¿½uï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½pï¿½Ìï¿½ï¿½ï¿½ï¿½È‚Ì‚ÅAï¿½ï¿½ï¿½^ï¿½Cï¿½gï¿½ï¿½ï¿½Å•sï¿½ï‡ï¿½oï¿½é‚©ï¿½ï¿½
 		YCString dir_name;
 		LPTSTR dir_name_end_pos = _tcschr(file_name, _T('-'));
 
@@ -182,10 +182,10 @@ bool CCpz::MountCpz3(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = dir_name + file_name;
-		file_info.sizeCmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<u32*>(&index[index_ptr + 4]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.start = *reinterpret_cast<u32*>(&index[index_ptr + 8]) + offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		file_info.key = *reinterpret_cast<u32*>(&index[index_ptr + 20]) ^ 0xC7F5DA63;
 		archive->AddFileInfo(file_info);
 
@@ -368,9 +368,9 @@ bool CCpz::MountCpz5(CArcFile* archive)
 			SFileInfo file_info;
 			file_info.name = file_name;
 			file_info.start = *reinterpret_cast<const u64*>(&file_entry[4]) + sizeof(SCPZ5Header) + index_size;
-			file_info.sizeCmp = *reinterpret_cast<const u32*>(&file_entry[12]);
-			file_info.sizeOrg = file_info.sizeCmp;
-			file_info.end = file_info.start + file_info.sizeCmp;
+			file_info.size_cmp = *reinterpret_cast<const u32*>(&file_entry[12]);
+			file_info.size_org = file_info.size_cmp;
+			file_info.end = file_info.start + file_info.size_cmp;
 			file_info.key = (header->index_key ^ (*reinterpret_cast<const u32*>(&current_dir_index_ptr[12]) + *reinterpret_cast<const u32*>(&file_entry[20]))) + header->num_dirs + 0xA3D61785;
 			archive->AddFileInfo(file_info);
 
@@ -421,7 +421,7 @@ bool CCpz::DecodeCpz1(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ1
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Decryption
@@ -464,7 +464,7 @@ bool CCpz::DecodeCpz2(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ2
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Decryption
@@ -507,7 +507,7 @@ bool CCpz::DecodeCpz3(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CPZ3
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Decryption
@@ -540,7 +540,7 @@ bool CCpz::DecodeCpz5(CArcFile* archive)
 	const auto* cpz5_header = reinterpret_cast<const SCPZ5Header*>(archive->GetHeader());
 
 	// Read CPZ5
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Decryption
@@ -568,7 +568,7 @@ bool CCpz::DecodeCpz5(CArcFile* archive)
 ///
 void CCpz::Decrypt1(u8* target, size_t size)
 {
-	static constexpr u8 crypt[] = "’Í—Œ×ŒÕ‹K“úš×Œ¿ŒÉŒëi‹ŒÒŒÖ‹mŒãŒûŒĞŒÈŒğ\x8B\xFEŒªŒô‹KœXŒÓ–ÈŒËŒÎŒóŒÖ‹R";
+	static constexpr u8 crypt[] = "ï¿½Í—ï¿½ï¿½×ŒÕ‹Kï¿½ï¿½ï¿½×Œï¿½ï¿½ÉŒï¿½iï¿½ï¿½ï¿½ÒŒÖ‹mï¿½ï¿½ï¿½ï¿½ĞŒÈŒï¿½\x8B\xFEï¿½ï¿½ï¿½ï¿½Kï¿½Xï¿½Ó–ÈŒËŒÎŒï¿½Ö‹R";
 
 	for (size_t i = 0; i < size; i++)
 	{

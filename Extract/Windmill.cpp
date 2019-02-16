@@ -33,9 +33,9 @@ bool CWindmill::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[32]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[36]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[36]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 
 		index_ptr += 40;

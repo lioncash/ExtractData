@@ -60,10 +60,10 @@ bool CCmv::Mount(CArcFile* archive)
 		// Add to list view
 		SFileInfo file_info;
 		file_info.name    = filename;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index[index_ptr + 8]);
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 4]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index[index_ptr + 8]);
 		file_info.start   = *reinterpret_cast<const u32*>(&index[index_ptr + 16]) + offset;
-		file_info.end     = file_info.start + file_info.sizeCmp;
+		file_info.end     = file_info.start + file_info.size_cmp;
 		archive->AddFileInfo(file_info);
 		index_ptr += 20;
 	}
@@ -78,7 +78,7 @@ bool CCmv::Decode(CArcFile* archive)
 	if (file_info->format != _T("JBP"))
 		return false;
 
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	const s32 width  = *reinterpret_cast<const u16*>(&src[0x10]);

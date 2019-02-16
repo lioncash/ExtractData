@@ -127,8 +127,8 @@ bool CTCD2::Mount(CArcFile* archive)
 				file_info.name = full_name;
 				file_info.start = all_file_offsets[tcd2_dir_info[dir].file_offset + file + 0];
 				file_info.end = all_file_offsets[tcd2_dir_info[dir].file_offset + file + 1];
-				file_info.sizeCmp = file_info.end - file_info.start;
-				file_info.sizeOrg = file_info.sizeCmp;
+				file_info.size_cmp = file_info.end - file_info.start;
+				file_info.size_org = file_info.size_cmp;
 
 				archive->AddFileInfo(file_info);
 			}

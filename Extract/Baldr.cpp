@@ -79,10 +79,10 @@ bool CBaldr::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = filename;
-		file_info.sizeOrg = entry.file_size;
-		file_info.sizeCmp = entry.compressed_file_size;
+		file_info.size_org = entry.file_size;
+		file_info.size_cmp = entry.compressed_file_size;
 		file_info.start = entry.offset;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		file_info.format = format;
 
 		archive->AddFileInfo(file_info);

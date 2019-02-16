@@ -81,9 +81,9 @@ bool CNscr::MountNsa(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = BitUtils::Swap32(*(u32*)&index[index_ptr + 1]) + offset;
-		file_info.sizeCmp = BitUtils::Swap32(*(u32*)&index[index_ptr + 5]);
-		file_info.sizeOrg = BitUtils::Swap32(*(u32*)&index[index_ptr + 9]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = BitUtils::Swap32(*(u32*)&index[index_ptr + 5]);
+		file_info.size_org = BitUtils::Swap32(*(u32*)&index[index_ptr + 9]);
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		switch (type)
 		{
@@ -142,9 +142,9 @@ bool CNscr::MountSar(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = BitUtils::Swap32(*(u32*)&index[index_ptr + 0]) + offset;
-		file_info.sizeOrg = BitUtils::Swap32(*(u32*)&index[index_ptr + 4]);
-		file_info.sizeCmp = file_info.sizeOrg;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_org = BitUtils::Swap32(*(u32*)&index[index_ptr + 4]);
+		file_info.size_cmp = file_info.size_org;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 
@@ -205,7 +205,7 @@ bool CNscr::DecodeScr(CArcFile* archive)
 	// Generate output files
 	archive->OpenFile(_T(".txt"));
 
-	for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+	for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 	{
 		// Buffer adjustment
 		archive->SetBufSize(&buffer_size, write_size);
@@ -251,7 +251,7 @@ bool CNscr::DecodeNBZ(CArcFile* archive)
 	archive->ReadU32(&dst_size);
 	dst_size = BitUtils::Swap32(dst_size);
 
-	const u32 src_size = file_info->sizeCmp - 4;
+	const u32 src_size = file_info->size_cmp - 4;
 
 	// Ensure buffer exists
 	std::vector<u8> src(src_size);
@@ -354,8 +354,8 @@ bool CNscr::DecodeSPB(CArcFile* archive)
 	const u32 pitch = (line + 3) & 0xFFFFFFFC;
 
 	// Ensure buffers exist
-	const size_t src_size = file_info->sizeCmp - 4;
-	const size_t dst_size = file_info->sizeOrg - 54;
+	const size_t src_size = file_info->size_cmp - 4;
+	const size_t dst_size = file_info->size_org - 54;
 	const size_t work_size = (color_size + 4) * 3;
 
 	std::vector<u8> src(src_size);
@@ -498,8 +498,8 @@ bool CNscr::DecodeLZSS(CArcFile* archive)
 		return false;
 
 	// Ensure buffers exist
-	const u32 src_size = file_info->sizeCmp;
-	const u32 dst_size = file_info->sizeOrg;
+	const u32 src_size = file_info->size_cmp;
+	const u32 dst_size = file_info->size_org;
 	const u32 dic_size = 256;
 
 	std::vector<u8> src(src_size);

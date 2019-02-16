@@ -44,9 +44,9 @@ bool CYkc::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *(u32*)&index[i + 8];
-		file_info.sizeCmp = *(u32*)&index[i + 12];
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *(u32*)&index[i + 12];
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -75,7 +75,7 @@ bool CYkc::DecodeYKS(CArcFile* archive)
 		return false;
 
 	// Read the YKS file
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	if (memcmp(src.data(), "YKS001", 6) == 0)
@@ -113,7 +113,7 @@ bool CYkc::DecodeYKG(CArcFile* archive)
 		return false;
 
 	// Read the YKG file
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	if (memcmp(src.data(), "YKG000", 6) == 0)

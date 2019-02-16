@@ -51,10 +51,10 @@ bool CClannad::Mount(CArcFile* archive)
 		// Add to listview
 		SFileInfo infFile;
 		infFile.name = file_name;
-		infFile.sizeCmp = (arg_size & 0xfff) * 0x800;
-		infFile.sizeOrg = infFile.sizeCmp * 6; // Appropriate. File size can not be obtained after the expansion to an unpacked 32-byte
+		infFile.size_cmp = (arg_size & 0xfff) * 0x800;
+		infFile.size_org = infFile.size_cmp * 6; // Appropriate. File size can not be obtained after the expansion to an unpacked 32-byte
 		infFile.start = pos * 0x800 + (arg_size & 0xf000) * 0x8000;
-		infFile.end = infFile.start + infFile.sizeCmp;
+		infFile.end = infFile.start + infFile.size_cmp;
 		infFile.format = _T("AHX");
 		infFile.title = _T("CLANNAD");
 		archive->AddFileInfo(infFile);
@@ -74,7 +74,7 @@ bool CClannad::Decode(CArcFile* archive)
 		return false;
 
 	// Ensure buffer
-	std::vector<u8> mzx_buf(file_info->sizeCmp);
+	std::vector<u8> mzx_buf(file_info->size_cmp);
 
 	// Read
 	archive->Read(mzx_buf.data(), mzx_buf.size());

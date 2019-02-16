@@ -244,7 +244,7 @@ bool CAhx::Decode(CArcFile* archive)
 		return false;
 
 	// Read AHX
-	std::vector<u8> ahx_buf(file_info->sizeCmp);
+	std::vector<u8> ahx_buf(file_info->size_cmp);
 	archive->Read(ahx_buf.data(), ahx_buf.size());
 
 	// Output to convert WAV to AHX

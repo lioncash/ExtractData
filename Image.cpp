@@ -22,7 +22,7 @@ bool CImage::Decode(CArcFile* archive)
 		return false;
 
 	// Read BMP
-	std::vector<u8> src(file_info->sizeOrg);
+	std::vector<u8> src(file_info->size_org);
 	archive->Read(src.data(), src.size());
 
 	// Output
@@ -47,7 +47,7 @@ bool CImage::Init(CArcFile* archive, void* bmp, const YCString& file_name)
 	{
 		// Simple decoding
 		archive->InitDecrypt(src);
-		archive->Decrypt(src, file_info->sizeOrg);
+		archive->Decrypt(src, file_info->size_org);
 	}
 
 	m_archive = archive;
@@ -59,7 +59,7 @@ bool CImage::Init(CArcFile* archive, void* bmp, const YCString& file_name)
 	{
 		// No BM or such in an encryption header
 		archive->OpenFile();
-		archive->WriteFile(src, file_info->sizeOrg);
+		archive->WriteFile(src, file_info->size_org);
 
 		m_is_valid_bmp_header = false;
 

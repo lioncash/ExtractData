@@ -61,9 +61,9 @@ bool CEthornell::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name.Copy(reinterpret_cast<const char*>(&index[i]), name_size);
 		file_info.start = *reinterpret_cast<const u32*>(&index[i + name_size]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[i + name_size + sizeof(u32)]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[i + name_size + sizeof(u32)]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -105,7 +105,7 @@ bool CEthornell::DecodeBSE(CArcFile* archive)
 {
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	switch (*reinterpret_cast<short*>(src.data() + 0x08))
@@ -169,7 +169,7 @@ bool CEthornell::DecodeDSC(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Ensure output buffer
@@ -243,7 +243,7 @@ bool CEthornell::DecodeCBG(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Read CompressedBG
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Width, Height, Get number of colors
@@ -305,7 +305,7 @@ bool CEthornell::DecodeStd(CArcFile* archive)
 		archive->OpenFile();
 	}
 
-	archive->ReadWrite(archive->GetOpenFileInfo()->sizeOrg - offset);
+	archive->ReadWrite(archive->GetOpenFileInfo()->size_org - offset);
 
 	return true;
 }

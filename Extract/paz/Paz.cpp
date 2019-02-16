@@ -69,12 +69,12 @@ bool CPaz::Mount(CArcFile* archive)
 
 		// Add to list view
 		SFileInfo file_info;
-		file_info.name       = file_name;
-		file_info.sizeOrg    = type == 1 ? *reinterpret_cast<const u32*>(&index[index_ptr + 8]) : *reinterpret_cast<const u32*>(&index[index_ptr + 12]);
-		file_info.dwSizeOrg2 = *reinterpret_cast<const u32*>(&index[index_ptr + 16]);
-		file_info.sizeCmp    = type == 1 ? *reinterpret_cast<const u32*>(&index[index_ptr + 16]) : file_info.sizeOrg;
-		file_info.start      = *reinterpret_cast<const u32*>(&index[index_ptr + 0]);
-		file_info.end        = file_info.start + file_info.sizeCmp;
+		file_info.name      = file_name;
+		file_info.size_org   = type == 1 ? *reinterpret_cast<const u32*>(&index[index_ptr + 8]) : *reinterpret_cast<const u32*>(&index[index_ptr + 12]);
+		file_info.size_org2 = *reinterpret_cast<const u32*>(&index[index_ptr + 16]);
+		file_info.size_cmp   = type == 1 ? *reinterpret_cast<const u32*>(&index[index_ptr + 16]) : file_info.size_org;
+		file_info.start     = *reinterpret_cast<const u32*>(&index[index_ptr + 0]);
+		file_info.end       = file_info.start + file_info.size_cmp;
 
 		if (type == 1)
 		{
@@ -125,8 +125,8 @@ bool CPaz::Decode(CArcFile* archive)
 	if (file_info->format == _T("zlib"))
 	{
 		// ZLIB
-		std::vector<u8> src(file_info->sizeCmp);
-		std::vector<u8> dst(file_info->sizeOrg);
+		std::vector<u8> src(file_info->size_cmp);
+		std::vector<u8> dst(file_info->size_org);
 
 		// Decrypt
 		archive->Read(src.data(), src.size());
@@ -149,10 +149,10 @@ bool CPaz::Decode(CArcFile* archive)
 			size_t buffer_size = GetMovieBufSize(archive);
 			std::vector<u8> buffer(buffer_size);
 
-			for (size_t total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
+			for (size_t total_written = 0; total_written != file_info->size_org; total_written += buffer_size)
 			{
 				// Get buffer size
-				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
+				archive->SetBufSize(&buffer_size, total_written, file_info->size_org2);
 
 				// Read
 				archive->Read(buffer.data(), buffer_size);
@@ -163,7 +163,7 @@ bool CPaz::Decode(CArcFile* archive)
 				Decrypt2(buffer.data(), buffer_size);
 
 				// Adjust buffer size
-				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
+				archive->SetBufSize(&buffer_size, total_written, file_info->size_org);
 
 				// Write
 				archive->WriteFile(buffer.data(), buffer_size);
@@ -175,10 +175,10 @@ bool CPaz::Decode(CArcFile* archive)
 			size_t buffer_size = archive->GetBufSize();
 			std::vector<u8> buffer(buffer_size);
 
-			for (size_t total_written = 0; total_written != file_info->sizeOrg; total_written += buffer_size)
+			for (size_t total_written = 0; total_written != file_info->size_org; total_written += buffer_size)
 			{
 				// Adjust buffer size
-				archive->SetBufSize(&buffer_size, total_written, file_info->dwSizeOrg2);
+				archive->SetBufSize(&buffer_size, total_written, file_info->size_org2);
 
 				// Read
 				archive->Read(buffer.data(), buffer_size);
@@ -189,7 +189,7 @@ bool CPaz::Decode(CArcFile* archive)
 				Decrypt2(buffer.data(), buffer_size);
 
 				// Adjust buffer size
-				archive->SetBufSize(&buffer_size, total_written, file_info->sizeOrg);
+				archive->SetBufSize(&buffer_size, total_written, file_info->size_org);
 
 				// Write
 				archive->WriteFile(buffer.data(), buffer_size);

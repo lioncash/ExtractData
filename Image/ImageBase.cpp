@@ -65,7 +65,7 @@ bool CImageBase::Init(
 	m_pitch = CalculatePitch(width, bpp);
 	m_pitch_with_alpha = width * 4;
 
-	const u32 original_size = archive->GetOpenFileInfo()->sizeOrg;
+	const u32 original_size = archive->GetOpenFileInfo()->size_org;
 
 	m_row_size = original_size / height;
 	m_row_size_remainder = original_size % height;

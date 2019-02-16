@@ -159,10 +159,10 @@ bool CYuris::MountYPF(CArcFile* archive)
 		// Add to listview
 		SFileInfo file_info;
 		file_info.name = file_name;
-		file_info.sizeOrg = *(const u32*)&index_ptr[5 + length + 2];
-		file_info.sizeCmp = *(const u32*)&index_ptr[5 + length + 6];
+		file_info.size_org = *(const u32*)&index_ptr[5 + length + 2];
+		file_info.size_cmp = *(const u32*)&index_ptr[5 + length + 6];
 		file_info.start = *(const u32*)&index_ptr[5 + length + 10];
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (cmp)
 			file_info.format = _T("zlib");
 
@@ -202,9 +202,9 @@ bool CYuris::MountYMV(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name.Format(_T("%s_%06u.jpg"), archive->GetArcName().GetFileTitle().GetString(), i);
 		file_info.start = offset_indices[i];
-		file_info.sizeCmp = size_indices[i];
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = size_indices[i];
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -233,7 +233,7 @@ bool CYuris::DecodeYMV(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Reading
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 	archive->Read(src.data(), src.size());
 
 	// Decoding

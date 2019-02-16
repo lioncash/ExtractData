@@ -92,9 +92,9 @@ bool CCircusPak::MountPakForKujiraCons(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = index[i].offset ^ 0xAAAAAAAA;
-		file_info.sizeCmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -142,9 +142,9 @@ bool CCircusPak::MountPakForKujira(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = index[i].offset ^ 0xAAAAAAAA;
-		file_info.sizeCmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = index[i].compressed_file_size ^ 0xAAAAAAAA;
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -192,9 +192,9 @@ bool CCircusPak::MountPakForACDC(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = index[i].offset ^ 0xA6A6A6A6;
-		file_info.sizeCmp = index[i].compressed_file_size ^ 0xA6A6A6A6;
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = index[i].compressed_file_size ^ 0xA6A6A6A6;
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -245,15 +245,15 @@ bool CCircusPak::MountPakForDCGS(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name.Copy(index[i].file_name, sizeof(index[i].file_name));
 		file_info.start = index[i].offset;
-		file_info.sizeCmp = index[i].compressed_file_size;
-		file_info.sizeOrg = index[i].file_size;
+		file_info.size_cmp = index[i].compressed_file_size;
+		file_info.size_org = index[i].file_size;
 
-		if (file_info.sizeCmp == 0)
+		if (file_info.size_cmp == 0)
 		{
-			file_info.sizeCmp = file_info.sizeOrg;
+			file_info.size_cmp = file_info.size_org;
 		}
 
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 	}
@@ -304,7 +304,7 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decode
@@ -316,7 +316,7 @@ bool CCircusPak::DecodePakForKujiraCons(CArcFile* archive)
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decryption
@@ -357,7 +357,7 @@ bool CCircusPak::DecodePakForKujira(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decryption
@@ -369,7 +369,7 @@ bool CCircusPak::DecodePakForKujira(CArcFile* archive)
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decryption
@@ -410,7 +410,7 @@ bool CCircusPak::DecodePakForACDC(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// BMP
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decryption
@@ -422,7 +422,7 @@ bool CCircusPak::DecodePakForACDC(CArcFile* archive)
 	else if (file_info->format == _T("TGA"))
 	{
 		// TGA
-		std::vector<u8> src(file_info->sizeCmp);
+		std::vector<u8> src(file_info->size_cmp);
 		archive->Read(src.data(), src.size());
 
 		// Decryption
@@ -435,7 +435,7 @@ bool CCircusPak::DecodePakForACDC(CArcFile* archive)
 	else if (file_info->format == _T("CPS"))
 	{
 		// CPS
-		const u32 src_size = file_info->sizeCmp;
+		const u32 src_size = file_info->size_cmp;
 		std::vector<u8> src(src_size);
 		archive->Read(src.data(), src.size());
 
@@ -490,13 +490,13 @@ bool CCircusPak::DecodePakForDCGS(CArcFile* archive)
 		return false;
 
 	// Read
-	const u32 src_size = file_info->sizeCmp;
+	const u32 src_size = file_info->size_cmp;
 	std::vector<u8> src(src_size);
 	archive->Read(src.data(), src.size());
 
 	// Decompression
 	u8* dst_ptr = src.data();
-	u32 dst_size = file_info->sizeOrg;
+	u32 dst_size = file_info->size_org;
 	std::vector<u8> dst;
 
 	if (src_size != dst_size)
@@ -650,7 +650,7 @@ bool CCircusPak::DecodeEtc(CArcFile* archive, DecryptionFunction decryption_func
 		archive->OpenFile();
 	}
 
-	for (size_t write_size = 0; write_size < file_info->sizeOrg; write_size += buffer_size)
+	for (size_t write_size = 0; write_size < file_info->size_org; write_size += buffer_size)
 	{
 		// Buffer size adjustment
 		archive->SetBufSize(&buffer_size, write_size);

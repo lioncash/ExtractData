@@ -220,7 +220,7 @@ bool CPB3B::Decode6(CArcFile* archive, const u8* src, size_t src_size, s32 width
 	// Base image exists
 	if (base_file_info != nullptr)
 	{
-		std::vector<u8> base_src(base_file_info->sizeCmp);
+		std::vector<u8> base_src(base_file_info->size_cmp);
 
 		// Read base image
 		archive->SeekHed(base_file_info->start);

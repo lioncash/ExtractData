@@ -53,12 +53,12 @@ bool CAselia::Mount(CArcFile* archive)
 
 		SFileInfo file_info;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[0]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[4]);
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[4]);
 
 		// Add to listview
 		file_info.name = file_name;
-		file_info.sizeCmp = file_info.sizeOrg;
-		file_info.end = file_info.start + file_info.sizeOrg;
+		file_info.size_cmp = file_info.size_org;
+		file_info.end = file_info.start + file_info.size_org;
 		archive->AddFileInfo(file_info);
 
 		index_ptr += 8;

@@ -50,7 +50,7 @@ bool CTCDBase::DecodeTSF(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Adjust input buffer
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 
 	// Read
 	archive->Read(src.data(), src.size());
@@ -81,7 +81,7 @@ bool CTCDBase::DecodeSPD(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 
 	// Read
 	archive->Read(src.data(), src.size());
@@ -168,7 +168,7 @@ bool CTCDBase::DecodeOgg(CArcFile* archive)
 	const SFileInfo* file_info = archive->GetOpenFileInfo();
 
 	// Ensure input buffer
-	std::vector<u8> src(file_info->sizeCmp);
+	std::vector<u8> src(file_info->size_cmp);
 
 	// Read
 	archive->Read(src.data(), src.size());

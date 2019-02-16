@@ -33,9 +33,9 @@ bool CInnocentGrey::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&index_ptr[32]);
-		file_info.sizeOrg = *reinterpret_cast<const u32*>(&index_ptr[40]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index_ptr[44]);
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_org = *reinterpret_cast<const u32*>(&index_ptr[40]);
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index_ptr[44]);
+		file_info.end = file_info.start + file_info.size_cmp;
 		file_info.title = _T("InnocentGrey");
 		archive->AddFileInfo(file_info);
 
@@ -55,7 +55,7 @@ bool CInnocentGrey::Decode(CArcFile* archive)
 	if (file_info->format == _T("BMP"))
 	{
 		// Read
-		std::vector<u8> buffer(file_info->sizeOrg);
+		std::vector<u8> buffer(file_info->size_org);
 		archive->Read(buffer.data(), buffer.size());
 
 		// Decryption
@@ -78,7 +78,7 @@ bool CInnocentGrey::Decode(CArcFile* archive)
 		// Create output file
 		archive->OpenFile();
 
-		for (size_t write_size = 0; write_size != file_info->sizeOrg; write_size += buffer_size)
+		for (size_t write_size = 0; write_size != file_info->size_org; write_size += buffer_size)
 		{
 			// Get buffer size
 			archive->SetBufSize(&buffer_size, write_size);

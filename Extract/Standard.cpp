@@ -14,10 +14,10 @@ bool CStandard::Mount(CArcFile* archive)
 	// Get file info
 	SFileInfo file_info;
 	file_info.name = archive->GetArcName();
-	file_info.sizeOrg = archive->GetArcSize();
-	file_info.sizeCmp = file_info.sizeOrg;
+	file_info.size_org = archive->GetArcSize();
+	file_info.size_cmp = file_info.size_org;
 	file_info.start = 0;
-	file_info.end = file_info.sizeOrg;
+	file_info.end = file_info.size_org;
 
 	archive->AddFileInfo(file_info);
 

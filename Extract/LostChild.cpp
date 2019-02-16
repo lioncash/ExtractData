@@ -72,8 +72,8 @@ bool CLostChild::Mount(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u64*>(&index[index_ptr + 16]);
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&index[index_ptr + 24]);
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&index[index_ptr + 24]);
+		file_info.size_org = file_info.size_cmp;
 		file_info.title = _T("LOST CHILD");
 
 		index_ptr += 40;
@@ -107,7 +107,7 @@ bool CLostChild::Mount(CArcFile* archive)
 		}
 
 		// File size adjustment exceeds 1.2GB when adding
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 		if (file_info.end > 1300000000)
 		{
 			file_info.end -= 1300000000;
@@ -152,7 +152,7 @@ bool CLostChild::DecodeESUR(CArcFile* archive)
 		return false;
 
 	// Read
-	const size_t src_size = file_info->sizeCmp;
+	const size_t src_size = file_info->size_cmp;
 	std::vector<u8> src(src_size);
 	const size_t read_size = archive->Read(src.data(), src.size());
 
@@ -196,7 +196,7 @@ bool CLostChild::DecodeLAD(CArcFile* archive)
 		return false;
 
 	// Reading
-	const size_t src_size = file_info->sizeCmp;
+	const size_t src_size = file_info->size_cmp;
 	std::vector<u8> src(src_size);
 	const size_t read_size = archive->Read(src.data(), src.size());
 
@@ -329,7 +329,7 @@ bool CLostChild::Extract(CArcFile* archive)
 	// Generate output files
 	archive->OpenFile();
 
-	for (size_t write_size = 0; write_size != file_info->sizeCmp; write_size += buffer_size)
+	for (size_t write_size = 0; write_size != file_info->size_cmp; write_size += buffer_size)
 	{
 		// Adjust buffer size
 		archive->SetBufSize(&buffer_size, write_size);

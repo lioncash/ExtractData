@@ -61,9 +61,9 @@ bool CPajamas::MountDat1(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&file_info_index[0]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 
@@ -116,9 +116,9 @@ bool CPajamas::MountDat2(CArcFile* archive)
 		SFileInfo file_info;
 		file_info.name = file_name;
 		file_info.start = *reinterpret_cast<const u32*>(&file_info_index[0]) + offset;
-		file_info.sizeCmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
-		file_info.sizeOrg = file_info.sizeCmp;
-		file_info.end = file_info.start + file_info.sizeCmp;
+		file_info.size_cmp = *reinterpret_cast<const u32*>(&file_info_index[4]);
+		file_info.size_org = file_info.size_cmp;
+		file_info.end = file_info.start + file_info.size_cmp;
 
 		archive->AddFileInfo(file_info);
 
@@ -202,7 +202,7 @@ bool CPajamas::DecodeEPA(CArcFile* archive)
 	}
 
 	// Read EPA data
-	size_t src_size = file_info->sizeCmp - 16;
+	size_t src_size = file_info->size_cmp - 16;
 	if (bpp == 8)
 	{
 		src_size -= pallet.size();

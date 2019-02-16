@@ -62,10 +62,10 @@ bool CHimauri::MountHim4(CArcFile* archive)
 		file_info.name = file_name;
 		file_info.start = *(u32*)&index[index_ptr + 0];
 		file_info.end = ((i + 1) < num_files) ? *(u32*)&index[index_ptr + 4] : archive->GetArcSize();
-		file_info.sizeCmp = file_info.end - file_info.start;
-		file_info.sizeOrg = file_info.sizeCmp;
+		file_info.size_cmp = file_info.end - file_info.start;
+		file_info.size_org = file_info.size_cmp;
 
-		if (file_info.sizeCmp != 10)
+		if (file_info.size_cmp != 10)
 		{
 			// Is not a dummy file
 			archive->AddFileInfo(file_info);
@@ -157,10 +157,10 @@ bool CHimauri::MountHim5(CArcFile* archive)
 				file_info.end = BitUtils::Swap32(*(u32*)&index2[index2_ptr + segment_length + 1]);
 			}
 
-			file_info.sizeCmp = file_info.end - file_info.start;
-			file_info.sizeOrg = file_info.sizeCmp;
+			file_info.size_cmp = file_info.end - file_info.start;
+			file_info.size_org = file_info.size_cmp;
 
-			if (file_info.sizeCmp != 10)
+			if (file_info.size_cmp != 10)
 			{
 				// Is not a dummy file
 				if (diff_compose)
@@ -214,8 +214,8 @@ bool CHimauri::MountHim5(CArcFile* archive)
 					{
 						// Within the difference range
 						file_info.starts.push_back(diff_file_info.start);
-						file_info.sizesCmp.push_back(diff_file_info.sizeCmp);
-						file_info.sizesOrg.push_back(diff_file_info.sizeOrg);
+						file_info.sizes_cmp.push_back(diff_file_info.size_cmp);
+						file_info.sizes_org.push_back(diff_file_info.size_org);
 					}
 				}
 			}
@@ -389,7 +389,7 @@ bool CHimauri::Decode(CArcFile* archive)
 	}
 
 	archive->OpenFile(file_extension);
-	archive->WriteFile(dst.data(), dst.size(), archive->GetOpenFileInfo()->sizeCmp);
+	archive->WriteFile(dst.data(), dst.size(), archive->GetOpenFileInfo()->size_cmp);
 
 	return true;
 }

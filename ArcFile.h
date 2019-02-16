@@ -75,12 +75,27 @@ public:
 	YCString SetCommaFormat(u32 size);
 
 	// Initialization processes performed prior to decoding/mounting
-	void SetFileInfo(size_t num)             { m_file_info = &(*m_entries)[num]; m_split_archive_id = m_file_info->arcsID; m_file_info_num = num; }
-	void SetArcID(u32 archive_id)            { m_archive_id = archive_id; }
-	void SetEnt(std::vector<SFileInfo>& ent) { m_entries = &ent; m_start_entry_index = ent.size(); }
-	void SetProg(CProgBar& prog)             { m_progress_bar = &prog; }
-	void SetOpt(SOption* option)             { m_option = option; }
-	void SetSaveDir(LPCTSTR save_dir)        { m_save_dir = save_dir; }
+  void SetFileInfo(size_t num)
+  {
+    m_file_info = &(*m_entries)[num];
+    m_split_archive_id = m_file_info->arcs_id;
+    m_file_info_num = num;
+  }
+
+  void SetArcID(u32 archive_id)
+  {
+    m_archive_id = archive_id;
+  }
+
+	void SetEnt(std::vector<SFileInfo>& ent)
+  {
+    m_entries = &ent;
+    m_start_entry_index = ent.size();
+  }
+
+  void SetProg(CProgBar& prog)      { m_progress_bar = &prog; }
+  void SetOpt(SOption* option)      { m_option = option; }
+  void SetSaveDir(LPCTSTR save_dir) { m_save_dir = save_dir; }
 
 	// TRUE if file is supported(Closed immediately if the file is not supported)
 	void SetState(bool state) { m_state = state; }
