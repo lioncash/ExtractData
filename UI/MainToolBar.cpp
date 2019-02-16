@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////
 HWND CMainToolBar::Create(HWND hWnd)
 {
-	const std::array<TBBUTTON, 3> buttons{{
+	constexpr std::array<TBBUTTON, 3> buttons{{
 		{0, IDM_OPEN, TBSTATE_ENABLED, BTNS_DROPDOWN, 0, 0},
 		{1, IDM_EXTRACT, TBSTATE_ENABLED, BTNS_BUTTON, 0, 0},
 		{2, IDM_EXTRACTALL, TBSTATE_ENABLED, BTNS_BUTTON, 0, 0}
@@ -159,7 +159,7 @@ void CMainToolBar::SetWindowPos(int x, int y, int cx, int cy)
 ///////////////////////////////////////////////////////////////////////////
 HWND CSearchToolBar::Create(HWND hWnd)
 {
-	std::array<TBBUTTON, 9> buttons{{
+	constexpr std::array<TBBUTTON, 9> buttons{{
 		{0, IDM_AHX, TBSTATE_ENABLED, BTNS_CHECK, 0, 0},
 		{1, IDM_BMP, TBSTATE_ENABLED, BTNS_CHECK, 0, 0},
 		{2, IDM_JPG, TBSTATE_ENABLED, BTNS_CHECK, 0, 0},
@@ -174,6 +174,7 @@ HWND CSearchToolBar::Create(HWND hWnd)
 	m_begin_id = IDM_AHX;
 
 	HWND toolbar = CToolBar::Create(hWnd, buttons.data(), IDI_SEARCH_TOOLBAR, 25, buttons.size());
+
 	SetCheckSearch();
 
 	return toolbar;
