@@ -40,8 +40,20 @@ LPTSTR CLastDir::GetOpen()
 	return m_open;
 }
 
-/// Get the last folder where something was saved to it
+/// Get the last opened folder
+LPCTSTR CLastDir::GetOpen() const
+{
+	return m_open;
+}
+
+/// Get the last folder where something was saved to
 LPTSTR CLastDir::GetSave()
+{
+	return m_save;
+}
+
+/// Get the last folder where something was saved to
+LPCTSTR CLastDir::GetSave() const
 {
 	return m_save;
 }
