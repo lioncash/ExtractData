@@ -7,6 +7,21 @@
 #include "Image.h"
 #include "MD5.h"
 
+namespace
+{
+struct SCPZ5Header
+{
+  char identifier[4];        // Identifier
+  u32 num_dirs;              // Number of directories
+  u32 total_dir_index_size;  // Total size of the directory index
+  u32 total_file_index_size; // Total size of the file index
+  u32 unknown1[4];           // Unknown
+  u32 md5[4];                // MD5
+  u32 index_key;             // Index Key
+  u32 unknown2[3];           // Unknown
+};
+} // Anonymous namespace
+
 /// Mounting
 ///
 /// @param archive Archive
