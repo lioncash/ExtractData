@@ -8,12 +8,7 @@ public:
 	bool Mount(CArcFile* archive) override;
 
 private:
-	struct Context
-	{
-		YCString name;
-		int type;
-		u16 code;
-	};
+  struct Context;
 
 	bool Sub(CArcFile* archive, LPTSTR path);
 	u16 CreateNewContext(CArcFile* archive, u16 length);

@@ -9,6 +9,13 @@ enum : s32
 	TYPE_FOLDER = 0x00000001
 };
 
+struct CSummerDays::Context
+{
+	YCString name;
+	int type;
+	u16 code;
+};
+
 bool CSummerDays::Mount(CArcFile* archive)
 {
 	if (memcmp(archive->GetHeader(), "\xCD\x32\x6E\x59", 4) != 0)
