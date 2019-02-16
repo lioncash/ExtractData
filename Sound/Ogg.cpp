@@ -100,7 +100,7 @@ void COgg::Decode(CArcFile* archive, u8* buf)
 
 	for (u32 write_size = 0; write_size < file_info->sizeOrg; )
 	{
-		VH vheader;
+    OggPageHeader vheader;
 
 		vheader.page_segments = buf[26];
 		memcpy(vheader.segment_table, &buf[27], vheader.page_segments);
@@ -148,9 +148,9 @@ u32 COgg::ReadHeader()
 	u32 read_size = m_archive->Read(m_vheader.pattern, 4);
 	read_size = m_archive->Read(&m_vheader.version, 1);
 	read_size = m_archive->Read(&m_vheader.type, 1);
-	read_size = m_archive->Read(m_vheader.granpos, 8);
-	read_size = m_archive->Read(&m_vheader.serialno, 4);
-	read_size = m_archive->Read(&m_vheader.pageno, 4);
+	read_size = m_archive->Read(m_vheader.granule_position, 8);
+	read_size = m_archive->Read(&m_vheader.serial_no, 4);
+	read_size = m_archive->Read(&m_vheader.page_no, 4);
 	read_size = m_archive->Read(&m_vheader.checksum, 4);
 	read_size = m_archive->Read(&m_vheader.page_segments, 1);
 	read_size = m_archive->Read(m_vheader.segment_table, m_vheader.page_segments);
@@ -172,9 +172,9 @@ u32 COgg::ReadHeader(const u8* buf)
 	memcpy(m_vheader.pattern, &buf[0], 4);
 	m_vheader.version = buf[4];
 	m_vheader.type = buf[5];
-	memcpy(m_vheader.granpos, &buf[6], 8);
-	memcpy(&m_vheader.serialno, &buf[14], sizeof(u32));
-	memcpy(&m_vheader.pageno, &buf[18], sizeof(u32));
+	memcpy(m_vheader.granule_position, &buf[6], 8);
+	memcpy(&m_vheader.serial_no, &buf[14], sizeof(u32));
+	memcpy(&m_vheader.page_no, &buf[18], sizeof(u32));
 	memcpy(&m_vheader.checksum, &buf[22], sizeof(u32));
 	m_vheader.page_segments = buf[26];
 	memcpy(m_vheader.segment_table, &buf[27], m_vheader.page_segments);
@@ -188,7 +188,7 @@ u32 COgg::ReadHeader(const u8* buf)
 	return m_page_size;
 }
 
-u32 COgg::GetSegSize(const VH& vheader) const
+u32 COgg::GetSegSize(const OggPageHeader& vheader) const
 {
 	u32 segment_size = 0;
 
@@ -198,13 +198,13 @@ u32 COgg::GetSegSize(const VH& vheader) const
 	return segment_size;
 }
 
-u32 COgg::GetPageSize(const VH& vheader) const
+u32 COgg::GetPageSize(const OggPageHeader& vheader) const
 {
 	// Get page size
 	return 27U + vheader.page_segments + GetSegSize(vheader);
 }
 
-u32 COgg::GetPageSize(const VH& vheader, u32 segment_size) const
+u32 COgg::GetPageSize(const OggPageHeader& vheader, u32 segment_size) const
 {
 	return 27U + vheader.page_segments + segment_size;
 }

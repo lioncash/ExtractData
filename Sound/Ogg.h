@@ -5,14 +5,14 @@
 class CArcFile;
 
 #pragma pack(push, 1)
-struct VH
+struct OggPageHeader
 {
 	u8  pattern[4];
 	u8  version;
 	u8  type;
-	u8  granpos[8];
-	u32 serialno;
-	u32 pageno;
+	u8  granule_position[8];
+	u32 serial_no;
+	u32 page_no;
 	u32 checksum;
 	u8  page_segments;
 	u8  segment_table[256];
@@ -34,15 +34,15 @@ public:
 
 	void FixCRC(u8* data, u32 page_size);
 
-	const VH& GetHeader() const { return m_vheader; }
+	const OggPageHeader& GetHeader() const { return m_vheader; }
 
 private:
-	u32 GetSegSize(const VH& vheader) const;
-	u32 GetPageSize(const VH& vheader) const;
-	u32 GetPageSize(const VH& vheader, u32 segment_size) const;
+	u32 GetSegSize(const OggPageHeader& vheader) const;
+	u32 GetPageSize(const OggPageHeader& vheader) const;
+	u32 GetPageSize(const OggPageHeader& vheader, u32 segment_size) const;
 
 	CArcFile* m_archive = nullptr;
-	VH m_vheader{};
+  OggPageHeader m_vheader{};
 	u32 m_segment_size = 0;
 	u32 m_page_size = 0;
 };
