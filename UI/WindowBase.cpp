@@ -3,9 +3,7 @@
 
 #include "Common.h"
 
-CWindowBase::CWindowBase()
-{
-}
+CWindowBase::CWindowBase() = default;
 
 CWindowBase::~CWindowBase()
 {
