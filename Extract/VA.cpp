@@ -174,10 +174,7 @@ int CVA::GetBits(u8*& data, int& shift, int bits)
 
 bool CVA::Decode(CArcFile* archive)
 {
-	if (DecodeNwa(archive))
-		return true;
-
-	return false;
+  return DecodeNwa(archive);
 }
 
 // Function to convert to WAV for extraction
