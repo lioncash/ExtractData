@@ -3,6 +3,16 @@
 
 #include "ArcFile.h"
 
+namespace
+{
+struct FileInfo
+{
+  u32 start;
+  u32 size;
+  TCHAR dummy[20];
+};
+} // Anonymous namespace
+
 bool CSpitan::Mount(CArcFile* archive)
 {
 	if (MountSound(archive))
