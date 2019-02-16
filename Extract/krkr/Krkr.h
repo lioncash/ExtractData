@@ -10,44 +10,6 @@ public:
 	bool Extract(CArcFile* archive) override;
 
 protected:
-	// File chunk
-	struct FileChunk
-	{
-		u8  name[4];
-		u64 size;
-	};
-
-	// Info chunk
-	struct InfoChunk
-	{
-		u8  name[4];
-		u64 size;
-		u32 protect;    // (1 << 31) : protected
-		u64 orgSize;
-		u64 arcSize;
-		u16 nameLen;
-		wchar_t* filename; // length : nameLen, Unicode
-	};
-
-	// Segment Chunk
-	struct SegmChunk
-	{
-		u8  name[4];
-		u64 size;
-		u32 comp;       // 1 : compressed
-		u64 start;      // Offset from the beginning of the data archive
-		u64 orgSize;    // original size
-		u64 arcSize;    // archived size
-	};
-
-	// adlr Chunk
-	struct AdlrChunk
-	{
-		u8  name[4];
-		u64 size;
-		u32 key;    // Unique file key
-	};
-
 	//  Check whether or not it can be decoded
 	virtual bool OnCheckDecrypt(CArcFile* archive);
 
