@@ -23,9 +23,9 @@ struct InfoChunk
 	u8  name[4];
 	u64 size;
 	u32 protect;    // (1 << 31) : protected
-	u64 orgSize;
-	u64 arcSize;
-	u16 nameLen;
+	u64 org_size;
+	u64 arc_size;
+	u16 name_len;
 	wchar_t* filename; // length : nameLen, Unicode
 };
 
@@ -36,8 +36,8 @@ struct SegmChunk
 	u64 size;
 	u32 comp;       // 1 : compressed
 	u64 start;      // Offset from the beginning of the data archive
-	u64 orgSize;    // original size
-	u64 arcSize;    // archived size
+	u64 org_size;   // original size
+	u64 arc_size;   // archived size
 };
 
 // adlr Chunk
@@ -172,9 +172,9 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		info_chunk.size     = *reinterpret_cast<const u64*>(&index[i + 4]);
 		info_chunk.protect  = *reinterpret_cast<const u32*>(&index[i + 12]);
-		info_chunk.orgSize  = *reinterpret_cast<const u64*>(&index[i + 16]);
-		info_chunk.arcSize  = *reinterpret_cast<const u64*>(&index[i + 24]);
-		info_chunk.nameLen  = *reinterpret_cast<const u16*>(&index[i + 32]);
+		info_chunk.org_size = *reinterpret_cast<const u64*>(&index[i + 16]);
+		info_chunk.arc_size = *reinterpret_cast<const u64*>(&index[i + 24]);
+		info_chunk.name_len = *reinterpret_cast<const u16*>(&index[i + 32]);
 		info_chunk.filename = reinterpret_cast<wchar_t*>(&index[i + 34]);
 
 		if (memcmp(info_chunk.name, "info", 4) != 0)
@@ -204,15 +204,15 @@ bool CKrkr::Mount(CArcFile* archive)
 
 		for (u64 j = 0; j < segm_count; j++)
 		{
-			segm_chunk.comp    = *reinterpret_cast<const u32*>(&index[i]);
-			segm_chunk.start   = *reinterpret_cast<const u64*>(&index[i + 4]) + offset;
-			segm_chunk.orgSize = *reinterpret_cast<const u64*>(&index[i + 12]);
-			segm_chunk.arcSize = *reinterpret_cast<const u64*>(&index[i + 20]);
+			segm_chunk.comp     = *reinterpret_cast<const u32*>(&index[i]);
+			segm_chunk.start    = *reinterpret_cast<const u64*>(&index[i + 4]) + offset;
+			segm_chunk.org_size = *reinterpret_cast<const u64*>(&index[i + 12]);
+			segm_chunk.arc_size = *reinterpret_cast<const u64*>(&index[i + 20]);
 
 			file_info.compress_checks.push_back(segm_chunk.comp);
 			file_info.starts.push_back(segm_chunk.start);
-			file_info.sizes_org.push_back(segm_chunk.orgSize);
-			file_info.sizes_cmp.push_back(segm_chunk.arcSize);
+			file_info.sizes_org.push_back(segm_chunk.org_size);
+			file_info.sizes_cmp.push_back(segm_chunk.arc_size);
 
 			i += 28;
 		}
@@ -239,9 +239,9 @@ bool CKrkr::Mount(CArcFile* archive)
 		}
 
 		// Store and show the stucture in a listview
-		file_info.name.Copy(info_chunk.filename, info_chunk.nameLen);
-		file_info.size_org = info_chunk.orgSize;
-		file_info.size_cmp = info_chunk.arcSize;
+		file_info.name.Copy(info_chunk.filename, info_chunk.name_len);
+		file_info.size_org = info_chunk.org_size;
+		file_info.size_cmp = info_chunk.arc_size;
 		file_info.start = file_info.starts[0];
 		file_info.end = file_info.start + file_info.size_cmp;
 
