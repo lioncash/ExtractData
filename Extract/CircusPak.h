@@ -11,28 +11,6 @@ public:
 private:
 	using DecryptionFunction = void(*)(u8*, size_t, const u8*);
 
-	struct PakFileInfoType1
-	{
-		char file_name[24];
-		u32  offset;
-		u32  compressed_file_size;
-	};
-
-	struct PakFileInfoType2
-	{
-		char file_name[32];
-		u32  offset;
-		u32  compressed_file_size;
-	};
-
-	struct PakFileInfoType3
-	{
-		wchar_t file_name[32];
-		u32     file_size;
-		u32     compressed_file_size;
-		u32     offset;
-	};
-
 	bool MountPakForKujiraCons(CArcFile* archive);
 	bool MountPakForKujira(CArcFile* archive);
 	bool MountPakForACDC(CArcFile* archive);

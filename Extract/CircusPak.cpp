@@ -6,6 +6,31 @@
 #include "Image.h"
 #include "Image/Tga.h"
 
+namespace
+{
+struct PakFileInfoType1
+{
+	char file_name[24];
+	u32  offset;
+	u32  compressed_file_size;
+};
+
+struct PakFileInfoType2
+{
+	char file_name[32];
+	u32  offset;
+	u32  compressed_file_size;
+};
+
+struct PakFileInfoType3
+{
+	wchar_t file_name[32];
+	u32     file_size;
+	u32     compressed_file_size;
+	u32     offset;
+};
+} // Anonymous namespace
+
 /// Mounting
 ///
 /// @param archive Archive
