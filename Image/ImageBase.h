@@ -10,12 +10,6 @@ class CArcFile;
 class CImageBase
 {
 public:
-	enum
-	{
-		BMP = 0,
-		PNG
-	};
-
 	union UPixel
 	{
 		u8  color_rgba[4];
