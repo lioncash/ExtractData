@@ -10,12 +10,6 @@ class CArcFile;
 class CImageBase
 {
 public:
-	union UPixel
-	{
-		u8  color_rgba[4];
-		u32 color = 0;
-	};
-
 	CImageBase();
 	virtual ~CImageBase();
 
@@ -45,6 +39,12 @@ public:
 	void WriteFinish();
 
 protected:
+  union UPixel
+  {
+    u8  color_rgba[4];
+    u32 color = 0;
+  };
+
 	static s32 CalculatePitch(s32 width, u16 bpp);
 
 	bool IsRequireAlphaBlend() const;
